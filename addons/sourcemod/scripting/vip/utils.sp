@@ -149,10 +149,10 @@ UTIL_GetTimeFromStamp(String:sBuffer[], maxlength, iTimeStamp, iClient = LANG_SE
 bool:UTIL_GoToClient(iClient)
 {
 	decl VIP_AuthType:AuthType;
-	if(GetTrieValue(g_hFeatures[iClient], "AuthType", AuthType))
+	if(GetTrieValue(g_hFeatures[iClient], KEY_AUTHTYPE, AuthType))
 	{
 		decl iClientID;
-		if(GetTrieValue(g_hFeatures[iClient], "ClientID", iClientID))
+		if(GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID))
 		{
 			KvRewind(g_hUsers);
 			switch(AuthType)

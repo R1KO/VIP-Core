@@ -9,6 +9,16 @@ public OnConfigsExecuted()
 	}
 }
 
+public Action:VIPAdmin_CMD(iClient, args)
+{
+	if(iClient)
+	{
+		DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
+	}
+
+	return Plugin_Handled;
+}
+
 public Action:ReloadVIPPlayers_CMD(iClient, args)
 {
 	if(iClient && !(GetUserFlagBits(iClient) & g_CVAR_iAdminFlag))
@@ -39,7 +49,6 @@ public Action:ReloadVIPCfg_CMD(iClient, args)
 
 public Action:AddVIP_CMD(iClient, args)
 {
-//	LogMessage("AddVIP_CMD: UserFlagBits = %b,  iAdminFlag = %b", GetUserFlagBits(iClient), g_CVAR_iAdminFlag);
 	if(iClient && !(GetUserFlagBits(iClient) & g_CVAR_iAdminFlag))
 	{
 		ReplyToCommand(iClient, "[VIP] %t", "COMMAND_NO_ACCESS");
@@ -111,91 +120,6 @@ public Action:AddVIP_CMD(iClient, args)
 	return Plugin_Handled;
 }
 
-/*
-public Action:AddVIP_CMD(iClient, args)
-{
-	if(args < 2)
-	{
-		ReplyToCommand(iClient, "%t!\nSyntax: sm_addvip <identity type> <name|#userid|identity> [time] [group]", "INCORRECT_USAGE");
-		return Plugin_Handled;
-	}
-	
-	decl String:sIdentityType[20], VIP_AuthType:AuthType;
-	GetCmdArg(1, sIdentityType, sizeof(sIdentityType));
-
-	if(!strcmp(sIdentityType, "steam"))		AuthType = AUTH_STEAM;
-	else if(!strcmp(sIdentityType, "ip"))		AuthType = AUTH_IP;
-	else if(!strcmp(sIdentityType, "name"))	AuthType = AUTH_NAME;
-	else
-	{
-		ReplyToCommand(iClient, "%t", "INCORRECT_ID");
-		return Plugin_Handled;
-	}
-
-	decl String:sIdentity[MAX_NAME_LENGTH], iTarget;
-	GetCmdArg(2, sIdentity, sizeof(sIdentity));
-	
-	iTarget = FindTarget(iClient, sIdentity, true, false);
-	if(iTarget == -1)
-	{
-		iTarget = 0;
-		if((AuthType == AUTH_STEAM && strncmp(sIdentity, "STEAM_", 6, true) != 0) || (AuthType == AUTH_IP && UTIL_SearchCharInString(sIdentity, '.') != 3))
-		{
-			ReplyToCommand(iClient, "%t", "FIND_THE_ID_FAIL");
-			return Plugin_Handled;
-		}
-		//
-			ReplyToCommand(iClient, "[VIP] %t", "No matching client");
-			return Plugin_Handled;
-		//
-	} else if(g_iClientInfo[iTarget] & IS_VIP || g_iClientInfo[iTarget] & IS_AUTHORIZED)
-	{
-		ReplyToCommand(iClient, "%t", "ALREADY_HAS_VIP");
-		return Plugin_Handled;
-	}
-
-	decl String:sGroup[64], iTime;
-	sGroup[0] = '\0';
-	iTime = 0;
-	if(args > 2)
-	{
-		GetCmdArg(3, sGroup, sizeof(sGroup));
-		StringToIntEx(sGroup, iTime);
-		if(iTime < 0)
-		{
-			ReplyToCommand(iClient, "%t", "INCORRECT_TIME");
-			return Plugin_Handled;
-		}
-	}
-
-	if(args > 3)
-	{
-		GetCmdArg(4, sGroup, sizeof(sGroup));
-		if(sGroup[0] && UTIL_CheckValidVIPGroup(sGroup) == false)
-		{
-			ReplyToCommand(iClient, "%t", "VIP_GROUP_DOES_NOT_EXIST");
-			return Plugin_Handled;
-		}
-	}
-
-	UTIL_ADD_VIP_PLAYER(iClient, iTarget, sIdentity, UTIL_TimeToSeconds(iTime), AuthType, sGroup);
-
-	return Plugin_Handled;
-}
-
-*/
-
-/*
-bool:IsStringNumeric(const String:sBuffer[])
-{
-	for (new i = 0, iLen = strlen(sBuffer); i < iLen; ++i)
-	{
-		if(IsCharNumeric(sBuffer[i]) == false) return false;
-	}
-
-	return true;
-}
-*/
 public Action:DelVIP_CMD(iClient, args)
 {
 	if(iClient && !(GetUserFlagBits(iClient) & g_CVAR_iAdminFlag))
@@ -274,13 +198,12 @@ public Action:VIPMenu_CMD(iClient, args)
 			}
 			else
 			{
-				if(g_CVAR_iInfoShowMode != 1)
-				{
-					PrintToChat(iClient, "%t%t", "VIP_CHAT_PREFIX", "COMMAND_NO_ACCESS");
-				}
+				/*
+				PrintToChat(iClient, "%t%t", "VIP_CHAT_PREFIX", "COMMAND_NO_ACCESS");
+				*/
 
 				PlaySound(iClient, NO_ACCESS_SOUND);
-				ShowClientInfo(iClient, INFO_NO_ACCESS);
+				DisplayClientInfo(iClient, "no_access_info");
 			}
 		}
 	}

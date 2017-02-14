@@ -42,13 +42,13 @@ public MenuHandler_DeleteVipPlayerMenu(Handle:hMenu, MenuAction:action, iClient,
 				{
 					ResetClient(iTarget);
 					CreateForward_OnVIPClientRemoved(iTarget, "Removed by Admin");
-					ShowClientInfo(iTarget, INFO_EXPIRED);
+					DisplayClientInfo(iTarget, "expired_info");
 				}
 
 				ReplyToCommand(iClient, "%t", "ADMIN_VIP_IDENTITY_DELETED", sBuffer);
 				if(g_CVAR_bLogsEnable) LogToFile(g_sLogFile, "%T", "LOG_ADMIN_VIP_IDENTITY_DELETED", iClient, iClient, sBuffer);
 			}
-			DisplayTopMenu(g_hTopMenu, iClient, TopMenuPosition_LastCategory);
+			DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
 		}
 	}
 }

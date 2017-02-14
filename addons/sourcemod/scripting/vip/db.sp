@@ -126,11 +126,11 @@ CreateTables()
 																		`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
 																		`auth` VARCHAR(32) UNIQUE NOT NULL, \
 																		`name` VARCHAR(64) NOT NULL default 'unknown', \
-																		`auth_type` INTEGER UNSIGNED NOT NULL default '0', \
+																		`auth_type` INTEGER NOT NULL default '0', \
 																		`pass_key` VARCHAR(64) default NULL, \
 																		`password` VARCHAR(64) default NULL, \
 																		`group` VARCHAR(64) default NULL, \
-																		`expires` INTEGER UNSIGNED NOT NULL default '0');");
+																		`expires` INTEGER NOT NULL default '0');");
 	}
 //			`ip` VARCHAR(32) default NULL, 
 	SQL_UnlockDatabase(g_hDatabase);
@@ -181,13 +181,30 @@ DB_UpdateClientName(iClient)
 {
 	SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
 
-	decl String:sQuery[256], String:sName[MAX_NAME_LENGTH*2+1], iClientID;
-	GetTrieValue(g_hFeatures[iClient], "ClientID", iClientID);
-	GetClientName(iClient, sQuery, sizeof(sQuery));
-	SQL_EscapeString(g_hDatabase, sQuery, sName, sizeof(sName));
+	decl Handle:hStmt, String:sError[256];
 
-	FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `name` = '%s' WHERE `id` = '%i';", sName, iClientID);
-	SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, sQuery);
+	hStmt = SQL_PrepareQuery(g_hDatabase, "UPDATE `vip_users` SET `name` = ? WHERE `id` = ?;", SZF(sError));
+	if (hStmt != INVALID_HANDLE)
+	{
+		decl String:sName[MAX_NAME_LENGTH], iClientID;
+		GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID);
+		GetClientName(iClient, SZF(sName));
+
+		SQL_BindParamString(hStmt, 0, sName, false);	
+		SQL_BindParamInt(hStmt, 1, iClientID, false);
+
+		if (!SQL_Execute(hStmt))
+		{
+			SQL_GetError(hStmt, SZF(sError));
+			LogError("[VIP Core] Fail SQL_Execute: %s", sError);
+		}
+
+		CloseHandle(hStmt);
+	}
+	else
+	{
+		LogError("[VIP Core] Fail SQL_PrepareQuery: %s", sError);
+	}
 }
 
 DB_RemoveClientFromID(iClient = 0, iClientID, bool:bNotify)

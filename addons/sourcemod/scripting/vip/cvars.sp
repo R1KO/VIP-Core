@@ -14,11 +14,7 @@ CreateCvars()
 	hCvar = CreateConVar("sm_vip_server_id", "0", "ID сервера при приспользовании MySQL базы данных", _, true, 0.0);
 	HookConVarChange(hCvar, OnServerIDChange);
 	g_CVAR_iServerID = GetConVarInt(hCvar);
-	
-	hCvar = CreateConVar("sm_vip_info_show_mode", "1", "Куда выводить информацию из информационных файлов (0 - Чат, 1 - Меню, 2 - MOTD окно)", _, true, 0.0, true, 2.0);
-	HookConVarChange(hCvar, OnInfoShowModeChange);
-	g_CVAR_iInfoShowMode = GetConVarInt(hCvar);
-	
+
 	hCvar = CreateConVar("sm_vip_auto_open_menu", "0", "Автоматически открывать VIP-меню при входе (0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
 	HookConVarChange(hCvar, OnAutoOpenMenuChange);
 	g_CVAR_bAutoOpenMenu = GetConVarBool(hCvar);
@@ -57,7 +53,7 @@ CreateCvars()
 public OnAdminFlagChange(Handle:hCvar, const String:oldValue[], const String:newValue[])
 {
 	g_CVAR_iAdminFlag = UTIL_GetConVarAdminFlag(hCvar);
-	
+	/*
 	if(VIPAdminMenuObject != INVALID_TOPMENUOBJECT && g_hTopMenu != INVALID_HANDLE)
 	{
 		RemoveFromTopMenu(g_hTopMenu, VIPAdminMenuObject);
@@ -65,10 +61,10 @@ public OnAdminFlagChange(Handle:hCvar, const String:oldValue[], const String:new
 	}
 
 	AddItemsToTopMenu();
+	*/
 }
 
 public OnServerIDChange(Handle:hCvar, const String:oldValue[], const String:newValue[])					g_CVAR_iServerID = GetConVarInt(hCvar);
-public OnInfoShowModeChange(Handle:hCvar, const String:oldValue[], const String:newValue[])				g_CVAR_iInfoShowMode = GetConVarInt(hCvar);
 public OnAutoOpenMenuChange(Handle:hCvar, const String:oldValue[], const String:newValue[])				g_CVAR_bAutoOpenMenu = GetConVarBool(hCvar);
 public OnTimeModeChange(Handle:hCvar, const String:oldValue[], const String:newValue[])					g_CVAR_iTimeMode = GetConVarInt(hCvar);
 public OnDeleteExpiredChange(Handle:hCvar, const String:oldValue[], const String:newValue[])			g_CVAR_iDeleteExpired = GetConVarInt(hCvar);

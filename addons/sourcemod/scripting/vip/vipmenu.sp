@@ -45,11 +45,11 @@ ResortFeaturesArray()
 	decl i, x, iSize, index, String:sItemInfo[128];
 	iSize = GetArraySize(g_hSortArray);
 
-	/*PrintArray(g_hSortArray);
-
+	#if DEBUG_MODE 1
+	PrintArray(g_hSortArray);
 	PrintArray(GLOBAL_ARRAY);
-	*/
-	
+	#endif
+
 	x = 0;
 	for(i = 0; i < iSize; ++i)
 	{
@@ -63,15 +63,18 @@ ResortFeaturesArray()
 			{
 				DebugMessage("SwapArrayItems")
 				SwapArrayItems(GLOBAL_ARRAY, index, x);
-			//	PrintArray(GLOBAL_ARRAY);
+				#if DEBUG_MODE 1
+				PrintArray(GLOBAL_ARRAY);
+				#endif
 			}
 
 			++x;
 		}
 	}
 }
-/*
-PrintArray(&Handle:hArray)
+
+#if DEBUG_MODE 1
+stock PrintArray(&Handle:hArray)
 {
 	DebugMessage("PrintArray")
 	decl i, iSize, String:sItemInfo[128];
@@ -84,117 +87,51 @@ PrintArray(&Handle:hArray)
 			DebugMessage("%i: %s", i, sItemInfo)
 		}
 	}
-}*/
-
-/*
-
-InitializeVIPMenu()
-{
-	DebugMessage("CreateVIPMenu")
-
-	RemoveAllMenuItems(g_hVIPMenu);
-
-	decl String:sItemInfo[128],
-		Handle:hBuffer,
-		Handle:hMenuArray,
-		iSize,
-		index,
-		i;
-
-	hMenuArray = CreateArray(ByteCountToCells(FEATURE_NAME_LENGTH));
-	hBuffer = OpenFile("addons/sourcemod/data/vip/cfg/sort_menu.ini", "r");
-	if(hBuffer != INVALID_HANDLE)
-	{
-		while (!IsEndOfFile(hBuffer) && ReadFileLine(hBuffer, sItemInfo, sizeof(sItemInfo)))
-		{
-			TrimString(sItemInfo);
-
-			if(FindStringInArray(hMenuArray, sItemInfo) == -1 && FindStringInArray(GLOBAL_ARRAY, sItemInfo) != -1)
-			{
-				PushArrayString(hMenuArray, sItemInfo);
-			}
-		}
-		CloseHandle(hBuffer);
-	}
-
-	iSize = GetArraySize(GLOBAL_ARRAY);
-	if(iSize)
-	{
-		for(i=0; i < iSize; i++)
-		{
-			GetArrayString(GLOBAL_ARRAY, i, sItemInfo, sizeof(sItemInfo));
-			if(GetTrieValue(GLOBAL_TRIE, sItemInfo, hBuffer))
-			{
-				if(VIP_FeatureType:GetArrayCell(hBuffer, FEATURES_ITEM_TYPE) == HIDE)
-				{
-					if((index = FindStringInArray(hMenuArray, sItemInfo)) != -1)
-					{
-						RemoveFromArray(hMenuArray, index);
-					}
-				}
-				else
-				{
-					if(FindStringInArray(hMenuArray, sItemInfo) == -1)
-					{
-						PushArrayString(hMenuArray, sItemInfo);
-					}
-				}
-			}
-		}
-	}
-
-	sItemInfo[0] = 0;
-	iSize = GetArraySize(hMenuArray);
-	if(iSize)
-	{
-		for(i=0; i < iSize; i++)
-		{
-			GetArrayString(hMenuArray, i, sItemInfo, sizeof(sItemInfo));
-			AddMenuItem(g_hVIPMenu, sItemInfo, sItemInfo);
-		}
-	}
-
-	CloseHandle(hMenuArray);
-
-	if(sItemInfo[0] == 0)
-	{
-		FormatEx(sItemInfo, sizeof(sItemInfo), "%T", "NO_FEATURES", LANG_SERVER);
-		AddMenuItem(g_hVIPMenu, "NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
-	}
-
-
-//	CreateForward_OnClientVIPMenuCreated(iClient, g_hVIPMenu);
 }
-*/
+#endif
+
 public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 {
-	static String:sItemInfo[FEATURE_NAME_LENGTH], Handle:hBuffer;
+	static String:sItemInfo[FEATURE_NAME_LENGTH], Handle:hBuffer, Function:Function_Call, Handle:hPlugin;
+	/*
 	switch(action)
 	{
-		case MenuAction_Display:
+		case MenuAction_Display, MenuAction_DrawItem, MenuAction_DisplayItem, MenuAction_Select:
 		{
 			if(!(g_iClientInfo[iClient] & IS_VIP))
 			{
 				CancelMenu(g_hVIPMenu);
-				ShowClientInfo(iClient, INFO_EXPIRED);
+				DisplayClientInfo(iClient, "expired_info");
 				return 0;
 			}
+		}
+	}
+	*/
+	switch(action)
+	{
+		case MenuAction_Cancel:
+		{
+			UNSET_BIT(g_iClientInfo[iClient], IS_MENU_OPEN);
+		}
+		case MenuAction_Display:
+		{
+			SET_BIT(g_iClientInfo[iClient], IS_MENU_OPEN);
 
 			DebugMessage("MenuAction_Display: Client: %i", iClient)
 			decl String:sTitle[256], iExp;
-			if(GetTrieValue(g_hFeatures[iClient], "expires", iExp) && iExp > 0)
+			if(GetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iExp) && iExp > 0)
 			{
 				decl iTime;
 				if((iTime = GetTime()) < iExp)
 				{
-					decl String:sExpired[64];
-					UTIL_GetTimeFromStamp(sExpired, sizeof(sExpired), iExp-iTime, iClient);
-					FormatEx(sTitle, sizeof(sTitle), "%T\n \n%T: %s\n \n", "VIP_MENU_TITLE", iClient, "EXPIRES_IN", iClient, sExpired);
+					decl String:sExpires[64];
+					UTIL_GetTimeFromStamp(sExpires, sizeof(sExpires), iExp-iTime, iClient);
+					FormatEx(sTitle, sizeof(sTitle), "%T\n \n%T: %s\n \n", "VIP_MENU_TITLE", iClient, "EXPIRES_IN", iClient, sExpires);
 				}
 				else
 				{
 				//	FakeClientCommand(iClient, "menuselect 0");
-					ShowClientInfo(iClient, INFO_EXPIRED);
+					DisplayClientInfo(iClient, "expired_info");
 					Clients_ExpiredClient(iClient);
 					return 0;
 				}
@@ -209,14 +146,7 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 
 		case MenuAction_DrawItem:
 		{
-			if(!(g_iClientInfo[iClient] & IS_VIP))
-			{
-				CancelMenu(g_hVIPMenu);
-				ShowClientInfo(iClient, INFO_EXPIRED);
-				return 0;
-			}
-
-			static iStyle;
+			decl iStyle;
 			GetMenuItem(g_hVIPMenu, iOption, sItemInfo, sizeof(sItemInfo), iStyle);
 
 			DebugMessage("MenuAction_DrawItem: Client: %i, Feature: %s, iStyle: %i", iClient, sItemInfo, iStyle)
@@ -229,16 +159,20 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 					DebugMessage("NO_ACCESS -> iStyle: %i", iStyle)
 				}
 
-				static Function:Function_Draw;
-				Function_Draw = Function:GetArrayCell(hBuffer, FEATURES_ITEM_DRAW);
-				if (Function_Draw != INVALID_FUNCTION)
+				Function_Call = Function:GetArrayCell(hBuffer, FEATURES_ITEM_DRAW);
+				if (Function_Call != INVALID_FUNCTION)
 				{
-					Call_StartFunction(Handle:GetArrayCell(hBuffer, FEATURES_PLUGIN), Function_Draw);
-					Call_PushCell(iClient);
-					Call_PushString(sItemInfo);
-					Call_PushCell(iStyle);
-					Call_Finish(iStyle);
-					DebugMessage("Function_Draw -> iStyle: %i", iStyle)
+					hPlugin = Handle:GetArrayCell(hBuffer, FEATURES_PLUGIN);
+					DebugMessage("GetPluginStatus = %i", GetPluginStatus(hPlugin))
+					if(GetPluginStatus(hPlugin) == Plugin_Running)
+					{
+						Call_StartFunction(hPlugin, Function_Call);
+						Call_PushCell(iClient);
+						Call_PushString(sItemInfo);
+						Call_PushCell(iStyle);
+						Call_Finish(iStyle);
+						DebugMessage("Function_Draw -> iStyle: %i", iStyle)
+					}
 				}
 			}
 
@@ -249,40 +183,36 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 		
 		case MenuAction_DisplayItem:
 		{
-			if(!(g_iClientInfo[iClient] & IS_VIP))
-			{
-				CancelMenu(g_hVIPMenu);
-				ShowClientInfo(iClient, INFO_EXPIRED);
-				return 0;
-			}
-
 			GetMenuItem(g_hVIPMenu, iOption, sItemInfo, sizeof(sItemInfo));
 			
 			DebugMessage("MenuAction_DisplayItem: Client: %i, Feature: %s", iClient, sItemInfo)
 
-			static String:sDisplay[128];
+			decl String:sDisplay[128];
 
 			if(GetTrieValue(GLOBAL_TRIE, sItemInfo, hBuffer))
 			{
-				static Function:Function_Display;
-
-				Function_Display = Function:GetArrayCell(hBuffer, FEATURES_ITEM_DISPLAY);
-				if (Function_Display != INVALID_FUNCTION)
+				Function_Call = Function:GetArrayCell(hBuffer, FEATURES_ITEM_DISPLAY);
+				if (Function_Call != INVALID_FUNCTION)
 				{
-					sDisplay[0] = 0;
-					decl bool:bResult;
-					Call_StartFunction(Handle:GetArrayCell(hBuffer, FEATURES_PLUGIN), Function_Display);
-					Call_PushCell(iClient);
-					Call_PushString(sItemInfo);
-					Call_PushStringEx(sDisplay, sizeof(sDisplay), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
-					Call_PushCell(sizeof(sDisplay));
-					Call_Finish(bResult);
-					
-					DebugMessage("Function_Display: bResult: %b", bResult)
-					
-					if(bResult == true)
+					hPlugin = Handle:GetArrayCell(hBuffer, FEATURES_PLUGIN);
+					DebugMessage("GetPluginStatus = %i", GetPluginStatus(hPlugin))
+					if(GetPluginStatus(hPlugin) == Plugin_Running)
 					{
-						return RedrawMenuItem(sDisplay);
+						sDisplay[0] = 0;
+						decl bool:bResult;
+						Call_StartFunction(hPlugin, Function_Call);
+						Call_PushCell(iClient);
+						Call_PushString(sItemInfo);
+						Call_PushStringEx(sDisplay, sizeof(sDisplay), SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+						Call_PushCell(sizeof(sDisplay));
+						Call_Finish(bResult);
+						
+						DebugMessage("Function_Display: bResult: %b", bResult)
+						
+						if(bResult == true)
+						{
+							return RedrawMenuItem(sDisplay);
+						}
 					}
 				}
 
@@ -292,13 +222,6 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 					return RedrawMenuItem(sDisplay);
 				}
 
-				/*
-				if(VIP_ValueType:GetArrayCell(hBuffer, FEATURES_VALUE_TYPE) != VIP_NULL &&
-				Features_GetStatus(iClient, sItemInfo) == NO_ACCESS))
-				{
-					
-				}
-				*/
 				FormatEx(sDisplay, sizeof(sDisplay), "%T", sItemInfo, iClient);
 
 				return RedrawMenuItem(sDisplay);
@@ -313,29 +236,23 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 		
 		case MenuAction_Select:
 		{
-			if(!(g_iClientInfo[iClient] & IS_VIP))
-			{
-				CancelMenu(g_hVIPMenu);
-				ShowClientInfo(iClient, INFO_EXPIRED);
-				return 0;
-			}
-
 			GetMenuItem(g_hVIPMenu, iOption, sItemInfo, sizeof(sItemInfo));
 
 			if(GetTrieValue(GLOBAL_TRIE, sItemInfo, hBuffer))
 			{
 				DebugMessage("MenuAction_Select: Client: %i, Feature: %s", iClient, sItemInfo)
 
-				static Function:Function_Select;
-				Function_Select = Function:GetArrayCell(hBuffer, FEATURES_ITEM_SELECT);
+				Function_Call = Function:GetArrayCell(hBuffer, FEATURES_ITEM_SELECT);
+				hPlugin = Handle:GetArrayCell(hBuffer, FEATURES_PLUGIN);
+				DebugMessage("GetPluginStatus = %i", GetPluginStatus(hPlugin))
 				if(VIP_FeatureType:GetArrayCell(hBuffer, FEATURES_ITEM_TYPE) == TOGGLABLE)
 				{
-					static String:sBuffer[4], VIP_ToggleState:OldStatus, VIP_ToggleState:NewStatus;
+					decl String:sBuffer[4], VIP_ToggleState:OldStatus, VIP_ToggleState:NewStatus;
 					OldStatus = Features_GetStatus(iClient, sItemInfo);
 					NewStatus = (OldStatus == ENABLED) ? DISABLED:ENABLED;
-					if(Function_Select != INVALID_FUNCTION)
+					if(Function_Call != INVALID_FUNCTION && GetPluginStatus(hPlugin) == Plugin_Running)
 					{
-						NewStatus = Function_OnItemToggle(Handle:GetArrayCell(hBuffer, FEATURES_PLUGIN), Function_Select, iClient, sItemInfo, OldStatus, NewStatus);
+						NewStatus = Function_OnItemToggle(hPlugin, Function_Call, iClient, sItemInfo, OldStatus, NewStatus);
 					}
 					Features_SetStatus(iClient, sItemInfo, NewStatus);
 					IntToString(_:NewStatus, sBuffer, sizeof(sBuffer));
@@ -343,7 +260,7 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 				}
 				else
 				{
-					if(Function_Select != INVALID_FUNCTION && Function_OnItemSelect(Handle:GetArrayCell(hBuffer, FEATURES_PLUGIN), Function_Select, iClient, sItemInfo) == false)
+					if(Function_Call != INVALID_FUNCTION && GetPluginStatus(hPlugin) == Plugin_Running && Function_OnItemSelect(hPlugin, Function_Call, iClient, sItemInfo) == false)
 					{
 						return 0;
 					}

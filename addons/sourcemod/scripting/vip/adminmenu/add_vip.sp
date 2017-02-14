@@ -17,7 +17,7 @@ ShowAddVIPMenu(iClient)
 					continue;
 				}
 
-				GetTrieValue(g_hFeatures[i], "ClientID", iClientID);
+				GetTrieValue(g_hFeatures[i], KEY_CID, iClientID);
 				if(iClientID != -1)
 				{
 					continue;
@@ -48,7 +48,7 @@ public MenuHandler_AddVip_PlayerList(Handle:hMenu, MenuAction:action, iClient, I
 		case MenuAction_End: CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack && g_hTopMenu != INVALID_HANDLE) DisplayTopMenu(g_hTopMenu, iClient, TopMenuPosition_LastCategory);
+			if(Item == MenuCancel_ExitBack) DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
 		}
 		case MenuAction_Select:
 		{
@@ -157,7 +157,7 @@ public MenuHandler_AddVip_GroupsList(Handle:hMenu, MenuAction:action, iClient, I
 				GetMenuItem(hMenu, Item, sGroup, sizeof(sGroup));
 				UTIL_ADD_VIP_PLAYER(iClient, iTarget, "", GetArrayCell(g_ClientData[iClient], DATA_TIME), VIP_AuthType:GetArrayCell(g_ClientData[iClient], DATA_AUTH_TYPE), sGroup);
 				//CloseHandleEx(g_ClientData[iClient]);
-				DisplayTopMenu(g_hTopMenu, iClient, TopMenuPosition_LastCategory);
+				DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
 			} else VIP_PrintToChatClient(iClient, "%t", "Player no longer available");
 		}
 	}

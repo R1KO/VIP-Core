@@ -24,7 +24,7 @@ ShowVipPlayersListMenu(iClient)
 	{
 		if (IsClientInGame(i) && (g_iClientInfo[i] & IS_VIP) && (g_iClientInfo[i] & IS_AUTHORIZED) && IsFakeClient(i) == false && GetClientName(i, sName, sizeof(sName)))
 		{
-			GetTrieValue(g_hFeatures[i], "ClientID", iClientID);
+			GetTrieValue(g_hFeatures[i], KEY_CID, iClientID);
 			/*if(iClientID == -1)
 			{
 				FormatEx(sUserID, sizeof(sUserID), "uid_%i", UID(i));
@@ -59,7 +59,7 @@ public MenuHandler_VipPlayersListMenu(Handle:hMenu, MenuAction:action, iClient, 
 		case MenuAction_End: CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack && g_hTopMenu != INVALID_HANDLE) DisplayTopMenu(g_hTopMenu, iClient, TopMenuPosition_LastCategory);
+			if(Item == MenuCancel_ExitBack) DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
 		}
 		case MenuAction_Select:
 		{
@@ -449,12 +449,12 @@ ShowTargetTempInfo(iClient, UserID)
 
 	SetMenuExitBackButton(hMenu, true);
 	
-	if(GetTrieString(g_hFeatures[iClient], "vip_group", sGroup, sizeof(sGroup)) == false)	// GROUP
+	if(GetTrieString(g_hFeatures[iClient], KEY_GROUP, sGroup, sizeof(sGroup)) == false)	// GROUP
 	{
 		FormatEx(sGroup, sizeof(sGroup), "%t", "NONE");
 	}
 
-	GetTrieValue(g_hFeatures[iClient], "expires", iExpires);
+	GetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iExpires);
 	if(iExpires > 0)
 	{
 		new iTime = GetTime();

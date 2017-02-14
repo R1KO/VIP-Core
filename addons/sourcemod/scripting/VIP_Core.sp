@@ -3,38 +3,14 @@
 #include <sourcemod>
 #include <vip_core>
 #include <clientprefs>
-
+/*
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
 #define REQUIRE_PLUGIN
-/*
-#undef REQUIRE_PLUGIN
-#tryinclude <updater>
-#define REQUIRE_PLUGIN
-
-#define UPDATE_URL	"http://rikoshop.smoke-project.ru/plugins_update/vip_core/update.txt"
-
-#if defined _updater_included
-public OnLibraryAdded(const String:name[])
-{
-	if (StrEqual(name, "updater", false))
-	{
-		Updater_AddPlugin(UPDATE_URL);
-	}
-}
-#endif
 */
-
-/*
-#undef REQUIRE_EXTENSIONS
-#tryinclude <morecolors>
-#tryinclude <colors>
-#tryinclude <csgo_colors>
-*/
-
 #define DEBUG_MODE 0
 
-#define VIP_VERSION	"2.1.1 R"
+#define VIP_VERSION	"2.1.2 #2 DEV"
 
 public Plugin:myinfo =
 {
@@ -44,9 +20,9 @@ public Plugin:myinfo =
 	url = "http://hlmod.ru"
 };
 
-#if DEBUG_MODE 0
 
-new const String:g_sDebugLogFile[] = "addons/sourcemod/logs/VIP_Debug.log";
+#if DEBUG_MODE 1
+new String:g_sDebugLogFile[PLATFORM_MAX_PATH];
 
 stock DebugMsg(const String:sMsg[], any:...)
 {
@@ -60,9 +36,9 @@ stock DebugMsg(const String:sMsg[], any:...)
 #endif
 
 #include "vip/downloads.sp"
-
 #include "vip/vars.sp"
 #include "vip/utils.sp"
+#include "vip/features.sp"
 #include "vip/sounds.sp"
 #include "vip/info.sp"
 #include "vip/db.sp"
@@ -70,16 +46,15 @@ stock DebugMsg(const String:sMsg[], any:...)
 #include "vip/cvars.sp"
 #include "vip/adminmenu.sp"
 #include "vip/vipmenu.sp"
-#include "vip/forwards.sp"
-#include "vip/natives.sp"
+#include "vip/api.sp"
 #include "vip/cmds.sp"
-#include "vip/features.sp"
 #include "vip/clients.sp"
 
 public OnPluginStart()
 {
-//	LogMessage("OnPluginStart");
-//	g_bIsVIPLoaded = false;
+	#if DEBUG_MODE 0
+	BuildPath(Path_SM, g_sDebugLogFile, sizeof(g_sDebugLogFile), "logs/VIP_Debug.log");
+	#endif
 
 	LoadTranslations("vip_core.phrases");
 	LoadTranslations("vip_modules.phrases");
@@ -88,12 +63,18 @@ public OnPluginStart()
 	g_hHookPlugins = CreateArray();
 	GLOBAL_ARRAY	= CreateArray(ByteCountToCells(FEATURE_NAME_LENGTH));
 	GLOBAL_TRIE	= CreateTrie();
-	GLOBAL_INFO_ARRAY = CreateArray();
 	ReadConfigs();
 
-	g_hVIPMenu = CreateMenu(Handler_VIPMenu, MenuAction_Start|MenuAction_Display|MenuAction_Select|MenuAction_DisplayItem|MenuAction_DrawItem);
+	g_hVIPMenu = CreateMenu(Handler_VIPMenu, MenuAction_Start|MenuAction_Display|MenuAction_Cancel|MenuAction_Select|MenuAction_DisplayItem|MenuAction_DrawItem);
 
 	AddMenuItem(g_hVIPMenu, "NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
+	
+	g_hVIPAdminMenu = CreateMenu(Handler_VIPAdminMenu, MenuAction_Display|MenuAction_Select|MenuAction_DisplayItem);
+
+	AddMenuItem(g_hVIPAdminMenu, "", "vip_add");
+	AddMenuItem(g_hVIPAdminMenu, "", "vip_list");
+	AddMenuItem(g_hVIPAdminMenu, "", "vip_reload_players");
+	AddMenuItem(g_hVIPAdminMenu, "", "vip_reload_settings");
 
 	CreateCvars();
 	CreateForwards();
@@ -105,6 +86,8 @@ public OnPluginStart()
 
 	AddCommandListener(Command_Say, "say");
 	AddCommandListener(Command_Say, "say_team");
+
+	RegAdminCmd("sm_vipadmin",			VIPAdmin_CMD, ADMFLAG_ROOT);
 	
 	RegConsoleCmd("sm_refresh_vips",	ReloadVIPPlayers_CMD);
 	RegConsoleCmd("sm_reload_vip_cfg",	ReloadVIPCfg_CMD);
@@ -112,33 +95,20 @@ public OnPluginStart()
 	RegConsoleCmd("sm_delvip",			DelVIP_CMD);
 
 	g_GameType = UTIL_GetGameType();
-
+/*
 	if(LibraryExists("adminmenu"))
 	{
 		decl Handle:hTopMenu;
-		hTopMenu = GetAdminTopMenu();
-		if(hTopMenu != INVALID_HANDLE)
+		if((hTopMenu = GetAdminTopMenu()))
 		{
 			OnAdminMenuReady(hTopMenu);
 		}
-	}
-	
-//	DB_OnPluginStart();
+	}*/
 }
 
 public OnAllPluginsLoaded()
 {
-//	LogMessage("OnAllPluginsLoaded");
 	DB_OnPluginStart();
-	
-	/*
-	#if defined _updater_included
-	if (LibraryExists("updater"))
-	{
-		Updater_AddPlugin(UPDATE_URL);
-	}
-	#endif
-	*/
 }
 
 public Action:Command_Say(iClient, const String:sCommand[], iArgs)
@@ -166,30 +136,7 @@ public Action:Command_Say(iClient, const String:sCommand[], iArgs)
 
 			return Plugin_Handled;
 		}
-
-		/*
-		if(strcmp(sText, "vip", false) == 0 ||
-		strcmp(sText, "vipmenu", false) == 0 ||
-		strcmp(sText, "вип", false) == 0)
-		{
-			VIPMenu_CMD(iClient, 0);
-		}
-		*/
 	}
 
 	return Plugin_Continue;
 }
-
-/*
-public OnRebuildAdminCache(AdminCachePart:part)
-{
-	for (new iClient = 1; iClient <= MaxClients; ++iClient)
-	{
-		if (IsClientInGame(iClient) && !IsFakeClient(iClient))
-		{
-			if(CheckCommandAccess(iClient, "vip_admin", g_CVAR_iAdminFlag) == false) CloseHandleEx(g_ClientData[iClient]);
-		}
-	}
-}
-*/
-

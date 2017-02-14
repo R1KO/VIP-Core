@@ -3,17 +3,17 @@
 #endif
 #define _vip_core_included
 
-/* Типы данных VIP-функций*/
+/* Типы данных VIP-функций */
 enum VIP_ValueType
 {
 	VIP_NULL	= 0,	// Нет данных
-	INT,
-	FLOAT,
-	BOOL,
-	STRING
+	INT,				// Целочисленный тип
+	FLOAT,				// Числа с плавающей точкой (Дробные)
+	BOOL,				// Логический тип (1/0)
+	STRING			// Строчный тип
 }
 
-/* Статусы VIP-функций*/
+/* Статусы VIP-функций */
 enum VIP_ToggleState
 {
 	DISABLED = 0,		// Выключено
@@ -21,7 +21,7 @@ enum VIP_ToggleState
 	NO_ACCESS			// Нет доступа
 }
 
-/* Типы VIP-функций*/
+/* Типы VIP-функций */
 enum VIP_FeatureType
 {
 	TOGGLABLE = 0,	// Вкл/Выкл в меню
@@ -29,14 +29,12 @@ enum VIP_FeatureType
 	HIDE				// Скрытый
 }
 
-/*Типы авторизации*/
+/* Типы авторизации */
 enum VIP_AuthType
 {
-	AUTH_STEAM = 0,
-	AUTH_IP,
-	AUTH_NAME,
-	AUTH_GROUP,
-	AUTH_FLAGS
+	AUTH_STEAM = 0,	// Авторизация по SteamID
+	AUTH_GROUP,		// Авторизация по Админ-группе
+	AUTH_FLAGS		// Авторизация по Админ-флагу
 }
 
 funcenum ItemSelectCallback
@@ -158,11 +156,20 @@ native bool:VIP_CheckClient(iClient, bool:bNotify = false);
 native bool:VIP_IsClientVIP(iClient);
 
 /**
+ *	Получает уникальный ID VIP-игрока.
+ *	-
+ * @param iClient			Индекс игрока.
+ *	-
+ * @return	Уникальный ID или -1 если временный.
+*/
+native VIP_GetClientID(iClient);
+
+/**
  *	Получает время окончания VIP-прав у игрока (unix).
  *	-
  * @param iClient			Индекс игрока.
  *	-
- * @return	Дата в unix формате, 0 если права навсегда, -1 если временный.
+ * @return	Дата в unix формате (0 - навсегда, -1 если не удалось получить).
 */
 native VIP_GetClientAccessTime(iClient);
 
@@ -176,18 +183,6 @@ native VIP_GetClientAccessTime(iClient);
  * @return true в случае успеха, иначе false.
 */
 native bool:VIP_SetClientAccessTime(iClient, iTime, bool:bInDB);
-
-/**
- *	Устанавливает пароль VIP-игроку.
- *	-
- * @param iClient			Индекс игрока.
- * @param sPassKey			Ключ пароля.
- * @param sPassword			Пароль.
- * @param bInDBB			Изменять ли в базе данных.
- *	-
- * @return true в случае успеха, иначе false.
-*/
-native bool:VIP_SetClientPassword(iClient, const String:sPassKey[] = "", const String:sPassword[] = "");
 
 /**
  *	Получает VIP-группу игрока.
@@ -281,15 +276,23 @@ native VIP_SendClientVIPMenu(iClient);
 /**
  *	Выдает игроку VIP-права.
  *	-
+ * @param iAdmin			Индекс админа (0 - сервер, -1 - нет инициатора).
  * @param iClient			Индекс игрока.
+ * @param sAuth				Стим игрока (Оставить пустым если передается iClient).
+ * @param sName				Имя игрока (Оставить пустым если передается iClient).
  * @param iTime				Время в секундах.
- * @param AuthType			Тип идентификации (см. VIP_AuthType).
  * @param sGroup			Имя VIP-группы.
- * @param bAddToDB			Добавлять ли в базу данных.
+ * @param bAddToDB			Добавлять ли в базу данных (false доступно только если передается iClient).
  *	-
  * @return true в случае успеха, иначе false.
 */
-native bool:VIP_SetClientVIP(iClient, iTime, VIP_AuthType:AuthType = AUTH_STEAM, const String:sGroup[] = "", bool:bAddToDB);
+native bool:VIP_SetClientVIP(iAdmin = -1,
+								iClient = 0,
+								const String:sAuth[] = "",
+								const String:sName[] = "",
+								iTime,
+								const String:sGroup[] = "",
+								bool:bAddToDB);
 
 /**
  *	Отнимает у игрока VIP-права.
@@ -488,34 +491,9 @@ native bool:VIP_GetTimeFromStamp(String:sBuffer[], iMaxLength, iTimeStamp, iClie
  * @param sFeatureName	Уникальное имя ф-и.
  * @param iClient		Индекс игрока.
  *	-
- * @return	Возвращает индекс игры (см. VIP_GameType).
+ * @noreturn
 */
 native VIP_AddStringToggleStatus(const String:sInput[], String:sBuffer[], iMaxLength, const String:sFeatureName[], iClient);
-
-/**
- *	Вызывается когда игрок возрождается.
- *	-
- * @param iClient			Индекс игрока.
- * @param iTeam				Команда игрока (2 - Т, 3- КТ).
- * @param bIsVIP			Имеет ли игрок VIP-статус.
- *	-
- * @noreturn
- *	-
- * @notes	Будет удалена
-*/
-functag public HookClientSpawnCallback(iClient, iTeam, bool:bIsVIP);
-
-/**
- *	Регистрирует ф-ю возрождения игрока
- *	-
- * @param OnClientSpawn		Обратный вызов.
- *	-
- * @return	Возвращает true в случае если у игрока имеются VIP права, иначе false
- *	-
- * @notes	Будет удалена
-*/
-#pragma deprecated Use VIP_OnPlayerSpawn
-native VIP_HookClientSpawn(HookClientSpawnCallback:OnClientSpawn);
 
 public SharedPlugin:__pl_vip_core= 
 {
@@ -536,15 +514,13 @@ public __pl_vip_SetNTVOptional()
 	MarkNativeAsOptional("VIP_PrintToChatClient");
 	MarkNativeAsOptional("VIP_PrintToChatAll");
 	MarkNativeAsOptional("VIP_LogMessage");
+	MarkNativeAsOptional("VIP_GetClientID");
 	MarkNativeAsOptional("VIP_GetClientVIPGroup");
 	MarkNativeAsOptional("VIP_SetClientVIPGroup");
 	MarkNativeAsOptional("VIP_GetClientAccessTime");
 	MarkNativeAsOptional("VIP_SetClientAccessTime");
-	MarkNativeAsOptional("VIP_SetClientPassword");
 	MarkNativeAsOptional("VIP_GetVIPClientTrie");
 	MarkNativeAsOptional("VIP_GetClientAuthType");
-	MarkNativeAsOptional("VIP_HookClientSpawn");
-	MarkNativeAsOptional("VIP_UnhookClientSpawn");
 	MarkNativeAsOptional("VIP_SendClientVIPMenu");
 	MarkNativeAsOptional("VIP_SetClientVIP");
 	MarkNativeAsOptional("VIP_RemoveClientVIP");

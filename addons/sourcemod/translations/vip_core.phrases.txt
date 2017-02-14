@@ -91,26 +91,6 @@
 		"ru"		"VIP-Игрок успешно добавлен!"
 		"ua"		"VIP-гравець був успішно доданий!"
 	}
-	"WELCOME_MSG_TIME"
-	{
-		"#format"	"{1:N},{2:s}"
-		"en"		"Hello, {1}! You have VIP features for {2}"
-		"fi"		"Hei, {1}! Olet VIP-pelaaja. Sinun VIP status päättyy {2}"
-		"de"		"Hallo, {1}! Ihren VIP-Zugang endet am {2}"
-		"pt_p"		"Olá {1}! Tens acesso aos recursos VIP por {2}"
-		"ru"		"Здравствуйте, {1}! Вы являетесь VIP-игроком. Ваш VIP статус истекает {2}"
-		"ua"		"Привіт, {1}! Ви маєте VIP-статус до {2}"
-	}
-	"WELCOME_MSG_PERM"
-	{
-		"#format"	"{1:N}"
-		"en"		"Hello, {1}! You have  VIP features."
-		"fi"		"Hei, {1}! Olet VIP-pelaaja."
-		"de"		"Hallo, {1}! Sie haben  VIP-zugriff."
-		"pt_p"		"Olá  {1}! Tens acesso aos recursos VIP."
-		"ru"		"Здравствуйте, {1}! Вы являетесь VIP-игроком."
-		"ua"		"Привіт, {1}! Ти маєш VIP функції."
-	}
 	"VIP_PLAYER_CONNECTED"
 	{
 		"#format"	"{1:L}"

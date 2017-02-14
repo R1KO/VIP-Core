@@ -196,7 +196,7 @@ public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const Strin
 	*/
 					CreateForward_OnVIPClientRemoved(iClient, "Expired");
 					
-					ShowClientInfo(iClient, INFO_EXPIRED);
+					DisplayClientInfo(iClient, "expired_info");
 					
 					g_iClientInfo[iClient] |= IS_LOADED;
 					CreateForward_OnClientLoaded(iClient);
@@ -291,7 +291,7 @@ public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const Strin
 					DisplayMenu(g_hVIPMenu, iClient, MENU_TIME_FOREVER);
 				}
 
-				Clients_WelcomeMessage(iClient);
+				DisplayClientInfo(iClient, iExpires == 0 ? "connect_info_perm":"connect_info_time");
 			}
 		}
 		else
@@ -307,22 +307,6 @@ Clients_OnVIPClientLoaded(iClient)
 	CreateForward_OnVIPClientLoaded(iClient);
 
 	Features_TurnOnAll(iClient);
-}
-
-Clients_WelcomeMessage(iClient)
-{
-	decl iExp;
-	GetTrieValue(g_hFeatures[iClient], "expires", iExp);
-	if(iExp == 0)
-	{
-		VIP_PrintToChatClient(iClient, "%t", "WELCOME_MSG_PERM", iClient);
-	}
-	else
-	{
-		decl String:sExpTime[100];
-		FormatTime(sExpTime, sizeof(sExpTime), "%d/%m/%Y - %H:%M", iExp);
-		VIP_PrintToChatClient(iClient, "%t", "WELCOME_MSG_TIME", iClient, sExpTime);
-	}
 }
 
 Clients_CreateClientVIPSettings(iClient, iExp, VIP_AuthType:AuthType = AUTH_STEAM)
@@ -595,7 +579,7 @@ Clients_ExpiredClient(iClient)
 
 	CreateForward_OnVIPClientRemoved(iClient, "Expired");
 
-	ShowClientInfo(iClient, INFO_EXPIRED);
+	DisplayClientInfo(iClient, "expired_info");
 }
 /*
 ShowFakeMenu(iClient)
