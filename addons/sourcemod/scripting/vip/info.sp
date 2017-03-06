@@ -49,6 +49,8 @@ DisplayInfo(iClient, const String:sKey[], const String:sKey2[], String:sBuffer[]
 		case 'm':
 			{
 				DebugMessage("case 'm'")
+				
+				int iTime = KvGetNum(GLOBAL_INFO_KV, "time", 0);
 				if(!KvJumpToKey(GLOBAL_INFO_KV, sClientLang))
 				{
 					if(!KvJumpToKey(GLOBAL_INFO_KV, sServLang))
@@ -91,7 +93,7 @@ DisplayInfo(iClient, const String:sKey[], const String:sKey2[], String:sBuffer[]
 
 					DrawPanelItem(hPanel, "Выход", ITEMDRAW_CONTROL);
 					
-					SendPanelToClient(hPanel, iClient, SelectInfoPanel, 30);
+					SendPanelToClient(hPanel, iClient, SelectInfoPanel, iTime);
 					CloseHandle(hPanel);
 				}
 			}

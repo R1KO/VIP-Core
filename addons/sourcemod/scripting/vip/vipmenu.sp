@@ -21,12 +21,13 @@ AddFeatureToVIPMenu(const String:sFeatureName[])
 
 		RemoveAllMenuItems(g_hVIPMenu);
 
-		decl i, iSize, String:sItemInfo[128], Handle:hArray;
+		decl i, iSize, String:sItemInfo[128];
+		ArrayList hArray;
 		iSize = GetArraySize(GLOBAL_ARRAY);
 		for(i = 0; i < iSize; ++i)
 		{
 			GetArrayString(GLOBAL_ARRAY, i, sItemInfo, sizeof(sItemInfo));
-			if(GetTrieValue(GLOBAL_TRIE, sItemInfo, hArray) && VIP_FeatureType:GetArrayCell(hArray, FEATURES_ITEM_TYPE) != HIDE)
+			if(GetTrieValue(GLOBAL_TRIE, sItemInfo, hArray) && VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) != HIDE)
 			{
 				DebugMessage("AddMenuItem: %s", sItemInfo)
 				AddMenuItem(g_hVIPMenu, sItemInfo, sItemInfo);
@@ -166,10 +167,12 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 					DebugMessage("NO_ACCESS -> iStyle: %i", iStyle)
 				}
 
-				Function_Call = Function:GetArrayCell(hBuffer, FEATURES_ITEM_DRAW);
+				DataPack hDataPack = view_as<DataPack>(GetArrayCell(hBuffer, FEATURES_MENU_CALLBACKS));
+				hDataPack.Position = ITEM_DRAW;
+				Function_Call = hDataPack.ReadFunction();
 				if (Function_Call != INVALID_FUNCTION)
 				{
-					hPlugin = Handle:GetArrayCell(hBuffer, FEATURES_PLUGIN);
+					hPlugin = view_as<Handle>(GetArrayCell(hBuffer, FEATURES_PLUGIN));
 					DebugMessage("GetPluginStatus = %i", GetPluginStatus(hPlugin))
 					if(GetPluginStatus(hPlugin) == Plugin_Running)
 					{
@@ -198,10 +201,12 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 
 			if(GetTrieValue(GLOBAL_TRIE, sItemInfo, hBuffer))
 			{
-				Function_Call = Function:GetArrayCell(hBuffer, FEATURES_ITEM_DISPLAY);
+				DataPack hDataPack = view_as<DataPack>(GetArrayCell(hBuffer, FEATURES_MENU_CALLBACKS));
+				hDataPack.Position = ITEM_DISPLAY;
+				Function_Call = hDataPack.ReadFunction();
 				if (Function_Call != INVALID_FUNCTION)
 				{
-					hPlugin = Handle:GetArrayCell(hBuffer, FEATURES_PLUGIN);
+					hPlugin = view_as<Handle>(GetArrayCell(hBuffer, FEATURES_PLUGIN));
 					DebugMessage("GetPluginStatus = %i", GetPluginStatus(hPlugin))
 					if(GetPluginStatus(hPlugin) == Plugin_Running)
 					{
@@ -249,8 +254,10 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 			{
 				DebugMessage("MenuAction_Select: Client: %i, Feature: %s", iClient, sItemInfo)
 
-				Function_Call = Function:GetArrayCell(hBuffer, FEATURES_ITEM_SELECT);
-				hPlugin = Handle:GetArrayCell(hBuffer, FEATURES_PLUGIN);
+				DataPack hDataPack = view_as<DataPack>(GetArrayCell(hBuffer, FEATURES_MENU_CALLBACKS));
+				hDataPack.Position = ITEM_SELECT;
+				Function_Call = hDataPack.ReadFunction();
+				hPlugin = view_as<Handle>(GetArrayCell(hBuffer, FEATURES_PLUGIN));
 				DebugMessage("GetPluginStatus = %i", GetPluginStatus(hPlugin))
 				if(VIP_FeatureType:GetArrayCell(hBuffer, FEATURES_ITEM_TYPE) == TOGGLABLE)
 				{

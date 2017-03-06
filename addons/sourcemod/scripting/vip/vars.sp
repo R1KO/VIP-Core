@@ -1,4 +1,4 @@
-#define GLOBAL_ARRAY			g_hFeatureStatus[0]
+#define GLOBAL_ARRAY		g_hFeatureStatus[0]
 #define GLOBAL_TRIE			g_hFeatures[0]
 
 #define GLOBAL_INFO_KV		g_ClientData[0]
@@ -9,26 +9,26 @@
 #define CID(%0) 	GetClientOfUserId(%0)
 #define SZF(%0) 	%0, sizeof(%0)
 
-#define SET_BIT(%0,%1) 	%0 |= %1
+#define SET_BIT(%0,%1) 		%0 |= %1
 #define UNSET_BIT(%0,%1) 	%0 &= ~%1
 
 #define IS_VIP						(1<<0)	// VIP ли игрок
 #define IS_AUTHORIZED				(1<<1)	// Авторизирован ли игрок
-#define IS_LOADED						(1<<2)	// Загружен ли игрок
+#define IS_LOADED					(1<<2)	// Загружен ли игрок
 #define IS_WAIT_CHAT_PASS			(1<<3)	// Ожидается ввод пароля в чат
-#define IS_WAIT_CHAT_SEARCH		(1<<4)	// Ожидается ввод значения для поиска в чат
+#define IS_WAIT_CHAT_SEARCH			(1<<4)	// Ожидается ввод значения для поиска в чат
 #define IS_SPAWNED					(1<<5)	// Игрок возродился
-#define IS_MENU_OPEN					(1<<6)	// VIP-меню открыто
+#define IS_MENU_OPEN				(1<<6)	// VIP-меню открыто
 
 #define IS_STARTED					(1<<0)
-#define IS_MySQL						(1<<1)
+#define IS_MySQL					(1<<1)
 #define IS_LOADING					(1<<2)
 
 
 #define	KEY_CID			"ClientID"
 #define	KEY_EXPIRES		"expires"
-#define	KEY_GROUP			"vip_group"
-#define	KEY_AUTHTYPE		"AuthType"
+#define	KEY_GROUP		"vip_group"
+#define	KEY_AUTHTYPE	"AuthType"
 
 enum
 {
@@ -36,11 +36,12 @@ enum
 	FEATURES_VALUE_TYPE,
 	FEATURES_COOKIE,
 	FEATURES_ITEM_TYPE,
-	FEATURES_ITEM_SELECT,
-	FEATURES_ITEM_DISPLAY,
-	FEATURES_ITEM_DRAW,
-	FEATURES_SIZE
+	FEATURES_MENU_CALLBACKS
 }
+
+DataPackPos ITEM_SELECT		= view_as<DataPackPos>(0);
+DataPackPos ITEM_DISPLAY	= view_as<DataPackPos>(9);
+DataPackPos ITEM_DRAW		= view_as<DataPackPos>(18);
 
 enum
 {

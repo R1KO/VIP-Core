@@ -701,42 +701,36 @@ public Native_RegisterFeature(Handle:hPlugin, iNumParams)
 		PushArrayString(GLOBAL_ARRAY, sFeatureName);
 		DebugMessage("PushArrayString -> %i", FindStringInArray(GLOBAL_ARRAY, sFeatureName))
 
-		new Handle:hArray = CreateArray(1, FEATURES_SIZE);
-		SetTrieValue(GLOBAL_TRIE, sFeatureName, hArray);
-		
-		SetArrayCell(hArray, FEATURES_PLUGIN,			hPlugin);
-		SetArrayCell(hArray, FEATURES_VALUE_TYPE,		GetNativeCell(2));
 		new VIP_FeatureType:FType = GetNativeCell(3);
 		DebugMessage("FeatureType -> %i", FType)
-		SetArrayCell(hArray, FEATURES_ITEM_TYPE,		FType);
+
+		ArrayList hArray = CreateArray();
+		SetTrieValue(GLOBAL_TRIE, sFeatureName, hArray);
+		
+		PushArrayCell(hArray,	hPlugin);
+		PushArrayCell(hArray,	GetNativeCell(2));
+		PushArrayCell(hArray,	FType);
 
 		switch(FType)
 		{
 			case TOGGLABLE:
 			{
-				SetArrayCell(hArray, FEATURES_COOKIE,			RegClientCookie(sFeatureName, sFeatureName, CookieAccess_Public));
-				SetArrayCell(hArray, FEATURES_ITEM_SELECT,	GetNativeCell(4));
-				SetArrayCell(hArray, FEATURES_ITEM_DISPLAY,	GetNativeCell(5));
-				SetArrayCell(hArray, FEATURES_ITEM_DRAW,		GetNativeCell(6));
+				PushArrayCell(hArray, RegClientCookie(sFeatureName, sFeatureName, CookieAccess_Private));
 			}
 			case SELECTABLE:
 			{
-				SetArrayCell(hArray, FEATURES_COOKIE,			INVALID_HANDLE);
-				SetArrayCell(hArray, FEATURES_ITEM_SELECT,	GetNativeCell(4));
-				SetArrayCell(hArray, FEATURES_ITEM_DISPLAY,	GetNativeCell(5));
-				SetArrayCell(hArray, FEATURES_ITEM_DRAW,		GetNativeCell(6));
-			}
-			case HIDE:
-			{
-				SetArrayCell(hArray, FEATURES_COOKIE,			INVALID_HANDLE);
-				SetArrayCell(hArray, FEATURES_ITEM_SELECT,	INVALID_FUNCTION);
-				SetArrayCell(hArray, FEATURES_ITEM_DISPLAY,	INVALID_FUNCTION);
-				SetArrayCell(hArray, FEATURES_ITEM_DRAW,		INVALID_FUNCTION);
+				PushArrayCell(hArray, INVALID_HANDLE);
 			}
 		}
-		
+
 		if(FType != HIDE)
 		{
+			DataPack hDataPack = new DataPack();
+			hDataPack.WriteFunction(GetNativeCell(4));
+			hDataPack.WriteFunction(GetNativeCell(5));
+			hDataPack.WriteFunction(GetNativeCell(6));
+			PushArrayCell(hArray, hDataPack);
+
 			AddFeatureToVIPMenu(sFeatureName);
 		}
 		
@@ -771,17 +765,25 @@ public Native_UnregisterFeature(Handle:hPlugin, iNumParams)
 	
 	if(IsValidFeature(sFeatureName))
 	{
-		decl Handle:hArray;
+		ArrayList hArray;
 		if(GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
 		{
 			decl i, VIP_FeatureType:iFeatureType;
-			iFeatureType = VIP_FeatureType:GetArrayCell(hArray, FEATURES_ITEM_TYPE);
+			iFeatureType = VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE);
 			if(iFeatureType == TOGGLABLE)
 			{
-				CloseHandle(GetArrayCell(hArray, FEATURES_COOKIE));
+				delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
+			}
+			
+			if(iFeatureType != HIDE)
+			{
+				DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
+				delete hDataPack;
+
+				AddFeatureToVIPMenu(sFeatureName);
 			}
 
-			CloseHandle(hArray);
+			delete hArray;
 
 			RemoveFromTrie(GLOBAL_TRIE, sFeatureName);
 
@@ -877,20 +879,23 @@ public Native_SetClientFeatureStatus(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH], Handle:hArray, VIP_ToggleState:OldStatus, VIP_ToggleState:NewStatus;
+		decl String:sFeatureName[FEATURE_NAME_LENGTH], VIP_ToggleState:OldStatus, VIP_ToggleState:NewStatus;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 		OldStatus = Features_GetStatus(iClient, sFeatureName);
 
 		NewStatus = VIP_ToggleState:GetNativeCell(3);
 
+		ArrayList hArray;
 		if(GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
 		{
-			if(VIP_FeatureType:GetArrayCell(hArray, FEATURES_ITEM_TYPE) == TOGGLABLE)
+			if(VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) == TOGGLABLE)
 			{
-				new Function:Function_Select = Function:GetArrayCell(hArray, FEATURES_ITEM_SELECT);
+				DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
+				hDataPack.Position = ITEM_SELECT;
+				Function Function_Select = hDataPack.ReadFunction();
 				if(Function_Select != INVALID_FUNCTION)
 				{
-					Function_OnItemToggle(Handle:GetArrayCell(hArray, FEATURES_PLUGIN), Function_Select, iClient, sFeatureName, OldStatus, NewStatus);
+					Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Select, iClient, sFeatureName, OldStatus, NewStatus);
 				}
 
 				if(OldStatus != NewStatus)
@@ -997,7 +1002,7 @@ public Native_GiveClientFeature(Handle:hPlugin, iNumParams)
 				g_iClientInfo[iClient] |= IS_AUTHORIZED;
 			}
 
-			switch(VIP_ValueType:GetArrayCell(hArray, FEATURES_VALUE_TYPE))
+			switch(VIP_ValueType:hArray.Get(FEATURES_VALUE_TYPE))
 			{
 				case BOOL:
 				{
@@ -1025,13 +1030,13 @@ public Native_GiveClientFeature(Handle:hPlugin, iNumParams)
 
 			Features_SetStatus(iClient, sFeatureName, ENABLED);
 			
-			if(VIP_FeatureType:GetArrayCell(hArray, FEATURES_ITEM_TYPE) == TOGGLABLE)
+			if(VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) == TOGGLABLE)
 			{
-				new Function:Function_Select = Function:GetArrayCell(hArray, FEATURES_ITEM_SELECT);
+				new Function:Function_Select = Function:hArray.Get(FEATURES_ITEM_SELECT);
 				
 				if(Function_Select != INVALID_FUNCTION)
 				{
-					NewStatus = Function_OnItemToggle(Handle:GetArrayCell(hArray, FEATURES_PLUGIN), Function_Select, iClient, sFeatureName, NO_ACCESS, ENABLED);
+					NewStatus = Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Select, iClient, sFeatureName, NO_ACCESS, ENABLED);
 				}
 			}
 

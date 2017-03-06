@@ -215,15 +215,7 @@ UTIL_ADD_VIP_PLAYER(const iClient = 0, const iTarget = 0, const String:sIdentity
 		{
 			if(iTarget)
 			{
-				if (GetFeatureStatus(FeatureType_Native, "GetClientAuthId") == FeatureStatus_Available)
-				{
-					GetClientAuthId(iTarget, AuthId_Engine, sAuth, sizeof(sAuth));
-				}
-				else
-				{
-					GetClientAuthString(iTarget, sAuth, sizeof(sAuth));
-				}
-			//	GetClientAuthId(iTarget, AuthId_Engine, sAuth, sizeof(sAuth));
+				GetClientAuthId(iTarget, AuthId_Engine, sAuth, sizeof(sAuth));
 			}
 			else
 			{
@@ -254,16 +246,6 @@ UTIL_ADD_VIP_PLAYER(const iClient = 0, const iTarget = 0, const String:sIdentity
 			}
 		}
 	}
-	
-//	FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_overrides` (`user_id`, `server_id`, `expires`, `group`) VALUES ('%i', '%i', '%i', '%s');", iClientID, g_CVAR_iServerID, iExpires, sGroup);
-/*
-	FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_users` (`auth`, `auth_type`, `name`) VALUES ('%s', '%i', '%s');", sAuth, AuthType, sName);
-	if(SQL_FastQuery(g_hDatabase, sQuery))
-	{
-		FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_overrides` (`user_id`, `server_id`, `expires`, `group`) VALUES ('%i', '%i', '%i', '%s');", SQL_GetInsertId(g_hDatabase), g_CVAR_iServerID, iExpires, sGroup);
-		if(SQL_FastQuery(g_hDatabase, sQuery))
-		{
-		*/
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
@@ -453,10 +435,3 @@ public SQL_Callback_OnVIPClientAdded(Handle:hOwner, Handle:hQuery, const String:
 		if(g_CVAR_bLogsEnable) LogToFile(g_sLogFile, "%T", "LOG_ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY", iClient, iClient, sAuth, sExpires, sTime, sGroup);
 	}
 }
-/*
-UTIL_EscapeString(String:sBuffer[], maxlen)
-{
-	ReplaceString(sBuffer, maxlen, "\"", "");
-}
-
-*/
