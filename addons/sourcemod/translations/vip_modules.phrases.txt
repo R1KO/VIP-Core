@@ -1,0 +1,352 @@
+"Phrases"
+{
+	"Chat"
+	{
+		"ru"		"Чат"
+		"en"		"Chat"
+		"fi"		"Chatti"
+	}
+	"Skins"
+	{
+		"ru"		"Скины"
+		"en"		"Skin"
+		"fi"		"Skinit"
+	}
+	"Skins_Menu"
+	{
+		"ru"		"Выбор скина"
+		"en"		"Choose skin"
+		"fi"		"Skini Valikko"
+	}
+	"HP"
+	{
+		"ru"		"ХП"
+		"en"		"HP"
+		"fi"		"Terveys"
+	}
+	"Armor"
+	{
+		"ru"		"Бронь"
+		"en"		"Armor"
+		"fi"		"Suojaliivi"
+	}
+	"Money"
+	{
+		"ru"		"Деньги"
+		"en"		"Money"
+		"fi"		"Raha"
+	}
+	"Speed"
+	{
+		"ru"		"Повышенная скорость"
+		"en"		"Speed"
+		"fi"		"Nopeus"
+	}
+	"ElectroEffects"
+	{
+		"ru"		"Электрические эффекты"
+		"en"		"Electro Effects"
+		"fi"		"Salama Effekti"
+	}
+	"RegenHP"
+	{
+		"ru"		"Регенерация здоровья"
+		"en"		"HP Regeneration"
+		"fi"		"Terveyden uudistaminen"
+	}
+	"RegenArmor"
+	{
+		"ru"		"Регенерация брони"
+		"en"		"Regeneration Armor"
+		"fi"		"Suojaliivin uudistaminen"
+	}
+	"NEON"
+	{
+		"ru"		"Неон"
+		"en"		"Neon"
+		"fi"		"Neon"
+	}
+	"NEON_MENU"
+	{
+		"ru"		"Цвет неона"
+		"en"		"Color neon"
+		"fi"		"Neon Väri"
+	}
+	"AURA"
+	{
+		"ru"		"Аура"
+		"en"		"Aura"
+		"fi"		"Säteily"
+	}
+	"AURA_M"
+	{
+		"ru"		"Цвет ауры"
+		"en"		"Color aura"
+		"fi"		"Säteilyn väri"
+	}
+	"GrenadeTrails"
+	{
+		"ru"		"Трейлы гранат"
+		"en"		"GrenadeTrails"
+		"fi"		"Kranaattijälki"
+	}
+	"GrenadeTrails_MENU"
+	{
+		"ru"		"Цвет трейлов гранат"
+		"en"		"Color GrenadeTrails"
+		"fi"		"Kranaattijäljen väri"
+	}
+    "Grenades"
+    {
+        "ru"    	"Гранаты"
+        "en"    	"Grenades"
+        "fi"    	"Kranaatit"	
+	}
+	"Trails"
+	{
+		"ru"  		"Трейлы"
+		"en"  		"Trails"
+		"fi"  		"Jäljet"
+	}
+	"Trails_Menu"
+	{
+		"ru"  		"Выбор трейла"
+		"en"  		"Selection of trail"
+		"fi"  		"Jäljen Valitseminen"
+	}		
+	"Respawn"
+	{
+		"ru"		"Возрождение"
+		"en"		"Respawn"
+		"fi"		"Uudestisyntyminen"
+	}
+	"Left"
+	{
+		"#format"	"{1:i}"
+		"ru"		"Осталось: {1}"
+		"en"		"Left: {1}"
+		"fi"		"Jäljellä: {1}"
+	}
+	"BunnyHop"
+	{
+		"ru"		"Банни хоп"
+		"en"		"BunnyHop"
+		"fi"		"BunnyHop"
+	}
+	"RADAR"
+	{
+		"ru"		"Невидимость на радаре"
+		"en"		"Hide in radar"
+		"fi"		"Näkymättömyys tutka"
+	}
+	"RANK"
+	{
+		"ru"		"Настройка ранга"
+		"en"		"Rank settings"
+		"fi"		"Rank Asetukset"
+	}
+	"COIN"
+	{
+		"ru"		"Монеты"
+		"en"		"Coins"
+		"fi"		"Mitaleiden asetukset"
+	}
+	"Tracers"
+	{
+		"ru"		"Трасеры"
+		"en"		"Tracers"
+		"fi"		"Merkkiaineet"
+	}
+	"Tracers_MENU"
+	{
+		"ru"		"Цвет трасеров"
+		"en"		"Color tracers"
+		"fi"		"Merkkiaineiden väri"
+	}
+	"AntiFlash"
+	{
+		"ru"		"Анти флеш"
+		"en"		"Anti Flash"
+		"fi"		"Anti Flash"
+	}
+	"MKIT"
+	{
+		"ru"		"Настройка пластинки"
+		"en"		"Music Kit settings"
+		"fi"		"Music Kit asetukset"
+	}
+	"С4"
+	{
+		"ru"		"Бесплатная бомба"
+		"en"		"Free bomb"
+		"fi"		"Ilmainen C4"
+	}
+	"Defuser"
+	{
+		"ru"		"Дефузер"
+		"en"		"Defuser"
+		"fi"		"Defuser"
+	}
+    "QuickDefuse"
+    {
+        "ru"        "Моментальное обезвреживание"
+        "en"        "Quick Defuse"
+        "fi"        "Nopea Purkaus"
+	}
+	"JoinSound"
+	{
+		"ru"		"Музыка при входе"
+		"en"		"Join Sound"
+		"fi"		"Musiikki tervehdys"
+	}
+	"UnlimPrimaryAmmo"
+	{
+		"ru"		"Бесконечные патроны в основной обойме"
+		"en"		"Infinite Ammo in the main clip"
+		"fi"		"Loputtomasti ammuksia pääasiassa aseeseen"
+	}
+	"UnlimReserveAmmo"
+	{
+		"ru"		"Бесконечные патроны в запасе"
+		"en"		"Infinite ammo in stock"
+		"fi"		"Loputtomasti ammuksia lippaaseen"
+	}
+	"ShowDamage"
+	{
+		"ru"		"Показ урона"
+		"en"		"Displaying damage"
+		"fi"		"Näytetään vahinkopaneeli"
+	}
+	"WaterEffect"
+	{
+		"ru"		"Брызги воды"
+		"en"		"Water splashing"
+		"fi"		"Veden roiskeita"
+	}
+	"ThrowingKnives"
+	{
+		"ru"		"Метательные ножи"
+		"en"		"Throwing Knives"
+		"fi"		"Heitto veitset"
+	}
+    "NoSelfDamage"
+    {
+        "ru"        "Нет урона от себя"
+        "en"        "No Self Damage"
+        "fi"        "Ei vaurioita itseään"
+    }
+    "NoFallDamage"
+    {
+        "ru"        "Нет урона от мира"
+        "en"        "No Fall Damage"
+        "fi"        "Ei vaurioita maailmalta"
+	}
+    "FireDamage"
+    {
+        "ru"        "Поджигающие повреждения"
+        "en"        "Fire Damage"
+        "fi"        "Sytytys Vahinko"
+    }
+    "Kick"
+    {
+        "ru"        "Кикнуть игрока"
+        "en"        "Kick player"
+        "fi"        "Potkia pelaaja"
+    }
+    "Vampirism"
+    {
+        "ru"        "Вампиризм"
+        "en"        "Vampirism"
+        "fi"        "Vampirismi"
+    }
+    "Tag"
+    {
+        "ru"        "Тег"
+        "en"        "Tag"
+        "fi"        "Tag"
+    }
+    "CustomWeapons"
+    {
+        "ru"        "Модели оружия"
+        "en"        "Weapon Models"
+        "fi"        "Ase Mallit"
+    }
+    "C4_Model"
+    {
+        "ru"  		"Измененная бомба"
+        "en"  		"C4 Model"
+        "fi"  		"Muunnettu Pommi"
+    }
+	"Gravity"
+	{
+		"ru"		"Гравитация"
+		"en"		"Gravity"
+		"fi"		"Gravitaatio"
+	}
+    "RECEIVED_DAMAGE"
+    {
+        "ru"    	"Получаемый урон"
+        "en"    	"Received damage"
+        "fi"    	"Aiheutuvat vahingot"
+    }
+    "CAUSED_DAMAGE"
+    {
+        "ru"    	"Наносимый урон"
+        "en"    	"Caused damage"
+        "fi"    	"Aiheuttanut vahinkoa"
+    }
+    "AutoSilencer_usp"
+    {
+        "ru"    	"Авто глушитель на USP"
+        "en"    	"Auto Silencer for USP"
+        "fi"    	"Automaatti äänenvaimennin USP varten"
+    }
+    "AutoSilencer_m4a1"
+    {
+        "ru"    	"Авто глушитель на M4A1"
+        "en"    	"Auto Silencer for M4A1"
+        "fi"    	"Automaatti äänenvaimennin M4A1 varten"
+    }
+    "Gloves"
+    {
+        "ru"    	"Перчатки"
+        "en"    	"Gloves"
+        "fi"    	"Hanskat"
+    }
+    "Gloves_MENU"
+    {
+        "ru"    	"Выбор перчаток"
+        "en"    	"Choose gloves"
+        "fi"    	"Hanskojen valikko"
+    }
+    "SmokeColors"
+    {
+        "ru"    	"Цвет дыма"
+        "en"    	"Smoke Color"
+        "fi"    	"Savun väri"
+    }
+    "SmokeColors_MENU"
+    {
+        "ru"    	"Выбрать цвет дыма"
+        "en"    	"Select smoke color"
+        "fi"    	"Valitse savun väri"
+    }
+    "Icon"
+    {
+        "ru"        "Иконка"
+        "en"        "Icon"
+        "fi"        "Ikoni"
+    }
+    "TopIcon"
+    {
+        "ru"        "VIP-модель над головой"
+        "en"        "VIP-model over the head"
+        "fi"        "VIP-malli päässä"
+    }
+    "AutoBuy"
+    {
+        "ru"    "Автозакупка"
+        "en"    "Auto Buy"
+		"fi"    "Automaattinen ostos"
+    }	
+}
