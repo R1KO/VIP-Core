@@ -170,6 +170,7 @@ stock int UTIL_SearchCharInString(const char[] sBuffer, int c)
 	return iNum;
 }
 
+void UTIL_ReloadVIPPlayers(int iClient, bool bNotify)
 {
 	for(new i = 1; i <= MaxClients; ++i)
 	{
