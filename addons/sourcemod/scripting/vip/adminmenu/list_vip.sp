@@ -199,7 +199,7 @@ public MenuHandler_SearchPlayersListMenu(Handle:hMenu, MenuAction:action, iClien
 	}
 }
 /*
-public SQL_Callback_SearchPlayers(Handle:hOwner, Handle:hQuery, const char[] sError, any:UserID)
+public SQL_Callback_SearchPlayers(Handle:hOwner, Handle:hQuery, const char[] sError, any UserID)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{
@@ -265,7 +265,7 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 	SQL_TQuery(g_hDatabase, SQL_Callback_SelectVipPlayers, sQuery, UID(iClient));
 }
 
-public SQL_Callback_SelectVipPlayers(Handle:hOwner, Handle:hQuery, const char[] sError, any:UserID)
+public SQL_Callback_SelectVipPlayers(Handle:hOwner, Handle:hQuery, const char[] sError, any UserID)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{
@@ -344,7 +344,7 @@ void ShowTargetInfoMenu(int iClient, int iClientID)
 }
 
 
-public SQL_Callback_SelectVipClientInfo(Handle:hOwner, Handle:hQuery, const char[] sError, any:UserID)
+public SQL_Callback_SelectVipClientInfo(Handle:hOwner, Handle:hQuery, const char[] sError, any UserID)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{

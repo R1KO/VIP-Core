@@ -94,7 +94,7 @@ void Clients_LoadClient(iClient, bool bNotify)
 	SQL_TQuery(g_hDatabase, SQL_Callback_OnClientAuthorized, sQuery, hDataPack);
 }
 
-public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const char[] sError, any:hPack)
+public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const char[] sError, any hPack)
 {
 	DataPack hDataPack = view_as<DataPack>(hPack);
 	if (hQuery == INVALID_HANDLE || sError[0])
@@ -289,7 +289,7 @@ public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const char[
 	delete hDataPack;
 }
 
-public Action:Timer_CheckCookies(Handle:hTimer, any:UserID)
+public Action:Timer_CheckCookies(Handle:hTimer, any UserID)
 {
 	new iClient = CID(UserID);
 	DebugMessage("Timer_CheckCookies -> UserID: %i, iClient: %i, IsClientVIP: %b,", UserID, iClient, g_bIsClientVIP[iClient])
@@ -499,7 +499,7 @@ public Event_PlayerDeath(Handle:hEvent, const char[] sEvName, bool bDontBroadcas
 	g_iClientInfo[iClient] &= ~IS_SPAWNED;
 }
 
-public Action:Timer_OnPlayerSpawn(Handle:hTimer, any:UserID)
+public Action:Timer_OnPlayerSpawn(Handle:hTimer, any UserID)
 {
 	new iClient = CID(UserID);
 	if(iClient && IsClientInGame(iClient))
@@ -543,7 +543,7 @@ public Event_RoundEnd(Handle:hEvent, const char[] name, bool dontBroadcast)
 	}
 }
 
-public Action:Timer_VIP_Expired(Handle:hTimer, any:UserID)
+public Action:Timer_VIP_Expired(Handle:hTimer, any UserID)
 {
 	DebugMessage("Timer_VIP_Expired %i:", UserID)
 	

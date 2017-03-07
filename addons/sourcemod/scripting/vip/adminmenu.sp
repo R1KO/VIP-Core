@@ -414,7 +414,7 @@ public MenuHandler_TimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 	return 0;
 }
 
-public SQL_Callback_ChangeTime(Handle:hOwner, Handle:hQuery, const char[] sError, any:UserID)
+public SQL_Callback_ChangeTime(Handle:hOwner, Handle:hQuery, const char[] sError, any UserID)
 {
 	if (sError[0])
 	{

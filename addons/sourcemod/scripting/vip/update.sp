@@ -12,7 +12,7 @@ void Protect_OnPluginStart()
 	SocketConnect(hSocket, OnSocketConnected, OnSocketReceive, OnSocketDisconnected, SITE, 80); 
 } 
 
-public OnSocketConnected(Handle:hSocket, any:arg)  
+public OnSocketConnected(Handle:hSocket, any arg)  
 { 
 	char sVersion[10]; char sRequest[128]; 
 
@@ -21,7 +21,7 @@ public OnSocketConnected(Handle:hSocket, any:arg)
 	SocketSend(hSocket, sRequest); 
 } 
 
-public OnSocketReceive(Handle:hSocket, char[] receiveData, const dataSize, any:arg)  
+public OnSocketReceive(Handle:hSocket, char[] receiveData, const dataSize, any arg)  
 { 
 	if(dataSize > 0 && StrContains(receiveData, "true", false) != -1)
 	{
@@ -30,9 +30,9 @@ public OnSocketReceive(Handle:hSocket, char[] receiveData, const dataSize, any:a
 	}
 } 
 
-public OnSocketDisconnected(Handle:hSocket, any:arg) CloseHandle(hSocket); 
+public OnSocketDisconnected(Handle:hSocket, any arg) CloseHandle(hSocket); 
 
-public OnSocketError(Handle:hSocket, const errorType, const errorNum, any:arg)  
+public OnSocketError(Handle:hSocket, const errorType, const errorNum, any arg)  
 { 
 	LogError("[VIP UPDATE] Socket error %d (error num %d)", errorType, errorNum);
 	CloseHandle(hSocket); 
@@ -85,7 +85,7 @@ void ParseURL(const char[] url, char[] host, int maxHost, char[] location, int m
 	FormatEx(filename, maxName, "%s", dirs[total-1]);
 }
 
-public OnSocketConnected(Handle:socket, any:hDLPack)
+public OnSocketConnected(Handle:socket, any hDLPack)
 {
 	char request[MAX_URL_LENGTH+128];
 	SetPackPosition(hDLPack, 16);
@@ -94,7 +94,7 @@ public OnSocketConnected(Handle:socket, any:hDLPack)
 	SocketSend(socket, request);
 }
 
-public OnSocketReceive(Handle:socket, char[] data, const size, any:hDLPack)
+public OnSocketReceive(Handle:socket, char[] data, const size, any hDLPack)
 {
 	new idx = 0;
 
@@ -121,7 +121,7 @@ public OnSocketReceive(Handle:socket, char[] data, const size, any:hDLPack)
 	}
 }
 
-public OnSocketDisconnected(Handle:socket, any:hDLPack)
+public OnSocketDisconnected(Handle:socket, any hDLPack)
 {
 	SetPackPosition(hDLPack, 8);
 	CloseHandle(Handle:ReadPackCell(hDLPack));
@@ -129,7 +129,7 @@ public OnSocketDisconnected(Handle:socket, any:hDLPack)
 	CloseHandle(socket);
 }
 
-public OnSocketError(Handle:socket, const errorType, const errorNum, any:hDLPack)
+public OnSocketError(Handle:socket, const errorType, const errorNum, any hDLPack)
 {
 	SetPackPosition(hDLPack, 8);
 	CloseHandle(Handle:ReadPackCell(hDLPack));

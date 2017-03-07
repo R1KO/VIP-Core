@@ -28,7 +28,7 @@ public Plugin:myinfo =
 #if DEBUG_MODE 1
 char g_sDebugLogFile[PLATFORM_MAX_PATH];
 
-stock DebugMsg(const char[] sMsg, any:...)
+stock void DebugMsg(const char[] sMsg, any ...)
 {
 	char sBuffer[250];
 	VFormat(sBuffer, sizeof(sBuffer), sMsg, 2);
