@@ -4,58 +4,58 @@ void ShowAddVIPMenu(int iClient)
 	hMenu = CreateMenu(MenuHandler_AddVip_PlayerList);
 	SetMenuTitle(hMenu, "%T:\n \n", "MENU_ADD_VIP", iClient);
 	SetMenuExitBackButton(hMenu, true);
-
+	
 	sUserId[0] = 0;
 	for (i = 1; i <= MaxClients; ++i)
 	{
 		if (IsClientInGame(i))
 		{
-			if(g_iClientInfo[i] & IS_VIP)
+			if (g_iClientInfo[i] & IS_VIP)
 			{
-				if(!(g_iClientInfo[i] & IS_AUTHORIZED))
+				if (!(g_iClientInfo[i] & IS_AUTHORIZED))
 				{
 					continue;
 				}
-
+				
 				GetTrieValue(g_hFeatures[i], KEY_CID, iClientID);
-				if(iClientID != -1)
+				if (iClientID != -1)
 				{
 					continue;
 				}
 			}
 			
-			if(IsFakeClient(i) == false && GetClientName(i, sName, sizeof(sName)))
+			if (IsFakeClient(i) == false && GetClientName(i, sName, sizeof(sName)))
 			{
 				IntToString(UID(i), sUserId, sizeof(sUserId));
 				AddMenuItem(hMenu, sUserId, sName);
 			}
 		}
 	}
-
-	if(sUserId[0] == 0)
+	
+	if (sUserId[0] == 0)
 	{
 		FormatEx(sName, sizeof(sName), "%T", "NO_PLAYERS_AVAILABLE", iClient);
 		AddMenuItem(hMenu, "", sName, ITEMDRAW_DISABLED);
 	}
-
+	
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
 public int MenuHandler_AddVip_PlayerList(Menu hMenu, MenuAction action, int iClient, int Item)
 {
-	switch(action)
+	switch (action)
 	{
-		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack) DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
+			if (Item == MenuCancel_ExitBack)DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
 		}
 		case MenuAction_Select:
 		{
 			char sUserID[12]; UserID;
 			GetMenuItem(hMenu, Item, sUserID, sizeof(sUserID));
 			UserID = StringToInt(sUserID);
-			if(CID(UserID))
+			if (CID(UserID))
 			{
 				SetArrayCell(g_ClientData[iClient], DATA_TARGET_USER_ID, UserID);
 				ShowAuthTypeMenu(iClient);
@@ -70,7 +70,7 @@ void ShowAuthTypeMenu(int iClient)
 	hMenu = CreateMenu(MenuHandler_AddVip_AuthType);
 	SetMenuTitle(hMenu, "%T:\n \n", "IDENTIFICATION_TYPE", iClient);
 	SetMenuExitBackButton(hMenu, true);
-
+	
 	FormatEx(sBuffer, sizeof(sBuffer), "%T", "STEAM_ID", iClient);
 	AddMenuItem(hMenu, "0", sBuffer);
 	FormatEx(sBuffer, sizeof(sBuffer), "%T", "IP", iClient);
@@ -79,18 +79,18 @@ void ShowAuthTypeMenu(int iClient)
 	AddMenuItem(hMenu, "2", sBuffer);
 	
 	ReductionMenu(hMenu, 3);
-
+	
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
 public int MenuHandler_AddVip_AuthType(Menu hMenu, MenuAction action, int iClient, int Item)
 {
-	switch(action)
+	switch (action)
 	{
-		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack) ShowAddVIPMenu(iClient);
+			if (Item == MenuCancel_ExitBack)ShowAddVIPMenu(iClient);
 		}
 		case MenuAction_Select:
 		{
@@ -114,9 +114,9 @@ void ShowGroupMenu(int iClient)
 	hMenu = CreateMenu(MenuHandler_AddVip_GroupsList);
 	SetMenuTitle(hMenu, "%T:\n \n", "GROUP", iClient);
 	SetMenuExitBackButton(hMenu, true);
-	sGroup[0] = 0; 
+	sGroup[0] = 0;
 	KvRewind(g_hGroups);
-	if(KvGotoFirstSubKey(g_hGroups))
+	if (KvGotoFirstSubKey(g_hGroups))
 	{
 		do
 		{
@@ -126,23 +126,23 @@ void ShowGroupMenu(int iClient)
 			}
 		} while KvGotoNextKey(g_hGroups);
 	}
-	if(sGroup[0] == 0)
+	if (sGroup[0] == 0)
 	{
 		FormatEx(sGroup, sizeof(sGroup), "%T", "NO_GROUPS_AVAILABLE", iClient);
 		AddMenuItem(hMenu, "", sGroup, ITEMDRAW_DISABLED);
 	}
-
+	
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
 public int MenuHandler_AddVip_GroupsList(Menu hMenu, MenuAction action, int iClient, int Item)
 {
-	switch(action)
+	switch (action)
 	{
-		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack)
+			if (Item == MenuCancel_ExitBack)
 			{
 				SetArrayCell(g_ClientData[iClient], DATA_TIME, TIME_SET);
 				ShowTimeMenu(iClient);

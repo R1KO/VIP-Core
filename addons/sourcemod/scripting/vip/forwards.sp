@@ -2,15 +2,15 @@
 void CreateForwards()
 {
 	// Global Forwards
-	g_hGlobalForward_OnVIPLoaded						= CreateGlobalForward("VIP_OnVIPLoaded", ET_Ignore);
-	g_hGlobalForward_OnClientLoaded					= CreateGlobalForward("VIP_OnClientLoaded", ET_Ignore, Param_Cell, Param_Cell);
-	g_hGlobalForward_OnVIPClientLoaded				= CreateGlobalForward("VIP_OnVIPClientLoaded", ET_Ignore, Param_Cell);
-	g_hGlobalForward_OnVIPClientRemoved				= CreateGlobalForward("VIP_OnVIPClientRemoved", ET_Ignore, Param_Cell, Param_String);
-	g_hGlobalForward_OnPlayerSpawn						= CreateGlobalForward("VIP_OnPlayerSpawn", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
-
+	g_hGlobalForward_OnVIPLoaded = CreateGlobalForward("VIP_OnVIPLoaded", ET_Ignore);
+	g_hGlobalForward_OnClientLoaded = CreateGlobalForward("VIP_OnClientLoaded", ET_Ignore, Param_Cell, Param_Cell);
+	g_hGlobalForward_OnVIPClientLoaded = CreateGlobalForward("VIP_OnVIPClientLoaded", ET_Ignore, Param_Cell);
+	g_hGlobalForward_OnVIPClientRemoved = CreateGlobalForward("VIP_OnVIPClientRemoved", ET_Ignore, Param_Cell, Param_String);
+	g_hGlobalForward_OnPlayerSpawn = CreateGlobalForward("VIP_OnPlayerSpawn", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+	
 	// Private Forwards
-	g_hPrivateForward_OnPlayerSpawn					= CreateForward(ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
-//	g_hPrivateForward_OnClientVIPMenuCreated			= CreateForward(ET_Ignore, Param_Cell, Param_CellByRef);
+	g_hPrivateForward_OnPlayerSpawn = CreateForward(ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+	//	g_hPrivateForward_OnClientVIPMenuCreated			= CreateForward(ET_Ignore, Param_Cell, Param_CellByRef);
 }
 
 // Global Forwards
@@ -40,7 +40,7 @@ void CreateForward_OnVIPLoaded()
 	
 	CloseHandle(hIter);
 	*/
-
+	
 	Call_StartForward(g_hGlobalForward_OnVIPLoaded);
 	Call_Finish();
 }
@@ -85,7 +85,7 @@ void CreateForward_OnPlayerSpawn(int iClient, int iTeam)
 	Call_PushCell(iTeam);
 	Call_PushCell(g_iClientInfo[iClient] & IS_VIP);
 	Call_Finish();
-
+	
 	Call_StartForward(g_hPrivateForward_OnPlayerSpawn);
 	Call_PushCell(iClient);
 	Call_PushCell(iTeam);

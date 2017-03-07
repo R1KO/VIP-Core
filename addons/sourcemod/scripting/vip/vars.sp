@@ -32,30 +32,30 @@
 
 enum
 {
-	FEATURES_PLUGIN = 0,
-	FEATURES_VALUE_TYPE,
-	FEATURES_COOKIE,
-	FEATURES_ITEM_TYPE,
+	FEATURES_PLUGIN = 0, 
+	FEATURES_VALUE_TYPE, 
+	FEATURES_COOKIE, 
+	FEATURES_ITEM_TYPE, 
 	FEATURES_MENU_CALLBACKS
 }
 
-DataPackPos ITEM_SELECT		= view_as<DataPackPos>(0);
-DataPackPos ITEM_DISPLAY	= view_as<DataPackPos>(9);
-DataPackPos ITEM_DRAW		= view_as<DataPackPos>(18);
+DataPackPos ITEM_SELECT = view_as<DataPackPos>(0);
+DataPackPos ITEM_DISPLAY = view_as<DataPackPos>(9);
+DataPackPos ITEM_DRAW = view_as<DataPackPos>(18);
 
 enum
 {
-	TIME_MODE_SECONDS = 0,
-	TIME_MODE_MINUTES,
-	TIME_MODE_HOURS,
+	TIME_MODE_SECONDS = 0, 
+	TIME_MODE_MINUTES, 
+	TIME_MODE_HOURS, 
 	TIME_MODE_DAYS
 }
 
 enum GameType
 {
-	GAME_UNKNOWN = -1,
-	GAME_CSS_34,
-	GAME_CSS,
+	GAME_UNKNOWN = -1, 
+	GAME_CSS_34, 
+	GAME_CSS, 
 	GAME_CSGO
 }
 
@@ -75,29 +75,29 @@ new Handle:g_hVIPMenu;
 
 new Handle:g_hSortArray;
 
-new Handle:g_hFeatures[MAXPLAYERS+1];
-new Handle:g_hFeatureStatus[MAXPLAYERS+1];
+new Handle:g_hFeatures[MAXPLAYERS + 1];
+new Handle:g_hFeatureStatus[MAXPLAYERS + 1];
 
-new Handle:g_ClientData[MAXPLAYERS+1];
+new Handle:g_ClientData[MAXPLAYERS + 1];
 
-new g_iClientInfo[MAXPLAYERS+1];
+new g_iClientInfo[MAXPLAYERS + 1];
 
 // Cvar`s
-new Handle:	g_CVAR_hVIPMenu_CMD;
+new Handle:g_CVAR_hVIPMenu_CMD;
 
-new 		g_CVAR_iAdminFlag;
-new 		g_CVAR_iServerID;
-new 		g_CVAR_iTimeMode;
-new			g_CVAR_iDeleteExpired;
-float 	g_CVAR_fSpawnDelay;
-bool 	g_CVAR_bAutoOpenMenu;
+new g_CVAR_iAdminFlag;
+new g_CVAR_iServerID;
+new g_CVAR_iTimeMode;
+new g_CVAR_iDeleteExpired;
+float g_CVAR_fSpawnDelay;
+bool g_CVAR_bAutoOpenMenu;
 #if USE_ADMINMENU 1
-bool 	g_CVAR_bAddItemToAdminMenu;
+bool g_CVAR_bAddItemToAdminMenu;
 #endif
-bool 	g_CVAR_bKickNotAuthorized;
-bool 	g_CVAR_bUpdateName;
-bool 	g_CVAR_bHideNoAccessItems;
-bool 	g_CVAR_bLogsEnable;
+bool g_CVAR_bKickNotAuthorized;
+bool g_CVAR_bUpdateName;
+bool g_CVAR_bHideNoAccessItems;
+bool g_CVAR_bLogsEnable;
 
 new EngineVersion:g_EngineVersion;
 

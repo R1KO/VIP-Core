@@ -26,15 +26,15 @@ void OnReadyToStart()
 void ReadConfigs()
 {
 	DebugMessage("ReadConfigs")
-
+	
 	char sFeatureName[255]; Handle:hFile;
-
+	
 	if (g_hSortArray != INVALID_HANDLE)
 	{
 		CloseHandle(g_hSortArray);
 		g_hSortArray = INVALID_HANDLE;
 	}
-
+	
 	BuildPath(Path_SM, sFeatureName, sizeof(sFeatureName), "data/vip/cfg/sort_menu.ini");
 	hFile = OpenFile(sFeatureName, "r");
 	if (hFile != INVALID_HANDLE)
@@ -51,20 +51,20 @@ void ReadConfigs()
 				DebugMessage("PushArrayString: %s (%i)", sFeatureName, FindStringInArray(g_hSortArray, sFeatureName))
 			}
 		}
-
+		
 		CloseHandle(hFile);
 		
 		DebugMessage("GetArraySize: %i", GetArraySize(g_hSortArray))
 		
-		if(GetArraySize(g_hSortArray) == 0)
+		if (GetArraySize(g_hSortArray) == 0)
 		{
 			CloseHandle(g_hSortArray);
 			g_hSortArray = INVALID_HANDLE;
 		}
 	}
-
+	
 	UTIL_CloseHandleEx(g_hGroups);
-
+	
 	g_hGroups = CreateConfig("data/vip/cfg/groups.ini", "VIP_GROUPS");
 	GLOBAL_INFO_KV = CreateConfig("data/vip/cfg/info.ini", "VIP_INFO");
 }
@@ -73,14 +73,14 @@ Handle CreateConfig(const char[] sFile, const char[] sKvName)
 {
 	char sPath[PLATFORM_MAX_PATH]; Handle:hKv;
 	BuildPath(Path_SM, sPath, sizeof(sPath), sFile);
-
+	
 	hKv = CreateKeyValues(sKvName);
-	if(FileToKeyValues(hKv, sPath) == false)
+	if (FileToKeyValues(hKv, sPath) == false)
 	{
 		KeyValuesToFile(hKv, sPath);
 	}
-
+	
 	KvRewind(hKv);
-
+	
 	return hKv;
-}
+} 

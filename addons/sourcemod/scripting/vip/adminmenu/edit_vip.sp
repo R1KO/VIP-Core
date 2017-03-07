@@ -2,11 +2,11 @@ void ShowEditTimeMenu(int iClient)
 {
 	decl Handle:hMenu; char sBuffer[128];
 	hMenu = CreateMenu(MenuHandler_EditTimeMenu);
-
+	
 	SetGlobalTransTarget(iClient);
 	SetMenuTitle(hMenu, "%t:\n \n", "MENU_EDIT_TIME");
 	SetMenuExitBackButton(hMenu, true);
-
+	
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_TIME_SET");
 	AddMenuItem(hMenu, "", sBuffer);
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_TIME_ADD");
@@ -15,18 +15,18 @@ void ShowEditTimeMenu(int iClient)
 	AddMenuItem(hMenu, "", sBuffer);
 	
 	ReductionMenu(hMenu, 3);
-
+	
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
 public int MenuHandler_EditTimeMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
-	switch(action)
+	switch (action)
 	{
-		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack) ShowTargetInfoMenu(iClient, GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
+			if (Item == MenuCancel_ExitBack)ShowTargetInfoMenu(iClient, GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
 		}
 		case MenuAction_Select:
 		{
@@ -47,17 +47,17 @@ void ShowEditPassMenu(int iClient)
 												LEFT JOIN `vip_overrides` AS `o` \
 												ON `o`.`user_id` = `u`.`id` \
 												WHERE `o`.`server_id` = '%i' \
-												AND `u`.`id` = '%i' LIMIT 1;",
-												g_CVAR_iServerID, GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
+												AND `u`.`id` = '%i' LIMIT 1;", 
+			g_CVAR_iServerID, GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
 	}
 	else
 	{
 		FormatEx(sQuery, sizeof(sQuery), "SELECT `password` \
 												FROM `vip_users` \
-												WHERE `id` = '%i' LIMIT 1;",
-												GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
+												WHERE `id` = '%i' LIMIT 1;", 
+			GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
 	}
-
+	
 	DebugMessage(sQuery)
 	SQL_TQuery(g_hDatabase, SQL_Callback_SelectClientPass, sQuery, UID(iClient));
 }
@@ -77,13 +77,13 @@ public SQL_Callback_SelectClientPass(Handle:hOwner, Handle:hQuery, const char[] 
 		if (SQL_FetchRow(hQuery))
 		{
 			SetGlobalTransTarget(iClient);
-
+			
 			decl Handle:hMenu; char sBuffer[128];
 			hMenu = CreateMenu(MenuHandler_EditPassMenu);
 			SetMenuTitle(hMenu, "%t:\n \n", "MENU_EDIT_PASS");
 			SetMenuExitBackButton(hMenu, true);
 			SQL_FetchString(hQuery, 0, sBuffer, sizeof(sBuffer));
-			if(sBuffer[0])
+			if (sBuffer[0])
 			{
 				FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_PASS");
 				AddMenuItem(hMenu, "edit_pass", sBuffer);
@@ -99,7 +99,7 @@ public SQL_Callback_SelectClientPass(Handle:hOwner, Handle:hQuery, const char[] 
 				
 				ReductionMenu(hMenu, 5);
 			}
-
+			
 			DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 		}
 		else
@@ -111,21 +111,21 @@ public SQL_Callback_SelectClientPass(Handle:hOwner, Handle:hQuery, const char[] 
 
 public int MenuHandler_EditPassMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
-	switch(action)
+	switch (action)
 	{
-		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack) ShowTargetInfoMenu(iClient, GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
+			if (Item == MenuCancel_ExitBack)ShowTargetInfoMenu(iClient, GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
 		}
 		case MenuAction_Select:
 		{
 			char sInfo[4];
 			GetMenuItem(hMenu, Item, sInfo, sizeof(sInfo));
-			switch(sInfo[0])
+			switch (sInfo[0])
 			{
-				case 'a', 'e':	ShowWaitPassMenu(iClient);
-				case 'd':		ShowDelPassMenu(iClient);
+				case 'a', 'e':ShowWaitPassMenu(iClient);
+				case 'd':ShowDelPassMenu(iClient);
 			}
 		}
 	}
@@ -134,7 +134,7 @@ public int MenuHandler_EditPassMenu(Menu hMenu, MenuAction action, int iClient, 
 void ShowDelPassMenu(int iClient)
 {
 	SetGlobalTransTarget(iClient);
-
+	
 	decl Handle:hMenu; char sBuffer[128];
 	hMenu = CreateMenu(MenuHandler_DelPassMenu);
 	SetMenuTitle(hMenu, "%t:\n \n", "MENU_DEL_PASS");
@@ -146,32 +146,32 @@ void ShowDelPassMenu(int iClient)
 	AddMenuItem(hMenu, "", sBuffer);
 	
 	ReductionMenu(hMenu, 4);
-
+	
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
 public int MenuHandler_DelPassMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
-	switch(action)
+	switch (action)
 	{
-		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack) ShowEditPassMenu(iClient);
+			if (Item == MenuCancel_ExitBack)ShowEditPassMenu(iClient);
 		}
 		case MenuAction_Select:
 		{
 			char sQuery[256]; iTarget; char sBuffer[MAX_NAME_LENGTH];
-
+			
 			iTarget = GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID);
 			FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `password` = NULL WHERE `id` = '%i';", iTarget);
 			SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, sQuery);
-
+			
 			GetArrayString(g_ClientData[iClient], DATA_NAME, sBuffer, sizeof(sBuffer));
-
+			
 			VIP_PrintToChatClient(iClient, "%t", "ADMIN_PASSWORD_REMOVED");
-			if(g_CVAR_bLogsEnable) LogToFile(g_sLogFile, "%T", "LOG_ADMIN_PASSWORD_REMOVED", iClient, iClient, sBuffer);
-
+			if (g_CVAR_bLogsEnable)LogToFile(g_sLogFile, "%T", "LOG_ADMIN_PASSWORD_REMOVED", iClient, iClient, sBuffer);
+			
 			ShowTargetInfoMenu(iClient, iTarget);
 		}
 	}
@@ -180,24 +180,24 @@ public int MenuHandler_DelPassMenu(Menu hMenu, MenuAction action, int iClient, i
 void ShowWaitPassMenu(int iClient, const char[] sPass = "", const bool bIsValid = false)
 {
 	SetGlobalTransTarget(iClient);
-
+	
 	decl Handle:hMenu; char sBuffer[128];
-
+	
 	hMenu = CreateMenu(MenuHandler_EditVip_WaitPassMenu);
 	SetMenuTitle(hMenu, "%t \"%t\"\n \n", "ENTER_PASS", "CONFIRM");
-
+	
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "CONFIRM");
-	if(bIsValid)
+	if (bIsValid)
 	{
 		AddMenuItem(hMenu, sPass, sBuffer);
-	//	g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_PASS;
+		//	g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_PASS;
 	}
 	else
 	{
 		AddMenuItem(hMenu, sPass, sBuffer, ITEMDRAW_DISABLED);
 		g_iClientInfo[iClient] |= IS_WAIT_CHAT_PASS;
 	}
-
+	
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "CANCEL");
 	AddMenuItem(hMenu, "", sBuffer);
 	
@@ -208,17 +208,17 @@ void ShowWaitPassMenu(int iClient, const char[] sPass = "", const bool bIsValid 
 
 public int MenuHandler_EditVip_WaitPassMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
-	switch(action)
+	switch (action)
 	{
-		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item != MenuCancel_Interrupted)
+			if (Item != MenuCancel_Interrupted)
 			{
 				g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_PASS;
 			}
-
-			if(Item == MenuCancel_ExitBack)
+			
+			if (Item == MenuCancel_ExitBack)
 			{
 				ShowEditPassMenu(iClient);
 			}
@@ -226,7 +226,7 @@ public int MenuHandler_EditVip_WaitPassMenu(Menu hMenu, MenuAction action, int i
 		case MenuAction_Select:
 		{
 			g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_PASS;
-			switch(Item)
+			switch (Item)
 			{
 				case 0:
 				{
@@ -235,11 +235,11 @@ public int MenuHandler_EditVip_WaitPassMenu(Menu hMenu, MenuAction action, int i
 					GetMenuItem(hMenu, Item, sPass, sizeof(sPass));
 					FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `password` = '%s' WHERE `id` = '%i';", sPass, iTarget);
 					SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, sQuery);
-
+					
 					GetArrayString(g_ClientData[iClient], DATA_NAME, sBuffer, sizeof(sBuffer));
-
+					
 					VIP_PrintToChatClient(iClient, "%t", "ADMIN_SET_PASSWORD");
-					if(g_CVAR_bLogsEnable) LogToFile(g_sLogFile, "%T", "LOG_ADMIN_SET_PASSWORD", iClient, iClient, sBuffer, sPass);
+					if (g_CVAR_bLogsEnable)LogToFile(g_sLogFile, "%T", "LOG_ADMIN_SET_PASSWORD", iClient, iClient, sBuffer, sPass);
 					ShowTargetInfoMenu(iClient, iTarget);
 				}
 				case 1:
@@ -254,20 +254,20 @@ public int MenuHandler_EditVip_WaitPassMenu(Menu hMenu, MenuAction action, int i
 void ShowEditGroupMenu(int iClient)
 {
 	SetGlobalTransTarget(iClient);
-
+	
 	decl Handle:hMenu; char sGroup[64];
-	hMenu  = CreateMenu(MenuHandler_EditVip_GroupsList);
+	hMenu = CreateMenu(MenuHandler_EditVip_GroupsList);
 	SetMenuTitle(hMenu, "%t:\n \n", "GROUP");
 	SetMenuExitBackButton(hMenu, true);
-
+	
 	sGroup[0] = 0;
 	
 	KvRewind(g_hGroups);
-	if(KvGotoFirstSubKey(g_hGroups))
+	if (KvGotoFirstSubKey(g_hGroups))
 	{
 		char sTagetGroup[64]; char sGroupName[128];
 		GetArrayString(g_ClientData[iClient], DATA_GROUP, sTagetGroup, sizeof(sTagetGroup));
-		if(strcmp(sTagetGroup, "none") == 0)
+		if (strcmp(sTagetGroup, "none") == 0)
 		{
 			sTagetGroup[0] = '\0';
 		}
@@ -275,8 +275,8 @@ void ShowEditGroupMenu(int iClient)
 		{
 			if (KvGetSectionName(g_hGroups, sGroup, sizeof(sGroup)))
 			{
-				if(sTagetGroup[0] && strcmp(sTagetGroup, sGroup, true) == 0)
-				{	
+				if (sTagetGroup[0] && strcmp(sTagetGroup, sGroup, true) == 0)
+				{
 					FormatEx(sGroupName, sizeof(sGroupName), "%s (%t)", sGroup, "CURRENT");
 					AddMenuItem(hMenu, sGroup, sGroupName, ITEMDRAW_DISABLED);
 				}
@@ -287,7 +287,7 @@ void ShowEditGroupMenu(int iClient)
 			}
 		} while KvGotoNextKey(g_hGroups);
 	}
-	if(sGroup[0] == 0)
+	if (sGroup[0] == 0)
 	{
 		FormatEx(sGroup, sizeof(sGroup), "%t", "NO_GROUPS_AVAILABLE");
 		AddMenuItem(hMenu, "", sGroup, ITEMDRAW_DISABLED);
@@ -297,12 +297,12 @@ void ShowEditGroupMenu(int iClient)
 
 public int MenuHandler_EditVip_GroupsList(Menu hMenu, MenuAction action, int iClient, int Item)
 {
-	switch(action)
+	switch (action)
 	{
-		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack) ShowTargetInfoMenu(iClient, GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
+			if (Item == MenuCancel_ExitBack)ShowTargetInfoMenu(iClient, GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
 		}
 		case MenuAction_Select:
 		{
@@ -310,7 +310,7 @@ public int MenuHandler_EditVip_GroupsList(Menu hMenu, MenuAction action, int iCl
 			GetMenuItem(hMenu, Item, sGroup, sizeof(sGroup));
 			GetArrayString(g_ClientData[iClient], DATA_NAME, sBuffer, sizeof(sBuffer));
 			iTarget = GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID);
-
+			
 			if (GLOBAL_INFO & IS_MySQL)
 			{
 				FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_overrides` SET `group` = '%s' WHERE `user_id` = '%i' AND `server_id` = '%i';", sGroup, iTarget, g_CVAR_iServerID);
@@ -325,14 +325,14 @@ public int MenuHandler_EditVip_GroupsList(Menu hMenu, MenuAction action, int iCl
 			ShowTargetInfoMenu(iClient, iTarget);
 			
 			iTarget = IsClientOnline(iTarget);
-			if(iTarget)
+			if (iTarget)
 			{
 				CreateForward_OnVIPClientRemoved(iTarget, "VIP-Group Changed");
 				Clients_CheckVipAccess(iTarget, false);
 			}
-
+			
 			VIP_PrintToChatClient(iClient, "%t", "ADMIN_SET_GROUP", sBuffer, sGroup);
-			if(g_CVAR_bLogsEnable) LogToFile(g_sLogFile, "%T", "LOG_ADMIN_SET_GROUP", iClient, iClient, sBuffer, sGroup);
+			if (g_CVAR_bLogsEnable)LogToFile(g_sLogFile, "%T", "LOG_ADMIN_SET_GROUP", iClient, iClient, sBuffer, sGroup);
 		}
 	}
-}
+} 
