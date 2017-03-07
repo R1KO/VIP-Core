@@ -129,7 +129,7 @@ public APLRes:AskPluginLoad2(Handle:myself, bool late, char[] error, err_max)
 	return APLRes_Success;
 }
 
-public Native_CheckClient(Handle:hPlugin, iNumParams)
+public int Native_CheckClient(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -139,7 +139,7 @@ public Native_CheckClient(Handle:hPlugin, iNumParams)
 	}
 }
 
-public Native_IsClientVIP(Handle:hPlugin, iNumParams)
+public int Native_IsClientVIP(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -151,7 +151,7 @@ public Native_IsClientVIP(Handle:hPlugin, iNumParams)
 	return false;
 }
 
-public Native_PrintToChatClient(Handle:hPlugin, iNumParams)
+public int Native_PrintToChatClient(Handle hPlugin, int iNumParams)
 {
 	new iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient, false))
@@ -167,7 +167,7 @@ public Native_PrintToChatClient(Handle:hPlugin, iNumParams)
 	}
 }
 
-public Native_PrintToChatAll(Handle:hPlugin, iNumParams)
+public int Native_PrintToChatAll(Handle hPlugin, int iNumParams)
 {
 	decl i; char sMessage[256];
 	
@@ -316,7 +316,7 @@ void SayText2(int iClient, int iAuthor = 0, const char[] sMessage)
 	EndMessage();
 }
 
-public Native_LogMessage(Handle:hPlugin, iNumParams)
+public int Native_LogMessage(Handle hPlugin, int iNumParams)
 {
 	if (g_CVAR_bLogsEnable)
 	{
@@ -328,7 +328,7 @@ public Native_LogMessage(Handle:hPlugin, iNumParams)
 	}
 }
 
-public Native_GetClientID(Handle:hPlugin, iNumParams)
+public int Native_GetClientID(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -344,7 +344,7 @@ public Native_GetClientID(Handle:hPlugin, iNumParams)
 	return -1;
 }
 
-public Native_GetClientVIPGroup(Handle:hPlugin, iNumParams)
+public int Native_GetClientVIPGroup(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -363,7 +363,7 @@ public Native_GetClientVIPGroup(Handle:hPlugin, iNumParams)
 	return false;
 }
 
-public Native_SetClientVIPGroup(Handle:hPlugin, iNumParams)
+public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -404,7 +404,7 @@ public Native_SetClientVIPGroup(Handle:hPlugin, iNumParams)
 	return false;
 }
 
-public Native_GetClientAccessTime(Handle:hPlugin, iNumParams)
+public int Native_GetClientAccessTime(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -420,7 +420,7 @@ public Native_GetClientAccessTime(Handle:hPlugin, iNumParams)
 	return -1;
 }
 
-public Native_SetClientAccessTime(Handle:hPlugin, iNumParams)
+public int Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
 {
 	new iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient))
@@ -461,7 +461,7 @@ public Native_SetClientAccessTime(Handle:hPlugin, iNumParams)
 	return false;
 }
 
-public Native_SetClientPassword(Handle:hPlugin, iNumParams)
+public int Native_SetClientPassword(Handle hPlugin, int iNumParams)
 {
 	new iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient))
@@ -512,7 +512,7 @@ public SQL_Callback_ChangeClientSettings(Handle:hOwner, Handle:hQuery, const cha
 	}
 }
 
-public Native_GetVIPClientTrie(Handle:hPlugin, iNumParams)
+public int Native_GetVIPClientTrie(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -523,7 +523,7 @@ public Native_GetVIPClientTrie(Handle:hPlugin, iNumParams)
 	return _:INVALID_HANDLE;
 }
 
-public Native_GetClientAuthType(Handle:hPlugin, iNumParams)
+public int Native_GetClientAuthType(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -538,7 +538,7 @@ public Native_GetClientAuthType(Handle:hPlugin, iNumParams)
 	return -1;
 }
 
-public Native_SendClientVIPMenu(Handle:hPlugin, iNumParams)
+public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -548,7 +548,7 @@ public Native_SendClientVIPMenu(Handle:hPlugin, iNumParams)
 	}
 }
 
-public Native_SetClientVIP(Handle:hPlugin, iNumParams)
+public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -638,7 +638,7 @@ public Native_SetClientVIP(Handle:hPlugin, iNumParams)
 	return false;
 }
 
-public Native_RemoveClientVIP(Handle:hPlugin, iNumParams)
+public int Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -668,19 +668,19 @@ public Native_RemoveClientVIP(Handle:hPlugin, iNumParams)
 	return false;
 }
 
-public Native_IsValidVIPGroup(Handle:hPlugin, iNumParams)
+public int Native_IsValidVIPGroup(Handle hPlugin, int iNumParams)
 {
 	char sGroup[64];
 	GetNativeString(1, sGroup, sizeof(sGroup));
 	return UTIL_CheckValidVIPGroup(sGroup);
 }
 
-public Native_IsVIPLoaded(Handle:hPlugin, iNumParams)
+public int Native_IsVIPLoaded(Handle hPlugin, int iNumParams)
 {
 	return ((GLOBAL_INFO & IS_STARTED) && g_hDatabase);
 }
 
-public Native_RegisterFeature(Handle:hPlugin, iNumParams)
+public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 {
 	char sFeatureName[FEATURE_NAME_LENGTH];
 	GetNativeString(1, sFeatureName, sizeof(sFeatureName));
@@ -758,7 +758,7 @@ public Native_RegisterFeature(Handle:hPlugin, iNumParams)
 	}
 }
 
-public Native_UnregisterFeature(Handle:hPlugin, iNumParams)
+public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 {
 	char sFeatureName[FEATURE_NAME_LENGTH];
 	GetNativeString(1, sFeatureName, sizeof(sFeatureName));
@@ -834,7 +834,7 @@ public Native_UnregisterFeature(Handle:hPlugin, iNumParams)
 	}
 }
 
-public Native_IsValidFeature(Handle:hPlugin, iNumParams)
+public int Native_IsValidFeature(Handle hPlugin, int iNumParams)
 {
 	char sFeatureName[FEATURE_NAME_LENGTH];
 	GetNativeString(1, sFeatureName, sizeof(sFeatureName));
@@ -842,7 +842,7 @@ public Native_IsValidFeature(Handle:hPlugin, iNumParams)
 	return _:IsValidFeature(sFeatureName);
 }
 
-public Native_IsClientFeatureUse(Handle:hPlugin, iNumParams)
+public int Native_IsClientFeatureUse(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -858,7 +858,7 @@ public Native_IsClientFeatureUse(Handle:hPlugin, iNumParams)
 	return false;
 }
 
-public Native_GetClientFeatureStatus(Handle:hPlugin, iNumParams)
+public int Native_GetClientFeatureStatus(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -873,7 +873,7 @@ public Native_GetClientFeatureStatus(Handle:hPlugin, iNumParams)
 	return _:NO_ACCESS;
 }
 
-public Native_SetClientFeatureStatus(Handle:hPlugin, iNumParams)
+public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -910,7 +910,7 @@ public Native_SetClientFeatureStatus(Handle:hPlugin, iNumParams)
 	return false;
 }
 
-public Native_GetClientFeatureInt(Handle:hPlugin, iNumParams)
+public int Native_GetClientFeatureInt(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -928,7 +928,7 @@ public Native_GetClientFeatureInt(Handle:hPlugin, iNumParams)
 	return 0;
 }
 
-public Native_GetClientFeatureFloat(Handle:hPlugin, iNumParams)
+public int Native_GetClientFeatureFloat(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -945,7 +945,7 @@ public Native_GetClientFeatureFloat(Handle:hPlugin, iNumParams)
 	return _:0.0;
 }
 
-public Native_GetClientFeatureBool(Handle:hPlugin, iNumParams)
+public int Native_GetClientFeatureBool(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -960,7 +960,7 @@ public Native_GetClientFeatureBool(Handle:hPlugin, iNumParams)
 	return false;
 }
 
-public Native_GetClientFeatureString(Handle:hPlugin, iNumParams)
+public int Native_GetClientFeatureString(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -981,7 +981,7 @@ public Native_GetClientFeatureString(Handle:hPlugin, iNumParams)
 }
 
 /*
-public Native_GiveClientFeature(Handle:hPlugin, iNumParams)
+public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 {
 	decl iClient;
 	iClient = GetNativeCell(1);
@@ -1051,27 +1051,27 @@ public Native_GiveClientFeature(Handle:hPlugin, iNumParams)
 }
 */
 
-public Native_GetDatabase(Handle:hPlugin, iNumParams)
+public int Native_GetDatabase(Handle hPlugin, int iNumParams)
 {
 	return _:CloneHandle(g_hDatabase, hPlugin);
 }
 
-public Native_GetDatabaseType(Handle:hPlugin, iNumParams)
+public int Native_GetDatabaseType(Handle hPlugin, int iNumParams)
 {
 	return (GLOBAL_INFO & IS_MySQL);
 }
 
-public Native_TimeToSeconds(Handle:hPlugin, iNumParams)
+public int Native_TimeToSeconds(Handle hPlugin, int iNumParams)
 {
 	return UTIL_TimeToSeconds(GetNativeCell(1));
 }
 
-public Native_SecondsToTime(Handle:hPlugin, iNumParams)
+public int Native_SecondsToTime(Handle hPlugin, int iNumParams)
 {
 	return UTIL_SecondsToTime(GetNativeCell(1));
 }
 
-public Native_GetTimeFromStamp(Handle:hPlugin, iNumParams)
+public int Native_GetTimeFromStamp(Handle hPlugin, int iNumParams)
 {
 	new iTimeStamp = GetNativeCell(3);
 	if (iTimeStamp > 0)
@@ -1089,7 +1089,7 @@ public Native_GetTimeFromStamp(Handle:hPlugin, iNumParams)
 	return false;
 }
 
-public Native_AddStringToggleStatus(Handle:hPlugin, iNumParams)
+public int Native_AddStringToggleStatus(Handle hPlugin, int iNumParams)
 {
 	char sFeatureName[FEATURE_NAME_LENGTH];
 	GetNativeString(4, sFeatureName, sizeof(sFeatureName));
