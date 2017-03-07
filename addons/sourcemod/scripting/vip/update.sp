@@ -30,7 +30,10 @@ public OnSocketReceive(Handle:hSocket, char[] receiveData, const dataSize, any a
 	}
 } 
 
-public OnSocketDisconnected(Handle:hSocket, any arg) CloseHandle(hSocket); 
+public OnSocketDisconnected(Handle:hSocket, any arg)
+{
+	CloseHandle(hSocket);
+}
 
 public OnSocketError(Handle:hSocket, const errorType, const errorNum, any arg)  
 { 

@@ -29,4 +29,7 @@ void LoadSound(const char[] sSound)
 	}
 }*/
 
-void PlaySound(int iClient, const char[] sSound) ClientCommand(iClient, "playgamesound %s", sSound);
+void PlaySound(int iClient, const char[] sSound)
+{
+	ClientCommand(iClient, "playgamesound %s", sSound);
+}
