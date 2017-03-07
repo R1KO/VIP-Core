@@ -16,7 +16,7 @@ public OnConfigsExecuted()
 		}
 
 #if USE_ADMINMENU 1
-public Action:VIPAdmin_CMD(iClient, iArgs)
+public Action VIPAdmin_CMD(int iClient, int iArgs)
 {
 	if(iClient)
 	{
@@ -29,7 +29,7 @@ public Action:VIPAdmin_CMD(iClient, iArgs)
 }
 #endif
 
-public Action:ReloadVIPPlayers_CMD(iClient, iArgs)
+public Action ReloadVIPPlayers_CMD(int iClient, int iArgs)
 {
 	CHECK_ACCESS(iClient)
 
@@ -38,7 +38,7 @@ public Action:ReloadVIPPlayers_CMD(iClient, iArgs)
 	return Plugin_Handled;
 }
 
-public Action:ReloadVIPCfg_CMD(iClient, iArgs)
+public Action ReloadVIPCfg_CMD(int iClient, int iArgs)
 {
 	CHECK_ACCESS(iClient)
 
@@ -49,7 +49,7 @@ public Action:ReloadVIPCfg_CMD(iClient, iArgs)
 	return Plugin_Handled;
 }
 
-public Action:AddVIP_CMD(iClient, iArgs)
+public Action AddVIP_CMD(int iClient, int iArgs)
 {
 	CHECK_ACCESS(iClient)
 
@@ -118,7 +118,7 @@ public Action:AddVIP_CMD(iClient, iArgs)
 	return Plugin_Handled;
 }
 
-public Action:DelVIP_CMD(iClient, iArgs)
+public Action DelVIP_CMD(int iClient, int iArgs)
 {
 	CHECK_ACCESS(iClient)
 
@@ -180,7 +180,7 @@ public SQL_Callback_OnSelectRemoveClient(Handle:hOwner, Handle:hQuery, const cha
 	}
 }
 
-public Action:VIPMenu_CMD(iClient, iArgs)
+public Action VIPMenu_CMD(int iClient, int iArgs)
 {
 	if(iClient)
 	{
