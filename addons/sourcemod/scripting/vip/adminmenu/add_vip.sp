@@ -41,7 +41,7 @@ void ShowAddVIPMenu(int iClient)
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_AddVip_PlayerList(Handle:hMenu, MenuAction:action, iClient, Item)
+public int MenuHandler_AddVip_PlayerList(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch(action)
 	{
@@ -83,7 +83,7 @@ void ShowAuthTypeMenu(int iClient)
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_AddVip_AuthType(Handle:hMenu, MenuAction:action, iClient, Item)
+public int MenuHandler_AddVip_AuthType(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch(action)
 	{
@@ -135,7 +135,7 @@ void ShowGroupMenu(int iClient)
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_AddVip_GroupsList(Handle:hMenu, MenuAction:action, iClient, Item)
+public int MenuHandler_AddVip_GroupsList(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch(action)
 	{

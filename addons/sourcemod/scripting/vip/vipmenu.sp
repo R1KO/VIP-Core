@@ -98,7 +98,7 @@ stock void PrintArray(Handle &hArray)
 }
 #endif
 
-public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
+public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOption)
 {
 	static char sItemInfo[FEATURE_NAME_LENGTH]; Handle:hBuffer, Function:Function_Call, Handle:hPlugin;
 	/*

@@ -52,7 +52,7 @@ void ShowVipPlayersListMenu(int iClient)
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_VipPlayersListMenu(Handle:hMenu, MenuAction:action, iClient, Item)
+public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch(action)
 	{
@@ -141,7 +141,7 @@ void ShowWaitSearchMenu(int iClient, const char[] sSearch = "", bool bIsValid = 
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_SearchPlayersListMenu(Handle:hMenu, MenuAction:action, iClient, Item)
+public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch(action)
 	{
@@ -488,7 +488,7 @@ void ShowTargetTempInfo(int iClient, int UserID)
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 */
-public MenuHandler_VipClientInfoMenu(Handle:hMenu, MenuAction:action, iClient, Item)
+public int MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch(action)
 	{

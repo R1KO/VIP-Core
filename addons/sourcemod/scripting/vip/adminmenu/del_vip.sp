@@ -19,7 +19,7 @@ void ShowDeleteVipPlayerMenu(int iClient)
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_DeleteVipPlayerMenu(Handle:hMenu, MenuAction:action, iClient, Item)
+public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch(action)
 	{

@@ -19,7 +19,7 @@ void ShowEditTimeMenu(int iClient)
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_EditTimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
+public int MenuHandler_EditTimeMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch(action)
 	{
@@ -109,7 +109,7 @@ public SQL_Callback_SelectClientPass(Handle:hOwner, Handle:hQuery, const char[] 
 	}
 }
 
-public MenuHandler_EditPassMenu(Handle:hMenu, MenuAction:action, iClient, Item)
+public int MenuHandler_EditPassMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch(action)
 	{
@@ -150,7 +150,7 @@ void ShowDelPassMenu(int iClient)
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_DelPassMenu(Handle:hMenu, MenuAction:action, iClient, Item)
+public int MenuHandler_DelPassMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch(action)
 	{
@@ -206,7 +206,7 @@ void ShowWaitPassMenu(int iClient, const char[] sPass = "", const bool bIsValid 
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_EditVip_WaitPassMenu(Handle:hMenu, MenuAction:action, iClient, Item)
+public int MenuHandler_EditVip_WaitPassMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch(action)
 	{
@@ -295,7 +295,7 @@ void ShowEditGroupMenu(int iClient)
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_EditVip_GroupsList(Handle:hMenu, MenuAction:action, iClient, Item)
+public int MenuHandler_EditVip_GroupsList(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch(action)
 	{

@@ -35,7 +35,7 @@ void InitVIPAdminMenu()
 	AddMenuItem(g_hVIPAdminMenu, "", "vip_reload_settings");
 }
 
-public Handler_VIPAdminMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
+public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int iOption)
 {
 	switch(action)
 	{
@@ -275,7 +275,7 @@ void ShowTimeMenu(int iClient)
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_TimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
+public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch(action)
 	{

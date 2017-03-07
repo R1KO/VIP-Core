@@ -154,7 +154,7 @@ void ReplaceValues(int iClient, char[] sBuffer, int iBufLen, bool bExt)
 	//	{EXPIRES}	- Когда истекает VIP-статус
 }
 
-public SelectInfoPanel(Handle:hPanel, MenuAction:action, iClient, iOption)
+public int SelectInfoPanel(Menu hPanel, MenuAction action, int iClient, int iOption)
 {
 	
 }
