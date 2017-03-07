@@ -29,17 +29,17 @@ ReadConfigs()
 
 	decl String:sFeatureName[255], Handle:hFile;
 
-	if (g_hSortArray != INVALID_HANDLE)
+	if (g_hSortArray != null)
 	{
-		CloseHandle(g_hSortArray);
-		g_hSortArray = INVALID_HANDLE;
+		delete g_hSortArray;
+		g_hSortArray = null;
 	}
 
 	BuildPath(Path_SM, sFeatureName, sizeof(sFeatureName), "data/vip/cfg/sort_menu.ini");
 	hFile = OpenFile(sFeatureName, "r");
-	if (hFile != INVALID_HANDLE)
+	if (hFile != null)
 	{
-		g_hSortArray = CreateArray(ByteCountToCells(FEATURE_NAME_LENGTH));
+		g_hSortArray = new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
 		
 		while (!IsEndOfFile(hFile) && ReadFileLine(hFile, sFeatureName, FEATURE_NAME_LENGTH))
 		{
@@ -58,29 +58,29 @@ ReadConfigs()
 		
 		if(GetArraySize(g_hSortArray) == 0)
 		{
-			CloseHandle(g_hSortArray);
-			g_hSortArray = INVALID_HANDLE;
+			delete g_hSortArray;
+			g_hSortArray = null;
 		}
 	}
 
 	UTIL_CloseHandleEx(g_hGroups);
 
 	g_hGroups = CreateConfig("data/vip/cfg/groups.ini", "VIP_GROUPS");
-	GLOBAL_INFO_KV = CreateConfig("data/vip/cfg/info.ini", "VIP_INFO");
+	g_hInfo = CreateConfig("data/vip/cfg/info.ini", "VIP_INFO");
 }
 
-Handle:CreateConfig(const String:sFile[], const String:sKvName[])
+KeyValues CreateConfig(const String:sFile[], const String:sKvName[])
 {
-	decl String:sPath[PLATFORM_MAX_PATH], Handle:hKv;
+	decl String:sPath[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, sPath, sizeof(sPath), sFile);
 
-	hKv = CreateKeyValues(sKvName);
-	if(FileToKeyValues(hKv, sPath) == false)
+	KeyValues hKeyValues = new KeyValues(sKvName);
+	if(FileToKeyValues(hKeyValues, sPath) == false)
 	{
-		KeyValuesToFile(hKv, sPath);
+		KeyValuesToFile(hKeyValues, sPath);
 	}
 
-	KvRewind(hKv);
+	KvRewind(hKeyValues);
 
-	return hKv;
+	return hKeyValues;
 }

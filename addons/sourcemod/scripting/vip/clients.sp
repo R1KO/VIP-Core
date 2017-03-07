@@ -1,7 +1,6 @@
 
 ResetClient(iClient)
 {
-	g_iClientInfo[iClient] &= ~IS_AUTHORIZED;
 	g_iClientInfo[iClient] &= ~IS_VIP;
 	
 	UTIL_CloseHandleEx(g_hFeatures[iClient]);
@@ -62,11 +61,8 @@ Clients_LoadClient(iClient, bool:bNotify)
 	{
 		FormatEx(sQuery, sizeof(sQuery), "SELECT `u`.`id`, \
 												`u`.`auth_type`, \
-												`u`.`password`, \
-												`u`.`pass_key`, \
 												`o`.`expires`, \
-												`o`.`group`, \
-												`u`.`auth` \
+												`o`.`group` \
 												FROM `vip_users` AS `u` \
 												LEFT JOIN `vip_overrides` AS `o` \
 												ON `o`.`user_id` = `u`.`id` \
@@ -78,7 +74,7 @@ Clients_LoadClient(iClient, bool:bNotify)
 	}
 	else
 	{
-		FormatEx(sQuery, sizeof(sQuery), "SELECT `id`, `auth_type`, `password`, `pass_key`, `expires`, `group`, `auth` \
+		FormatEx(sQuery, sizeof(sQuery), "SELECT `id`, `auth_type`, `expires`, `group` \
 											FROM `vip_users` \
 											WHERE (`auth` = '%s' AND `auth_type` = '0') \
 											OR (`auth` = '%s' AND `auth_type` = '1') \
@@ -89,6 +85,7 @@ Clients_LoadClient(iClient, bool:bNotify)
 	DataPack hDataPack = new DataPack();
 	hDataPack.WriteCell(UID(iClient));
 	hDataPack.WriteCell(bNotify);
+	hDataPack.WriteString(sAuth);
 	
 	DebugMessage(sQuery)
 	SQL_TQuery(g_hDatabase, SQL_Callback_OnClientAuthorized, sQuery, hDataPack);
@@ -97,7 +94,7 @@ Clients_LoadClient(iClient, bool:bNotify)
 public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const String:sError[], any:hPack)
 {
 	DataPack hDataPack = view_as<DataPack>(hPack);
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hQuery == null || sError[0])
 	{
 		LogError("SQL_Callback_OnClientAuthorized: %s", sError);
 		delete hDataPack;
@@ -112,12 +109,12 @@ public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const Strin
 	{
 		if(SQL_FetchRow(hQuery))
 		{
-			new iExpires = SQL_FetchInt(hQuery, 4),
+			int iExpires = SQL_FetchInt(hQuery, 2),
 			iClientID = SQL_FetchInt(hQuery, 0);
 			DebugMessage("Clients_LoadClient %N (%i):\texpires: %i", iClient, iClient, iExpires)
 			if(iExpires > 0)
 			{
-				new iTime = GetTime();
+				int iTime = GetTime();
 				DebugMessage("Clients_LoadClient %N (%i):\tTime: %i", iClient, iClient, iTime)
 				
 				if(iTime > iExpires)
@@ -135,43 +132,8 @@ public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const Strin
 						DebugMessage("Clients_LoadClient %N (%i):\tDelete", iClient, iClient)
 						
 						DB_RemoveClientFromID(0, iClientID, false);
-						/*
-						if (GLOBAL_INFO & IS_MySQL)
-						{
-							decl String:sQuery[256];
-							FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `vip_overrides` WHERE `user_id` = '%i' AND `server_id` = '%i';", iClientID, g_CVAR_iServerID);
-							SQL_TQuery(g_hDatabase, SQL_Callback_DeleteExpired, sQuery);
-						}
-						
-						if (GLOBAL_INFO & IS_MySQL)
-						{
-							decl String:sQuery[256];
-							FormatEx(sQuery, sizeof(sQuery), "SELECT COUNT(*) AS vip_count FROM `vip_overrides` WHERE `user_id` = '%i';", iClientID);
-							SQL_TQuery(g_hDatabase, SQL_Callback_RemoveClient2, sQuery, iClientID);
-						}
-						else
-						{
-							DB_RemoveClientFromID(0, iClientID, false);
-						}
-						*/
-					}
-					
-	/*
-					if (GLOBAL_INFO & IS_MySQL)
-					{
-						decl String:sQuery[256];
-						FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `vip_overrides` WHERE `user_id` = '%i' AND `server_id` = '%i';", iClientID, g_CVAR_iServerID);
-						SQL_TQuery(g_hDatabase, SQL_Callback_DeleteExpired);
-					}
-					else if(g_CVAR_bDeleteExpired)
-					{
-						DB_RemoveClientFromID(0, SQL_FetchInt(hQuery, 0), false);
 					}
 
-					decl String:sQuery[256];
-					FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `vip_overrides` WHERE `user_id` = '%i' AND `server_id` = '%i';", iClientID, g_CVAR_iServerID);
-					SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck);
-	*/
 					CreateForward_OnVIPClientRemoved(iClient, "Expired");
 					
 					DisplayClientInfo(iClient, "expired_info");
@@ -184,100 +146,54 @@ public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const Strin
 				Clients_CreateExpiredTimer(iClient, iExpires, iTime);
 			}
 
-			decl String:sBuffer[64];
-			if(SQL_IsFieldNull(hQuery, 2) == false)
+			char sGroup[64];
+			SQL_FetchString(hQuery, 3, sGroup, sizeof(sGroup));
+			DebugMessage("Clients_LoadClient %N (%i):\tvip_group: %s", iClient, iClient, sGroup)
+			if(sGroup[0] && UTIL_CheckValidVIPGroup(sGroup))
 			{
-				SQL_FetchString(hQuery, 2, sBuffer, sizeof(sBuffer)); // password
-				if(sBuffer[0])
+				VIP_AuthType AuthType = view_as<VIP_AuthType>(SQL_FetchInt(hQuery, 1));
+				Clients_CreateClientVIPSettings(iClient, iExpires, AuthType);
+
+				SetTrieValue(g_hFeatures[iClient], KEY_CID, SQL_FetchInt(hQuery, 0));
+
+				SetTrieString(g_hFeatures[iClient], KEY_GROUP, sGroup);
+				DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
+				if(AreClientCookiesCached(iClient))
 				{
-					DebugMessage("Clients_LoadClient %N (%i):\tpassword: %s", iClient, iClient, sBuffer)
-					
-					decl String:sClientCvar[64], String:sClientPass[64];
-					if(SQL_IsFieldNull(hQuery, 3) == false)
-					{
-						SQL_FetchString(hQuery, 3, sClientCvar, sizeof(sClientCvar));
-					}
-					else
-					{
-						strcopy(sClientCvar, sizeof(sClientCvar), "vip");
-					}
-					
-					GetClientInfo(iClient, sClientCvar, sClientPass, sizeof(sClientPass));
-					
-					if(strcmp(sBuffer, sClientPass) != 0)
-					{
-						delete hDataPack;
-						
-						if(g_CVAR_bKickNotAuthorized)
-						{
-							KickClient(iClient, "%t", "INVALID_PASSWORD");
-						}
-						else
-						{
-							g_iClientInfo[iClient] |= IS_LOADED;
-							g_iClientInfo[iClient] &= ~IS_AUTHORIZED;
-							VIP_PrintToChatClient(iClient, "%t", "WAIT_PASSWORD");
-							
-							DebugMessage("Clients_LoadClient %N (%i):\tFailed password: %s", iClient, iClient, sClientPass)
-							
-							if(g_CVAR_bLogsEnable) LogToFile(g_sLogFile, "%T", "FAILED_AUTHORIZE", LANG_SERVER, iClient);
-						}
-						CreateForward_OnClientLoaded(iClient);
-						return;
-					}
-				}
-			}
-
-			SQL_FetchString(hQuery, 5, sBuffer, sizeof(sBuffer));
-			DebugMessage("Clients_LoadClient %N (%i):\tvip_group: %s", iClient, iClient, sBuffer)
-			if(sBuffer[0])
-			{
-				if(UTIL_CheckValidVIPGroup(sBuffer))
-				{
-					new VIP_AuthType:AuthType = VIP_AuthType:SQL_FetchInt(hQuery, 1);
-					Clients_CreateClientVIPSettings(iClient, iExpires, AuthType);
-
-					SetTrieValue(g_hFeatures[iClient], KEY_CID, SQL_FetchInt(hQuery, 0));
-
-					SetTrieString(g_hFeatures[iClient], KEY_GROUP, sBuffer);
-					DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
-					if(AreClientCookiesCached(iClient))
-					{
-						Clients_LoadVIPFeatures(iClient);
-					}
-					else
-					{
-						CreateTimer(1.0, Timer_CheckCookies, UID(iClient), TIMER_FLAG_NO_MAPCHANGE);
-					}
-					
-					g_iClientInfo[iClient] |= IS_AUTHORIZED;
-					g_iClientInfo[iClient] |= IS_VIP;
-					g_iClientInfo[iClient] |= IS_LOADED;
-
-					CreateForward_OnClientLoaded(iClient);
-					Clients_OnVIPClientLoaded(iClient);
-
-					if(g_CVAR_bUpdateName && AuthType != AUTH_NAME)
-					{
-						DB_UpdateClientName(iClient);
-					}
-
-					if(hDataPack.ReadCell())
-					{
-						if(g_CVAR_bAutoOpenMenu)
-						{
-							DisplayMenu(g_hVIPMenu, iClient, MENU_TIME_FOREVER);
-						}
-
-						DisplayClientInfo(iClient, iExpires == 0 ? "connect_info_perm":"connect_info_time");
-					}
+					Clients_LoadVIPFeatures(iClient);
 				}
 				else
 				{
-					decl String:sAuth[32];
-					SQL_FetchString(hQuery, 6, sAuth, sizeof(sAuth));
-					LogError("Invalid VIP-Group/Некорректная VIP-группа: %s (Игрок: %s)", sBuffer, sAuth);
+					CreateTimer(1.0, Timer_CheckCookies, UID(iClient), TIMER_FLAG_NO_MAPCHANGE);
 				}
+				
+				g_iClientInfo[iClient] |= IS_VIP;
+				g_iClientInfo[iClient] |= IS_LOADED;
+
+				CreateForward_OnClientLoaded(iClient);
+				Clients_OnVIPClientLoaded(iClient);
+
+				if(g_CVAR_bUpdateName && AuthType != AUTH_NAME)
+				{
+					DB_UpdateClientName(iClient);
+				}
+
+				if(hDataPack.ReadCell())
+				{
+					if(g_CVAR_bAutoOpenMenu)
+					{
+						DisplayMenu(g_hVIPMenu, iClient, MENU_TIME_FOREVER);
+					}
+
+					DisplayClientInfo(iClient, iExpires == 0 ? "connect_info_perm":"connect_info_time");
+				}
+			}
+			else
+			{
+				hDataPack.ReadCell();
+				char sAuth[32];
+				hDataPack.ReadString(sAuth, sizeof(sAuth));
+				LogError("Invalid VIP-Group/Некорректная VIP-группа: %s (Игрок: %s)", sGroup, sAuth);
 			}
 		}
 		else
@@ -318,8 +234,8 @@ Clients_OnVIPClientLoaded(iClient)
 
 Clients_CreateClientVIPSettings(iClient, iExp, VIP_AuthType:AuthType = AUTH_STEAM)
 {
-	g_hFeatures[iClient] = CreateTrie();
-	g_hFeatureStatus[iClient] = CreateTrie();
+	g_hFeatures[iClient] = new StringMap();
+	g_hFeatureStatus[iClient] = new StringMap();
 
 	SetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iExp);
 	SetTrieValue(g_hFeatures[iClient], KEY_AUTHTYPE, AuthType);
@@ -341,7 +257,7 @@ Clients_LoadVIPFeatures(iClient)
 	
 	DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
 
-	new iFeatures = GetArraySize(GLOBAL_ARRAY);
+	new iFeatures = GetArraySize(g_hFeaturesArray);
 	DebugMessage("FeaturesArraySize: %i", iFeatures)
 	if(iFeatures > 0)
 	{
@@ -358,7 +274,7 @@ Clients_LoadVIPFeatures(iClient)
 			ArrayList hArray;
 			for(i=0; i < iFeatures; ++i)
 			{
-				GetArrayString(GLOBAL_ARRAY, i, sFeatureName, sizeof(sFeatureName));
+				GetArrayString(g_hFeaturesArray, i, sFeatureName, sizeof(sFeatureName));
 				if(GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
 				{
 					DebugMessage("LoadClientFeature: %i - %s", i, sFeatureName)

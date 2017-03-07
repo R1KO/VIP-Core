@@ -77,7 +77,7 @@ public Action:AddVIP_CMD(iClient, iArgs)
 	iTarget = FindTarget(iClient, sAuth, true, false);
 	if(iTarget != -1)
 	{
-		if(g_iClientInfo[iTarget] & IS_VIP || g_iClientInfo[iTarget] & IS_AUTHORIZED)
+		if(g_iClientInfo[iTarget] & IS_VIP)
 		{
 			ReplyToCommand(iClient, "[VIP] %t", "ALREADY_HAS_VIP");
 			return Plugin_Handled;
@@ -160,7 +160,7 @@ public Action:DelVIP_CMD(iClient, iArgs)
 
 public SQL_Callback_OnSelectRemoveClient(Handle:hOwner, Handle:hQuery, const String:sError[], any:iClient)
 {
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hQuery == null || sError[0])
 	{
 		LogError("SQL_Callback_OnSelectRemoveClient: %s", sError);
 	}

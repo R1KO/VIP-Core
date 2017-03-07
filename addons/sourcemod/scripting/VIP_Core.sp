@@ -4,7 +4,7 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION	"3.0 DEV #1"
+#define VIP_VERSION	"3.0 DEV #2"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -66,8 +66,9 @@ public OnPluginStart()
 	LoadTranslations("vip_modules.phrases");
 	LoadTranslations("common.phrases");
 
-	GLOBAL_ARRAY	= CreateArray(ByteCountToCells(FEATURE_NAME_LENGTH));
-	GLOBAL_TRIE	= CreateTrie();
+	g_hFeaturesArray	= new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
+	GLOBAL_TRIE			= new StringMap();
+
 	ReadConfigs();
 	
 	InitVIPMenu();
@@ -95,8 +96,8 @@ public OnPluginStart()
 
 	if(LibraryExists("adminmenu"))
 	{
-		decl Handle:hTopMenu;
-		if((hTopMenu = GetAdminTopMenu()))
+		TopMenu hTopMenu = GetAdminTopMenu();
+		if(hTopMenu != null)
 		{
 			OnAdminMenuReady(hTopMenu);
 		}

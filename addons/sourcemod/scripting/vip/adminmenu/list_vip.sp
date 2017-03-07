@@ -22,7 +22,7 @@ ShowVipPlayersListMenu(iClient)
 	sUserID[0] = 0;
 	for (i = 1; i <= MaxClients; ++i)
 	{
-		if (IsClientInGame(i) && (g_iClientInfo[i] & IS_VIP) && (g_iClientInfo[i] & IS_AUTHORIZED) && IsFakeClient(i) == false && GetClientName(i, sName, sizeof(sName)))
+		if (IsClientInGame(i) && (g_iClientInfo[i] & IS_VIP) && IsFakeClient(i) == false && GetClientName(i, sName, sizeof(sName)))
 		{
 			GetTrieValue(g_hFeatures[i], KEY_CID, iClientID);
 			/*if(iClientID == -1)
@@ -201,7 +201,7 @@ public MenuHandler_SearchPlayersListMenu(Handle:hMenu, MenuAction:action, iClien
 /*
 public SQL_Callback_SearchPlayers(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
 {
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hQuery == null || sError[0])
 	{
 		LogError("SQL_Callback_SearchPlayers: %s", sError);
 		return;
@@ -267,7 +267,7 @@ ShowVipPlayersFromDBMenu(iClient, iOffset = 0)
 
 public SQL_Callback_SelectVipPlayers(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
 {
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hQuery == null || sError[0])
 	{
 		LogError("SQL_Callback_SelectVipPlayers: %s", sError);
 		return;
@@ -346,7 +346,7 @@ ShowTargetInfoMenu(iClient, iClientID)
 
 public SQL_Callback_SelectVipClientInfo(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
 {
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hQuery == null || sError[0])
 	{
 		LogError("SQL_Callback_SelectVipClientInfo: %s", sError);
 		return;

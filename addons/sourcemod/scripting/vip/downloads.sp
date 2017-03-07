@@ -6,7 +6,7 @@ ReadDownloads()
 	BuildPath(Path_SM, sBuffer, sizeof(sBuffer), "data/vip/modules/downloadlist.txt");
 	hFile = OpenFile(sBuffer, "r");
 
-	if(hFile != INVALID_HANDLE)
+	if(hFile != null)
 	{
 		while (IsEndOfFile(hFile) == false && ReadFileLine(hFile, sBuffer, sizeof(sBuffer)))
 		{
@@ -49,7 +49,7 @@ bool:Dir_AddToDownloadsTable(const String:sPath[])
 	{
 		decl Handle:hDir;
 		hDir = OpenDirectory(sPath);
-		if(hDir != INVALID_HANDLE)
+		if(hDir != null)
 		{
 			decl String:dirEntry[PLATFORM_MAX_PATH];
 			while (ReadDirEntry(hDir, dirEntry, sizeof(dirEntry)))

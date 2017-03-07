@@ -15,7 +15,7 @@ InitVIPMenu()
 AddFeatureToVIPMenu(const String:sFeatureName[])
 {
 	DebugMessage("AddFeatureToVIPMenu: %s", sFeatureName)
-	if(g_hSortArray != INVALID_HANDLE)
+	if(g_hSortArray != null)
 	{
 		ResortFeaturesArray();
 
@@ -23,10 +23,10 @@ AddFeatureToVIPMenu(const String:sFeatureName[])
 
 		decl i, iSize, String:sItemInfo[128];
 		ArrayList hArray;
-		iSize = GetArraySize(GLOBAL_ARRAY);
+		iSize = GetArraySize(g_hFeaturesArray);
 		for(i = 0; i < iSize; ++i)
 		{
-			GetArrayString(GLOBAL_ARRAY, i, sItemInfo, sizeof(sItemInfo));
+			GetArrayString(g_hFeaturesArray, i, sItemInfo, sizeof(sItemInfo));
 			if(GetTrieValue(GLOBAL_TRIE, sItemInfo, hArray) && VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) != HIDE)
 			{
 				DebugMessage("AddMenuItem: %s", sItemInfo)
@@ -45,7 +45,7 @@ ResortFeaturesArray()
 {
 	DebugMessage("ResortFeaturesArray\n \n ")
 
-	if(GetArraySize(GLOBAL_ARRAY) < 2)
+	if(GetArraySize(g_hFeaturesArray) < 2)
 	{
 		return;
 	}
@@ -55,7 +55,7 @@ ResortFeaturesArray()
 
 	#if DEBUG_MODE 1
 	PrintArray(g_hSortArray);
-	PrintArray(GLOBAL_ARRAY);
+	PrintArray(g_hFeaturesArray);
 	#endif
 
 	x = 0;
@@ -63,16 +63,16 @@ ResortFeaturesArray()
 	{
 		GetArrayString(g_hSortArray, i, sItemInfo, sizeof(sItemInfo));
 		DebugMessage("GetSortArrayString: %s (i: %i, x: %i)", sItemInfo, i, x)
-		index = FindStringInArray(GLOBAL_ARRAY, sItemInfo);
+		index = FindStringInArray(g_hFeaturesArray, sItemInfo);
 		DebugMessage("FindStringInGlobalArray: index: %i", index)
 		if(index != -1)
 		{
 			if(index != x)
 			{
 				DebugMessage("SwapArrayItems")
-				SwapArrayItems(GLOBAL_ARRAY, index, x);
+				SwapArrayItems(g_hFeaturesArray, index, x);
 				#if DEBUG_MODE 1
-				PrintArray(GLOBAL_ARRAY);
+				PrintArray(g_hFeaturesArray);
 				#endif
 			}
 
@@ -336,8 +336,8 @@ bool:Function_OnItemSelect(Handle:hPlugin, Function:SelectFunction, iClient, con
 
 bool:IsValidFeature(const String:sFeatureName[])
 {
-	DebugMessage("IsValidFeature:: FindStringInArray -> %i", FindStringInArray(GLOBAL_ARRAY, sFeatureName))
-	return (FindStringInArray(GLOBAL_ARRAY, sFeatureName) != -1);
+	DebugMessage("IsValidFeature:: FindStringInArray -> %i", FindStringInArray(g_hFeaturesArray, sFeatureName))
+	return (FindStringInArray(g_hFeaturesArray, sFeatureName) != -1);
 }
 
 bool:OnVipMenuFlood(iClient)

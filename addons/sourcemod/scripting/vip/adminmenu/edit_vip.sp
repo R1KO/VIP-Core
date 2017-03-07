@@ -65,7 +65,7 @@ ShowEditPassMenu(iClient)
 
 public SQL_Callback_SelectClientPass(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
 {
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hQuery == null || sError[0])
 	{
 		LogError("SQL_Callback_SelectClientPass: %s", sError);
 		return;

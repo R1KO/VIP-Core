@@ -2,7 +2,7 @@
 Features_TurnOffAll(iClient)
 {
 	DebugMessage("Features_TurnOffAll %N (%i)", iClient, iClient)
-	new iFeatures = GetArraySize(GLOBAL_ARRAY);
+	new iFeatures = GetArraySize(g_hFeaturesArray);
 	if(iFeatures != 0)
 	{
 		decl String:sFeatureName[FEATURE_NAME_LENGTH],
@@ -15,7 +15,7 @@ Features_TurnOffAll(iClient)
 
 		for(i=0; i < iFeatures; ++i)
 		{
-			GetArrayString(GLOBAL_ARRAY, i, sFeatureName, sizeof(sFeatureName));
+			GetArrayString(g_hFeaturesArray, i, sFeatureName, sizeof(sFeatureName));
 			if(GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
 			{
 				if(VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) == TOGGLABLE)
@@ -38,7 +38,7 @@ Features_TurnOnAll(iClient)
 {
 	DebugMessage("Features_TurnOnAll %N (%i)", iClient, iClient)
 
-	new iFeatures = GetArraySize(GLOBAL_ARRAY);
+	new iFeatures = GetArraySize(g_hFeaturesArray);
 	if(iFeatures != 0)
 	{
 		decl String:sFeatureName[FEATURE_NAME_LENGTH],
@@ -51,7 +51,7 @@ Features_TurnOnAll(iClient)
 	
 		for(i=0; i < iFeatures; ++i)
 		{
-			GetArrayString(GLOBAL_ARRAY, i, sFeatureName, sizeof(sFeatureName));
+			GetArrayString(g_hFeaturesArray, i, sFeatureName, sizeof(sFeatureName));
 			if(GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
 			{
 				if(VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) == TOGGLABLE)

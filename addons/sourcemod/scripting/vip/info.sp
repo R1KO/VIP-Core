@@ -10,8 +10,8 @@ DisplayClientInfo(iClient, const String:sKey[])
 	}
 	DebugMessage("sServLang = '%s'", sServLang)
 
-	KvRewind(GLOBAL_INFO_KV);
-	if(KvJumpToKey(GLOBAL_INFO_KV, sKey))
+	KvRewind(g_hInfo);
+	if(KvJumpToKey(g_hInfo, sKey))
 	{
 		DebugMessage("KvJumpToKey(%s)", sKey)
 		decl String:sBuffer[1028], String:sClientLang[4];
@@ -26,8 +26,8 @@ DisplayClientInfo(iClient, const String:sKey[])
 DisplayInfo(iClient, const String:sKey[], const String:sKey2[], String:sBuffer[], iBufLen, String:sClientLang[], String:sServLang[])
 {
 	DebugMessage("DisplayInfo: Client: %N (%i) -> '%s', '%s', '%s', '%s'", iClient, iClient, sKey, sKey2, sClientLang, sServLang)
-	KvRewind(GLOBAL_INFO_KV);
-	if(KvJumpToKey(GLOBAL_INFO_KV, sKey) && KvJumpToKey(GLOBAL_INFO_KV, sKey2))
+	KvRewind(g_hInfo);
+	if(KvJumpToKey(g_hInfo, sKey) && KvJumpToKey(g_hInfo, sKey2))
 	{
 		DebugMessage("KvJumpToKey(%s)", sKey2)
 		switch(sKey2[0])
@@ -50,12 +50,12 @@ DisplayInfo(iClient, const String:sKey[], const String:sKey2[], String:sBuffer[]
 			{
 				DebugMessage("case 'm'")
 				
-				int iTime = KvGetNum(GLOBAL_INFO_KV, "time", 0);
-				if(!KvJumpToKey(GLOBAL_INFO_KV, sClientLang))
+				int iTime = KvGetNum(g_hInfo, "time", 0);
+				if(!KvJumpToKey(g_hInfo, sClientLang))
 				{
-					if(!KvJumpToKey(GLOBAL_INFO_KV, sServLang))
+					if(!KvJumpToKey(g_hInfo, sServLang))
 					{
-						if(!KvGotoFirstSubKey(GLOBAL_INFO_KV))
+						if(!KvGotoFirstSubKey(g_hInfo))
 						{
 							return;
 						}
@@ -63,13 +63,13 @@ DisplayInfo(iClient, const String:sKey[], const String:sKey2[], String:sBuffer[]
 				}
 
 				DebugMessage("KvJumpToKey(%s|%s)", sClientLang, sServLang)
-				if(KvGotoFirstSubKey(GLOBAL_INFO_KV, false))
+				if(KvGotoFirstSubKey(g_hInfo, false))
 				{
 					DebugMessage("KvGotoFirstSubKey")
 					new Handle:hPanel = CreatePanel();
 					do
 					{
-						KvGetString(GLOBAL_INFO_KV, NULL_STRING, sBuffer, 128);
+						KvGetString(g_hInfo, NULL_STRING, sBuffer, 128);
 						DebugMessage("KvGetString = '%s'", sBuffer)
 						if(sBuffer[0])
 						{
@@ -85,7 +85,7 @@ DisplayInfo(iClient, const String:sKey[], const String:sKey2[], String:sBuffer[]
 							}
 							DrawPanelText(hPanel, sBuffer);
 						}
-					} while (KvGotoNextKey(GLOBAL_INFO_KV, false));
+					} while (KvGotoNextKey(g_hInfo, false));
 
 					DrawPanelText(hPanel, " \n");
 					
@@ -118,11 +118,11 @@ DisplayInfo(iClient, const String:sKey[], const String:sKey2[], String:sBuffer[]
 KvGetLangString(String:sBuffer[], iBufLen, String:sClientLang[], String:sServLang[])
 {
 	DebugMessage("KvGetLangString: '%s', '%s'", sClientLang, sServLang)
-	KvGetString(GLOBAL_INFO_KV, sClientLang, sBuffer, iBufLen);
+	KvGetString(g_hInfo, sClientLang, sBuffer, iBufLen);
 	DebugMessage("KvGetString (%s) = '%s'", sClientLang, sBuffer)
 	if (!sBuffer[0])
 	{
-		KvGetString(GLOBAL_INFO_KV, sServLang, sBuffer, iBufLen);
+		KvGetString(g_hInfo, sServLang, sBuffer, iBufLen);
 		DebugMessage("KvGetString (%s) = '%s'", sServLang, sBuffer)
 		if (!sBuffer[0])
 		{

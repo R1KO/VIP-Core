@@ -111,34 +111,6 @@
 		"ru"		"Права VIP-игрока {1} истекли, удаление игрока..."
 		"ua"		"Термін дії VIP гравця {1} закінчився, видалення гравця..."
 	}
-	"FAILED_AUTHORIZE"
-	{
-		"#format"	"{1:L}"
-		"en"		"VIP-player failed to authorize: {1}"
-		"fi"		"VIP-pelaaja Epäonnistui kirjautua {1}"
-		"de"		"Fehler beim Anmeldung: {1}"
-		"pt_p"		"Jogador VIP não autorizado: {1}"
-		"ru"		"Неудачная попытка авторизации VIP-игрока {1}"
-		"ua"		"Невдала спроба авторизації VIP-гравця {1}"
-	}
-	"INVALID_PASSWORD"
-	{
-		"ua"		"Цей аккаунт захищений паролем\nВведіть в консоль: setinfo \"логін\" \"пароль\""
-		"pt_p"		"Esta conta é protegida por password\nEscreve na consola: setinfo \"login\" \"password\""
-		"fi"		"Tämä tili on suojattu salasanalla\nKirjoita consoleen: setinfo \"käyttäjä\" \"salasana\""
-		"de"		"Dieses Konto ist kennwortgeschützt\nGeben Sie in die Konsole: setinfo \"login\" \"kennwort\""
-		"en"		"This account is password-protected\nType to console: setinfo \"login\" \"password\""
-		"ru"		"Этот аккаунт защищен паролем\nВведите в консоль: setinfo \"логин\" \"пароль\""
-	}
-	"WAIT_PASSWORD"
-	{
-		"pt_p"		"Para receberes acesso ao teu VIP, escreve na consola:\nsetinfo \"login\" \"password\""
-		"ua"		"Для того, щоб отримати доступ до вашого VIP, введіть це в консоль:\nsetinfo \"логін\" \"пароль\""
-		"fi"		"Jotta aktivoisit VIP, kirjoita consolee:\nsetinfo \"käyttäjä\" \"salasana\""
-		"de"		"Um Ihren VIP zu nutzen, geben Sie das in die Konsole:\nsetinfo \"login\" \"kennwort\""
-		"en"		"To gain access to your VIP, type this to console:\nsetinfo \"login\" \"password\""
-		"ru"		"Чтобы активировать VIP, пропишите в консоль:\nsetinfo \"логин\" \"пароль\""
-	}
 	"VIP_ADMIN_MENU_TITLE"
 	{
 		"en"		"Manage VIP system"

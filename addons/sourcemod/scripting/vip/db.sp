@@ -13,54 +13,47 @@ DB_Connect()
 		return;
 	}
 
-	if (g_hDatabase != INVALID_HANDLE)
+	if (g_hDatabase != null)
 	{
-		GLOBAL_INFO &= ~IS_LOADING;
+		UNSET_BIT(GLOBAL_INFO, IS_LOADING);
 		return;
 	}
 	
-	GLOBAL_INFO |= IS_LOADING;
+	SET_BIT(GLOBAL_INFO, IS_LOADING);
 
 	if (SQL_CheckConfig("vip"))
 	{
-		SQL_TConnect(OnDBConnect, "vip", 1);
+		Database.Connect(OnDBConnect, "vip", 1);
 	}
 	else
 	{
-		decl String:sError[256];
+		char sError[256];
 		sError[0] = '\0';
 		g_hDatabase = SQLite_UseDatabase("vip", sError, sizeof(sError));
-		OnDBConnect(g_hDatabase, g_hDatabase, sError, 0);
+		OnDBConnect(g_hDatabase, sError, 0);
 	}
 }
 
-public OnDBConnect(Handle:hOwner, Handle:hQuery, const String:sError[], any:data)
+public void OnDBConnect(Database hDatabase, const char[] sError, any data)
 {
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hDatabase == null || sError[0])
 	{
 		SetFailState("OnDBConnect %s", sError);
-		GLOBAL_INFO &= ~IS_LOADING;
+		UNSET_BIT(GLOBAL_INFO, IS_MySQL);
 	//	CreateTimer(5.0, Timer_DB_Reconnect);
 		return;
 	}
 
-	g_hDatabase = hQuery;
+	g_hDatabase = hDatabase;
 
-	decl String:sDriver[16];
-	if(data == 1)
-	{
-		SQL_GetDriverIdent(hOwner, sDriver, sizeof(sDriver));
-	}
-	else
-	{
-		SQL_ReadDriver(hOwner, sDriver, sizeof(sDriver));
-	}
+	char sDriver[8];
+	g_hDatabase.Driver.GetIdentifier(SZF(sDriver));
 
 	if(strcmp(sDriver, "mysql", false) == 0)
 	{
-		GLOBAL_INFO |= IS_MySQL;
+		SET_BIT(GLOBAL_INFO, IS_MySQL);
 		
-		SQL_SetCharset(g_hDatabase, "utf8");
+		g_hDatabase.SetCharset("utf8");
 
 		SQL_FastQuery(g_hDatabase, "SET NAMES \"UTF8\"");
 		SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
@@ -68,7 +61,7 @@ public OnDBConnect(Handle:hOwner, Handle:hQuery, const String:sError[], any:data
 	}
 	else
 	{
-		GLOBAL_INFO &= ~IS_MySQL;
+		UNSET_BIT(GLOBAL_INFO, IS_MySQL);
 	}
 
 	DebugMessage("OnDBConnect %x, %u - > (MySQL: %b)", g_hDatabase, g_hDatabase, GLOBAL_INFO & IS_MySQL)
@@ -78,7 +71,7 @@ public OnDBConnect(Handle:hOwner, Handle:hQuery, const String:sError[], any:data
 /*
 public Action:Timer_DB_Reconnect(Handle:timer)
 {
-	if (g_hDatabase == INVALID_HANDLE)
+	if (g_hDatabase == null)
 	{
 		DB_Connect();
 	}
@@ -98,8 +91,6 @@ CreateTables()
 																		`auth` VARCHAR(64) UNIQUE NOT NULL, \
 																		`name` VARCHAR(64) NOT NULL default 'unknown', \
 																		`auth_type` TINYINT(2) UNSIGNED NOT NULL default '0', \
-																		`pass_key` VARCHAR(64) default NULL, \
-																		`password` VARCHAR(64) default NULL, \
 																		PRIMARY KEY (`id`), \
 																		UNIQUE KEY `auth_id` (`auth`)) DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;");
 
@@ -120,15 +111,13 @@ CreateTables()
 																		`auth` VARCHAR(32) UNIQUE NOT NULL, \
 																		`name` VARCHAR(64) NOT NULL default 'unknown', \
 																		`auth_type` INTEGER NOT NULL default '0', \
-																		`pass_key` VARCHAR(64) default NULL, \
-																		`password` VARCHAR(64) default NULL, \
 																		`group` VARCHAR(64) default NULL, \
 																		`expires` INTEGER NOT NULL default '0');");
 	}
 
 	SQL_UnlockDatabase(g_hDatabase);
 	
-	GLOBAL_INFO &= ~IS_LOADING;
+	UNSET_BIT(GLOBAL_INFO, IS_LOADING);
 
 	OnReadyToStart();
 
@@ -155,7 +144,7 @@ DB_UpdateClientName(iClient)
 	decl Handle:hStmt, String:sError[256];
 
 	hStmt = SQL_PrepareQuery(g_hDatabase, "UPDATE `vip_users` SET `name` = ? WHERE `id` = ?;", SZF(sError));
-	if (hStmt != INVALID_HANDLE)
+	if (hStmt != null)
 	{
 		decl String:sName[MAX_NAME_LENGTH], iClientID;
 		GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID);

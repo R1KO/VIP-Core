@@ -98,8 +98,8 @@ public OnLibraryAdded(const String:sLibraryName[])
 {
 	if (strcmp(sLibraryName, "adminmenu") == 0) 
 	{
-		decl Handle:hTopMenu;
-		if((hTopMenu = GetAdminTopMenu()))
+		TopMenu hTopMenu = GetAdminTopMenu();
+		if(hTopMenu != null)
 		{
 			OnAdminMenuReady(hTopMenu);
 		}
@@ -110,13 +110,14 @@ public OnLibraryRemoved(const String:sLibraryName[])
 {
 	if (strcmp(sLibraryName, "adminmenu") == 0) 
 	{
-		g_hTopMenu = INVALID_HANDLE;
+		g_hTopMenu = null;
 		VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
 	}
 }
 
-public OnAdminMenuReady(Handle:hTopMenu)
+public OnAdminMenuReady(Handle aTopMenu)
 {
+	TopMenu hTopMenu = TopMenu.FromHandle(aTopMenu);
 	if (g_hTopMenu == hTopMenu)
 	{
 		return;
@@ -134,14 +135,13 @@ AddItemsToTopMenu()
 {
 	if(VIPAdminMenuObject == INVALID_TOPMENUOBJECT)
 	{
-		VIPAdminMenuObject = AddToTopMenu(g_hTopMenu, "vip_admin", TopMenuObject_Category, Handler_MenuVIPAdmin, INVALID_TOPMENUOBJECT, "vip_admin", ADMFLAG_ROOT);
-		
+		VIPAdminMenuObject = g_hTopMenu.AddCategory("vip_admin", Handler_MenuVIPAdmin, "vip_admin", g_CVAR_iAdminFlag);
 	}
 
-	AddToTopMenu(g_hTopMenu, "vip_add",				TopMenuObject_Item, Handler_MenuVIPAdd,				VIPAdminMenuObject, "vip_add",				ADMFLAG_ROOT);
-	AddToTopMenu(g_hTopMenu, "vip_list",				TopMenuObject_Item, Handler_MenuVIPList,				VIPAdminMenuObject, "vip_list",			ADMFLAG_ROOT);
-	AddToTopMenu(g_hTopMenu, "vip_reload_players",	TopMenuObject_Item, Handler_MenuVIPReloadPlayers,	VIPAdminMenuObject, "vip_reload_players",	ADMFLAG_ROOT);
-	AddToTopMenu(g_hTopMenu, "vip_reload_settings",	TopMenuObject_Item, Handler_MenuVIPReloadSettings,	VIPAdminMenuObject, "vip_reload_settings",	ADMFLAG_ROOT);
+	g_hTopMenu.AddItem("vip_add",				Handler_MenuVIPAdd,				VIPAdminMenuObject, "vip_add",				g_CVAR_iAdminFlag);
+	g_hTopMenu.AddItem("vip_list",				Handler_MenuVIPList,			VIPAdminMenuObject, "vip_list",				g_CVAR_iAdminFlag);
+	g_hTopMenu.AddItem("vip_reload_players",	Handler_MenuVIPReloadPlayers,	VIPAdminMenuObject, "vip_reload_players",	g_CVAR_iAdminFlag);
+	g_hTopMenu.AddItem("vip_reload_settings",	Handler_MenuVIPReloadSettings,	VIPAdminMenuObject, "vip_reload_settings",	g_CVAR_iAdminFlag);
 }
 
 public Handler_MenuVIPAdmin(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, String:sBuffer[], maxlength)
@@ -209,7 +209,7 @@ public Handler_MenuVIPReloadSettings(Handle:hMenu, TopMenuAction:action, TopMenu
 
 InitiateDataArray(iClient)
 {
-	if(g_ClientData[iClient] == INVALID_HANDLE)
+	if(g_ClientData[iClient] == null)
 	{
 		g_ClientData[iClient] = CreateArray(ByteCountToCells(64), DATA_SIZE);
 	}
@@ -225,7 +225,7 @@ IsClientOnline(ID)
 	decl i, iClientID;
 	for (i = 1; i <= MaxClients; ++i)
 	{
-		if (IsClientInGame(i) && g_hFeatures[i] != INVALID_HANDLE && GetTrieValue(g_hFeatures[i], KEY_CID, iClientID) && iClientID == ID) return i;
+		if (IsClientInGame(i) && g_hFeatures[i] != null && GetTrieValue(g_hFeatures[i], KEY_CID, iClientID) && iClientID == ID) return i;
 	}
 	return 0;
 }

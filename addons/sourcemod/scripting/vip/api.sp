@@ -2,12 +2,12 @@
 CreateForwards()
 {
 	// Global Forwards
-	g_hGlobalForward_OnVIPLoaded						= CreateGlobalForward("VIP_OnVIPLoaded", ET_Ignore);
+	g_hGlobalForward_OnVIPLoaded					= CreateGlobalForward("VIP_OnVIPLoaded", ET_Ignore);
 	g_hGlobalForward_OnClientLoaded					= CreateGlobalForward("VIP_OnClientLoaded", ET_Ignore, Param_Cell, Param_Cell);
 	g_hGlobalForward_OnVIPClientLoaded				= CreateGlobalForward("VIP_OnVIPClientLoaded", ET_Ignore, Param_Cell);
-	g_hGlobalForward_OnVIPClientAdded					= CreateGlobalForward("VIP_OnVIPClientAdded", ET_Ignore, Param_Cell, Param_Cell);
+	g_hGlobalForward_OnVIPClientAdded				= CreateGlobalForward("VIP_OnVIPClientAdded", ET_Ignore, Param_Cell, Param_Cell);
 	g_hGlobalForward_OnVIPClientRemoved				= CreateGlobalForward("VIP_OnVIPClientRemoved", ET_Ignore, Param_Cell, Param_String);
-	g_hGlobalForward_OnPlayerSpawn						= CreateGlobalForward("VIP_OnPlayerSpawn", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+	g_hGlobalForward_OnPlayerSpawn					= CreateGlobalForward("VIP_OnPlayerSpawn", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
 }
 
 // Global Forwards
@@ -59,12 +59,23 @@ CreateForward_OnPlayerSpawn(iClient, iTeam)
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max) 
 {
+	// Global
+	CreateNative("VIP_IsVIPLoaded",				Native_IsVIPLoaded);
+
+	CreateNative("VIP_GetDatabase",				Native_GetDatabase);
+	CreateNative("VIP_GetDatabaseType",			Native_GetDatabaseType);
+
+	// Features
+	CreateNative("VIP_RegisterFeature",			Native_RegisterFeature);
+	CreateNative("VIP_UnregisterFeature",		Native_UnregisterFeature);
+	CreateNative("VIP_IsValidFeature",			Native_IsValidFeature);
+
+	// Clients
+	CreateNative("VIP_SetClientVIP",			Native_SetClientVIP);
+	CreateNative("VIP_RemoveClientVIP",			Native_RemoveClientVIP);
+
 	CreateNative("VIP_CheckClient",				Native_CheckClient);
 	CreateNative("VIP_IsClientVIP",				Native_IsClientVIP);
-	
-	CreateNative("VIP_PrintToChatClient",		Native_PrintToChatClient);
-	CreateNative("VIP_PrintToChatAll",			Native_PrintToChatAll);
-	CreateNative("VIP_LogMessage",				Native_LogMessage);
 
 	CreateNative("VIP_GetClientID",				Native_GetClientID);
 
@@ -74,24 +85,13 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 	CreateNative("VIP_GetClientAccessTime",		Native_GetClientAccessTime);
 	CreateNative("VIP_SetClientAccessTime",		Native_SetClientAccessTime);
 
-	CreateNative("VIP_SetClientPassword",		Native_SetClientPassword);
-
-	CreateNative("VIP_GetVIPClientTrie",			Native_GetVIPClientTrie);
+	CreateNative("VIP_GetVIPClientTrie",		Native_GetVIPClientTrie);
 	
 	CreateNative("VIP_GetClientAuthType",		Native_GetClientAuthType);
 
 	CreateNative("VIP_SendClientVIPMenu",		Native_SendClientVIPMenu);
 
-	CreateNative("VIP_SetClientVIP",				Native_SetClientVIP);
-	CreateNative("VIP_RemoveClientVIP",			Native_RemoveClientVIP);
-
 	CreateNative("VIP_IsValidVIPGroup",			Native_IsValidVIPGroup);
-
-	CreateNative("VIP_IsVIPLoaded",				Native_IsVIPLoaded);
-
-	CreateNative("VIP_RegisterFeature",			Native_RegisterFeature);
-	CreateNative("VIP_UnregisterFeature",		Native_UnregisterFeature);
-	CreateNative("VIP_IsValidFeature",			Native_IsValidFeature);
 
 	CreateNative("VIP_GetClientFeatureStatus",	Native_GetClientFeatureStatus);
 	CreateNative("VIP_SetClientFeatureStatus",	Native_SetClientFeatureStatus);
@@ -100,23 +100,20 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 
 	CreateNative("VIP_GetClientFeatureInt",		Native_GetClientFeatureInt);
 	CreateNative("VIP_GetClientFeatureFloat",	Native_GetClientFeatureFloat);
-	CreateNative("VIP_GetClientFeatureBool",		Native_GetClientFeatureBool);
+	CreateNative("VIP_GetClientFeatureBool",	Native_GetClientFeatureBool);
 	CreateNative("VIP_GetClientFeatureString",	Native_GetClientFeatureString);
 
 //	CreateNative("VIP_GiveClientFeature",	Native_GiveClientFeature);
-
-	CreateNative("VIP_GetDatabase",				Native_GetDatabase);
-	CreateNative("VIP_GetDatabaseType",			Native_GetDatabaseType);
-
+	
+	// Helpers
+	CreateNative("VIP_PrintToChatClient",		Native_PrintToChatClient);
+	CreateNative("VIP_PrintToChatAll",			Native_PrintToChatAll);
+	CreateNative("VIP_LogMessage",				Native_LogMessage);
 	CreateNative("VIP_TimeToSeconds",			Native_TimeToSeconds);
 	CreateNative("VIP_SecondsToTime",			Native_SecondsToTime);
-	
-	CreateNative("VIP_GetTimeFromStamp",			Native_GetTimeFromStamp);
-	
+	CreateNative("VIP_GetTimeFromStamp",		Native_GetTimeFromStamp);
 	CreateNative("VIP_AddStringToggleStatus",	Native_AddStringToggleStatus);
 
-	MarkNativeAsOptional("GetClientAuthId");
-	MarkNativeAsOptional("GetClientAuthString");
 	MarkNativeAsOptional("BfWriteByte");
 	MarkNativeAsOptional("BfWriteString");
 	MarkNativeAsOptional("PbSetInt");
@@ -145,7 +142,7 @@ public Native_IsClientVIP(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient, false))
 	{
-		return ((g_iClientInfo[iClient] & IS_AUTHORIZED) && (g_iClientInfo[iClient] & IS_VIP));
+		return bool:(g_iClientInfo[iClient] & IS_VIP);
 	}
 
 	return false;
@@ -461,43 +458,6 @@ public Native_SetClientAccessTime(Handle:hPlugin, iNumParams)
 	return false;
 }
 
-public Native_SetClientPassword(Handle:hPlugin, iNumParams)
-{
-	new iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
-	{
-		decl iClientID;
-		if(GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID) && iClientID != -1)
-		{
-			decl String:sPassKey[64], String:sPassword[64], String:sQuery[256], String:sBuffer[64];
-			GetNativeString(2, sPassKey, sizeof(sPassKey));
-			GetNativeString(3, sPassword, sizeof(sPassword));
-
-			sBuffer[0] = 0;
-			if(sPassKey[0])
-			{
-				FormatEx(sBuffer, sizeof(sBuffer), "`pass_key` = '%s'", sPassKey);
-			}
-			if(sPassword[0])
-			{
-				Format(sBuffer, sizeof(sBuffer), "%s, `password` = '%s'", sBuffer, sPassword);
-			}
-		
-			if(!sBuffer[0])
-			{
-				return false;
-			}
-			
-			FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET %s WHERE `id` = '%i';", sBuffer, iClientID);
-			SQL_TQuery(g_hDatabase, SQL_Callback_ChangeClientSettings, sQuery, UID(iClient));
-
-			return true;
-		}
-	}
-
-	return false;
-}
-
 public SQL_Callback_ChangeClientSettings(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
 {
 	if (sError[0])
@@ -556,17 +516,9 @@ public Native_SetClientVIP(Handle:hPlugin, iNumParams)
 	{
 		if(g_iClientInfo[iClient] & IS_VIP)
 		{
-			if(g_iClientInfo[iClient] & IS_AUTHORIZED)
-			{
-				decl iClientID;
-				GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID);
-				if(iClientID != -1)
-				{
-					ThrowNativeError(SP_ERROR_NATIVE, "The player %L is already a VIP/Игрок %L уже является VIP-игроком", iClient, iClient);
-					return false;
-				}
-			}
-			else
+			decl iClientID;
+			GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID);
+			if(iClientID != -1)
 			{
 				ThrowNativeError(SP_ERROR_NATIVE, "The player %L is already a VIP/Игрок %L уже является VIP-игроком", iClient, iClient);
 				return false;
@@ -611,7 +563,6 @@ public Native_SetClientVIP(Handle:hPlugin, iNumParams)
 					Clients_LoadVIPFeatures(iClient);
 					g_iClientInfo[iClient] |= IS_VIP;
 					g_iClientInfo[iClient] |= IS_LOADED;
-					g_iClientInfo[iClient] |= IS_AUTHORIZED;
 					
 					Clients_OnVIPClientLoaded(iClient);
 					if(g_CVAR_bAutoOpenMenu)
@@ -693,13 +644,13 @@ public Native_RegisterFeature(Handle:hPlugin, iNumParams)
 
 	if(IsValidFeature(sFeatureName) == false)
 	{
-		if(GetArraySize(GLOBAL_ARRAY) == 0)
+		if(GetArraySize(g_hFeaturesArray) == 0)
 		{
 			RemoveMenuItem(g_hVIPMenu, 0);
 		}
 
-		PushArrayString(GLOBAL_ARRAY, sFeatureName);
-		DebugMessage("PushArrayString -> %i", FindStringInArray(GLOBAL_ARRAY, sFeatureName))
+		PushArrayString(g_hFeaturesArray, sFeatureName);
+		DebugMessage("PushArrayString -> %i", FindStringInArray(g_hFeaturesArray, sFeatureName))
 
 		new VIP_FeatureType:FType = GetNativeCell(3);
 		DebugMessage("FeatureType -> %i", FType)
@@ -787,10 +738,10 @@ public Native_UnregisterFeature(Handle:hPlugin, iNumParams)
 
 			RemoveFromTrie(GLOBAL_TRIE, sFeatureName);
 
-			i = FindStringInArray(GLOBAL_ARRAY, sFeatureName);
+			i = FindStringInArray(g_hFeaturesArray, sFeatureName);
 			if(i != -1)
 			{
-				RemoveFromArray(GLOBAL_ARRAY, i);
+				RemoveFromArray(g_hFeaturesArray, i);
 			}
 
 			if(iFeatureType != HIDE)

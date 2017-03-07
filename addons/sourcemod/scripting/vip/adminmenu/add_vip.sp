@@ -12,11 +12,6 @@ ShowAddVIPMenu(iClient)
 		{
 			if(g_iClientInfo[i] & IS_VIP)
 			{
-				if(!(g_iClientInfo[i] & IS_AUTHORIZED))
-				{
-					continue;
-				}
-
 				GetTrieValue(g_hFeatures[i], KEY_CID, iClientID);
 				if(iClientID != -1)
 				{

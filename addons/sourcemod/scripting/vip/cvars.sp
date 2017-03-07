@@ -41,10 +41,6 @@ CreateCvars()
 	HookConVarChange(hCvar, OnSpawnDelayChange);
 	g_CVAR_fSpawnDelay = GetConVarFloat(hCvar);
 
-	hCvar = CreateConVar("sm_vip_kick_not_authorized", "0", "Выкидывать с сервера игроков, которые имеют VIP-статус, но не ввели пароль (0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
-	HookConVarChange(hCvar, OnKickNotAuthorizedChange);
-	g_CVAR_bKickNotAuthorized = GetConVarBool(hCvar);
-
 	hCvar = CreateConVar("sm_vip_hide_no_access_items", "0", "Режим отображения недоступных функций в вип меню (0 - Сделать пункты неактивными, 1 - Скрывать пункты)", _, true, 0.0, true, 1.0);
 	HookConVarChange(hCvar, OnHideNoAccessItemsChange);
 	g_CVAR_bHideNoAccessItems = GetConVarBool(hCvar);
@@ -82,7 +78,7 @@ public OnAddItemToAdminMenuChange(Handle:hCvar, const String:oldValue[], const S
 	g_CVAR_bAddItemToAdminMenu = GetConVarBool(hCvar);
 	if(g_CVAR_bAddItemToAdminMenu)
 	{
-		if(VIPAdminMenuObject != INVALID_TOPMENUOBJECT && g_hTopMenu != INVALID_HANDLE)
+		if(VIPAdminMenuObject != INVALID_TOPMENUOBJECT && g_hTopMenu != null)
 		{
 			RemoveFromTopMenu(g_hTopMenu, VIPAdminMenuObject);
 			VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
@@ -105,6 +101,5 @@ public OnTimeModeChange(Handle:hCvar, const String:oldValue[], const String:newV
 public OnDeleteExpiredChange(Handle:hCvar, const String:oldValue[], const String:newValue[])			g_CVAR_iDeleteExpired = GetConVarInt(hCvar);
 public OnUpdateNameChange(Handle:hCvar, const String:oldValue[], const String:newValue[])				g_CVAR_bUpdateName = GetConVarBool(hCvar);
 public OnSpawnDelayChange(Handle:hCvar, const String:oldValue[], const String:newValue[])				g_CVAR_fSpawnDelay = GetConVarFloat(hCvar);
-public OnKickNotAuthorizedChange(Handle:hCvar, const String:oldValue[], const String:newValue[])		g_CVAR_bKickNotAuthorized = GetConVarBool(hCvar);
 public OnHideNoAccessItemsChange(Handle:hCvar, const String:oldValue[], const String:newValue[])		g_CVAR_bHideNoAccessItems = GetConVarBool(hCvar);
 public OnLogsEnableChange(Handle:hCvar, const String:oldValue[], const String:newValue[])				g_CVAR_bLogsEnable = GetConVarBool(hCvar);

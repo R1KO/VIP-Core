@@ -1,10 +1,10 @@
 
 UTIL_CloseHandleEx(&Handle:hValue)
 {
-	if(hValue != INVALID_HANDLE)
+	if(hValue != null)
 	{
 		CloseHandle(hValue);
-		hValue = INVALID_HANDLE;
+		hValue = null;
 	}
 }
 
@@ -308,7 +308,7 @@ ReadPackClient(&Handle:hDataPack)
 
 public SQL_Callback_CheckVIPClient(Handle:hOwner, Handle:hQuery, const String:sError[], any:hDataPack)
 {
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hQuery == null || sError[0])
 	{
 		LogError("SQL_Callback_CheckVIPClient: %s", sError);
 		return;
@@ -345,7 +345,7 @@ public SQL_Callback_CheckVIPClient(Handle:hOwner, Handle:hQuery, const String:sE
 
 public SQL_Callback_CreateVIPClient(Handle:hOwner, Handle:hQuery, const String:sError[], any:hDataPack)
 {
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hQuery == null || sError[0])
 	{
 		LogError("SQL_Callback_CreateVIPClient: %s", sError);
 		return;
@@ -379,7 +379,7 @@ SetClientOverrides(&Handle:hDataPack, iClientID, iExpires, const String:sGroup[]
 
 public SQL_Callback_OnVIPClientAdded(Handle:hOwner, Handle:hQuery, const String:sError[], any:hDataPack)
 {
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hQuery == null || sError[0])
 	{
 		LogError("SQL_Callback_OnVIPClientAdded: %s", sError);
 		return;
