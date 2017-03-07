@@ -99,7 +99,7 @@ public OnSocketReceive(Handle:socket, char[] data, const size, any:hDLPack)
 	new idx = 0;
 
 	SetPackPosition(hDLPack, 0);
-	new bool:bParsedHeader = bool:ReadPackCell(hDLPack);
+	bool bParsedHeader = view_as<bool>(ReadPackCell(hDLPack));
 
 	if (!bParsedHeader)
 	{

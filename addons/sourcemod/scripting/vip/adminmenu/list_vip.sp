@@ -114,7 +114,7 @@ public MenuHandler_VipPlayersListMenu(Handle:hMenu, MenuAction:action, iClient, 
 	}
 }
 
-ShowWaitSearchMenu(iClient, const char[] sSearch = "", bool:bIsValid = false)
+ShowWaitSearchMenu(iClient, const char[] sSearch = "", bool bIsValid = false)
 {
 	decl Handle:hMenu; char sBuffer[128];
 	hMenu = CreateMenu(MenuHandler_SearchPlayersListMenu);

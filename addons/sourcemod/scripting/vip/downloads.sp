@@ -25,7 +25,7 @@ ReadDownloads()
 	}
 }
 
-bool:File_AddToDownloadsTable(const char[] sPath)
+bool File_AddToDownloadsTable(const char[] sPath)
 {
 	DebugMessage("File_AddToDownloadsTable: '%s'", sPath)
 	
@@ -41,7 +41,7 @@ bool:File_AddToDownloadsTable(const char[] sPath)
 	}
 }
 
-bool:Dir_AddToDownloadsTable(const char[] sPath)
+bool Dir_AddToDownloadsTable(const char[] sPath)
 {
 	DebugMessage("Dir_AddToDownloadsTable: '%s'", sPath)
 	

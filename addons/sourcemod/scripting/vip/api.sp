@@ -57,7 +57,7 @@ CreateForward_OnPlayerSpawn(iClient, iTeam)
 	Call_Finish();
 }
 
-public APLRes:AskPluginLoad2(Handle:myself, bool:late, char[] error, err_max) 
+public APLRes:AskPluginLoad2(Handle:myself, bool late, char[] error, err_max) 
 {
 	CreateNative("VIP_CheckClient",				Native_CheckClient);
 	CreateNative("VIP_IsClientVIP",				Native_IsClientVIP);
@@ -135,7 +135,7 @@ public Native_CheckClient(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient, false))
 	{
-		Clients_CheckVipAccess(iClient, bool:GetNativeCell(2));
+		Clients_CheckVipAccess(iClient, view_as<bool>(GetNativeCell(2)));
 	}
 }
 
@@ -375,7 +375,7 @@ public Native_SetClientVIPGroup(Handle:hPlugin, iNumParams)
 		{
 			if(SetTrieString(g_hFeatures[iClient], KEY_GROUP, sGroup))
 			{
-				if(bool:GetNativeCell(3))
+				if(view_as<bool>(GetNativeCell(3)))
 				{
 					decl iClientID;
 					if(GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID) && iClientID != -1)
@@ -435,7 +435,7 @@ public Native_SetClientAccessTime(Handle:hPlugin, iNumParams)
 		
 		if(SetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iTime))
 		{
-			if(bool:GetNativeCell(3))
+			if(view_as<bool>(GetNativeCell(3)))
 			{
 				decl iClientID;
 				if(GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID) && iClientID != -1)
@@ -581,7 +581,7 @@ public Native_SetClientVIP(Handle:hPlugin, iNumParams)
 			if(iTime >= 0)
 			{
 				new VIP_AuthType:AuthType = GetNativeCell(3);
-				if(bool:GetNativeCell(5) == true)
+				if(view_as<bool>(GetNativeCell(5)) == true)
 				{
 					if(AUTH_STEAM > AuthType || AuthType > AUTH_NAME)
 					{
@@ -644,7 +644,7 @@ public Native_RemoveClientVIP(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient))
 	{
-		if(bool:GetNativeCell(2) == true)
+		if(view_as<bool>(GetNativeCell(2)) == true)
 		{
 			decl iClientID;
 			if(GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID) && iClientID != -1)
@@ -657,7 +657,7 @@ public Native_RemoveClientVIP(Handle:hPlugin, iNumParams)
 
 		CreateForward_OnVIPClientRemoved(iClient, "Removed by native");
 
-		if(bool:GetNativeCell(3))
+		if(view_as<bool>(GetNativeCell(3)))
 		{
 			DisplayClientInfo(iClient, "expired_info");
 		}
@@ -951,7 +951,7 @@ public Native_GetClientFeatureBool(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient))
 	{
-		char sFeatureName[FEATURE_NAME_LENGTH]; bool:bValue;
+		char sFeatureName[FEATURE_NAME_LENGTH]; bool bValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 
 		return GetTrieValue(g_hFeatures[iClient], sFeatureName, bValue);
@@ -1006,7 +1006,7 @@ public Native_GiveClientFeature(Handle:hPlugin, iNumParams)
 			{
 				case BOOL:
 				{
-					SetTrieValue(g_hFeatures[iClient], sFeatureName, bool:StringToInt(sFeatureValue));
+					SetTrieValue(g_hFeatures[iClient], sFeatureName, view_as<bool>(StringToInt(sFeatureValue)));
 				}
 				case INT:
 				{
@@ -1111,7 +1111,7 @@ public Native_AddStringToggleStatus(Handle:hPlugin, iNumParams)
 	}
 }
 
-bool:CheckValidClient(const &iClient, bool:bCheckVIP = true)
+bool CheckValidClient(const &iClient, bool bCheckVIP = true)
 {
 	if (iClient < 1 || iClient > MaxClients)
 	{
@@ -1138,7 +1138,7 @@ bool:CheckValidClient(const &iClient, bool:bCheckVIP = true)
 		}
 		*/
 		
-		return bool:(g_iClientInfo[iClient] & IS_VIP);
+		return view_as<bool>(g_iClientInfo[iClient] & IS_VIP);
 	}
 
 	return true;

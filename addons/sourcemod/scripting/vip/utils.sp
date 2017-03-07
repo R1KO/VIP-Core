@@ -23,7 +23,7 @@ stock UTIL_ReplaceChars(char[] sBuffer, InChar, OutChar)
 	return iNum;
 }
 
-bool:UTIL_StrCmpEx(const char[] sString1, const char[] sString2)
+bool UTIL_StrCmpEx(const char[] sString1, const char[] sString2)
 {
 	decl MaxLen, i;
 
@@ -153,7 +153,7 @@ UTIL_GetConVarAdminFlag(&Handle:hCvar)
 	return ReadFlagString(sBuffer);
 }
 
-bool:UTIL_CheckValidVIPGroup(const char[] sGroup)
+bool UTIL_CheckValidVIPGroup(const char[] sGroup)
 {
 	KvRewind(g_hGroups);
 	return KvJumpToKey(g_hGroups, sGroup, false);
@@ -170,7 +170,7 @@ stock UTIL_SearchCharInString(const char[] sBuffer, c)
 	return iNum;
 }
 
-UTIL_ReloadVIPPlayers(iClient, bool:bNotify)
+UTIL_ReloadVIPPlayers(iClient, bool bNotify)
 {
 	for(new i = 1; i <= MaxClients; ++i)
 	{

@@ -177,7 +177,7 @@ public MenuHandler_DelPassMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 	}
 }
 
-ShowWaitPassMenu(iClient, const char[] sPass = "", const bool:bIsValid = false)
+ShowWaitPassMenu(iClient, const char[] sPass = "", const bool bIsValid = false)
 {
 	SetGlobalTransTarget(iClient);
 

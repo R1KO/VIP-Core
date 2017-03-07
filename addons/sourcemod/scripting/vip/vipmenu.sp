@@ -211,7 +211,7 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 					if(GetPluginStatus(hPlugin) == Plugin_Running)
 					{
 						sDisplay[0] = 0;
-						decl bool:bResult;
+						bool bResult;
 						Call_StartFunction(hPlugin, Function_Call);
 						Call_PushCell(iClient);
 						Call_PushString(sItemInfo);
@@ -323,9 +323,9 @@ VIP_ToggleState:Function_OnItemToggle(Handle:hPlugin, Function:ToggleFunction, i
 	return ResultStatus;
 }
 
-bool:Function_OnItemSelect(Handle:hPlugin, Function:SelectFunction, iClient, const char[] sItemInfo)
+bool Function_OnItemSelect(Handle:hPlugin, Function:SelectFunction, iClient, const char[] sItemInfo)
 {
-	decl bool:bResult;
+	bool bResult;
 	Call_StartFunction(hPlugin, SelectFunction);
 	Call_PushCell(iClient);
 	Call_PushString(sItemInfo);
@@ -334,13 +334,13 @@ bool:Function_OnItemSelect(Handle:hPlugin, Function:SelectFunction, iClient, con
 	return bResult;
 }
 
-bool:IsValidFeature(const char[] sFeatureName)
+bool IsValidFeature(const char[] sFeatureName)
 {
 	DebugMessage("IsValidFeature:: FindStringInArray -> %i", FindStringInArray(GLOBAL_ARRAY, sFeatureName))
 	return (FindStringInArray(GLOBAL_ARRAY, sFeatureName) != -1);
 }
 
-bool:OnVipMenuFlood(iClient)
+bool OnVipMenuFlood(iClient)
 {
 	static float fLastTime[MAXPLAYERS+1];
 	if(fLastTime[iClient] > 0.0)

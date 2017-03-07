@@ -28,7 +28,7 @@ public OnClientDisconnect(iClient)
 	g_iClientInfo[iClient] = 0;
 }
 
-Clients_CheckVipAccess(iClient, bool:bNotify = false)
+Clients_CheckVipAccess(iClient, bool bNotify = false)
 {
 	g_iClientInfo[iClient] &= ~IS_LOADED;
 
@@ -36,7 +36,7 @@ Clients_CheckVipAccess(iClient, bool:bNotify = false)
 
 	if(IsFakeClient(iClient) == false && (GLOBAL_INFO & IS_STARTED) && g_hDatabase)
 	{
-		Clients_LoadClient(iClient, bool:bNotify);
+		Clients_LoadClient(iClient, bool bNotify);
 	//	DebugMessage("Clients_CheckVipAccess %N:\tИгрок %sявляется VIP игроком", iClient, g_bIsClientVIP[iClient] ? "":"не ")
 	}
 	else
@@ -46,7 +46,7 @@ Clients_CheckVipAccess(iClient, bool:bNotify = false)
 	}
 }
 
-Clients_LoadClient(iClient, bool:bNotify)
+Clients_LoadClient(iClient, bool bNotify)
 {
 	char sQuery[512]; char sAuth[32]; char sName[MAX_NAME_LENGTH*2+1]; char sIP[24];
 
@@ -395,7 +395,7 @@ Clients_LoadVIPFeatures(iClient)
 	}
 }
 
-bool:GetValue(iClient, VIP_ValueType:ValueType, const char[] sFeatureName)
+bool GetValue(iClient, VIP_ValueType:ValueType, const char[] sFeatureName)
 {
 	DebugMessage("GetValue: %i - %s", ValueType, sFeatureName)
 	switch(ValueType)
@@ -406,7 +406,7 @@ bool:GetValue(iClient, VIP_ValueType:ValueType, const char[] sFeatureName)
 		}
 		case BOOL:
 		{
-			if(bool:KvGetNum(g_hGroups, sFeatureName))
+			if(view_as<bool>(KvGetNum(g_hGroups, sFeatureName)))
 			{
 				DebugMessage("value: 1")
 				return SetTrieValue(g_hFeatures[iClient], sFeatureName, true);
@@ -473,7 +473,7 @@ Clients_CreateExpiredTimer(iClient, iExp, iTime)
 	}
 }
 
-public Event_MatchEndRestart(Handle:hEvent, const char[] name, bool:dontBroadcast)
+public Event_MatchEndRestart(Handle:hEvent, const char[] name, bool dontBroadcast)
 {
 	if(g_CVAR_iDeleteExpired != -1)
 	{
@@ -481,7 +481,7 @@ public Event_MatchEndRestart(Handle:hEvent, const char[] name, bool:dontBroadcas
 	}
 }
 
-public Event_PlayerSpawn(Handle:hEvent, const char[] sEvName, bool:bDontBroadcast)
+public Event_PlayerSpawn(Handle:hEvent, const char[] sEvName, bool bDontBroadcast)
 {
 	new UserID = GetEventInt(hEvent, "userid");
 	new iClient = CID(UserID);
@@ -492,7 +492,7 @@ public Event_PlayerSpawn(Handle:hEvent, const char[] sEvName, bool:bDontBroadcas
 	}
 }
 
-public Event_PlayerDeath(Handle:hEvent, const char[] sEvName, bool:bDontBroadcast)
+public Event_PlayerDeath(Handle:hEvent, const char[] sEvName, bool bDontBroadcast)
 {
 	new iClient = CID(GetEventInt(hEvent, "userid"));
 	DebugMessage("Event_PlayerDeath: %N (%i)", iClient, iClient)
@@ -525,7 +525,7 @@ public Action:Timer_OnPlayerSpawn(Handle:hTimer, any:UserID)
 	return Plugin_Stop;
 }
 
-public Event_RoundEnd(Handle:hEvent, const char[] name, bool:dontBroadcast)
+public Event_RoundEnd(Handle:hEvent, const char[] name, bool dontBroadcast)
 {
 	DebugMessage("Event_RoundEnd")
 	decl iTime, iExp, i;

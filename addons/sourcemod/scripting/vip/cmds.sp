@@ -1,6 +1,6 @@
 public OnConfigsExecuted()
 {
-	static bool:bIsRegistered;
+	static bool bIsRegistered;
 	if(bIsRegistered == false)
 	{
 		UTIL_LoadVipCmd(g_CVAR_hVIPMenu_CMD, VIPMenu_CMD);

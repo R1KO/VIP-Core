@@ -90,14 +90,14 @@ new 		g_CVAR_iServerID;
 new 		g_CVAR_iTimeMode;
 new			g_CVAR_iDeleteExpired;
 float 	g_CVAR_fSpawnDelay;
-new bool:	g_CVAR_bAutoOpenMenu;
+bool 	g_CVAR_bAutoOpenMenu;
 #if USE_ADMINMENU 1
-new bool:	g_CVAR_bAddItemToAdminMenu;
+bool 	g_CVAR_bAddItemToAdminMenu;
 #endif
-new bool:	g_CVAR_bKickNotAuthorized;
-new bool:	g_CVAR_bUpdateName;
-new bool:	g_CVAR_bHideNoAccessItems;
-new bool:	g_CVAR_bLogsEnable;
+bool 	g_CVAR_bKickNotAuthorized;
+bool 	g_CVAR_bUpdateName;
+bool 	g_CVAR_bHideNoAccessItems;
+bool 	g_CVAR_bLogsEnable;
 
 new EngineVersion:g_EngineVersion;
 

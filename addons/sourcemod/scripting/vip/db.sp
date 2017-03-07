@@ -178,7 +178,7 @@ DB_UpdateClientName(iClient)
 	}
 }
 
-DB_RemoveClientFromID(iClient = 0, iClientID, bool:bNotify)
+DB_RemoveClientFromID(iClient = 0, iClientID, bool bNotify)
 {
 	DebugMessage("DB_RemoveClientFromID %N (%i): - > iClientID: %i, : bNotify: %b", iClient, iClient, iClientID, bNotify)
 	char sQuery[256]; Handle:hDataPack;
@@ -234,7 +234,7 @@ public SQL_Callback_RemoveClient(Handle:hOwner, Handle:hQuery, const char[] sErr
 			SQL_TQuery(g_hDatabase, SQL_Callback_RemoveClient2, sQuery, iClientID);
 		}
 
-		if(bool:ReadPackCell(hDataPack))
+		if(view_as<bool>(ReadPackCell(hDataPack)))
 		{
 			new iClient = ReadPackCell(hDataPack);
 			

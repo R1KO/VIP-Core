@@ -132,7 +132,7 @@ KvGetLangString(char[] sBuffer, iBufLen, char[] sClientLang, char[] sServLang)
 	return true;
 }
 
-ReplaceValues(iClient, char[] sBuffer, iBufLen, bool:bExt)
+ReplaceValues(iClient, char[] sBuffer, iBufLen, bool bExt)
 {
 	char sName[MAX_NAME_LENGTH]; char sGroup[64];
 	GetClientName(iClient, sName, sizeof(sName));
