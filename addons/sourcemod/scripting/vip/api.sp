@@ -498,7 +498,7 @@ public int Native_SetClientPassword(Handle hPlugin, int iNumParams)
 	return false;
 }
 
-public SQL_Callback_ChangeClientSettings(Handle:hOwner, Handle:hQuery, const char[] sError, any UserID)
+public void SQL_Callback_ChangeClientSettings(Handle hOwner, Handle hQuery, const char[] sError, any UserID)
 {
 	if (sError[0])
 	{

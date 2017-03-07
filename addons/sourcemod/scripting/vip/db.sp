@@ -34,7 +34,7 @@ void DB_Connect()
 	}
 }
 
-public OnDBConnect(Handle:hOwner, Handle:hQuery, const char[] sError, any data)
+public void OnDBConnect(Handle hOwner, Handle hQuery, const char[] sError, any data)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{
@@ -140,7 +140,7 @@ void CreateTables()
 	}
 }
 
-public SQL_Callback_ErrorCheck(Handle:hOwner, Handle:hQuery, const char[] sError, any data)
+public void SQL_Callback_ErrorCheck(Handle hOwner, Handle hQuery, const char[] sError, any data)
 {
 	if (sError[0])
 	{
@@ -207,7 +207,7 @@ void DB_RemoveClientFromID(int iClient = 0, int iClientID, bool bNotify)
 	SQL_TQuery(g_hDatabase, SQL_Callback_RemoveClient, sQuery, hDataPack);
 }
 
-public SQL_Callback_RemoveClient(Handle:hOwner, Handle:hQuery, const char[] sError, any hDataPack)
+public void SQL_Callback_RemoveClient(Handle hOwner, Handle hQuery, const char[] sError, any hDataPack)
 {
 	if (sError[0])
 	{
@@ -252,7 +252,7 @@ public SQL_Callback_RemoveClient(Handle:hOwner, Handle:hQuery, const char[] sErr
 	}
 }
 
-public SQL_Callback_RemoveClient2(Handle:hOwner, Handle:hQuery, const char[] sError, any iClientID)
+public void SQL_Callback_RemoveClient2(Handle hOwner, Handle hQuery, const char[] sError, any iClientID)
 {
 	if (sError[0])
 	{
@@ -269,7 +269,7 @@ public SQL_Callback_RemoveClient2(Handle:hOwner, Handle:hQuery, const char[] sEr
 	}
 }
 /*
-public SQL_Callback_DeleteExpired(Handle:hOwner, Handle:hQuery, const char[] sError, any iClientID)
+public void SQL_Callback_DeleteExpired(Handle hOwner, Handle hQuery, const char[] sError, any iClientID)
 {
 	if (sError[0])
 	{
@@ -316,7 +316,7 @@ void RemoveExpiredPlayers()
 	SQL_TQuery(g_hDatabase, SQL_Callback_RemoveExpiredPlayers, sQuery);
 }
 
-public SQL_Callback_RemoveExpiredPlayers(Handle:hOwner, Handle:hQuery, const char[] sError, any iData)
+public void SQL_Callback_RemoveExpiredPlayers(Handle hOwner, Handle hQuery, const char[] sError, any iData)
 {
 	if (sError[0])
 	{

@@ -94,7 +94,7 @@ void Clients_LoadClient(iClient, bool bNotify)
 	SQL_TQuery(g_hDatabase, SQL_Callback_OnClientAuthorized, sQuery, hDataPack);
 }
 
-public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const char[] sError, any hPack)
+public void SQL_Callback_OnClientAuthorized(Handle hOwner, Handle hQuery, const char[] sError, any hPack)
 {
 	DataPack hDataPack = view_as<DataPack>(hPack);
 	if (hQuery == INVALID_HANDLE || sError[0])

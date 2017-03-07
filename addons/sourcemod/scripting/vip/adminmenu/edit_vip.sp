@@ -63,7 +63,7 @@ void ShowEditPassMenu(int iClient)
 }
 
 
-public SQL_Callback_SelectClientPass(Handle:hOwner, Handle:hQuery, const char[] sError, any UserID)
+public void SQL_Callback_SelectClientPass(Handle hOwner, Handle hQuery, const char[] sError, any UserID)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{

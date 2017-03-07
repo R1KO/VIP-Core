@@ -158,7 +158,7 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
-public SQL_Callback_OnSelectRemoveClient(Handle:hOwner, Handle:hQuery, const char[] sError, any iClient)
+public void SQL_Callback_OnSelectRemoveClient(Handle hOwner, Handle hQuery, const char[] sError, any iClient)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{
