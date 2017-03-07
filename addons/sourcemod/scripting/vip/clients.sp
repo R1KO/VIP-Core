@@ -426,7 +426,7 @@ bool:GetValue(iClient, VIP_ValueType:ValueType, const char[] sFeatureName)
 		}
 		case FLOAT:
 		{
-			decl Float:fValue;
+			float fValue;
 			fValue = KvGetFloat(g_hGroups, sFeatureName);
 			if(fValue != 0.0)
 			{

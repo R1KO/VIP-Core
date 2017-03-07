@@ -342,10 +342,10 @@ bool:IsValidFeature(const char[] sFeatureName)
 
 bool:OnVipMenuFlood(iClient)
 {
-	static Float:fLastTime[MAXPLAYERS+1];
+	static float fLastTime[MAXPLAYERS+1];
 	if(fLastTime[iClient] > 0.0)
 	{
-		new Float:fSec = GetGameTime();
+		float fSec = GetGameTime();
 		if ((fSec - fLastTime[iClient]) < 3.0) return true;
 		fLastTime[iClient] = fSec;
 	}

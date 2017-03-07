@@ -89,7 +89,7 @@ new 		g_CVAR_iAdminFlag;
 new 		g_CVAR_iServerID;
 new 		g_CVAR_iTimeMode;
 new			g_CVAR_iDeleteExpired;
-new Float:	g_CVAR_fSpawnDelay;
+float 	g_CVAR_fSpawnDelay;
 new bool:	g_CVAR_bAutoOpenMenu;
 #if USE_ADMINMENU 1
 new bool:	g_CVAR_bAddItemToAdminMenu;
