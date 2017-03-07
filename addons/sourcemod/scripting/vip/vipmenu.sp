@@ -1,4 +1,4 @@
-new const String:g_sToggleStatus[][] =
+static const char g_sToggleStatus[][] =
 {
 	"DISABLED",
 	"ENABLED",
@@ -12,7 +12,7 @@ InitVIPMenu()
 	AddMenuItem(g_hVIPMenu, "NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
 }
 
-AddFeatureToVIPMenu(const String:sFeatureName[])
+AddFeatureToVIPMenu(const char[] sFeatureName)
 {
 	DebugMessage("AddFeatureToVIPMenu: %s", sFeatureName)
 	if(g_hSortArray != INVALID_HANDLE)
@@ -21,7 +21,7 @@ AddFeatureToVIPMenu(const String:sFeatureName[])
 
 		RemoveAllMenuItems(g_hVIPMenu);
 
-		decl i, iSize, String:sItemInfo[128];
+		decl i, iSize; char sItemInfo[128];
 		ArrayList hArray;
 		iSize = GetArraySize(GLOBAL_ARRAY);
 		for(i = 0; i < iSize; ++i)
@@ -50,7 +50,7 @@ ResortFeaturesArray()
 		return;
 	}
 	
-	decl i, x, iSize, index, String:sItemInfo[128];
+	decl i, x, iSize, index; char sItemInfo[128];
 	iSize = GetArraySize(g_hSortArray);
 
 	#if DEBUG_MODE 1
@@ -85,7 +85,7 @@ ResortFeaturesArray()
 stock PrintArray(&Handle:hArray)
 {
 	DebugMessage("PrintArray")
-	decl i, iSize, String:sItemInfo[128];
+	decl i, iSize; char sItemInfo[128];
 	iSize = GetArraySize(hArray);
 	if(iSize)
 	{
@@ -100,7 +100,7 @@ stock PrintArray(&Handle:hArray)
 
 public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 {
-	static String:sItemInfo[FEATURE_NAME_LENGTH], Handle:hBuffer, Function:Function_Call, Handle:hPlugin;
+	static char sItemInfo[FEATURE_NAME_LENGTH]; Handle:hBuffer, Function:Function_Call, Handle:hPlugin;
 	/*
 	switch(action)
 	{
@@ -126,13 +126,13 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 			SET_BIT(g_iClientInfo[iClient], IS_MENU_OPEN);
 
 			DebugMessage("MenuAction_Display: Client: %i", iClient)
-			decl String:sTitle[256], iExp;
+			char sTitle[256]; iExp;
 			if(GetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iExp) && iExp > 0)
 			{
 				decl iTime;
 				if((iTime = GetTime()) < iExp)
 				{
-					decl String:sExpires[64];
+					char sExpires[64];
 					UTIL_GetTimeFromStamp(sExpires, sizeof(sExpires), iExp-iTime, iClient);
 					FormatEx(sTitle, sizeof(sTitle), "%T\n \n%T: %s\n \n", "VIP_MENU_TITLE", iClient, "EXPIRES_IN", iClient, sExpires);
 				}
@@ -197,7 +197,7 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 			
 			DebugMessage("MenuAction_DisplayItem: Client: %i, Feature: %s", iClient, sItemInfo)
 
-			decl String:sDisplay[128];
+			char sDisplay[128];
 
 			if(GetTrieValue(GLOBAL_TRIE, sItemInfo, hBuffer))
 			{
@@ -261,7 +261,7 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 				DebugMessage("GetPluginStatus = %i", GetPluginStatus(hPlugin))
 				if(VIP_FeatureType:GetArrayCell(hBuffer, FEATURES_ITEM_TYPE) == TOGGLABLE)
 				{
-					decl String:sBuffer[4], VIP_ToggleState:OldStatus, VIP_ToggleState:NewStatus;
+					char sBuffer[4]; VIP_ToggleState:OldStatus, VIP_ToggleState:NewStatus;
 					OldStatus = Features_GetStatus(iClient, sItemInfo);
 					NewStatus = (OldStatus == ENABLED) ? DISABLED:ENABLED;
 					if(Function_Call != INVALID_FUNCTION && GetPluginStatus(hPlugin) == Plugin_Running)
@@ -289,7 +289,7 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 	return 0;
 }
 
-VIP_ToggleState:Function_OnItemToggle(Handle:hPlugin, Function:ToggleFunction, iClient, const String:sItemInfo[], const VIP_ToggleState:OldStatus, const VIP_ToggleState:NewStatus)
+VIP_ToggleState:Function_OnItemToggle(Handle:hPlugin, Function:ToggleFunction, iClient, const char[] sItemInfo, const VIP_ToggleState:OldStatus, const VIP_ToggleState:NewStatus)
 {
 	decl VIP_ToggleState:ResultStatus, Action:aResult;
 	ResultStatus = NewStatus;
@@ -323,7 +323,7 @@ VIP_ToggleState:Function_OnItemToggle(Handle:hPlugin, Function:ToggleFunction, i
 	return ResultStatus;
 }
 
-bool:Function_OnItemSelect(Handle:hPlugin, Function:SelectFunction, iClient, const String:sItemInfo[])
+bool:Function_OnItemSelect(Handle:hPlugin, Function:SelectFunction, iClient, const char[] sItemInfo)
 {
 	decl bool:bResult;
 	Call_StartFunction(hPlugin, SelectFunction);
@@ -334,7 +334,7 @@ bool:Function_OnItemSelect(Handle:hPlugin, Function:SelectFunction, iClient, con
 	return bResult;
 }
 
-bool:IsValidFeature(const String:sFeatureName[])
+bool:IsValidFeature(const char[] sFeatureName)
 {
 	DebugMessage("IsValidFeature:: FindStringInArray -> %i", FindStringInArray(GLOBAL_ARRAY, sFeatureName))
 	return (FindStringInArray(GLOBAL_ARRAY, sFeatureName) != -1);

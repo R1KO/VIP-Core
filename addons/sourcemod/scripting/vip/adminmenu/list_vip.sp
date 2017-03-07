@@ -1,6 +1,6 @@
 ShowVipPlayersListMenu(iClient)
 {
-	decl Handle:hMenu, String:sUserID[12], String:sName[128], i, iClientID;
+	decl Handle:hMenu, char sUserID[12]; char sName[128]; i, iClientID;
 	hMenu = CreateMenu(MenuHandler_VipPlayersListMenu);
 
 	SetGlobalTransTarget(iClient);
@@ -63,7 +63,7 @@ public MenuHandler_VipPlayersListMenu(Handle:hMenu, MenuAction:action, iClient, 
 		}
 		case MenuAction_Select:
 		{
-			decl String:sUserID[12];
+			char sUserID[12];
 			GetMenuItem(hMenu, Item, sUserID, sizeof(sUserID));
 			
 			if(strcmp(sUserID, "more") == 0)	// Показать еще
@@ -114,9 +114,9 @@ public MenuHandler_VipPlayersListMenu(Handle:hMenu, MenuAction:action, iClient, 
 	}
 }
 
-ShowWaitSearchMenu(iClient, const String:sSearch[] = "", bool:bIsValid = false)
+ShowWaitSearchMenu(iClient, const char[] sSearch = "", bool:bIsValid = false)
 {
-	decl Handle:hMenu, String:sBuffer[128];
+	decl Handle:hMenu; char sBuffer[128];
 	hMenu = CreateMenu(MenuHandler_SearchPlayersListMenu);
 	SetMenuTitle(hMenu, "%T \"%T\"\n \n", "ENTER_AUTH", iClient, "CONFIRM", iClient);
 
@@ -165,7 +165,7 @@ public MenuHandler_SearchPlayersListMenu(Handle:hMenu, MenuAction:action, iClien
 			{
 				case 0:
 				{
-					decl String:sQuery[512], String:sAuth[32];
+					char sQuery[512]; char sAuth[32];
 					GetMenuItem(hMenu, Item, sAuth, sizeof(sAuth));
 					if (GLOBAL_INFO & IS_MySQL)
 					{
@@ -199,7 +199,7 @@ public MenuHandler_SearchPlayersListMenu(Handle:hMenu, MenuAction:action, iClien
 	}
 }
 /*
-public SQL_Callback_SearchPlayers(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
+public SQL_Callback_SearchPlayers(Handle:hOwner, Handle:hQuery, const char[] sError, any:UserID)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{
@@ -210,7 +210,7 @@ public SQL_Callback_SearchPlayers(Handle:hOwner, Handle:hQuery, const String:sEr
 	new iClient = CID(UserID);
 	if (iClient)
 	{
-		decl Handle:hMenu, String:sUserID[12], String:sName[128];
+		decl Handle:hMenu, char sUserID[12]; char sName[128];
 		hMenu = CreateMenu(MenuHandler_VipPlayersListMenu);
 
 		SetGlobalTransTarget(iClient);
@@ -243,7 +243,7 @@ ShowVipPlayersFromDBMenu(iClient, iOffset = 0)
 	// , iRowCount = 20
 	SetArrayCell(g_ClientData[iClient], DATA_OFFSET, iOffset);
 
-	decl String:sQuery[512];
+	char sQuery[512];
 	if (GLOBAL_INFO & IS_MySQL)
 	{
 		FormatEx(sQuery, sizeof(sQuery), "SELECT `u`.`id`, \
@@ -265,7 +265,7 @@ ShowVipPlayersFromDBMenu(iClient, iOffset = 0)
 	SQL_TQuery(g_hDatabase, SQL_Callback_SelectVipPlayers, sQuery, UID(iClient));
 }
 
-public SQL_Callback_SelectVipPlayers(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
+public SQL_Callback_SelectVipPlayers(Handle:hOwner, Handle:hQuery, const char[] sError, any:UserID)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{
@@ -276,7 +276,7 @@ public SQL_Callback_SelectVipPlayers(Handle:hOwner, Handle:hQuery, const String:
 	new iClient = CID(UserID);
 	if (iClient)
 	{
-		decl Handle:hMenu, String:sUserID[12], String:sName[128];
+		decl Handle:hMenu, char sUserID[12]; char sName[128];
 		hMenu = CreateMenu(MenuHandler_VipPlayersListMenu);
 		SetMenuExitBackButton(hMenu, true);
 
@@ -312,7 +312,7 @@ public SQL_Callback_SelectVipPlayers(Handle:hOwner, Handle:hQuery, const String:
 
 ShowTargetInfoMenu(iClient, iClientID)
 {
-	decl String:sQuery[512];
+	char sQuery[512];
 	if (GLOBAL_INFO & IS_MySQL)
 	{
 		FormatEx(sQuery, sizeof(sQuery), "SELECT `u`.`auth_type`, \
@@ -344,7 +344,7 @@ ShowTargetInfoMenu(iClient, iClientID)
 }
 
 
-public SQL_Callback_SelectVipClientInfo(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
+public SQL_Callback_SelectVipClientInfo(Handle:hOwner, Handle:hQuery, const char[] sError, any:UserID)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{
@@ -359,7 +359,7 @@ public SQL_Callback_SelectVipClientInfo(Handle:hOwner, Handle:hQuery, const Stri
 		{
 			SetGlobalTransTarget(iClient);
 
-			decl Handle:hMenu, String:sGroup[64], String:sBuffer[64], String:sName[64], String:sAuthType[64], String:sAuth[64], iExpires;
+			decl Handle:hMenu, char sGroup[64]; char sBuffer[64]; char sName[64]; char sAuthType[64]; char sAuth[64]; iExpires;
 			hMenu = CreateMenu(MenuHandler_VipClientInfoMenu);
 
 			SetMenuExitBackButton(hMenu, true);
@@ -444,7 +444,7 @@ ShowTargetTempInfo(iClient, UserID)
 {
 	SetGlobalTransTarget(iClient);
 
-	decl Handle:hMenu, String:sGroup[64], String:sBuffer[64], String:sName[64], String:sAuthType[64], String:sAuth[64], iExpires;
+	decl Handle:hMenu, char sGroup[64]; char sBuffer[64]; char sName[64]; char sAuthType[64]; char sAuth[64]; iExpires;
 	hMenu = CreateMenu(MenuHandler_VipClientInfoMenu);
 
 	SetMenuExitBackButton(hMenu, true);

@@ -27,7 +27,7 @@ ReadConfigs()
 {
 	DebugMessage("ReadConfigs")
 
-	decl String:sFeatureName[255], Handle:hFile;
+	char sFeatureName[255]; Handle:hFile;
 
 	if (g_hSortArray != INVALID_HANDLE)
 	{
@@ -69,9 +69,9 @@ ReadConfigs()
 	GLOBAL_INFO_KV = CreateConfig("data/vip/cfg/info.ini", "VIP_INFO");
 }
 
-Handle:CreateConfig(const String:sFile[], const String:sKvName[])
+Handle:CreateConfig(const char[] sFile, const char[] sKvName)
 {
-	decl String:sPath[PLATFORM_MAX_PATH], Handle:hKv;
+	char sPath[PLATFORM_MAX_PATH]; Handle:hKv;
 	BuildPath(Path_SM, sPath, sizeof(sPath), sFile);
 
 	hKv = CreateKeyValues(sKvName);

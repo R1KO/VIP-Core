@@ -41,13 +41,13 @@ public Handler_VIPAdminMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 	{
 		case MenuAction_Display:
 		{
-			decl String:sTitle[128];
+			char sTitle[128];
 			FormatEx(sTitle, sizeof(sTitle), "%T: \n ", "VIP_ADMIN_MENU_TITLE", iClient);
 			SetPanelTitle(Handle:iOption, sTitle);
 		}
 		case MenuAction_DisplayItem:
 		{
-			decl String:sDisplay[128];
+			char sDisplay[128];
 			
 			switch(iOption)
 			{
@@ -94,7 +94,7 @@ public Handler_VIPAdminMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 	return 0;
 }
 
-public OnLibraryAdded(const String:sLibraryName[])
+public OnLibraryAdded(const char[] sLibraryName)
 {
 	if (strcmp(sLibraryName, "adminmenu") == 0) 
 	{
@@ -106,7 +106,7 @@ public OnLibraryAdded(const String:sLibraryName[])
 	}
 }
 
-public OnLibraryRemoved(const String:sLibraryName[])
+public OnLibraryRemoved(const char[] sLibraryName)
 {
 	if (strcmp(sLibraryName, "adminmenu") == 0) 
 	{
@@ -144,7 +144,7 @@ AddItemsToTopMenu()
 	AddToTopMenu(g_hTopMenu, "vip_reload_settings",	TopMenuObject_Item, Handler_MenuVIPReloadSettings,	VIPAdminMenuObject, "vip_reload_settings",	ADMFLAG_ROOT);
 }
 
-public Handler_MenuVIPAdmin(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, String:sBuffer[], maxlength)
+public Handler_MenuVIPAdmin(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, char[] sBuffer, maxlength)
 {
 	switch(action)
 	{
@@ -153,7 +153,7 @@ public Handler_MenuVIPAdmin(Handle:hMenu, TopMenuAction:action, TopMenuObject:ob
 	}
 }
 
-public Handler_MenuVIPAdd(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, String:sBuffer[], maxlength)
+public Handler_MenuVIPAdd(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, char[] sBuffer, maxlength)
 {
 	switch(action)
 	{
@@ -167,7 +167,7 @@ public Handler_MenuVIPAdd(Handle:hMenu, TopMenuAction:action, TopMenuObject:obje
 	}
 }
 
-public Handler_MenuVIPList(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, String:sBuffer[], maxlength)
+public Handler_MenuVIPList(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, char[] sBuffer, maxlength)
 {
 	switch(action)
 	{
@@ -180,7 +180,7 @@ public Handler_MenuVIPList(Handle:hMenu, TopMenuAction:action, TopMenuObject:obj
 	}
 }
 
-public Handler_MenuVIPReloadPlayers(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, String:sBuffer[], maxlength)
+public Handler_MenuVIPReloadPlayers(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, char[] sBuffer, maxlength)
 {
 	switch(action)
 	{
@@ -193,7 +193,7 @@ public Handler_MenuVIPReloadPlayers(Handle:hMenu, TopMenuAction:action, TopMenuO
 	}
 }
 
-public Handler_MenuVIPReloadSettings(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, String:sBuffer[], maxlength)
+public Handler_MenuVIPReloadSettings(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, char[] sBuffer, maxlength)
 {
 	switch(action)
 	{
@@ -251,7 +251,7 @@ ShowTimeMenu(iClient)
 
 	if (KvGotoFirstSubKey(hKv))
 	{
-		decl String:sBuffer[128], String:sTime[32], String:sClientLang[3], String:sServerLang[3];
+		char sBuffer[128]; char sTime[32]; char sClientLang[3]; char sServerLang[3];
 		GetLanguageInfo(GetServerLanguage(), sServerLang, sizeof(sServerLang));
 		GetLanguageInfo(GetClientLanguage(iClient), sClientLang, sizeof(sClientLang));
 
@@ -296,7 +296,7 @@ public MenuHandler_TimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 		}
 		case MenuAction_Select:
 		{
-			decl String:sBuffer[64], iType, iTime;
+			char sBuffer[64]; iType, iTime;
 			GetMenuItem(hMenu, Item, sBuffer, sizeof(sBuffer));
 			iTime = StringToInt(sBuffer);
 			iType = GetArrayCell(g_ClientData[iClient], DATA_TIME);
@@ -318,7 +318,7 @@ public MenuHandler_TimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 			}
 			else
 			{
-				decl String:sTime[64], iExpires;
+				char sTime[64]; iExpires;
 				GetArrayString(g_ClientData[iClient], DATA_NAME, sBuffer, sizeof(sBuffer));
 				
 				switch(iType)
@@ -392,7 +392,7 @@ public MenuHandler_TimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 					}
 				}
 
-				decl iClientID, String:sQuery[512];
+				decl iClientID; char sQuery[512];
 				iClientID = GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID);
 				if (GLOBAL_INFO & IS_MySQL)
 				{
@@ -414,7 +414,7 @@ public MenuHandler_TimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 	return 0;
 }
 
-public SQL_Callback_ChangeTime(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
+public SQL_Callback_ChangeTime(Handle:hOwner, Handle:hQuery, const char[] sError, any:UserID)
 {
 	if (sError[0])
 	{
@@ -448,9 +448,9 @@ ReductionMenu(&Handle:hMenu, iNum)
 
 
 /*
-AddMenuTranslatedItem(Handle:hMenu, iClient, const String:sItem[])
+AddMenuTranslatedItem(Handle:hMenu, iClient, const char[] sItem)
 {
-	decl String:sBuffer[128];
+	char sBuffer[128];
 	FormatEx(sBuffer, sizeof(sBuffer), "%T", sItem, iClient);
 	AddMenuItem(hMenu, sItem, sBuffer);
 }

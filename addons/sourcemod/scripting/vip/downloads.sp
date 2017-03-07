@@ -2,7 +2,7 @@
 
 ReadDownloads()
 {
-	decl String:sBuffer[PLATFORM_MAX_PATH], Handle:hFile;
+	char sBuffer[PLATFORM_MAX_PATH]; Handle:hFile;
 	BuildPath(Path_SM, sBuffer, sizeof(sBuffer), "data/vip/modules/downloadlist.txt");
 	hFile = OpenFile(sBuffer, "r");
 
@@ -25,7 +25,7 @@ ReadDownloads()
 	}
 }
 
-bool:File_AddToDownloadsTable(const String:sPath[])
+bool:File_AddToDownloadsTable(const char[] sPath)
 {
 	DebugMessage("File_AddToDownloadsTable: '%s'", sPath)
 	
@@ -41,7 +41,7 @@ bool:File_AddToDownloadsTable(const String:sPath[])
 	}
 }
 
-bool:Dir_AddToDownloadsTable(const String:sPath[])
+bool:Dir_AddToDownloadsTable(const char[] sPath)
 {
 	DebugMessage("Dir_AddToDownloadsTable: '%s'", sPath)
 	
@@ -51,7 +51,7 @@ bool:Dir_AddToDownloadsTable(const String:sPath[])
 		hDir = OpenDirectory(sPath);
 		if(hDir != INVALID_HANDLE)
 		{
-			decl String:dirEntry[PLATFORM_MAX_PATH];
+			char dirEntry[PLATFORM_MAX_PATH];
 			while (ReadDirEntry(hDir, dirEntry, sizeof(dirEntry)))
 			{
 				if ((UTIL_StrCmpEx(dirEntry, ".") || UTIL_StrCmpEx(dirEntry, "..")) == false)

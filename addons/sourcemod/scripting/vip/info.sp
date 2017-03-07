@@ -1,9 +1,9 @@
 
-DisplayClientInfo(iClient, const String:sKey[])
+DisplayClientInfo(iClient, const char[] sKey)
 {
 	DebugMessage("DisplayClientInfo: Client: %N (%i) -> '%s'", iClient, iClient, sKey)
 
-	static String:sServLang[4];
+	static char sServLang[4];
 	if(!sServLang[0])
 	{
 		GetLanguageInfo(GetServerLanguage(), sServLang, sizeof(sServLang));
@@ -14,7 +14,7 @@ DisplayClientInfo(iClient, const String:sKey[])
 	if(KvJumpToKey(GLOBAL_INFO_KV, sKey))
 	{
 		DebugMessage("KvJumpToKey(%s)", sKey)
-		decl String:sBuffer[1028], String:sClientLang[4];
+		char sBuffer[1028]; char sClientLang[4];
 		GetLanguageInfo(GetClientLanguage(iClient), sClientLang, sizeof(sClientLang));
 		DebugMessage("sClientLang = '%s'", sClientLang)
 		DisplayInfo(iClient, sKey, "chat", sBuffer, sizeof(sBuffer), sClientLang, sServLang);
@@ -23,7 +23,7 @@ DisplayClientInfo(iClient, const String:sKey[])
 	}
 }
 
-DisplayInfo(iClient, const String:sKey[], const String:sKey2[], String:sBuffer[], iBufLen, String:sClientLang[], String:sServLang[])
+DisplayInfo(iClient, const char[] sKey, const char[] sKey2, char[] sBuffer, iBufLen, char[] sClientLang, char[] sServLang)
 {
 	DebugMessage("DisplayInfo: Client: %N (%i) -> '%s', '%s', '%s', '%s'", iClient, iClient, sKey, sKey2, sClientLang, sServLang)
 	KvRewind(GLOBAL_INFO_KV);
@@ -115,7 +115,7 @@ DisplayInfo(iClient, const String:sKey[], const String:sKey2[], String:sBuffer[]
 	}
 }
 
-KvGetLangString(String:sBuffer[], iBufLen, String:sClientLang[], String:sServLang[])
+KvGetLangString(char[] sBuffer, iBufLen, char[] sClientLang, char[] sServLang)
 {
 	DebugMessage("KvGetLangString: '%s', '%s'", sClientLang, sServLang)
 	KvGetString(GLOBAL_INFO_KV, sClientLang, sBuffer, iBufLen);
@@ -132,16 +132,16 @@ KvGetLangString(String:sBuffer[], iBufLen, String:sClientLang[], String:sServLan
 	return true;
 }
 
-ReplaceValues(iClient, String:sBuffer[], iBufLen, bool:bExt)
+ReplaceValues(iClient, char[] sBuffer, iBufLen, bool:bExt)
 {
-	decl String:sName[MAX_NAME_LENGTH], String:sGroup[64];
+	char sName[MAX_NAME_LENGTH]; char sGroup[64];
 	GetClientName(iClient, sName, sizeof(sName));
 	ReplaceString(sBuffer, iBufLen, "{NAME}", sName);
 	GetTrieString(g_hFeatures[iClient], KEY_GROUP, sGroup, sizeof(sGroup));
 	ReplaceString(sBuffer, iBufLen, "{GROUP}", sGroup);
 	if(bExt)
 	{
-		decl String:sExpires[64], iExpires;
+		char sExpires[64]; iExpires;
 		GetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iExpires);
 		FormatTime(sExpires, sizeof(sExpires), "%d/%m/%Y - %H:%M", iExpires);
 		ReplaceString(sBuffer, iBufLen, "{EXPIRES}", sExpires);

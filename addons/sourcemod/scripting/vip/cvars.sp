@@ -56,7 +56,7 @@ CreateCvars()
 	AutoExecConfig(true, "VIP_Core", "vip");
 }
 
-public OnAdminFlagChange(Handle:hCvar, const String:oldValue[], const String:newValue[])
+public OnAdminFlagChange(Handle:hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_iAdminFlag = UTIL_GetConVarAdminFlag(hCvar);
 
@@ -77,7 +77,7 @@ public OnAdminFlagChange(Handle:hCvar, const String:oldValue[], const String:new
 }
 
 #if USE_ADMINMENU 1
-public OnAddItemToAdminMenuChange(Handle:hCvar, const String:oldValue[], const String:newValue[])
+public OnAddItemToAdminMenuChange(Handle:hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_bAddItemToAdminMenu = GetConVarBool(hCvar);
 	if(g_CVAR_bAddItemToAdminMenu)
@@ -99,12 +99,12 @@ public OnAddItemToAdminMenuChange(Handle:hCvar, const String:oldValue[], const S
 }
 #endif
 
-public OnServerIDChange(Handle:hCvar, const String:oldValue[], const String:newValue[])					g_CVAR_iServerID = GetConVarInt(hCvar);
-public OnAutoOpenMenuChange(Handle:hCvar, const String:oldValue[], const String:newValue[])				g_CVAR_bAutoOpenMenu = GetConVarBool(hCvar);
-public OnTimeModeChange(Handle:hCvar, const String:oldValue[], const String:newValue[])					g_CVAR_iTimeMode = GetConVarInt(hCvar);
-public OnDeleteExpiredChange(Handle:hCvar, const String:oldValue[], const String:newValue[])			g_CVAR_iDeleteExpired = GetConVarInt(hCvar);
-public OnUpdateNameChange(Handle:hCvar, const String:oldValue[], const String:newValue[])				g_CVAR_bUpdateName = GetConVarBool(hCvar);
-public OnSpawnDelayChange(Handle:hCvar, const String:oldValue[], const String:newValue[])				g_CVAR_fSpawnDelay = GetConVarFloat(hCvar);
-public OnKickNotAuthorizedChange(Handle:hCvar, const String:oldValue[], const String:newValue[])		g_CVAR_bKickNotAuthorized = GetConVarBool(hCvar);
-public OnHideNoAccessItemsChange(Handle:hCvar, const String:oldValue[], const String:newValue[])		g_CVAR_bHideNoAccessItems = GetConVarBool(hCvar);
-public OnLogsEnableChange(Handle:hCvar, const String:oldValue[], const String:newValue[])				g_CVAR_bLogsEnable = GetConVarBool(hCvar);
+public OnServerIDChange(Handle:hCvar, const char[] oldValue, const char[] newValue)					g_CVAR_iServerID = GetConVarInt(hCvar);
+public OnAutoOpenMenuChange(Handle:hCvar, const char[] oldValue, const char[] newValue)				g_CVAR_bAutoOpenMenu = GetConVarBool(hCvar);
+public OnTimeModeChange(Handle:hCvar, const char[] oldValue, const char[] newValue)					g_CVAR_iTimeMode = GetConVarInt(hCvar);
+public OnDeleteExpiredChange(Handle:hCvar, const char[] oldValue, const char[] newValue)			g_CVAR_iDeleteExpired = GetConVarInt(hCvar);
+public OnUpdateNameChange(Handle:hCvar, const char[] oldValue, const char[] newValue)				g_CVAR_bUpdateName = GetConVarBool(hCvar);
+public OnSpawnDelayChange(Handle:hCvar, const char[] oldValue, const char[] newValue)				g_CVAR_fSpawnDelay = GetConVarFloat(hCvar);
+public OnKickNotAuthorizedChange(Handle:hCvar, const char[] oldValue, const char[] newValue)		g_CVAR_bKickNotAuthorized = GetConVarBool(hCvar);
+public OnHideNoAccessItemsChange(Handle:hCvar, const char[] oldValue, const char[] newValue)		g_CVAR_bHideNoAccessItems = GetConVarBool(hCvar);
+public OnLogsEnableChange(Handle:hCvar, const char[] oldValue, const char[] newValue)				g_CVAR_bLogsEnable = GetConVarBool(hCvar);

@@ -1,6 +1,6 @@
 ShowEditTimeMenu(iClient)
 {
-	decl Handle:hMenu, String:sBuffer[128];
+	decl Handle:hMenu; char sBuffer[128];
 	hMenu = CreateMenu(MenuHandler_EditTimeMenu);
 
 	SetGlobalTransTarget(iClient);
@@ -39,7 +39,7 @@ public MenuHandler_EditTimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 
 ShowEditPassMenu(iClient)
 {
-	decl String:sQuery[512];
+	char sQuery[512];
 	if (GLOBAL_INFO & IS_MySQL)
 	{
 		FormatEx(sQuery, sizeof(sQuery), "SELECT `u`.`password` \
@@ -63,7 +63,7 @@ ShowEditPassMenu(iClient)
 }
 
 
-public SQL_Callback_SelectClientPass(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
+public SQL_Callback_SelectClientPass(Handle:hOwner, Handle:hQuery, const char[] sError, any:UserID)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{
@@ -78,7 +78,7 @@ public SQL_Callback_SelectClientPass(Handle:hOwner, Handle:hQuery, const String:
 		{
 			SetGlobalTransTarget(iClient);
 
-			decl Handle:hMenu, String:sBuffer[128];
+			decl Handle:hMenu; char sBuffer[128];
 			hMenu = CreateMenu(MenuHandler_EditPassMenu);
 			SetMenuTitle(hMenu, "%t:\n \n", "MENU_EDIT_PASS");
 			SetMenuExitBackButton(hMenu, true);
@@ -120,7 +120,7 @@ public MenuHandler_EditPassMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 		}
 		case MenuAction_Select:
 		{
-			decl String:sInfo[4];
+			char sInfo[4];
 			GetMenuItem(hMenu, Item, sInfo, sizeof(sInfo));
 			switch(sInfo[0])
 			{
@@ -135,7 +135,7 @@ ShowDelPassMenu(iClient)
 {
 	SetGlobalTransTarget(iClient);
 
-	decl Handle:hMenu, String:sBuffer[128];
+	decl Handle:hMenu; char sBuffer[128];
 	hMenu = CreateMenu(MenuHandler_DelPassMenu);
 	SetMenuTitle(hMenu, "%t:\n \n", "MENU_DEL_PASS");
 	SetMenuExitBackButton(hMenu, true);
@@ -161,7 +161,7 @@ public MenuHandler_DelPassMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 		}
 		case MenuAction_Select:
 		{
-			decl String:sQuery[256], iTarget, String:sBuffer[MAX_NAME_LENGTH];
+			char sQuery[256]; iTarget; char sBuffer[MAX_NAME_LENGTH];
 
 			iTarget = GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID);
 			FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `password` = NULL WHERE `id` = '%i';", iTarget);
@@ -177,11 +177,11 @@ public MenuHandler_DelPassMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 	}
 }
 
-ShowWaitPassMenu(iClient, const String:sPass[] = "", const bool:bIsValid = false)
+ShowWaitPassMenu(iClient, const char[] sPass = "", const bool:bIsValid = false)
 {
 	SetGlobalTransTarget(iClient);
 
-	decl Handle:hMenu, String:sBuffer[128];
+	decl Handle:hMenu; char sBuffer[128];
 
 	hMenu = CreateMenu(MenuHandler_EditVip_WaitPassMenu);
 	SetMenuTitle(hMenu, "%t \"%t\"\n \n", "ENTER_PASS", "CONFIRM");
@@ -230,7 +230,7 @@ public MenuHandler_EditVip_WaitPassMenu(Handle:hMenu, MenuAction:action, iClient
 			{
 				case 0:
 				{
-					decl iTarget, String:sQuery[256], String:sPass[64], String:sBuffer[MAX_NAME_LENGTH];
+					decl iTarget, char sQuery[256]; char sPass[64]; char sBuffer[MAX_NAME_LENGTH];
 					iTarget = GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID);
 					GetMenuItem(hMenu, Item, sPass, sizeof(sPass));
 					FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `password` = '%s' WHERE `id` = '%i';", sPass, iTarget);
@@ -255,7 +255,7 @@ ShowEditGroupMenu(iClient)
 {
 	SetGlobalTransTarget(iClient);
 
-	decl Handle:hMenu, String:sGroup[64];
+	decl Handle:hMenu; char sGroup[64];
 	hMenu  = CreateMenu(MenuHandler_EditVip_GroupsList);
 	SetMenuTitle(hMenu, "%t:\n \n", "GROUP");
 	SetMenuExitBackButton(hMenu, true);
@@ -265,7 +265,7 @@ ShowEditGroupMenu(iClient)
 	KvRewind(g_hGroups);
 	if(KvGotoFirstSubKey(g_hGroups))
 	{
-		decl String:sTagetGroup[64], String:sGroupName[128];
+		char sTagetGroup[64]; char sGroupName[128];
 		GetArrayString(g_ClientData[iClient], DATA_GROUP, sTagetGroup, sizeof(sTagetGroup));
 		if(strcmp(sTagetGroup, "none") == 0)
 		{
@@ -306,7 +306,7 @@ public MenuHandler_EditVip_GroupsList(Handle:hMenu, MenuAction:action, iClient, 
 		}
 		case MenuAction_Select:
 		{
-			decl String:sQuery[256], String:sBuffer[MAX_NAME_LENGTH], iTarget, String:sGroup[MAX_NAME_LENGTH];
+			char sQuery[256]; char sBuffer[MAX_NAME_LENGTH]; iTarget; char sGroup[MAX_NAME_LENGTH];
 			GetMenuItem(hMenu, Item, sGroup, sizeof(sGroup));
 			GetArrayString(g_ClientData[iClient], DATA_NAME, sBuffer, sizeof(sBuffer));
 			iTarget = GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID);

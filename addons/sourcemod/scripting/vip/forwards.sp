@@ -60,7 +60,7 @@ CreateForward_OnVIPClientLoaded(iClient)
 	Call_Finish();
 }
 
-CreateForward_OnVIPClientRemoved(iClient, const String:sReason[])
+CreateForward_OnVIPClientRemoved(iClient, const char[] sReason)
 {
 	Call_StartForward(g_hGlobalForward_OnVIPClientRemoved);
 	Call_PushCell(iClient);

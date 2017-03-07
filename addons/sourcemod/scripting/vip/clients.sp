@@ -48,7 +48,7 @@ Clients_CheckVipAccess(iClient, bool:bNotify = false)
 
 Clients_LoadClient(iClient, bool:bNotify)
 {
-	decl String:sQuery[512], String:sAuth[32], String:sName[MAX_NAME_LENGTH*2+1], String:sIP[24];
+	char sQuery[512]; char sAuth[32]; char sName[MAX_NAME_LENGTH*2+1]; char sIP[24];
 
 	GetClientAuthId(iClient, AuthId_Engine, sAuth, sizeof(sAuth));
 
@@ -94,7 +94,7 @@ Clients_LoadClient(iClient, bool:bNotify)
 	SQL_TQuery(g_hDatabase, SQL_Callback_OnClientAuthorized, sQuery, hDataPack);
 }
 
-public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const String:sError[], any:hPack)
+public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const char[] sError, any:hPack)
 {
 	DataPack hDataPack = view_as<DataPack>(hPack);
 	if (hQuery == INVALID_HANDLE || sError[0])
@@ -138,14 +138,14 @@ public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const Strin
 						/*
 						if (GLOBAL_INFO & IS_MySQL)
 						{
-							decl String:sQuery[256];
+							char sQuery[256];
 							FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `vip_overrides` WHERE `user_id` = '%i' AND `server_id` = '%i';", iClientID, g_CVAR_iServerID);
 							SQL_TQuery(g_hDatabase, SQL_Callback_DeleteExpired, sQuery);
 						}
 						
 						if (GLOBAL_INFO & IS_MySQL)
 						{
-							decl String:sQuery[256];
+							char sQuery[256];
 							FormatEx(sQuery, sizeof(sQuery), "SELECT COUNT(*) AS vip_count FROM `vip_overrides` WHERE `user_id` = '%i';", iClientID);
 							SQL_TQuery(g_hDatabase, SQL_Callback_RemoveClient2, sQuery, iClientID);
 						}
@@ -159,7 +159,7 @@ public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const Strin
 	/*
 					if (GLOBAL_INFO & IS_MySQL)
 					{
-						decl String:sQuery[256];
+						char sQuery[256];
 						FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `vip_overrides` WHERE `user_id` = '%i' AND `server_id` = '%i';", iClientID, g_CVAR_iServerID);
 						SQL_TQuery(g_hDatabase, SQL_Callback_DeleteExpired);
 					}
@@ -168,7 +168,7 @@ public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const Strin
 						DB_RemoveClientFromID(0, SQL_FetchInt(hQuery, 0), false);
 					}
 
-					decl String:sQuery[256];
+					char sQuery[256];
 					FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `vip_overrides` WHERE `user_id` = '%i' AND `server_id` = '%i';", iClientID, g_CVAR_iServerID);
 					SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck);
 	*/
@@ -184,7 +184,7 @@ public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const Strin
 				Clients_CreateExpiredTimer(iClient, iExpires, iTime);
 			}
 
-			decl String:sBuffer[64];
+			char sBuffer[64];
 			if(SQL_IsFieldNull(hQuery, 2) == false)
 			{
 				SQL_FetchString(hQuery, 2, sBuffer, sizeof(sBuffer)); // password
@@ -192,7 +192,7 @@ public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const Strin
 				{
 					DebugMessage("Clients_LoadClient %N (%i):\tpassword: %s", iClient, iClient, sBuffer)
 					
-					decl String:sClientCvar[64], String:sClientPass[64];
+					char sClientCvar[64]; char sClientPass[64];
 					if(SQL_IsFieldNull(hQuery, 3) == false)
 					{
 						SQL_FetchString(hQuery, 3, sClientCvar, sizeof(sClientCvar));
@@ -274,7 +274,7 @@ public SQL_Callback_OnClientAuthorized(Handle:hOwner, Handle:hQuery, const Strin
 				}
 				else
 				{
-					decl String:sAuth[32];
+					char sAuth[32];
 					SQL_FetchString(hQuery, 6, sAuth, sizeof(sAuth));
 					LogError("Invalid VIP-Group/Некорректная VIP-группа: %s (Игрок: %s)", sBuffer, sAuth);
 				}
@@ -350,8 +350,7 @@ Clients_LoadVIPFeatures(iClient)
 		GetTrieString(g_hFeatures[iClient], KEY_GROUP, sFeatureName, sizeof(sFeatureName));
 		if(UTIL_CheckValidVIPGroup(sFeatureName))
 		{
-			decl String:sBuffer[64],
-			Handle:hCookie,
+			char sBuffer[64]; Handle:hCookie,
 			VIP_ToggleState:Status,
 			i;
 					
@@ -396,7 +395,7 @@ Clients_LoadVIPFeatures(iClient)
 	}
 }
 
-bool:GetValue(iClient, VIP_ValueType:ValueType, const String:sFeatureName[])
+bool:GetValue(iClient, VIP_ValueType:ValueType, const char[] sFeatureName)
 {
 	DebugMessage("GetValue: %i - %s", ValueType, sFeatureName)
 	switch(ValueType)
@@ -439,7 +438,7 @@ bool:GetValue(iClient, VIP_ValueType:ValueType, const String:sFeatureName[])
 		}
 		case STRING:
 		{
-			decl String:sBuffer[256];
+			char sBuffer[256];
 			KvGetString(g_hGroups, sFeatureName, sBuffer, sizeof(sBuffer));
 			if(sBuffer[0])
 			{
@@ -474,7 +473,7 @@ Clients_CreateExpiredTimer(iClient, iExp, iTime)
 	}
 }
 
-public Event_MatchEndRestart(Handle:hEvent, const String:name[], bool:dontBroadcast)
+public Event_MatchEndRestart(Handle:hEvent, const char[] name, bool:dontBroadcast)
 {
 	if(g_CVAR_iDeleteExpired != -1)
 	{
@@ -482,7 +481,7 @@ public Event_MatchEndRestart(Handle:hEvent, const String:name[], bool:dontBroadc
 	}
 }
 
-public Event_PlayerSpawn(Handle:hEvent, const String:sEvName[], bool:bDontBroadcast)
+public Event_PlayerSpawn(Handle:hEvent, const char[] sEvName, bool:bDontBroadcast)
 {
 	new UserID = GetEventInt(hEvent, "userid");
 	new iClient = CID(UserID);
@@ -493,7 +492,7 @@ public Event_PlayerSpawn(Handle:hEvent, const String:sEvName[], bool:bDontBroadc
 	}
 }
 
-public Event_PlayerDeath(Handle:hEvent, const String:sEvName[], bool:bDontBroadcast)
+public Event_PlayerDeath(Handle:hEvent, const char[] sEvName, bool:bDontBroadcast)
 {
 	new iClient = CID(GetEventInt(hEvent, "userid"));
 	DebugMessage("Event_PlayerDeath: %N (%i)", iClient, iClient)
@@ -526,7 +525,7 @@ public Action:Timer_OnPlayerSpawn(Handle:hTimer, any:UserID)
 	return Plugin_Stop;
 }
 
-public Event_RoundEnd(Handle:hEvent, const String:name[], bool:dontBroadcast)
+public Event_RoundEnd(Handle:hEvent, const char[] name, bool:dontBroadcast)
 {
 	DebugMessage("Event_RoundEnd")
 	decl iTime, iExp, i;

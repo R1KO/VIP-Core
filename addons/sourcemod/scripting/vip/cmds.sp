@@ -59,7 +59,7 @@ public Action:AddVIP_CMD(iClient, iArgs)
 		return Plugin_Handled;
 	}
 	
-	decl String:sAuth[64], VIP_AuthType:AuthType;
+	char sAuth[64]; VIP_AuthType:AuthType;
 	GetCmdArg(1, sAuth, sizeof(sAuth));
 
 	if(!strcmp(sAuth, "steam"))		AuthType = AUTH_STEAM;
@@ -89,7 +89,7 @@ public Action:AddVIP_CMD(iClient, iArgs)
 		iTarget = 0;
 	}
 
-	decl String:sBuffer[64];
+	char sBuffer[64];
 	new iTime = 0;
 	if(iArgs > 2)
 	{
@@ -128,7 +128,7 @@ public Action:DelVIP_CMD(iClient, iArgs)
 		return Plugin_Handled;
 	}
 	
-	decl String:sQuery[512], String:sAuth[MAX_NAME_LENGTH];
+	char sQuery[512]; char sAuth[MAX_NAME_LENGTH];
 	GetCmdArg(1, sAuth, sizeof(sAuth));
 
 	if (GLOBAL_INFO & IS_MySQL)
@@ -158,7 +158,7 @@ public Action:DelVIP_CMD(iClient, iArgs)
 	return Plugin_Handled;
 }
 
-public SQL_Callback_OnSelectRemoveClient(Handle:hOwner, Handle:hQuery, const String:sError[], any:iClient)
+public SQL_Callback_OnSelectRemoveClient(Handle:hOwner, Handle:hQuery, const char[] sError, any:iClient)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{

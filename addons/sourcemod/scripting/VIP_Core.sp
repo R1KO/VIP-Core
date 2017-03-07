@@ -26,11 +26,11 @@ public Plugin:myinfo =
 
 
 #if DEBUG_MODE 1
-new String:g_sDebugLogFile[PLATFORM_MAX_PATH];
+char g_sDebugLogFile[PLATFORM_MAX_PATH];
 
-stock DebugMsg(const String:sMsg[], any:...)
+stock DebugMsg(const char[] sMsg, any:...)
 {
-	decl String:sBuffer[250];
+	char sBuffer[250];
 	VFormat(sBuffer, sizeof(sBuffer), sMsg, 2);
 	LogToFile(g_sDebugLogFile, sBuffer);
 }
@@ -110,7 +110,7 @@ public OnAllPluginsLoaded()
 }
 
 #if USE_ADMINMENU 1
-public Action:OnClientSayCommand(iClient, const String:sCommand[], const String:sArgs[])
+public Action:OnClientSayCommand(iClient, const char[] sCommand, const char[] sArgs)
 {
 	if(iClient > 0 && iClient <= MaxClients && sArgs[0])
 	{

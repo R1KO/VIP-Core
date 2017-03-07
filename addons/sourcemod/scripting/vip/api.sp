@@ -40,7 +40,7 @@ CreateForward_OnVIPClientAdded(iAdmin, iClient)
 	Call_Finish();
 }
 
-CreateForward_OnVIPClientRemoved(iClient, const String:sReason[])
+CreateForward_OnVIPClientRemoved(iClient, const char[] sReason)
 {
 	Call_StartForward(g_hGlobalForward_OnVIPClientRemoved);
 	Call_PushCell(iClient);
@@ -57,7 +57,7 @@ CreateForward_OnPlayerSpawn(iClient, iTeam)
 	Call_Finish();
 }
 
-public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max) 
+public APLRes:AskPluginLoad2(Handle:myself, bool:late, char[] error, err_max) 
 {
 	CreateNative("VIP_CheckClient",				Native_CheckClient);
 	CreateNative("VIP_IsClientVIP",				Native_IsClientVIP);
@@ -156,7 +156,7 @@ public Native_PrintToChatClient(Handle:hPlugin, iNumParams)
 	new iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient, false))
 	{
-		decl String:sMessage[256];
+		char sMessage[256];
 		SetGlobalTransTarget(iClient);
 		FormatNativeString(0, 2, 3, sizeof(sMessage), _, sMessage);
 	//	Format(sMessage, sizeof(sMessage), "%t%s", "VIP_CHAT_PREFIX", sMessage);
@@ -169,7 +169,7 @@ public Native_PrintToChatClient(Handle:hPlugin, iNumParams)
 
 public Native_PrintToChatAll(Handle:hPlugin, iNumParams)
 {
-	decl i, String:sMessage[256];
+	decl i; char sMessage[256];
 
 	for (i = 1; i <= MaxClients; ++i)
 	{
@@ -183,9 +183,9 @@ public Native_PrintToChatAll(Handle:hPlugin, iNumParams)
 	}
 }
 
-Print(iClient, const String:sFormat[])
+Print(iClient, const char[] sFormat)
 {
-	decl String:sMessage[256];
+	char sMessage[256];
 	FormatEx(sMessage, sizeof(sMessage), g_EngineVersion == Engine_CSGO ? " \x01%t %s":"\x01%t %s", "VIP_CHAT_PREFIX", sFormat);
 	
 	ReplaceString(sMessage, sizeof(sMessage), "\\n", "\n");
@@ -223,7 +223,7 @@ Print(iClient, const String:sFormat[])
 		}
 		case Engine_CSGO:
 		{
-			static const	String:sColorName[][] =
+			static const char sColorName[][] =
 							{
 								"{RED}",
 								"{LIME}",
@@ -236,7 +236,7 @@ Print(iClient, const String:sFormat[])
 								"{BLUE}", 
 								"{PURPLE}"
 							},
-							String:sColorCode[][] =
+							char sColorCode[][] =
 							{
 								"\x02",
 							    "\x05",
@@ -271,7 +271,7 @@ Print(iClient, const String:sFormat[])
 	}
 }
 
-ReplaceColors(String:sMsg[], MaxLength)
+ReplaceColors(char[] sMsg, MaxLength)
 {
 	if(ReplaceString(sMsg, MaxLength, "{TEAM}",	"\x03"))	return 0;
 
@@ -292,7 +292,7 @@ FindPlayerByTeam(iTeam)
 	return 0;
 }
 
-SayText2(iClient, iAuthor = 0, const String:sMessage[])
+SayText2(iClient, iAuthor = 0, const char[] sMessage)
 {
 	decl iClients[1], Handle:hBuffer;
 	iClients[0] = iClient;
@@ -320,7 +320,7 @@ public Native_LogMessage(Handle:hPlugin, iNumParams)
 {
 	if(g_CVAR_bLogsEnable)
 	{
-		decl String:sMessage[512];
+		char sMessage[512];
 		SetGlobalTransTarget(LANG_SERVER);
 		FormatNativeString(0, 1, 2, sizeof(sMessage), _, sMessage);
 		
@@ -350,7 +350,7 @@ public Native_GetClientVIPGroup(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient))
 	{
-		decl String:sGroup[64];
+		char sGroup[64];
 		
 		sGroup[0] = 0;
 
@@ -369,7 +369,7 @@ public Native_SetClientVIPGroup(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient))
 	{
-		decl String:sGroup[64];
+		char sGroup[64];
 		GetNativeString(2, sGroup, sizeof(sGroup));
 		if(UTIL_CheckValidVIPGroup(sGroup))
 		{
@@ -380,7 +380,7 @@ public Native_SetClientVIPGroup(Handle:hPlugin, iNumParams)
 					decl iClientID;
 					if(GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID) && iClientID != -1)
 					{
-						decl String:sQuery[256];
+						char sQuery[256];
 						if (GLOBAL_INFO & IS_MySQL)
 						{
 							FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_overrides` SET `group` = '%s' WHERE `user_id` = '%i' AND `server_id` = '%i';", sGroup, iClientID, g_CVAR_iServerID);
@@ -440,7 +440,7 @@ public Native_SetClientAccessTime(Handle:hPlugin, iNumParams)
 				decl iClientID;
 				if(GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID) && iClientID != -1)
 				{
-					decl String:sQuery[256];
+					char sQuery[256];
 					if (GLOBAL_INFO & IS_MySQL)
 					{
 						FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_overrides` SET `expires` = '%i' WHERE `user_id` = '%i' AND `server_id` = '%i';", iTime, iClientID, g_CVAR_iServerID);
@@ -469,7 +469,7 @@ public Native_SetClientPassword(Handle:hPlugin, iNumParams)
 		decl iClientID;
 		if(GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID) && iClientID != -1)
 		{
-			decl String:sPassKey[64], String:sPassword[64], String:sQuery[256], String:sBuffer[64];
+			char sPassKey[64]; char sPassword[64]; char sQuery[256]; char sBuffer[64];
 			GetNativeString(2, sPassKey, sizeof(sPassKey));
 			GetNativeString(3, sPassword, sizeof(sPassword));
 
@@ -498,7 +498,7 @@ public Native_SetClientPassword(Handle:hPlugin, iNumParams)
 	return false;
 }
 
-public SQL_Callback_ChangeClientSettings(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
+public SQL_Callback_ChangeClientSettings(Handle:hOwner, Handle:hQuery, const char[] sError, any:UserID)
 {
 	if (sError[0])
 	{
@@ -573,7 +573,7 @@ public Native_SetClientVIP(Handle:hPlugin, iNumParams)
 			}
 		}
 		
-		decl String:sGroup[64];
+		char sGroup[64];
 		GetNativeString(4, sGroup, sizeof(sGroup));
 		if(UTIL_CheckValidVIPGroup(sGroup))
 		{
@@ -670,7 +670,7 @@ public Native_RemoveClientVIP(Handle:hPlugin, iNumParams)
 
 public Native_IsValidVIPGroup(Handle:hPlugin, iNumParams)
 {
-	decl String:sGroup[64];
+	char sGroup[64];
 	GetNativeString(1, sGroup, sizeof(sGroup));
 	return UTIL_CheckValidVIPGroup(sGroup);
 }
@@ -682,11 +682,11 @@ public Native_IsVIPLoaded(Handle:hPlugin, iNumParams)
 
 public Native_RegisterFeature(Handle:hPlugin, iNumParams)
 {
-	decl String:sFeatureName[FEATURE_NAME_LENGTH];
+	char sFeatureName[FEATURE_NAME_LENGTH];
 	GetNativeString(1, sFeatureName, sizeof(sFeatureName));
 	
 	#if DEBUG_MODE
-	decl String:sPluginName[FEATURE_NAME_LENGTH];
+	char sPluginName[FEATURE_NAME_LENGTH];
 	GetPluginFilename(hPlugin, sPluginName, FEATURE_NAME_LENGTH);
 	DebugMessage("Register feature \"%s\" (%s)", sFeatureName, sPluginName)
 	#endif
@@ -734,7 +734,7 @@ public Native_RegisterFeature(Handle:hPlugin, iNumParams)
 			AddFeatureToVIPMenu(sFeatureName);
 		}
 		
-		decl iClient, String:sGroup[64];
+		decl iClient; char sGroup[64];
 		for (iClient = 1; iClient <= MaxClients; ++iClient)
 		{
 			if (IsClientInGame(iClient) && g_iClientInfo[iClient] & IS_VIP)
@@ -760,7 +760,7 @@ public Native_RegisterFeature(Handle:hPlugin, iNumParams)
 
 public Native_UnregisterFeature(Handle:hPlugin, iNumParams)
 {
-	decl String:sFeatureName[FEATURE_NAME_LENGTH];
+	char sFeatureName[FEATURE_NAME_LENGTH];
 	GetNativeString(1, sFeatureName, sizeof(sFeatureName));
 	
 	if(IsValidFeature(sFeatureName))
@@ -795,7 +795,7 @@ public Native_UnregisterFeature(Handle:hPlugin, iNumParams)
 
 			if(iFeatureType != HIDE)
 			{
-				decl String:sItemInfo[FEATURE_NAME_LENGTH], iSize;
+				char sItemInfo[FEATURE_NAME_LENGTH]; iSize;
 				iSize = GetMenuItemCount(g_hVIPMenu);
 				for(i = 0; i < iSize; ++i)
 				{
@@ -836,7 +836,7 @@ public Native_UnregisterFeature(Handle:hPlugin, iNumParams)
 
 public Native_IsValidFeature(Handle:hPlugin, iNumParams)
 {
-	decl String:sFeatureName[FEATURE_NAME_LENGTH];
+	char sFeatureName[FEATURE_NAME_LENGTH];
 	GetNativeString(1, sFeatureName, sizeof(sFeatureName));
 
 	return _:IsValidFeature(sFeatureName);
@@ -848,7 +848,7 @@ public Native_IsClientFeatureUse(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH];
+		char sFeatureName[FEATURE_NAME_LENGTH];
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 
 		DebugMessage("Native_IsClientFeatureUse: %N (%i) - %s -> %i", iClient, iClient, sFeatureName, Features_GetStatus(iClient, sFeatureName))
@@ -864,7 +864,7 @@ public Native_GetClientFeatureStatus(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH];
+		char sFeatureName[FEATURE_NAME_LENGTH];
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 
 		return _:Features_GetStatus(iClient, sFeatureName);
@@ -879,7 +879,7 @@ public Native_SetClientFeatureStatus(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH], VIP_ToggleState:OldStatus, VIP_ToggleState:NewStatus;
+		char sFeatureName[FEATURE_NAME_LENGTH]; VIP_ToggleState:OldStatus, VIP_ToggleState:NewStatus;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 		OldStatus = Features_GetStatus(iClient, sFeatureName);
 
@@ -916,7 +916,7 @@ public Native_GetClientFeatureInt(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH], iValue;
+		char sFeatureName[FEATURE_NAME_LENGTH]; iValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 
 		if(GetTrieValue(g_hFeatures[iClient], sFeatureName, iValue) && iValue != 0)
@@ -934,7 +934,7 @@ public Native_GetClientFeatureFloat(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH], Float:fValue;
+		char sFeatureName[FEATURE_NAME_LENGTH]; Float:fValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 
 		if(GetTrieValue(g_hFeatures[iClient], sFeatureName, fValue) && fValue != 0.0)
@@ -951,7 +951,7 @@ public Native_GetClientFeatureBool(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH], bool:bValue;
+		char sFeatureName[FEATURE_NAME_LENGTH]; bool:bValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 
 		return GetTrieValue(g_hFeatures[iClient], sFeatureName, bValue);
@@ -966,7 +966,7 @@ public Native_GetClientFeatureString(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[64], String:sBuffer[256], iLen;
+		char sFeatureName[64]; char sBuffer[256]; iLen;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 
 		iLen = GetNativeCell(4);
@@ -987,10 +987,10 @@ public Native_GiveClientFeature(Handle:hPlugin, iNumParams)
 	iClient = GetNativeCell(1);
 	if(CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[64], Handle:hArray, String:sFeatureValue[256];
+		char sFeatureName[64]; Handle:hArray; char sFeatureValue[256];
 		if(GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
 		{
-			decl String:sFeatureValue[256];
+			char sFeatureValue[256];
 			GetNativeString(3, sFeatureValue, sizeof(sFeatureValue));
 			
 			if(!(g_iClientInfo[iClient] & IS_VIP))
@@ -1079,7 +1079,7 @@ public Native_GetTimeFromStamp(Handle:hPlugin, iNumParams)
 		new iClient = GetNativeCell(4);
 		if(iClient == 0 || CheckValidClient(iClient, false))
 		{
-			decl String:sBuffer[64];
+			char sBuffer[64];
 			UTIL_GetTimeFromStamp(sBuffer, sizeof(sBuffer), iTimeStamp, iClient);
 			SetNativeString(1, sBuffer, GetNativeCell(2), true);
 			return true;
@@ -1091,7 +1091,7 @@ public Native_GetTimeFromStamp(Handle:hPlugin, iNumParams)
 
 public Native_AddStringToggleStatus(Handle:hPlugin, iNumParams)
 {
-	decl String:sFeatureName[FEATURE_NAME_LENGTH];
+	char sFeatureName[FEATURE_NAME_LENGTH];
 	GetNativeString(4, sFeatureName, sizeof(sFeatureName));
 	if(IsValidFeature(sFeatureName))
 	{
@@ -1099,7 +1099,7 @@ public Native_AddStringToggleStatus(Handle:hPlugin, iNumParams)
 		if(CheckValidClient(iClient))
 		{
 			new iSize = GetNativeCell(3);
-			decl String:sBuffer[iSize];
+			char sBuffer[iSize];
 			GetNativeString(1, sBuffer, iSize);
 			Format(sBuffer, iSize, "%s [%T]", sBuffer, g_sToggleStatus[_:Features_GetStatus(iClient, sFeatureName)], iClient);
 			SetNativeString(2, sBuffer, iSize, true);

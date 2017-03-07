@@ -27,14 +27,14 @@ DB_Connect()
 	}
 	else
 	{
-		decl String:sError[256];
+		char sError[256];
 		sError[0] = '\0';
 		g_hDatabase = SQLite_UseDatabase("vip", sError, sizeof(sError));
 		OnDBConnect(g_hDatabase, g_hDatabase, sError, 0);
 	}
 }
 
-public OnDBConnect(Handle:hOwner, Handle:hQuery, const String:sError[], any:data)
+public OnDBConnect(Handle:hOwner, Handle:hQuery, const char[] sError, any:data)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{
@@ -46,7 +46,7 @@ public OnDBConnect(Handle:hOwner, Handle:hQuery, const String:sError[], any:data
 
 	g_hDatabase = hQuery;
 
-	decl String:sDriver[16];
+	char sDriver[16];
 	if(data == 1)
 	{
 		SQL_GetDriverIdent(hOwner, sDriver, sizeof(sDriver));
@@ -140,7 +140,7 @@ CreateTables()
 	}
 }
 
-public SQL_Callback_ErrorCheck(Handle:hOwner, Handle:hQuery, const String:sError[], any:data)
+public SQL_Callback_ErrorCheck(Handle:hOwner, Handle:hQuery, const char[] sError, any:data)
 {
 	if (sError[0])
 	{
@@ -152,12 +152,12 @@ DB_UpdateClientName(iClient)
 {
 	SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
 
-	decl Handle:hStmt, String:sError[256];
+	decl Handle:hStmt; char sError[256];
 
 	hStmt = SQL_PrepareQuery(g_hDatabase, "UPDATE `vip_users` SET `name` = ? WHERE `id` = ?;", SZF(sError));
 	if (hStmt != INVALID_HANDLE)
 	{
-		decl String:sName[MAX_NAME_LENGTH], iClientID;
+		char sName[MAX_NAME_LENGTH]; iClientID;
 		GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID);
 		GetClientName(iClient, SZF(sName));
 
@@ -181,7 +181,7 @@ DB_UpdateClientName(iClient)
 DB_RemoveClientFromID(iClient = 0, iClientID, bool:bNotify)
 {
 	DebugMessage("DB_RemoveClientFromID %N (%i): - > iClientID: %i, : bNotify: %b", iClient, iClient, iClientID, bNotify)
-	decl String:sQuery[256], Handle:hDataPack;
+	char sQuery[256]; Handle:hDataPack;
 	hDataPack = CreateDataPack();
 	WritePackCell(hDataPack, iClientID);
 	WritePackCell(hDataPack, bNotify);
@@ -207,7 +207,7 @@ DB_RemoveClientFromID(iClient = 0, iClientID, bool:bNotify)
 	SQL_TQuery(g_hDatabase, SQL_Callback_RemoveClient, sQuery, hDataPack);
 }
 
-public SQL_Callback_RemoveClient(Handle:hOwner, Handle:hQuery, const String:sError[], any:hDataPack)
+public SQL_Callback_RemoveClient(Handle:hOwner, Handle:hQuery, const char[] sError, any:hDataPack)
 {
 	if (sError[0])
 	{
@@ -229,7 +229,7 @@ public SQL_Callback_RemoveClient(Handle:hOwner, Handle:hQuery, const String:sErr
 
 		if (GLOBAL_INFO & IS_MySQL)
 		{
-			decl String:sQuery[256];
+			char sQuery[256];
 			FormatEx(sQuery, sizeof(sQuery), "SELECT COUNT(*) AS vip_count FROM `vip_overrides` WHERE `user_id` = '%i';", iClientID);
 			SQL_TQuery(g_hDatabase, SQL_Callback_RemoveClient2, sQuery, iClientID);
 		}
@@ -252,7 +252,7 @@ public SQL_Callback_RemoveClient(Handle:hOwner, Handle:hQuery, const String:sErr
 	}
 }
 
-public SQL_Callback_RemoveClient2(Handle:hOwner, Handle:hQuery, const String:sError[], any:iClientID)
+public SQL_Callback_RemoveClient2(Handle:hOwner, Handle:hQuery, const char[] sError, any:iClientID)
 {
 	if (sError[0])
 	{
@@ -262,14 +262,14 @@ public SQL_Callback_RemoveClient2(Handle:hOwner, Handle:hQuery, const String:sEr
 	
 	if (SQL_FetchRow(hQuery) && SQL_FetchInt(hQuery, 0) == 0)
 	{
-		decl String:sQuery[256];
+		char sQuery[256];
 		FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `vip_users` WHERE `id` = '%i';", iClientID);
 
 		SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, sQuery, iClientID);
 	}
 }
 /*
-public SQL_Callback_DeleteExpired(Handle:hOwner, Handle:hQuery, const String:sError[], any:iClientID)
+public SQL_Callback_DeleteExpired(Handle:hOwner, Handle:hQuery, const char[] sError, any:iClientID)
 {
 	if (sError[0])
 	{
@@ -281,7 +281,7 @@ public SQL_Callback_DeleteExpired(Handle:hOwner, Handle:hQuery, const String:sEr
 	{
 		if(g_CVAR_iDeleteExpired != -1)
 		{
-			decl String:sQuery[256];
+			char sQuery[256];
 			FormatEx(sQuery, sizeof(sQuery), "SELECT COUNT(*) AS vip_count FROM `vip_overrides` WHERE `user_id` = '%i';", iClientID);
 			SQL_TQuery(g_hDatabase, SQL_Callback_RemoveClient2, sQuery, iClientID);
 
@@ -297,7 +297,7 @@ public SQL_Callback_DeleteExpired(Handle:hOwner, Handle:hQuery, const String:sEr
 
 RemoveExpiredPlayers()
 {
-	decl String:sQuery[512];
+	char sQuery[512];
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
@@ -316,7 +316,7 @@ RemoveExpiredPlayers()
 	SQL_TQuery(g_hDatabase, SQL_Callback_RemoveExpiredPlayers, sQuery);
 }
 
-public SQL_Callback_RemoveExpiredPlayers(Handle:hOwner, Handle:hQuery, const String:sError[], any:iData)
+public SQL_Callback_RemoveExpiredPlayers(Handle:hOwner, Handle:hQuery, const char[] sError, any:iData)
 {
 	if (sError[0])
 	{

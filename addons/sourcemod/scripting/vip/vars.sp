@@ -61,7 +61,7 @@ enum GameType
 
 #define FEATURE_NAME_LENGTH 64
 
-new const String:g_sLogFile[] = "addons/sourcemod/logs/VIP_Logs.log";
+static const char g_sLogFile[] = "addons/sourcemod/logs/VIP_Logs.log";
 
 new Handle:g_hGroups;
 new Handle:g_hDatabase;

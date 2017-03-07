@@ -5,8 +5,7 @@ Features_TurnOffAll(iClient)
 	new iFeatures = GetArraySize(GLOBAL_ARRAY);
 	if(iFeatures != 0)
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH],
-			i,
+		char sFeatureName[FEATURE_NAME_LENGTH]; i,
 			VIP_ToggleState:OldStatus,
 			Function:Function_Toggle;
 		
@@ -41,8 +40,7 @@ Features_TurnOnAll(iClient)
 	new iFeatures = GetArraySize(GLOBAL_ARRAY);
 	if(iFeatures != 0)
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH],
-			i,
+		char sFeatureName[FEATURE_NAME_LENGTH]; i,
 			Function:Function_Toggle,
 			VIP_ToggleState:Status;
 		
@@ -73,13 +71,13 @@ Features_TurnOnAll(iClient)
 	}
 }
 
-Features_SetStatus(iClient, const String:sFeatureName[], const VIP_ToggleState:Status)
+Features_SetStatus(iClient, const char[] sFeatureName, const VIP_ToggleState:Status)
 {
 	DebugMessage("Features_SetStatus: %N (%i) -> Feature: %s, Status: %i", iClient, iClient, sFeatureName, Status)
 	SetTrieValue(g_hFeatureStatus[iClient], sFeatureName, Status);
 }
 
-VIP_ToggleState:Features_GetStatus(iClient, const String:sFeatureName[])
+VIP_ToggleState:Features_GetStatus(iClient, const char[] sFeatureName)
 {
 	static VIP_ToggleState:Status;
 	if(GetTrieValue(g_hFeatureStatus[iClient], sFeatureName, Status))

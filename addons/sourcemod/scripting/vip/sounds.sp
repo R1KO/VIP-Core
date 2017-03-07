@@ -18,9 +18,9 @@ LoadSounds()
 	LoadSound(ITEM_TOGGLE_SOUND);
 }
 
-LoadSound(const String:sSound[])
+LoadSound(const char[] sSound)
 {
-	decl String:sBuffer[200];
+	char sBuffer[200];
 	FormatEx(sBuffer, sizeof(sBuffer), "sound/%s", sSound);
 	if(FileExists(sBuffer))
 	{
@@ -29,4 +29,4 @@ LoadSound(const String:sSound[])
 	}
 }*/
 
-PlaySound(iClient, const String:sSound[]) ClientCommand(iClient, "playgamesound %s", sSound);
+PlaySound(iClient, const char[] sSound) ClientCommand(iClient, "playgamesound %s", sSound);

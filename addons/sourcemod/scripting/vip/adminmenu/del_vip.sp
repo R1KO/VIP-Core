@@ -1,6 +1,6 @@
 ShowDeleteVipPlayerMenu(iClient)
 {
-	decl Handle:hMenu, String:sBuffer[128];
+	decl Handle:hMenu; char sBuffer[128];
 
 	hMenu = CreateMenu(MenuHandler_DeleteVipPlayerMenu);
 
@@ -32,7 +32,7 @@ public MenuHandler_DeleteVipPlayerMenu(Handle:hMenu, MenuAction:action, iClient,
 		{
 			if(Item == 0)
 			{
-				decl String:sBuffer[MAX_NAME_LENGTH], iTarget;
+				char sBuffer[MAX_NAME_LENGTH]; iTarget;
 				GetArrayString(g_ClientData[iClient], DATA_NAME, sBuffer, sizeof(sBuffer));
 				iTarget = GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID);
 				DB_RemoveClientFromID(iClient, iTarget, true);

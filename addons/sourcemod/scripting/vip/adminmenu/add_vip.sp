@@ -1,6 +1,6 @@
 ShowAddVIPMenu(iClient)
 {
-	decl Handle:hMenu, String:sUserId[12], String:sName[100], i, iClientID;
+	decl Handle:hMenu, char sUserId[12]; char sName[100]; i, iClientID;
 	hMenu = CreateMenu(MenuHandler_AddVip_PlayerList);
 	SetMenuTitle(hMenu, "%T:\n \n", "MENU_ADD_VIP", iClient);
 	SetMenuExitBackButton(hMenu, true);
@@ -52,7 +52,7 @@ public MenuHandler_AddVip_PlayerList(Handle:hMenu, MenuAction:action, iClient, I
 		}
 		case MenuAction_Select:
 		{
-			decl String:sUserID[12], UserID;
+			char sUserID[12]; UserID;
 			GetMenuItem(hMenu, Item, sUserID, sizeof(sUserID));
 			UserID = StringToInt(sUserID);
 			if(CID(UserID))
@@ -66,7 +66,7 @@ public MenuHandler_AddVip_PlayerList(Handle:hMenu, MenuAction:action, iClient, I
 
 ShowAuthTypeMenu(iClient)
 {
-	decl Handle:hMenu, String:sBuffer[128];
+	decl Handle:hMenu; char sBuffer[128];
 	hMenu = CreateMenu(MenuHandler_AddVip_AuthType);
 	SetMenuTitle(hMenu, "%T:\n \n", "IDENTIFICATION_TYPE", iClient);
 	SetMenuExitBackButton(hMenu, true);
@@ -97,7 +97,7 @@ public MenuHandler_AddVip_AuthType(Handle:hMenu, MenuAction:action, iClient, Ite
 			new iTarget = CID(GetArrayCell(g_ClientData[iClient], DATA_TARGET_USER_ID));
 			if (iTarget)
 			{
-				decl String:sAuthType[5];
+				char sAuthType[5];
 				GetMenuItem(hMenu, Item, sAuthType, sizeof(sAuthType));
 				SetArrayCell(g_ClientData[iClient], DATA_AUTH_TYPE, _:StringToInt(sAuthType));
 				SetArrayCell(g_ClientData[iClient], DATA_TIME, TIME_SET);
@@ -110,7 +110,7 @@ public MenuHandler_AddVip_AuthType(Handle:hMenu, MenuAction:action, iClient, Ite
 
 ShowGroupMenu(iClient)
 {
-	decl Handle:hMenu, String:sGroup[MAX_NAME_LENGTH];
+	decl Handle:hMenu; char sGroup[MAX_NAME_LENGTH];
 	hMenu = CreateMenu(MenuHandler_AddVip_GroupsList);
 	SetMenuTitle(hMenu, "%T:\n \n", "GROUP", iClient);
 	SetMenuExitBackButton(hMenu, true);
@@ -153,7 +153,7 @@ public MenuHandler_AddVip_GroupsList(Handle:hMenu, MenuAction:action, iClient, I
 			new iTarget = CID(GetArrayCell(g_ClientData[iClient], DATA_TARGET_USER_ID));
 			if (iTarget)
 			{
-				decl String:sGroup[MAX_NAME_LENGTH];
+				char sGroup[MAX_NAME_LENGTH];
 				GetMenuItem(hMenu, Item, sGroup, sizeof(sGroup));
 				UTIL_ADD_VIP_PLAYER(iClient, iTarget, "", GetArrayCell(g_ClientData[iClient], DATA_TIME), VIP_AuthType:GetArrayCell(g_ClientData[iClient], DATA_AUTH_TYPE), sGroup);
 				//CloseHandleEx(g_ClientData[iClient]);
