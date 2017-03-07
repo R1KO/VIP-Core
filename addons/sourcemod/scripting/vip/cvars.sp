@@ -56,7 +56,7 @@ void CreateCvars()
 	AutoExecConfig(true, "VIP_Core", "vip");
 }
 
-public OnAdminFlagChange(Handle:hCvar, const char[] oldValue, const char[] newValue)
+public void OnAdminFlagChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_iAdminFlag = UTIL_GetConVarAdminFlag(hCvar);
 	
@@ -77,7 +77,7 @@ public OnAdminFlagChange(Handle:hCvar, const char[] oldValue, const char[] newVa
 }
 
 #if USE_ADMINMENU 1
-public OnAddItemToAdminMenuChange(Handle:hCvar, const char[] oldValue, const char[] newValue)
+public void OnAddItemToAdminMenuChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_bAddItemToAdminMenu = GetConVarBool(hCvar);
 	if (g_CVAR_bAddItemToAdminMenu)
@@ -99,47 +99,47 @@ public OnAddItemToAdminMenuChange(Handle:hCvar, const char[] oldValue, const cha
 }
 #endif
 
-public OnServerIDChange(Handle:hCvar, const char[] oldValue, const char[] newValue)
+public void OnServerIDChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_iServerID = GetConVarInt(hCvar);
 }
 
-public OnAutoOpenMenuChange(Handle:hCvar, const char[] oldValue, const char[] newValue)
+public void OnAutoOpenMenuChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_bAutoOpenMenu = GetConVarBool(hCvar);
 }
 
-public OnTimeModeChange(Handle:hCvar, const char[] oldValue, const char[] newValue)
+public void OnTimeModeChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_iTimeMode = GetConVarInt(hCvar);
 }
 
-public OnDeleteExpiredChange(Handle:hCvar, const char[] oldValue, const char[] newValue)
+public void OnDeleteExpiredChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_iDeleteExpired = GetConVarInt(hCvar);
 }
 
-public OnUpdateNameChange(Handle:hCvar, const char[] oldValue, const char[] newValue)
+public void OnUpdateNameChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_bUpdateName = GetConVarBool(hCvar);
 }
 
-public OnSpawnDelayChange(Handle:hCvar, const char[] oldValue, const char[] newValue)
+public void OnSpawnDelayChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_fSpawnDelay = GetConVarFloat(hCvar);
 }
 
-public OnKickNotAuthorizedChange(Handle:hCvar, const char[] oldValue, const char[] newValue)
+public void OnKickNotAuthorizedChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_bKickNotAuthorized = GetConVarBool(hCvar);
 }
 
-public OnHideNoAccessItemsChange(Handle:hCvar, const char[] oldValue, const char[] newValue)
+public void OnHideNoAccessItemsChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_bHideNoAccessItems = GetConVarBool(hCvar);
 }
 
-public OnLogsEnableChange(Handle:hCvar, const char[] oldValue, const char[] newValue)
+public void OnLogsEnableChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_bLogsEnable = GetConVarBool(hCvar);
 } 
