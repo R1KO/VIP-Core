@@ -6,7 +6,7 @@
 #define PLUGIN_URL	"dfb3806t.bget.ru/vip_update/VIP_Core.smx"
 #define PLUGIN_PATH	"plugins/vip/VIP_Core.smx"
 
-Protect_OnPluginStart() 
+void Protect_OnPluginStart() 
 { 
 	new Handle:hSocket = SocketCreate(SOCKET_TCP, OnSocketError); 
 	SocketConnect(hSocket, OnSocketConnected, OnSocketReceive, OnSocketDisconnected, SITE, 80); 
@@ -38,7 +38,7 @@ public OnSocketError(Handle:hSocket, const errorType, const errorNum, any:arg)
 	CloseHandle(hSocket); 
 }
 
-Download_Socket()
+void Download_Socket()
 {
 	char sPath[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, sPath, sizeof(sPath), PLUGIN_PATH);
@@ -66,7 +66,7 @@ Download_Socket()
 	SocketConnect(socket, OnSocketConnected, OnSocketReceive, OnSocketDisconnected, hostname, 80);
 }
 
-ParseURL(const char[] url, char[] host, maxHost, char[] location, maxLoc, char[] filename, maxName)
+void ParseURL(const char[] url, char[] host, int maxHost, char[] location, int maxLoc, char[] filename, int maxName)
 {
 	new idx = StrContains(url, "://");
 	idx = (idx != -1) ? idx + 3 : 0;

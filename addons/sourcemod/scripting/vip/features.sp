@@ -1,5 +1,5 @@
 
-Features_TurnOffAll(iClient)
+void Features_TurnOffAll(int iClient)
 {
 	DebugMessage("Features_TurnOffAll %N (%i)", iClient, iClient)
 	new iFeatures = GetArraySize(GLOBAL_ARRAY);
@@ -33,7 +33,7 @@ Features_TurnOffAll(iClient)
 	}
 }
 
-Features_TurnOnAll(iClient)
+void Features_TurnOnAll(int iClient)
 {
 	DebugMessage("Features_TurnOnAll %N (%i)", iClient, iClient)
 
@@ -71,13 +71,13 @@ Features_TurnOnAll(iClient)
 	}
 }
 
-Features_SetStatus(iClient, const char[] sFeatureName, const VIP_ToggleState:Status)
+void Features_SetStatus(int iClient, const char[] sFeatureName, const VIP_ToggleState Status)
 {
 	DebugMessage("Features_SetStatus: %N (%i) -> Feature: %s, Status: %i", iClient, iClient, sFeatureName, Status)
 	SetTrieValue(g_hFeatureStatus[iClient], sFeatureName, Status);
 }
 
-VIP_ToggleState:Features_GetStatus(iClient, const char[] sFeatureName)
+VIP_ToggleState Features_GetStatus(int iClient, const char[] sFeatureName)
 {
 	static VIP_ToggleState:Status;
 	if(GetTrieValue(g_hFeatureStatus[iClient], sFeatureName, Status))
