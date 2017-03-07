@@ -1,5 +1,5 @@
 
-CreateForwards()
+void CreateForwards()
 {
 	// Global Forwards
 	g_hGlobalForward_OnVIPLoaded						= CreateGlobalForward("VIP_OnVIPLoaded", ET_Ignore);
@@ -11,13 +11,13 @@ CreateForwards()
 }
 
 // Global Forwards
-CreateForward_OnVIPLoaded()
+void CreateForward_OnVIPLoaded()
 {
 	Call_StartForward(g_hGlobalForward_OnVIPLoaded);
 	Call_Finish();
 }
 
-CreateForward_OnClientLoaded(iClient)
+void CreateForward_OnClientLoaded(int iClient)
 {
 	Call_StartForward(g_hGlobalForward_OnClientLoaded);
 	Call_PushCell(iClient);
@@ -25,14 +25,14 @@ CreateForward_OnClientLoaded(iClient)
 	Call_Finish();
 }
 
-CreateForward_OnVIPClientLoaded(iClient)
+void CreateForward_OnVIPClientLoaded(int iClient)
 {
 	Call_StartForward(g_hGlobalForward_OnVIPClientLoaded);
 	Call_PushCell(iClient);
 	Call_Finish();
 }
 
-CreateForward_OnVIPClientAdded(iAdmin, iClient)
+void CreateForward_OnVIPClientAdded(int iAdmin, int iClient)
 {
 	Call_StartForward(g_hGlobalForward_OnVIPClientAdded);
 	Call_PushCell(iAdmin);
@@ -40,7 +40,7 @@ CreateForward_OnVIPClientAdded(iAdmin, iClient)
 	Call_Finish();
 }
 
-CreateForward_OnVIPClientRemoved(iClient, const char[] sReason)
+void CreateForward_OnVIPClientRemoved(int iClient, const char[] sReason)
 {
 	Call_StartForward(g_hGlobalForward_OnVIPClientRemoved);
 	Call_PushCell(iClient);
@@ -48,7 +48,7 @@ CreateForward_OnVIPClientRemoved(iClient, const char[] sReason)
 	Call_Finish();
 }
 
-CreateForward_OnPlayerSpawn(iClient, iTeam)
+void CreateForward_OnPlayerSpawn(int iClient, int iTeam)
 {
 	Call_StartForward(g_hGlobalForward_OnPlayerSpawn);
 	Call_PushCell(iClient);
@@ -183,7 +183,7 @@ public Native_PrintToChatAll(Handle:hPlugin, iNumParams)
 	}
 }
 
-Print(iClient, const char[] sFormat)
+void Print(int iClient, const char[] sFormat)
 {
 	char sMessage[256];
 	FormatEx(sMessage, sizeof(sMessage), g_EngineVersion == Engine_CSGO ? " \x01%t %s":"\x01%t %s", "VIP_CHAT_PREFIX", sFormat);
@@ -271,7 +271,7 @@ Print(iClient, const char[] sFormat)
 	}
 }
 
-ReplaceColors(char[] sMsg, MaxLength)
+int ReplaceColors(char[] sMsg, int MaxLength)
 {
 	if(ReplaceString(sMsg, MaxLength, "{TEAM}",	"\x03"))	return 0;
 
@@ -282,7 +282,7 @@ ReplaceColors(char[] sMsg, MaxLength)
 	return -1;
 }
 
-FindPlayerByTeam(iTeam)
+int FindPlayerByTeam(int iTeam)
 {
 	for (new i = 1; i <= MaxClients; i++)
 	{
@@ -292,7 +292,7 @@ FindPlayerByTeam(iTeam)
 	return 0;
 }
 
-SayText2(iClient, iAuthor = 0, const char[] sMessage)
+void SayText2(int iClient, int iAuthor = 0, const char[] sMessage)
 {
 	decl iClients[1], Handle:hBuffer;
 	iClients[0] = iClient;

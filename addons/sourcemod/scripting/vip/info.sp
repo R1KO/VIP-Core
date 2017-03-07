@@ -1,5 +1,5 @@
 
-DisplayClientInfo(iClient, const char[] sKey)
+void DisplayClientInfo(int iClient, const char[] sKey)
 {
 	DebugMessage("DisplayClientInfo: Client: %N (%i) -> '%s'", iClient, iClient, sKey)
 
@@ -23,7 +23,7 @@ DisplayClientInfo(iClient, const char[] sKey)
 	}
 }
 
-DisplayInfo(iClient, const char[] sKey, const char[] sKey2, char[] sBuffer, iBufLen, char[] sClientLang, char[] sServLang)
+void DisplayInfo(int iClient, const char[] sKey, const char[] sKey2, char[] sBuffer, int iBufLen, char[] sClientLang, char[] sServLang)
 {
 	DebugMessage("DisplayInfo: Client: %N (%i) -> '%s', '%s', '%s', '%s'", iClient, iClient, sKey, sKey2, sClientLang, sServLang)
 	KvRewind(GLOBAL_INFO_KV);
@@ -115,7 +115,7 @@ DisplayInfo(iClient, const char[] sKey, const char[] sKey2, char[] sBuffer, iBuf
 	}
 }
 
-KvGetLangString(char[] sBuffer, iBufLen, char[] sClientLang, char[] sServLang)
+bool KvGetLangString(char[] sBuffer, int iBufLen, char[] sClientLang, char[] sServLang)
 {
 	DebugMessage("KvGetLangString: '%s', '%s'", sClientLang, sServLang)
 	KvGetString(GLOBAL_INFO_KV, sClientLang, sBuffer, iBufLen);
@@ -132,7 +132,7 @@ KvGetLangString(char[] sBuffer, iBufLen, char[] sClientLang, char[] sServLang)
 	return true;
 }
 
-ReplaceValues(iClient, char[] sBuffer, iBufLen, bool bExt)
+void ReplaceValues(int iClient, char[] sBuffer, int iBufLen, bool bExt)
 {
 	char sName[MAX_NAME_LENGTH]; char sGroup[64];
 	GetClientName(iClient, sName, sizeof(sName));

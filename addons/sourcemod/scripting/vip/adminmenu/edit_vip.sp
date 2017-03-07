@@ -1,4 +1,4 @@
-ShowEditTimeMenu(iClient)
+void ShowEditTimeMenu(int iClient)
 {
 	decl Handle:hMenu; char sBuffer[128];
 	hMenu = CreateMenu(MenuHandler_EditTimeMenu);
@@ -37,7 +37,7 @@ public MenuHandler_EditTimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 	}
 }
 
-ShowEditPassMenu(iClient)
+void ShowEditPassMenu(int iClient)
 {
 	char sQuery[512];
 	if (GLOBAL_INFO & IS_MySQL)
@@ -131,7 +131,7 @@ public MenuHandler_EditPassMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 	}
 }
 
-ShowDelPassMenu(iClient)
+void ShowDelPassMenu(int iClient)
 {
 	SetGlobalTransTarget(iClient);
 
@@ -177,7 +177,7 @@ public MenuHandler_DelPassMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 	}
 }
 
-ShowWaitPassMenu(iClient, const char[] sPass = "", const bool bIsValid = false)
+void ShowWaitPassMenu(int iClient, const char[] sPass = "", const bool bIsValid = false)
 {
 	SetGlobalTransTarget(iClient);
 
@@ -251,7 +251,7 @@ public MenuHandler_EditVip_WaitPassMenu(Handle:hMenu, MenuAction:action, iClient
 	}
 }
 
-ShowEditGroupMenu(iClient)
+void ShowEditGroupMenu(int iClient)
 {
 	SetGlobalTransTarget(iClient);
 

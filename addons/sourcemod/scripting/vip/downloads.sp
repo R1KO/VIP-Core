@@ -1,6 +1,6 @@
 #include <sdktools>
 
-ReadDownloads()
+void ReadDownloads()
 {
 	char sBuffer[PLATFORM_MAX_PATH]; Handle:hFile;
 	BuildPath(Path_SM, sBuffer, sizeof(sBuffer), "data/vip/modules/downloadlist.txt");

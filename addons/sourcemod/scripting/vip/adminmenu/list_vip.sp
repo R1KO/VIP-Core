@@ -1,4 +1,4 @@
-ShowVipPlayersListMenu(iClient)
+void ShowVipPlayersListMenu(int iClient)
 {
 	decl Handle:hMenu, char sUserID[12]; char sName[128]; i, iClientID;
 	hMenu = CreateMenu(MenuHandler_VipPlayersListMenu);
@@ -114,7 +114,7 @@ public MenuHandler_VipPlayersListMenu(Handle:hMenu, MenuAction:action, iClient, 
 	}
 }
 
-ShowWaitSearchMenu(iClient, const char[] sSearch = "", bool bIsValid = false)
+void ShowWaitSearchMenu(int iClient, const char[] sSearch = "", bool bIsValid = false)
 {
 	decl Handle:hMenu; char sBuffer[128];
 	hMenu = CreateMenu(MenuHandler_SearchPlayersListMenu);
@@ -238,7 +238,7 @@ public SQL_Callback_SearchPlayers(Handle:hOwner, Handle:hQuery, const char[] sEr
 	}
 }
 */
-ShowVipPlayersFromDBMenu(iClient, iOffset = 0)
+void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 {
 	// , iRowCount = 20
 	SetArrayCell(g_ClientData[iClient], DATA_OFFSET, iOffset);
@@ -310,7 +310,7 @@ public SQL_Callback_SelectVipPlayers(Handle:hOwner, Handle:hQuery, const char[] 
 	}
 }
 
-ShowTargetInfoMenu(iClient, iClientID)
+void ShowTargetInfoMenu(int iClient, int iClientID)
 {
 	char sQuery[512];
 	if (GLOBAL_INFO & IS_MySQL)
@@ -440,7 +440,7 @@ public SQL_Callback_SelectVipClientInfo(Handle:hOwner, Handle:hQuery, const char
 	}
 }
 /*
-ShowTargetTempInfo(iClient, UserID)
+void ShowTargetTempInfo(int iClient, int UserID)
 {
 	SetGlobalTransTarget(iClient);
 

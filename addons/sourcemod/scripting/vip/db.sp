@@ -1,9 +1,9 @@
-DB_OnPluginStart()
+void DB_OnPluginStart()
 {
 	DB_Connect();
 }
 
-DB_Connect()
+void DB_Connect()
 {
 //	DebugMessage("DB_Connect: %b", g_bIsVIPLoaded)
 	DebugMessage("DB_Connect")
@@ -85,7 +85,7 @@ public Action:Timer_DB_Reconnect(Handle:timer)
 	return Plugin_Stop;
 }
 */
-CreateTables()
+void CreateTables()
 {
 	DebugMessage("CreateTables")
 	SQL_LockDatabase(g_hDatabase);
@@ -148,7 +148,7 @@ public SQL_Callback_ErrorCheck(Handle:hOwner, Handle:hQuery, const char[] sError
 	}
 }
 
-DB_UpdateClientName(iClient)
+void DB_UpdateClientName(int iClient)
 {
 	SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
 
@@ -178,7 +178,7 @@ DB_UpdateClientName(iClient)
 	}
 }
 
-DB_RemoveClientFromID(iClient = 0, iClientID, bool bNotify)
+void DB_RemoveClientFromID(int iClient = 0, int iClientID, bool bNotify)
 {
 	DebugMessage("DB_RemoveClientFromID %N (%i): - > iClientID: %i, : bNotify: %b", iClient, iClient, iClientID, bNotify)
 	char sQuery[256]; Handle:hDataPack;
@@ -295,7 +295,7 @@ public SQL_Callback_DeleteExpired(Handle:hOwner, Handle:hQuery, const char[] sEr
 }
 */
 
-RemoveExpiredPlayers()
+void RemoveExpiredPlayers()
 {
 	char sQuery[512];
 

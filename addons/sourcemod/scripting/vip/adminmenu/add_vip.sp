@@ -1,4 +1,4 @@
-ShowAddVIPMenu(iClient)
+void ShowAddVIPMenu(int iClient)
 {
 	decl Handle:hMenu, char sUserId[12]; char sName[100]; i, iClientID;
 	hMenu = CreateMenu(MenuHandler_AddVip_PlayerList);
@@ -64,7 +64,7 @@ public MenuHandler_AddVip_PlayerList(Handle:hMenu, MenuAction:action, iClient, I
 	}
 }
 
-ShowAuthTypeMenu(iClient)
+void ShowAuthTypeMenu(int iClient)
 {
 	decl Handle:hMenu; char sBuffer[128];
 	hMenu = CreateMenu(MenuHandler_AddVip_AuthType);
@@ -108,7 +108,7 @@ public MenuHandler_AddVip_AuthType(Handle:hMenu, MenuAction:action, iClient, Ite
 	}
 }
 
-ShowGroupMenu(iClient)
+void ShowGroupMenu(int iClient)
 {
 	decl Handle:hMenu; char sGroup[MAX_NAME_LENGTH];
 	hMenu = CreateMenu(MenuHandler_AddVip_GroupsList);

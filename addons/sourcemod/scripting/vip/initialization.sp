@@ -4,7 +4,7 @@ public OnMapStart()
 	ReadDownloads();
 }
 
-OnReadyToStart()
+void OnReadyToStart()
 {
 	DebugMessage("OnReadyToStart")
 	if (!(GLOBAL_INFO & IS_STARTED))
@@ -23,7 +23,7 @@ OnReadyToStart()
 	}
 }
 
-ReadConfigs()
+void ReadConfigs()
 {
 	DebugMessage("ReadConfigs")
 
@@ -69,7 +69,7 @@ ReadConfigs()
 	GLOBAL_INFO_KV = CreateConfig("data/vip/cfg/info.ini", "VIP_INFO");
 }
 
-Handle:CreateConfig(const char[] sFile, const char[] sKvName)
+Handle CreateConfig(const char[] sFile, const char[] sKvName)
 {
 	char sPath[PLATFORM_MAX_PATH]; Handle:hKv;
 	BuildPath(Path_SM, sPath, sizeof(sPath), sFile);

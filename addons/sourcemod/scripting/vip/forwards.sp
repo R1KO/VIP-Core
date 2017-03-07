@@ -1,5 +1,5 @@
 
-CreateForwards()
+void CreateForwards()
 {
 	// Global Forwards
 	g_hGlobalForward_OnVIPLoaded						= CreateGlobalForward("VIP_OnVIPLoaded", ET_Ignore);
@@ -14,7 +14,7 @@ CreateForwards()
 }
 
 // Global Forwards
-CreateForward_OnVIPLoaded()
+void CreateForward_OnVIPLoaded()
 {
 	/*
 	decl Handle:hPlugin, Handle:hMyHandle, Handle:hIter, Function:func;
@@ -45,7 +45,7 @@ CreateForward_OnVIPLoaded()
 	Call_Finish();
 }
 
-CreateForward_OnClientLoaded(iClient)
+void CreateForward_OnClientLoaded(int iClient)
 {
 	Call_StartForward(g_hGlobalForward_OnClientLoaded);
 	Call_PushCell(iClient);
@@ -53,14 +53,14 @@ CreateForward_OnClientLoaded(iClient)
 	Call_Finish();
 }
 
-CreateForward_OnVIPClientLoaded(iClient)
+void CreateForward_OnVIPClientLoaded(int iClient)
 {
 	Call_StartForward(g_hGlobalForward_OnVIPClientLoaded);
 	Call_PushCell(iClient);
 	Call_Finish();
 }
 
-CreateForward_OnVIPClientRemoved(iClient, const char[] sReason)
+void CreateForward_OnVIPClientRemoved(int iClient, const char[] sReason)
 {
 	Call_StartForward(g_hGlobalForward_OnVIPClientRemoved);
 	Call_PushCell(iClient);
@@ -70,7 +70,7 @@ CreateForward_OnVIPClientRemoved(iClient, const char[] sReason)
 
 // Private Forwards
 /*
-CreateForward_OnClientVIPMenuCreated(iClient, &Handle:hMenu)
+void CreateForward_OnClientVIPMenuCreated(int iClient, Handle &hMenu)
 {
 	Call_StartForward(g_hPrivateForward_OnClientVIPMenuCreated);
 	Call_PushCell(iClient);
@@ -78,7 +78,7 @@ CreateForward_OnClientVIPMenuCreated(iClient, &Handle:hMenu)
 	Call_Finish();
 }
 */
-CreateForward_OnPlayerSpawn(iClient, iTeam)
+void CreateForward_OnPlayerSpawn(int iClient, int iTeam)
 {
 	Call_StartForward(g_hGlobalForward_OnPlayerSpawn);
 	Call_PushCell(iClient);

@@ -1,5 +1,5 @@
 
-UTIL_CloseHandleEx(&Handle:hValue)
+void UTIL_CloseHandleEx(Handle &hValue)
 {
 	if(hValue != INVALID_HANDLE)
 	{
@@ -8,7 +8,7 @@ UTIL_CloseHandleEx(&Handle:hValue)
 	}
 }
 
-stock UTIL_ReplaceChars(char[] sBuffer, InChar, OutChar)
+stock int UTIL_ReplaceChars(char[] sBuffer, int InChar, int OutChar)
 {
 	new iNum = 0;
 	for (new i = 0, iLen = strlen(sBuffer); i < iLen; ++i)
@@ -43,7 +43,7 @@ bool UTIL_StrCmpEx(const char[] sString1, const char[] sString2)
 	return true;
 }
 
-UTIL_TimeToSeconds(iTime)
+int UTIL_TimeToSeconds(int iTime)
 {
 	switch(g_CVAR_iTimeMode)
 	{
@@ -56,7 +56,7 @@ UTIL_TimeToSeconds(iTime)
 	return -1;
 }
 
-UTIL_SecondsToTime(iTime)
+int UTIL_SecondsToTime(int iTime)
 {
 	switch(g_CVAR_iTimeMode)
 	{
@@ -69,7 +69,7 @@ UTIL_SecondsToTime(iTime)
 	return -1;
 }
 
-UTIL_GetTimeFromStamp(char[] sBuffer, maxlength, iTimeStamp, iClient = LANG_SERVER)
+void UTIL_GetTimeFromStamp(char[] sBuffer, int maxlength, int iTimeStamp, int iClient = LANG_SERVER)
 {
 	if (iTimeStamp > 31536000)
 	{
@@ -116,7 +116,7 @@ UTIL_GetTimeFromStamp(char[] sBuffer, maxlength, iTimeStamp, iClient = LANG_SERV
 	}
 }
 
-UTIL_LoadVipCmd(&Handle:hCvar, ConCmd:Call_CMD)
+void UTIL_LoadVipCmd(Handle &hCvar, ConCmd Call_CMD)
 {
 	char sPart[64]; char sBuffer[128]; reloc_idx, iPos;
 	GetConVarString(hCvar, sBuffer, sizeof(sBuffer));
@@ -146,7 +146,7 @@ UTIL_LoadVipCmd(&Handle:hCvar, ConCmd:Call_CMD)
 	}
 }
 
-UTIL_GetConVarAdminFlag(&Handle:hCvar)
+int UTIL_GetConVarAdminFlag(Handle &hCvar)
 {
 	char sBuffer[32];
 	GetConVarString(hCvar, sBuffer, sizeof(sBuffer));
@@ -159,7 +159,7 @@ bool UTIL_CheckValidVIPGroup(const char[] sGroup)
 	return KvJumpToKey(g_hGroups, sGroup, false);
 }
 
-stock UTIL_SearchCharInString(const char[] sBuffer, c)
+stock int UTIL_SearchCharInString(const char[] sBuffer, int c)
 {
 	decl iNum, i, iLen;
 	iNum = 0;
@@ -170,7 +170,6 @@ stock UTIL_SearchCharInString(const char[] sBuffer, c)
 	return iNum;
 }
 
-UTIL_ReloadVIPPlayers(iClient, bool bNotify)
 {
 	for(new i = 1; i <= MaxClients; ++i)
 	{
@@ -186,7 +185,7 @@ UTIL_ReloadVIPPlayers(iClient, bool bNotify)
 	}
 }
 
-UTIL_ADD_VIP_PLAYER(const iClient = 0, const iTarget = 0, const char[] sIdentity = "", const iTime, VIP_AuthType:AuthType, const char[] sGroup = "")
+void UTIL_ADD_VIP_PLAYER(const int iClient = 0, const int iTarget = 0, const char[] sIdentity = "", const int iTime, VIP_AuthType AuthType, const char[] sGroup = "")
 {
 	char sQuery[256]; char sAuth[32]; char sName[MAX_NAME_LENGTH*2+1]; iExpires, Handle:hDataPack;
 
@@ -283,7 +282,7 @@ UTIL_ADD_VIP_PLAYER(const iClient = 0, const iTarget = 0, const char[] sIdentity
 	SQL_TQuery(g_hDatabase, SQL_Callback_OnVIPClientAdded, sQuery, hDataPack);
 }
 
-WritePackClient(&Handle:hDataPack, iClient)
+void WritePackClient(Handle &hDataPack, int iClient)
 {
 	if(iClient)
 	{
@@ -295,7 +294,7 @@ WritePackClient(&Handle:hDataPack, iClient)
 	}
 }
 
-ReadPackClient(&Handle:hDataPack)
+int ReadPackClient(Handle &hDataPack)
 {
 	new iClient = ReadPackCell(hDataPack);		
 	if (iClient)
@@ -306,7 +305,7 @@ ReadPackClient(&Handle:hDataPack)
 	return iClient;
 }
 
-public SQL_Callback_CheckVIPClient(Handle:hOwner, Handle:hQuery, const char[] sError, any:hDataPack)
+public void SQL_Callback_CheckVIPClient(Handle hOwner, Handle hQuery, const char[] sError, any hDataPack)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{
@@ -343,7 +342,7 @@ public SQL_Callback_CheckVIPClient(Handle:hOwner, Handle:hQuery, const char[] sE
 	}
 }
 
-public SQL_Callback_CreateVIPClient(Handle:hOwner, Handle:hQuery, const char[] sError, any:hDataPack)
+public void SQL_Callback_CreateVIPClient(Handle hOwner, Handle hQuery, const char[] sError, any hDataPack)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{
@@ -367,7 +366,7 @@ public SQL_Callback_CreateVIPClient(Handle:hOwner, Handle:hQuery, const char[] s
 	}
 }
 
-SetClientOverrides(&Handle:hDataPack, iClientID, iExpires, const char[] sGroup)
+void SetClientOverrides(Handle &hDataPack, int iClientID, int iExpires, const char[] sGroup)
 {
 	char sQuery[512];
 //	FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_overrides` (`user_id`, `server_id`, `expires`, `group`) VALUES ('%i', '%i', '%i', '%s');", iClientID, g_CVAR_iServerID, iExpires, sGroup);
@@ -377,7 +376,7 @@ SetClientOverrides(&Handle:hDataPack, iClientID, iExpires, const char[] sGroup)
 	SQL_TQuery(g_hDatabase, SQL_Callback_OnVIPClientAdded, sQuery, hDataPack);
 }
 
-public SQL_Callback_OnVIPClientAdded(Handle:hOwner, Handle:hQuery, const char[] sError, any:hDataPack)
+public void SQL_Callback_OnVIPClientAdded(Handle hOwner, Handle hQuery, const char[] sError, any hDataPack)
 {
 	if (hQuery == INVALID_HANDLE || sError[0])
 	{

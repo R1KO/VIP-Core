@@ -1,5 +1,5 @@
 
-ResetClient(iClient)
+void ResetClient(int iClient)
 {
 	g_iClientInfo[iClient] &= ~IS_AUTHORIZED;
 	g_iClientInfo[iClient] &= ~IS_VIP;
@@ -28,7 +28,7 @@ public OnClientDisconnect(iClient)
 	g_iClientInfo[iClient] = 0;
 }
 
-Clients_CheckVipAccess(iClient, bool bNotify = false)
+void Clients_CheckVipAccess(int iClient, bool bNotify = false)
 {
 	g_iClientInfo[iClient] &= ~IS_LOADED;
 
@@ -46,7 +46,7 @@ Clients_CheckVipAccess(iClient, bool bNotify = false)
 	}
 }
 
-Clients_LoadClient(iClient, bool bNotify)
+void Clients_LoadClient(iClient, bool bNotify)
 {
 	char sQuery[512]; char sAuth[32]; char sName[MAX_NAME_LENGTH*2+1]; char sIP[24];
 
@@ -309,14 +309,14 @@ public Action:Timer_CheckCookies(Handle:hTimer, any:UserID)
 	return Plugin_Stop;
 }
 
-Clients_OnVIPClientLoaded(iClient)
+void Clients_OnVIPClientLoaded(int iClient)
 {
 	CreateForward_OnVIPClientLoaded(iClient);
 
 	Features_TurnOnAll(iClient);
 }
 
-Clients_CreateClientVIPSettings(iClient, iExp, VIP_AuthType:AuthType = AUTH_STEAM)
+void Clients_CreateClientVIPSettings(int iClient, int iExp, VIP_AuthType AuthType = AUTH_STEAM)
 {
 	g_hFeatures[iClient] = CreateTrie();
 	g_hFeatureStatus[iClient] = CreateTrie();
@@ -335,7 +335,7 @@ public OnClientCookiesCached(iClient)
 }
 #endif
 
-Clients_LoadVIPFeatures(iClient)
+void Clients_LoadVIPFeatures(int iClient)
 {
 	DebugMessage("LoadVIPFeatures %N", iClient)
 	
@@ -456,7 +456,7 @@ bool GetValue(iClient, VIP_ValueType:ValueType, const char[] sFeatureName)
 	return false;
 }
 
-Clients_CreateExpiredTimer(iClient, iExp, iTime)
+void Clients_CreateExpiredTimer(int iClient, int iExp, int iTime)
 {
 	decl iTimeLeft;
 	GetMapTimeLeft(iTimeLeft);
@@ -560,7 +560,7 @@ public Action:Timer_VIP_Expired(Handle:hTimer, any:UserID)
 	}
 }
 
-Clients_ExpiredClient(iClient)
+void Clients_ExpiredClient(int iClient)
 {
 	DebugMessage("Clients_ExpiredClient %N:", iClient)
 	Features_TurnOffAll(iClient);

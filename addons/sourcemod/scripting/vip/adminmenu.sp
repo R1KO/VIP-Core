@@ -25,7 +25,7 @@ enum
 	MENU_TYPE_EDIT
 }
 
-InitVIPAdminMenu()
+void InitVIPAdminMenu()
 {
 	g_hVIPAdminMenu = CreateMenu(Handler_VIPAdminMenu, MenuAction_Display|MenuAction_Select|MenuAction_DisplayItem);
 
@@ -130,7 +130,7 @@ public OnAdminMenuReady(Handle:hTopMenu)
 	}
 }
 
-AddItemsToTopMenu()
+void AddItemsToTopMenu()
 {
 	if(VIPAdminMenuObject == INVALID_TOPMENUOBJECT)
 	{
@@ -207,7 +207,7 @@ public Handler_MenuVIPReloadSettings(Handle:hMenu, TopMenuAction:action, TopMenu
 	}
 }
 
-InitiateDataArray(iClient)
+void InitiateDataArray(int iClient)
 {
 	if(g_ClientData[iClient] == INVALID_HANDLE)
 	{
@@ -220,7 +220,7 @@ InitiateDataArray(iClient)
 	}
 }
 
-IsClientOnline(ID)
+int IsClientOnline(int ID)
 {
 	decl i, iClientID;
 	for (i = 1; i <= MaxClients; ++i)
@@ -230,7 +230,7 @@ IsClientOnline(ID)
 	return 0;
 }
 
-ShowTimeMenu(iClient)
+void ShowTimeMenu(int iClient)
 {
 	SetGlobalTransTarget(iClient);
 
@@ -436,7 +436,7 @@ public SQL_Callback_ChangeTime(Handle:hOwner, Handle:hQuery, const char[] sError
 	}
 }
 
-ReductionMenu(&Handle:hMenu, iNum)
+void ReductionMenu(Handle &hMenu, int iNum)
 {
 	for(new i = 0; i < iNum; ++i) AddMenuItem(hMenu, "", "", ITEMDRAW_NOTEXT);
 }
@@ -448,7 +448,7 @@ ReductionMenu(&Handle:hMenu, iNum)
 
 
 /*
-AddMenuTranslatedItem(Handle:hMenu, iClient, const char[] sItem)
+void AddMenuTranslatedItem(Handle:hMenu, iClient, const char[] sItem)
 {
 	char sBuffer[128];
 	FormatEx(sBuffer, sizeof(sBuffer), "%T", sItem, iClient);

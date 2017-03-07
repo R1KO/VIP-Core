@@ -5,14 +5,14 @@ static const char g_sToggleStatus[][] =
 	"NO_ACCESS"
 };
 
-InitVIPMenu()
+void InitVIPMenu()
 {
 	g_hVIPMenu = CreateMenu(Handler_VIPMenu, MenuAction_Start|MenuAction_Display|MenuAction_Cancel|MenuAction_Select|MenuAction_DisplayItem|MenuAction_DrawItem);
 
 	AddMenuItem(g_hVIPMenu, "NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
 }
 
-AddFeatureToVIPMenu(const char[] sFeatureName)
+void AddFeatureToVIPMenu(const char[] sFeatureName)
 {
 	DebugMessage("AddFeatureToVIPMenu: %s", sFeatureName)
 	if(g_hSortArray != INVALID_HANDLE)
@@ -41,7 +41,7 @@ AddFeatureToVIPMenu(const char[] sFeatureName)
 	}	
 }
 
-ResortFeaturesArray()
+void ResortFeaturesArray()
 {
 	DebugMessage("ResortFeaturesArray\n \n ")
 
@@ -82,7 +82,7 @@ ResortFeaturesArray()
 }
 
 #if DEBUG_MODE 1
-stock PrintArray(&Handle:hArray)
+stock void PrintArray(Handle &hArray)
 {
 	DebugMessage("PrintArray")
 	decl i, iSize; char sItemInfo[128];
@@ -289,7 +289,7 @@ public Handler_VIPMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 	return 0;
 }
 
-VIP_ToggleState:Function_OnItemToggle(Handle:hPlugin, Function:ToggleFunction, iClient, const char[] sItemInfo, const VIP_ToggleState:OldStatus, const VIP_ToggleState:NewStatus)
+VIP_ToggleState Function_OnItemToggle(Handle hPlugin, Function ToggleFunction, int iClient, const char[] sItemInfo, const VIP_ToggleState OldStatus, const VIP_ToggleState NewStatus)
 {
 	decl VIP_ToggleState:ResultStatus, Action:aResult;
 	ResultStatus = NewStatus;
@@ -323,7 +323,7 @@ VIP_ToggleState:Function_OnItemToggle(Handle:hPlugin, Function:ToggleFunction, i
 	return ResultStatus;
 }
 
-bool Function_OnItemSelect(Handle:hPlugin, Function:SelectFunction, iClient, const char[] sItemInfo)
+bool Function_OnItemSelect(Handle hPlugin, Function SelectFunction, int iClient, const char[] sItemInfo)
 {
 	bool bResult;
 	Call_StartFunction(hPlugin, SelectFunction);
@@ -340,7 +340,7 @@ bool IsValidFeature(const char[] sFeatureName)
 	return (FindStringInArray(GLOBAL_ARRAY, sFeatureName) != -1);
 }
 
-bool OnVipMenuFlood(iClient)
+bool OnVipMenuFlood(int iClient)
 {
 	static float fLastTime[MAXPLAYERS+1];
 	if(fLastTime[iClient] > 0.0)

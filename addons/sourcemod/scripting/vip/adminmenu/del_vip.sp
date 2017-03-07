@@ -1,4 +1,4 @@
-ShowDeleteVipPlayerMenu(iClient)
+void ShowDeleteVipPlayerMenu(int iClient)
 {
 	decl Handle:hMenu; char sBuffer[128];
 
