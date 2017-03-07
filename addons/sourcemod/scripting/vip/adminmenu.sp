@@ -144,7 +144,7 @@ void AddItemsToTopMenu()
 	AddToTopMenu(g_hTopMenu, "vip_reload_settings",	TopMenuObject_Item, Handler_MenuVIPReloadSettings,	VIPAdminMenuObject, "vip_reload_settings",	ADMFLAG_ROOT);
 }
 
-public Handler_MenuVIPAdmin(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, char[] sBuffer, maxlength)
+public void Handler_MenuVIPAdmin(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)
 {
 	switch(action)
 	{
@@ -153,7 +153,7 @@ public Handler_MenuVIPAdmin(Handle:hMenu, TopMenuAction:action, TopMenuObject:ob
 	}
 }
 
-public Handler_MenuVIPAdd(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, char[] sBuffer, maxlength)
+public void Handler_MenuVIPAdd(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)
 {
 	switch(action)
 	{
@@ -167,7 +167,7 @@ public Handler_MenuVIPAdd(Handle:hMenu, TopMenuAction:action, TopMenuObject:obje
 	}
 }
 
-public Handler_MenuVIPList(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, char[] sBuffer, maxlength)
+public void Handler_MenuVIPList(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)
 {
 	switch(action)
 	{
@@ -180,7 +180,7 @@ public Handler_MenuVIPList(Handle:hMenu, TopMenuAction:action, TopMenuObject:obj
 	}
 }
 
-public Handler_MenuVIPReloadPlayers(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, char[] sBuffer, maxlength)
+public void Handler_MenuVIPReloadPlayers(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)
 {
 	switch(action)
 	{
@@ -193,7 +193,7 @@ public Handler_MenuVIPReloadPlayers(Handle:hMenu, TopMenuAction:action, TopMenuO
 	}
 }
 
-public Handler_MenuVIPReloadSettings(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, char[] sBuffer, maxlength)
+public void Handler_MenuVIPReloadSettings(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)
 {
 	switch(action)
 	{
