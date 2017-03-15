@@ -52,7 +52,7 @@ bool Dir_AddToDownloadsTable(const char[] sPath)
 		if (hDir != INVALID_HANDLE)
 		{
 			char dirEntry[PLATFORM_MAX_PATH];
-			while (ReadDirEntry(hDir, dirEntry, sizeof(dirEntry)))
+			while (hDir.GetNext(dirEntry, sizeof(dirEntry)))
 			{
 				if ((UTIL_StrCmpEx(dirEntry, ".") || UTIL_StrCmpEx(dirEntry, "..")) == false)
 				{
