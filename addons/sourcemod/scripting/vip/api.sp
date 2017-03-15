@@ -299,13 +299,13 @@ void SayText2(int iClient, int iAuthor = 0, const char[] sMessage)
 	hBuffer = StartMessage("SayText2", iClients, 1, USERMSG_RELIABLE | USERMSG_BLOCKHOOKS);
 	if (GetUserMessageType() == UM_Protobuf)
 	{
-		PbSetInt(hBuffer, "ent_idx", iAuthor);
-		PbSetBool(hBuffer, "chat", true);
-		PbSetString(hBuffer, "msg_name", sMessage);
-		PbAddString(hBuffer, "params", "");
-		PbAddString(hBuffer, "params", "");
-		PbAddString(hBuffer, "params", "");
-		PbAddString(hBuffer, "params", "");
+		hBuffer.SetInt("ent_idx", iAuthor);
+		hBuffer.SetBool("chat", true);
+		hBuffer.SetString("msg_name", sMessage);
+		hBuffer.AddString("params", "");
+		hBuffer.AddString("params", "");
+		hBuffer.AddString("params", "");
+		hBuffer.AddString("params", "");
 	}
 	else
 	{
