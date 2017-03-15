@@ -155,8 +155,8 @@ int UTIL_GetConVarAdminFlag(Handle &hCvar)
 
 bool UTIL_CheckValidVIPGroup(const char[] sGroup)
 {
-	KvRewind(g_hGroups);
-	return KvJumpToKey(g_hGroups, sGroup, false);
+	(g_hGroups).Rewind();
+	return g_hGroups.JumpToKey(sGroup, false);
 }
 
 stock int UTIL_SearchCharInString(const char[] sBuffer, int c)

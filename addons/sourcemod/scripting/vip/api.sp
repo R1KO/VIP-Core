@@ -741,8 +741,8 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 			{
 				if (g_hFeatures[iClient].GetString(KEY_GROUP, sGroup, sizeof(sGroup)))
 				{
-					KvRewind(g_hGroups);
-					if (KvJumpToKey(g_hGroups, sGroup, false))
+					(g_hGroups).Rewind();
+					if (g_hGroups.JumpToKey(sGroup, false))
 					{
 						Clients_LoadVIPFeatures(iClient);
 					}

@@ -406,7 +406,7 @@ bool GetValue(iClient, VIP_ValueType:ValueType, const char[] sFeatureName)
 		}
 		case BOOL:
 		{
-			if (view_as<bool>(KvGetNum(g_hGroups, sFeatureName)))
+			if (view_as<bool>(g_hGroups.GetNum(sFeatureName)))
 			{
 				DebugMessage("value: 1")
 				return g_hFeatures[iClient].SetValue(sFeatureName, true);
@@ -416,7 +416,7 @@ bool GetValue(iClient, VIP_ValueType:ValueType, const char[] sFeatureName)
 		case INT:
 		{
 			decl iValue;
-			iValue = KvGetNum(g_hGroups, sFeatureName);
+			iValue = g_hGroups.GetNum(sFeatureName);
 			if (iValue != 0)
 			{
 				DebugMessage("value: %i", iValue)
@@ -427,7 +427,7 @@ bool GetValue(iClient, VIP_ValueType:ValueType, const char[] sFeatureName)
 		case FLOAT:
 		{
 			float fValue;
-			fValue = KvGetFloat(g_hGroups, sFeatureName);
+			fValue = g_hGroups.GetFloat(sFeatureName);
 			if (fValue != 0.0)
 			{
 				DebugMessage("value: %f", fValue)
@@ -439,7 +439,7 @@ bool GetValue(iClient, VIP_ValueType:ValueType, const char[] sFeatureName)
 		case STRING:
 		{
 			char sBuffer[256];
-			KvGetString(g_hGroups, sFeatureName, sBuffer, sizeof(sBuffer));
+			g_hGroups.GetString(sFeatureName, sBuffer, sizeof(sBuffer));
 			if (sBuffer[0])
 			{
 				DebugMessage("value: %s", sBuffer)

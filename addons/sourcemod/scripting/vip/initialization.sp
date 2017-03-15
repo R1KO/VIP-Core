@@ -74,13 +74,13 @@ Handle CreateConfig(const char[] sFile, const char[] sKvName)
 	char sPath[PLATFORM_MAX_PATH]; Handle:hKv;
 	BuildPath(Path_SM, sPath, sizeof(sPath), sFile);
 	
-	hKv = CreateKeyValues(sKvName);
-	if (FileToKeyValues(hKv, sPath) == false)
+	hKv = new KeyValues(sKvName);
+	if (hKv.ImportFromFile(sPath) == false)
 	{
-		KeyValuesToFile(hKv, sPath);
+		hKv.ExportToFile(sPath);
 	}
 	
-	KvRewind(hKv);
+	(hKv).Rewind();
 	
 	return hKv;
 } 

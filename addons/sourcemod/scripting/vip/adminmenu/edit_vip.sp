@@ -262,7 +262,7 @@ void ShowEditGroupMenu(int iClient)
 	
 	sGroup[0] = 0;
 	
-	KvRewind(g_hGroups);
+	(g_hGroups).Rewind();
 	if (KvGotoFirstSubKey(g_hGroups))
 	{
 		char sTagetGroup[64]; char sGroupName[128];
@@ -273,7 +273,7 @@ void ShowEditGroupMenu(int iClient)
 		}
 		do
 		{
-			if (KvGetSectionName(g_hGroups, sGroup, sizeof(sGroup)))
+			if (g_hGroups.GetSectionName(sGroup, sizeof(sGroup)))
 			{
 				if (sTagetGroup[0] && strcmp(sTagetGroup, sGroup, true) == 0)
 				{

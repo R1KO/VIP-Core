@@ -257,17 +257,17 @@ void ShowTimeMenu(int iClient)
 		
 		do
 		{
-			KvGetSectionName(hKv, sTime, sizeof(sTime));
+			hKv.GetSectionName(sTime, sizeof(sTime));
 			
 			if (iMenuType != TIME_SET && sTime[0] == '0')continue;
 			
-			KvGetString(hKv, sClientLang, sBuffer, sizeof(sBuffer), "LangError");
-			if (strcmp(sBuffer, "LangError") == 0)KvGetString(hKv, sServerLang, sBuffer, sizeof(sBuffer), "LangError");
+			hKv.GetString(sClientLang, sBuffer, sizeof(sBuffer), "LangError");
+			if (strcmp(sBuffer, "LangError") == 0)hKv.GetString(sServerLang, sBuffer, sizeof(sBuffer), "LangError");
 			
 			AddMenuItem(hMenu, sTime, sBuffer);
 			
 		}
-		while (KvGotoNextKey(hKv, false));
+		while (hKv.GotoNextKey(false));
 	}
 	
 	CloseHandle(hKv);

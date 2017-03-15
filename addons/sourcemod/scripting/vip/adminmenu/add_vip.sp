@@ -115,12 +115,12 @@ void ShowGroupMenu(int iClient)
 	SetMenuTitle(hMenu, "%T:\n \n", "GROUP", iClient);
 	SetMenuExitBackButton(hMenu, true);
 	sGroup[0] = 0;
-	KvRewind(g_hGroups);
+	(g_hGroups).Rewind();
 	if (KvGotoFirstSubKey(g_hGroups))
 	{
 		do
 		{
-			if (KvGetSectionName(g_hGroups, sGroup, sizeof(sGroup)))
+			if (g_hGroups.GetSectionName(sGroup, sizeof(sGroup)))
 			{
 				AddMenuItem(hMenu, sGroup, sGroup);
 			}
