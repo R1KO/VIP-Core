@@ -41,7 +41,7 @@ void ReadConfigs()
 	{
 		g_hSortArray = new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
 		
-		while (!IsEndOfFile(hFile) && ReadFileLine(hFile, sFeatureName, FEATURE_NAME_LENGTH))
+		while (!(hFile).EndOfFile() && hFile.ReadLine(sFeatureName, FEATURE_NAME_LENGTH))
 		{
 			DebugMessage("ReadFileLine: %s", sFeatureName)
 			TrimString(sFeatureName);

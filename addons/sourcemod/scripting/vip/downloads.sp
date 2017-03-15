@@ -8,7 +8,7 @@ void ReadDownloads()
 	
 	if (hFile != INVALID_HANDLE)
 	{
-		while (IsEndOfFile(hFile) == false && ReadFileLine(hFile, sBuffer, sizeof(sBuffer)))
+		while ((hFile).EndOfFile() == false && hFile.ReadLine(sBuffer, sizeof(sBuffer)))
 		{
 			if (sBuffer[0] && IsCharAlpha(sBuffer[0]) && StrContains(sBuffer, "//") == -1)
 			{

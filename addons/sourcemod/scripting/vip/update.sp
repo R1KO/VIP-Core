@@ -120,7 +120,7 @@ public OnSocketReceive(Handle:socket, char[] data, const size, any hDLPack)
 	
 	while (idx < size)
 	{
-		WriteFileCell(file, data[idx++], 1);
+		file.WriteInt8(data[idx++]);
 	}
 }
 
