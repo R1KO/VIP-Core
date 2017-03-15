@@ -403,7 +403,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 					FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `expires` = '%i' WHERE `id` = '%i';", iExpires, iClientID);
 				}
 				
-				SQL_TQuery(g_hDatabase, SQL_Callback_ChangeTime, sQuery, UID(iClient));
+				g_hDatabase.Query(SQL_Callback_ChangeTime, sQuery, UID(iClient));
 				
 				ShowTargetInfoMenu(iClient, iClientID);
 			}
@@ -422,7 +422,7 @@ public void SQL_Callback_ChangeTime(Handle hOwner, Handle hQuery, const char[] s
 		return;
 	}
 	
-	if (SQL_GetAffectedRows(hOwner))
+	if ((hOwner).AffectedRows)
 	{
 		new iClient = CID(UserID);
 		if (iClient)

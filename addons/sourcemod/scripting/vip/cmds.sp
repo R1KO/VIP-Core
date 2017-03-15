@@ -153,7 +153,7 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 		iClient = UID(iClient);
 	}
 	
-	SQL_TQuery(g_hDatabase, SQL_Callback_OnSelectRemoveClient, sQuery, iClient);
+	g_hDatabase.Query(SQL_Callback_OnSelectRemoveClient, sQuery, iClient);
 	
 	return Plugin_Handled;
 }
@@ -170,9 +170,9 @@ public void SQL_Callback_OnSelectRemoveClient(Handle hOwner, Handle hQuery, cons
 		iClient = CID(iClient);
 	}
 	
-	if (SQL_FetchRow(hQuery))
+	if ((hQuery).FetchRow())
 	{
-		DB_RemoveClientFromID(iClient, SQL_FetchInt(hQuery, 0), true);
+		DB_RemoveClientFromID(iClient, hQuery.FetchInt(0), true);
 	}
 	else
 	{

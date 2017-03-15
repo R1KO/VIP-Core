@@ -202,7 +202,7 @@ void UTIL_ADD_VIP_PLAYER(const int iClient = 0, const int iTarget = 0, const cha
 	if (iTarget)
 	{
 		GetClientName(iTarget, sQuery, sizeof(sQuery));
-		SQL_EscapeString(g_hDatabase, sQuery, sName, sizeof(sName));
+		g_hDatabase.Escape(sQuery, sName, sizeof(sName));
 	}
 	else
 	{
@@ -241,7 +241,7 @@ void UTIL_ADD_VIP_PLAYER(const int iClient = 0, const int iTarget = 0, const cha
 			}
 			else
 			{
-				SQL_EscapeString(g_hDatabase, sIdentity, sAuth, sizeof(sAuth));
+				g_hDatabase.Escape(sIdentity, sAuth, sizeof(sAuth));
 				strcopy(sName, sizeof(sName), sAuth);
 			}
 		}
@@ -262,7 +262,7 @@ void UTIL_ADD_VIP_PLAYER(const int iClient = 0, const int iTarget = 0, const cha
 		
 		FormatEx(sQuery, sizeof(sQuery), "SELECT `id` FROM `vip_users` WHERE `auth` = '%s' AND `auth_type` = '%i' LIMIT 1;", sAuth, AuthType);
 		DebugMessage("sQuery: %s", sQuery)
-		SQL_TQuery(g_hDatabase, SQL_Callback_CheckVIPClient, sQuery, hDataPack);
+		g_hDatabase.Query(SQL_Callback_CheckVIPClient, sQuery, hDataPack);
 		return;
 	}
 	
@@ -280,7 +280,7 @@ void UTIL_ADD_VIP_PLAYER(const int iClient = 0, const int iTarget = 0, const cha
 	WritePackClient(hDataPack, iClient);
 	WritePackClient(hDataPack, iTarget);
 	
-	SQL_TQuery(g_hDatabase, SQL_Callback_OnVIPClientAdded, sQuery, hDataPack);
+	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, sQuery, hDataPack);
 }
 
 void WritePackClient(Handle &hDataPack, int iClient)
@@ -314,7 +314,7 @@ public void SQL_Callback_CheckVIPClient(Handle hOwner, Handle hQuery, const char
 		return;
 	}
 	
-	if (SQL_FetchRow(hQuery))
+	if ((hQuery).FetchRow())
 	{
 		ResetPack(hDataPack);
 		char sGroup[64]; iExpires;
@@ -325,8 +325,8 @@ public void SQL_Callback_CheckVIPClient(Handle hOwner, Handle hQuery, const char
 		iExpires = (hDataPack).ReadCell(); // iExpires
 		hDataPack.ReadString(sGroup, sizeof(sGroup)); // sGroup
 		
-		DebugMessage("SQL_Callback_CheckVIPClient: id - %i", SQL_FetchInt(hQuery, 0))
-		SetClientOverrides(hDataPack, SQL_FetchInt(hQuery, 0), iExpires, sGroup);
+		DebugMessage("SQL_Callback_CheckVIPClient: id - %i", hQuery.FetchInt(0))
+		SetClientOverrides(hDataPack, hQuery.FetchInt(0), iExpires, sGroup);
 	}
 	else
 	{
@@ -339,7 +339,7 @@ public void SQL_Callback_CheckVIPClient(Handle hOwner, Handle hQuery, const char
 		hDataPack.ReadString(sAuth, sizeof(sAuth));
 		FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_users` (`auth`, `auth_type`, `name`) VALUES ('%s', '%i', '%s');", sAuth, AuthType, sName);
 		DebugMessage("sQuery: %s", sQuery)
-		SQL_TQuery(g_hDatabase, SQL_Callback_CreateVIPClient, sQuery, hDataPack);
+		g_hDatabase.Query(SQL_Callback_CreateVIPClient, sQuery, hDataPack);
 	}
 }
 
@@ -351,7 +351,7 @@ public void SQL_Callback_CreateVIPClient(Handle hOwner, Handle hQuery, const cha
 		return;
 	}
 	
-	if (SQL_GetAffectedRows(g_hDatabase))
+	if ((g_hDatabase).AffectedRows)
 	{
 		DebugMessage("SQL_Callback_CreateVIPClient")
 		ResetPack(hDataPack);
@@ -363,7 +363,7 @@ public void SQL_Callback_CreateVIPClient(Handle hOwner, Handle hQuery, const cha
 		iExpires = (hDataPack).ReadCell(); // iExpires
 		hDataPack.ReadString(sGroup, sizeof(sGroup)); // sGroup
 		
-		SetClientOverrides(hDataPack, SQL_GetInsertId(g_hDatabase), iExpires, sGroup);
+		SetClientOverrides(hDataPack, (g_hDatabase).InsertId, iExpires, sGroup);
 	}
 }
 
@@ -374,7 +374,7 @@ void SetClientOverrides(Handle &hDataPack, int iClientID, int iExpires, const ch
 	FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_overrides` (`user_id`, `server_id`, `expires`, `group`) VALUES ('%i', '%i', '%i', '%s') \
 		ON DUPLICATE KEY UPDATE `expires` = '%i', `group` = '%s';", iClientID, g_CVAR_iServerID, iExpires, sGroup, iExpires, sGroup);
 	DebugMessage("sQuery: %s", sQuery)
-	SQL_TQuery(g_hDatabase, SQL_Callback_OnVIPClientAdded, sQuery, hDataPack);
+	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, sQuery, hDataPack);
 }
 
 public void SQL_Callback_OnVIPClientAdded(Handle hOwner, Handle hQuery, const char[] sError, any hDataPack)
@@ -385,7 +385,7 @@ public void SQL_Callback_OnVIPClientAdded(Handle hOwner, Handle hQuery, const ch
 		return;
 	}
 	
-	if (SQL_GetAffectedRows(g_hDatabase))
+	if ((g_hDatabase).AffectedRows)
 	{
 		ResetPack(hDataPack);
 		

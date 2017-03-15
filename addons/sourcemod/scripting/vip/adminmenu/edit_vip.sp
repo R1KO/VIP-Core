@@ -59,7 +59,7 @@ void ShowEditPassMenu(int iClient)
 	}
 	
 	DebugMessage(sQuery)
-	SQL_TQuery(g_hDatabase, SQL_Callback_SelectClientPass, sQuery, UID(iClient));
+	g_hDatabase.Query(SQL_Callback_SelectClientPass, sQuery, UID(iClient));
 }
 
 
@@ -74,7 +74,7 @@ public void SQL_Callback_SelectClientPass(Handle hOwner, Handle hQuery, const ch
 	new iClient = CID(UserID);
 	if (iClient)
 	{
-		if (SQL_FetchRow(hQuery))
+		if ((hQuery).FetchRow())
 		{
 			SetGlobalTransTarget(iClient);
 			
@@ -82,7 +82,7 @@ public void SQL_Callback_SelectClientPass(Handle hOwner, Handle hQuery, const ch
 			hMenu = new Menu(MenuHandler_EditPassMenu);
 			hMenu.SetTitle("%t:\n \n", "MENU_EDIT_PASS");
 			hMenu.ExitBackButton = true;
-			SQL_FetchString(hQuery, 0, sBuffer, sizeof(sBuffer));
+			hQuery.FetchString(0, sBuffer, sizeof(sBuffer));
 			if (sBuffer[0])
 			{
 				FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_PASS");
@@ -165,7 +165,7 @@ public int MenuHandler_DelPassMenu(Menu hMenu, MenuAction action, int iClient, i
 			
 			iTarget = g_ClientData[iClient].Get(DATA_TARGET_ID);
 			FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `password` = NULL WHERE `id` = '%i';", iTarget);
-			SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, sQuery);
+			g_hDatabase.Query(SQL_Callback_ErrorCheck, sQuery);
 			
 			g_ClientData[iClient].GetString(DATA_NAME, sBuffer, sizeof(sBuffer));
 			
@@ -234,7 +234,7 @@ public int MenuHandler_EditVip_WaitPassMenu(Menu hMenu, MenuAction action, int i
 					iTarget = g_ClientData[iClient].Get(DATA_TARGET_ID);
 					hMenu.GetItem(Item, sPass, sizeof(sPass));
 					FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `password` = '%s' WHERE `id` = '%i';", sPass, iTarget);
-					SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, sQuery);
+					g_hDatabase.Query(SQL_Callback_ErrorCheck, sQuery);
 					
 					g_ClientData[iClient].GetString(DATA_NAME, sBuffer, sizeof(sBuffer));
 					
@@ -320,7 +320,7 @@ public int MenuHandler_EditVip_GroupsList(Menu hMenu, MenuAction action, int iCl
 				FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `id` = '%i';", sGroup, iTarget);
 			}
 			
-			SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, sQuery);
+			g_hDatabase.Query(SQL_Callback_ErrorCheck, sQuery);
 			
 			ShowTargetInfoMenu(iClient, iTarget);
 			

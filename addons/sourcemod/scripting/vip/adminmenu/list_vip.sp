@@ -187,7 +187,7 @@ public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int 
 					}
 					
 					DebugMessage(sQuery)
-					SQL_TQuery(g_hDatabase, SQL_Callback_SelectVipPlayers, sQuery, UID(iClient));
+					g_hDatabase.Query(SQL_Callback_SelectVipPlayers, sQuery, UID(iClient));
 					
 				}
 				case 1:
@@ -219,10 +219,10 @@ public void SQL_Callback_SearchPlayers(Handle hOwner, Handle hQuery, const char[
 		
 		sUserID[0] = 0;
 		
-		while(SQL_FetchRow(hQuery))
+		while((hQuery).FetchRow())
 		{
-			IntToString(SQL_FetchInt(hQuery, 0), sUserID, sizeof(sUserID));
-			SQL_FetchString(hQuery, 1, sName, sizeof(sName));
+			IntToString(hQuery.FetchInt(0), sUserID, sizeof(sUserID));
+			hQuery.FetchString(1, sName, sizeof(sName));
 			
 			hMenu.AddItem(sUserID, sName);
 		}
@@ -262,7 +262,7 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 	}
 	
 	DebugMessage(sQuery)
-	SQL_TQuery(g_hDatabase, SQL_Callback_SelectVipPlayers, sQuery, UID(iClient));
+	g_hDatabase.Query(SQL_Callback_SelectVipPlayers, sQuery, UID(iClient));
 }
 
 public void SQL_Callback_SelectVipPlayers(Handle hOwner, Handle hQuery, const char[] sError, any UserID)
@@ -286,10 +286,10 @@ public void SQL_Callback_SelectVipPlayers(Handle hOwner, Handle hQuery, const ch
 		
 		sUserID[0] = 0;
 		
-		while (SQL_FetchRow(hQuery))
+		while ((hQuery).FetchRow())
 		{
-			IntToString(SQL_FetchInt(hQuery, 0), sUserID, sizeof(sUserID));
-			SQL_FetchString(hQuery, 1, sName, sizeof(sName));
+			IntToString(hQuery.FetchInt(0), sUserID, sizeof(sUserID));
+			hQuery.FetchString(1, sName, sizeof(sName));
 			
 			hMenu.AddItem(sUserID, sName);
 		}
@@ -340,7 +340,7 @@ void ShowTargetInfoMenu(int iClient, int iClientID)
 	}
 	
 	DebugMessage(sQuery)
-	SQL_TQuery(g_hDatabase, SQL_Callback_SelectVipClientInfo, sQuery, UID(iClient));
+	g_hDatabase.Query(SQL_Callback_SelectVipClientInfo, sQuery, UID(iClient));
 }
 
 
@@ -355,7 +355,7 @@ public void SQL_Callback_SelectVipClientInfo(Handle hOwner, Handle hQuery, const
 	new iClient = CID(UserID);
 	if (iClient)
 	{
-		if (SQL_FetchRow(hQuery))
+		if ((hQuery).FetchRow())
 		{
 			SetGlobalTransTarget(iClient);
 			
@@ -364,9 +364,9 @@ public void SQL_Callback_SelectVipClientInfo(Handle hOwner, Handle hQuery, const
 			
 			hMenu.ExitBackButton = true;
 			
-			if (SQL_IsFieldNull(hQuery, 1) == false)
+			if (hQuery.IsFieldNull(1) == false)
 			{
-				SQL_FetchString(hQuery, 1, sGroup, sizeof(sGroup)); // GROUP
+				hQuery.FetchString(1, sGroup, sizeof(sGroup)); // GROUP
 				if (sGroup[0])
 				{
 					g_ClientData[iClient].SetString(DATA_GROUP, sGroup);
@@ -385,7 +385,7 @@ public void SQL_Callback_SelectVipClientInfo(Handle hOwner, Handle hQuery, const
 				FormatEx(sGroup, sizeof(sGroup), "%t", "NONE");
 			}
 			
-			iExpires = SQL_FetchInt(hQuery, 2); // Expires
+			iExpires = hQuery.FetchInt(2); // Expires
 			g_ClientData[iClient].Set(DATA_AUTH_TYPE, iExpires);
 			
 			if (iExpires > 0)
@@ -406,12 +406,12 @@ public void SQL_Callback_SelectVipClientInfo(Handle hOwner, Handle hQuery, const
 				FormatEx(sBuffer, sizeof(sBuffer), "%t", "NEVER");
 			}
 			
-			SQL_FetchString(hQuery, 3, sName, sizeof(sName)); // Name
+			hQuery.FetchString(3, sName, sizeof(sName)); // Name
 			g_ClientData[iClient].SetString(DATA_NAME, sName);
 			
-			SQL_FetchString(hQuery, 4, sAuth, sizeof(sAuth)); // Auth
+			hQuery.FetchString(4, sAuth, sizeof(sAuth)); // Auth
 			
-			switch (SQL_FetchInt(hQuery, 0))
+			switch (hQuery.FetchInt(0))
 			{
 				case 0:FormatEx(sAuthType, sizeof(sAuthType), "%t", "STEAM_ID");
 				case 1:FormatEx(sAuthType, sizeof(sAuthType), "%t", "IP");

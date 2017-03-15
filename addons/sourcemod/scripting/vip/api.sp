@@ -389,7 +389,7 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 						{
 							FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `id` = '%i';", sGroup, iClientID);
 						}
-						SQL_TQuery(g_hDatabase, SQL_Callback_ChangeClientSettings, sQuery, UID(iClient));
+						g_hDatabase.Query(SQL_Callback_ChangeClientSettings, sQuery, UID(iClient));
 					}
 				}
 				
@@ -450,7 +450,7 @@ public int Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
 						FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `expires` = '%i' WHERE `id` = '%i';", iTime, iClientID);
 					}
 					
-					SQL_TQuery(g_hDatabase, SQL_Callback_ChangeClientSettings, sQuery, UID(iClient));
+					g_hDatabase.Query(SQL_Callback_ChangeClientSettings, sQuery, UID(iClient));
 				}
 			}
 			
@@ -489,7 +489,7 @@ public int Native_SetClientPassword(Handle hPlugin, int iNumParams)
 			}
 			
 			FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET %s WHERE `id` = '%i';", sBuffer, iClientID);
-			SQL_TQuery(g_hDatabase, SQL_Callback_ChangeClientSettings, sQuery, UID(iClient));
+			g_hDatabase.Query(SQL_Callback_ChangeClientSettings, sQuery, UID(iClient));
 			
 			return true;
 		}
@@ -506,7 +506,7 @@ public void SQL_Callback_ChangeClientSettings(Handle hOwner, Handle hQuery, cons
 	}
 	
 	new iClient = CID(UserID);
-	if (iClient && SQL_GetAffectedRows(hOwner))
+	if (iClient && (hOwner).AffectedRows)
 	{
 		Clients_CheckVipAccess(iClient, false);
 	}

@@ -56,7 +56,7 @@ void Clients_LoadClient(iClient, bool bNotify)
 	GetClientName(iClient, sQuery, sizeof(sQuery));
 	
 	DebugMessage("Clients_LoadClient %N (%i), %b: - > %x, %u", iClient, iClient, g_iClientInfo[iClient], g_hDatabase, g_hDatabase)
-	SQL_EscapeString(g_hDatabase, sQuery, sName, sizeof(sName));
+	g_hDatabase.Escape(sQuery, sName, sizeof(sName));
 	
 	if (GLOBAL_INFO & IS_MySQL)
 	{
@@ -91,7 +91,7 @@ void Clients_LoadClient(iClient, bool bNotify)
 	hDataPack.WriteCell(bNotify);
 	
 	DebugMessage(sQuery)
-	SQL_TQuery(g_hDatabase, SQL_Callback_OnClientAuthorized, sQuery, hDataPack);
+	g_hDatabase.Query(SQL_Callback_OnClientAuthorized, sQuery, hDataPack);
 }
 
 public void SQL_Callback_OnClientAuthorized(Handle hOwner, Handle hQuery, const char[] sError, any hPack)
@@ -110,10 +110,10 @@ public void SQL_Callback_OnClientAuthorized(Handle hOwner, Handle hQuery, const 
 	DebugMessage("SQL_Callback_OnClientAuthorized: %i", iClient)
 	if (iClient)
 	{
-		if (SQL_FetchRow(hQuery))
+		if ((hQuery).FetchRow())
 		{
-			new iExpires = SQL_FetchInt(hQuery, 4), 
-			iClientID = SQL_FetchInt(hQuery, 0);
+			new iExpires = hQuery.FetchInt(4), 
+			iClientID = hQuery.FetchInt(0);
 			DebugMessage("Clients_LoadClient %N (%i):\texpires: %i", iClient, iClient, iExpires)
 			if (iExpires > 0)
 			{
@@ -140,14 +140,14 @@ public void SQL_Callback_OnClientAuthorized(Handle hOwner, Handle hQuery, const 
 						{
 							char sQuery[256];
 							FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `vip_overrides` WHERE `user_id` = '%i' AND `server_id` = '%i';", iClientID, g_CVAR_iServerID);
-							SQL_TQuery(g_hDatabase, SQL_Callback_DeleteExpired, sQuery);
+							g_hDatabase.Query(SQL_Callback_DeleteExpired, sQuery);
 						}
 						
 						if (GLOBAL_INFO & IS_MySQL)
 						{
 							char sQuery[256];
 							FormatEx(sQuery, sizeof(sQuery), "SELECT COUNT(*) AS vip_count FROM `vip_overrides` WHERE `user_id` = '%i';", iClientID);
-							SQL_TQuery(g_hDatabase, SQL_Callback_RemoveClient2, sQuery, iClientID);
+							g_hDatabase.Query(SQL_Callback_RemoveClient2, sQuery, iClientID);
 						}
 						else
 						{
@@ -161,16 +161,16 @@ public void SQL_Callback_OnClientAuthorized(Handle hOwner, Handle hQuery, const 
 					{
 						char sQuery[256];
 						FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `vip_overrides` WHERE `user_id` = '%i' AND `server_id` = '%i';", iClientID, g_CVAR_iServerID);
-						SQL_TQuery(g_hDatabase, SQL_Callback_DeleteExpired);
+						g_hDatabase.Query(SQL_Callback_DeleteExpired);
 					}
 					else if(g_CVAR_bDeleteExpired)
 					{
-						DB_RemoveClientFromID(0, SQL_FetchInt(hQuery, 0), false);
+						DB_RemoveClientFromID(0, hQuery.FetchInt(0), false);
 					}
 
 					char sQuery[256];
 					FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `vip_overrides` WHERE `user_id` = '%i' AND `server_id` = '%i';", iClientID, g_CVAR_iServerID);
-					SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck);
+					g_hDatabase.Query(SQL_Callback_ErrorCheck);
 	*/
 					CreateForward_OnVIPClientRemoved(iClient, "Expired");
 					
@@ -185,17 +185,17 @@ public void SQL_Callback_OnClientAuthorized(Handle hOwner, Handle hQuery, const 
 			}
 			
 			char sBuffer[64];
-			if (SQL_IsFieldNull(hQuery, 2) == false)
+			if (hQuery.IsFieldNull(2) == false)
 			{
-				SQL_FetchString(hQuery, 2, sBuffer, sizeof(sBuffer)); // password
+				hQuery.FetchString(2, sBuffer, sizeof(sBuffer)); // password
 				if (sBuffer[0])
 				{
 					DebugMessage("Clients_LoadClient %N (%i):\tpassword: %s", iClient, iClient, sBuffer)
 					
 					char sClientCvar[64]; char sClientPass[64];
-					if (SQL_IsFieldNull(hQuery, 3) == false)
+					if (hQuery.IsFieldNull(3) == false)
 					{
-						SQL_FetchString(hQuery, 3, sClientCvar, sizeof(sClientCvar));
+						hQuery.FetchString(3, sClientCvar, sizeof(sClientCvar));
 					}
 					else
 					{
@@ -228,16 +228,16 @@ public void SQL_Callback_OnClientAuthorized(Handle hOwner, Handle hQuery, const 
 				}
 			}
 			
-			SQL_FetchString(hQuery, 5, sBuffer, sizeof(sBuffer));
+			hQuery.FetchString(5, sBuffer, sizeof(sBuffer));
 			DebugMessage("Clients_LoadClient %N (%i):\tvip_group: %s", iClient, iClient, sBuffer)
 			if (sBuffer[0])
 			{
 				if (UTIL_CheckValidVIPGroup(sBuffer))
 				{
-					new VIP_AuthType:AuthType = VIP_AuthType:SQL_FetchInt(hQuery, 1);
+					new VIP_AuthType:AuthType = VIP_AuthType:hQuery.FetchInt(1);
 					Clients_CreateClientVIPSettings(iClient, iExpires, AuthType);
 					
-					g_hFeatures[iClient].SetValue(KEY_CID, SQL_FetchInt(hQuery, 0));
+					g_hFeatures[iClient].SetValue(KEY_CID, hQuery.FetchInt(0));
 					
 					g_hFeatures[iClient].SetString(KEY_GROUP, sBuffer);
 					DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
@@ -275,7 +275,7 @@ public void SQL_Callback_OnClientAuthorized(Handle hOwner, Handle hQuery, const 
 				else
 				{
 					char sAuth[32];
-					SQL_FetchString(hQuery, 6, sAuth, sizeof(sAuth));
+					hQuery.FetchString(6, sAuth, sizeof(sAuth));
 					LogError("Invalid VIP-Group/Некорректная VIP-группа: %s (Игрок: %s)", sBuffer, sAuth);
 				}
 			}
