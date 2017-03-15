@@ -119,7 +119,7 @@ void UTIL_GetTimeFromStamp(char[] sBuffer, int maxlength, int iTimeStamp, int iC
 void UTIL_LoadVipCmd(Handle &hCvar, ConCmd Call_CMD)
 {
 	char sPart[64]; char sBuffer[128]; reloc_idx, iPos;
-	GetConVarString(hCvar, sBuffer, sizeof(sBuffer));
+	hCvar.GetString(sBuffer, sizeof(sBuffer));
 	reloc_idx = 0;
 	while ((iPos = SplitString(sBuffer[reloc_idx], ";", sPart, sizeof(sPart))))
 	{
@@ -149,7 +149,7 @@ void UTIL_LoadVipCmd(Handle &hCvar, ConCmd Call_CMD)
 int UTIL_GetConVarAdminFlag(Handle &hCvar)
 {
 	char sBuffer[32];
-	GetConVarString(hCvar, sBuffer, sizeof(sBuffer));
+	hCvar.GetString(sBuffer, sizeof(sBuffer));
 	return ReadFlagString(sBuffer);
 }
 
