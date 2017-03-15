@@ -309,8 +309,8 @@ void SayText2(int iClient, int iAuthor = 0, const char[] sMessage)
 	}
 	else
 	{
-		BfWriteByte(hBuffer, iAuthor);
-		BfWriteByte(hBuffer, true);
+		hBuffer.WriteByte(iAuthor);
+		hBuffer.WriteByte(true);
 		BfWriteString(hBuffer, sMessage);
 	}
 	EndMessage();
