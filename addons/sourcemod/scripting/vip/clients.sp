@@ -483,7 +483,7 @@ public Event_MatchEndRestart(Handle:hEvent, const char[] name, bool dontBroadcas
 
 public Event_PlayerSpawn(Handle:hEvent, const char[] sEvName, bool bDontBroadcast)
 {
-	new UserID = GetEventInt(hEvent, "userid");
+	new UserID = hEvent.GetInt("userid");
 	new iClient = CID(UserID);
 	DebugMessage("Event_PlayerSpawn: %N (%i)", iClient, iClient)
 	if (!(g_iClientInfo[iClient] & IS_SPAWNED))
@@ -494,7 +494,7 @@ public Event_PlayerSpawn(Handle:hEvent, const char[] sEvName, bool bDontBroadcas
 
 public Event_PlayerDeath(Handle:hEvent, const char[] sEvName, bool bDontBroadcast)
 {
-	new iClient = CID(GetEventInt(hEvent, "userid"));
+	new iClient = CID(hEvent.GetInt("userid"));
 	DebugMessage("Event_PlayerDeath: %N (%i)", iClient, iClient)
 	g_iClientInfo[iClient] &= ~IS_SPAWNED;
 }
