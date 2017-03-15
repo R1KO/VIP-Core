@@ -67,7 +67,7 @@ public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int 
 				case 0:
 				{
 					InitiateDataArray(iClient);
-					SetArrayCell(g_ClientData[iClient], DATA_MENU_TYPE, MENU_TYPE_ADD);
+					g_ClientData[iClient].Set(DATA_MENU_TYPE, MENU_TYPE_ADD);
 					ShowAddVIPMenu(iClient);
 				}
 				case 1:
@@ -161,7 +161,7 @@ public void Handler_MenuVIPAdd(TopMenu hMenu, TopMenuAction action, TopMenuObjec
 		case TopMenuAction_SelectOption:
 		{
 			InitiateDataArray(iClient);
-			SetArrayCell(g_ClientData[iClient], DATA_MENU_TYPE, MENU_TYPE_ADD);
+			g_ClientData[iClient].Set(DATA_MENU_TYPE, MENU_TYPE_ADD);
 			ShowAddVIPMenu(iClient);
 		}
 	}
@@ -211,12 +211,12 @@ void InitiateDataArray(int iClient)
 {
 	if (g_ClientData[iClient] == INVALID_HANDLE)
 	{
-		g_ClientData[iClient] = CreateArray(ByteCountToCells(64), DATA_SIZE);
+		g_ClientData[iClient] = new ArrayList(ByteCountToCells(64), DATA_SIZE);
 	}
 	else
 	{
-		ClearArray(g_ClientData[iClient]);
-		ResizeArray(g_ClientData[iClient], DATA_SIZE);
+		(g_ClientData[iClient]).Clear();
+		g_ClientData[iClient].Resize(DATA_SIZE);
 	}
 }
 
@@ -237,7 +237,7 @@ void ShowTimeMenu(int iClient)
 	decl Handle:hMenu, Handle:hKv, iMenuType;
 	hMenu = CreateMenu(MenuHandler_TimeMenu);
 	
-	iMenuType = GetArrayCell(g_ClientData[iClient], DATA_TIME);
+	iMenuType = g_ClientData[iClient].Get(DATA_TIME);
 	switch (iMenuType)
 	{
 		case TIME_SET:SetMenuTitle(hMenu, "%t:\n \n", "MENU_TIME_SET");
@@ -284,7 +284,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 		{
 			if (Item == MenuCancel_ExitBack)
 			{
-				if (GetArrayCell(g_ClientData[iClient], DATA_MENU_TYPE) == MENU_TYPE_ADD)
+				if (g_ClientData[iClient].Get(DATA_MENU_TYPE) == MENU_TYPE_ADD)
 				{
 					ShowAuthTypeMenu(iClient);
 				}
@@ -299,14 +299,14 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 			char sBuffer[64]; iType, iTime;
 			GetMenuItem(hMenu, Item, sBuffer, sizeof(sBuffer));
 			iTime = StringToInt(sBuffer);
-			iType = GetArrayCell(g_ClientData[iClient], DATA_TIME);
+			iType = g_ClientData[iClient].Get(DATA_TIME);
 			
-			if (GetArrayCell(g_ClientData[iClient], DATA_MENU_TYPE) == MENU_TYPE_ADD)
+			if (g_ClientData[iClient].Get(DATA_MENU_TYPE) == MENU_TYPE_ADD)
 			{
-				new iTarget = GetClientOfUserId(GetArrayCell(g_ClientData[iClient], DATA_TARGET_USER_ID));
+				new iTarget = GetClientOfUserId(g_ClientData[iClient].Get(DATA_TARGET_USER_ID));
 				if (iTarget)
 				{
-					SetArrayCell(g_ClientData[iClient], DATA_TIME, iTime);
+					g_ClientData[iClient].Set(DATA_TIME, iTime);
 					ShowGroupMenu(iClient);
 				}
 				else
@@ -319,7 +319,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 			else
 			{
 				char sTime[64]; iExpires;
-				GetArrayString(g_ClientData[iClient], DATA_NAME, sBuffer, sizeof(sBuffer));
+				g_ClientData[iClient].GetString(DATA_NAME, sBuffer, sizeof(sBuffer));
 				
 				switch (iType)
 				{
@@ -342,7 +342,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 					}
 					case TIME_ADD:
 					{
-						iExpires = GetArrayCell(g_ClientData[iClient], DATA_AUTH_TYPE);
+						iExpires = g_ClientData[iClient].Get(DATA_AUTH_TYPE);
 						if (iExpires > 0)
 						{
 							iExpires += iTime;
@@ -355,14 +355,14 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 						else
 						{
 							VIP_PrintToChatClient(iClient, "%t", "UNABLE_TO_EXTENDED");
-							SetArrayCell(g_ClientData[iClient], DATA_TIME, TIME_ADD);
+							g_ClientData[iClient].Set(DATA_TIME, TIME_ADD);
 							ShowTimeMenu(iClient);
 							return 0;
 						}
 					}
 					case TIME_TAKE:
 					{
-						iExpires = GetArrayCell(g_ClientData[iClient], DATA_AUTH_TYPE);
+						iExpires = g_ClientData[iClient].Get(DATA_AUTH_TYPE);
 						if (iExpires > 0)
 						{
 							iExpires -= iTime;
@@ -378,7 +378,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 							else
 							{
 								VIP_PrintToChatClient(iClient, "%t", "INCORRECT_TIME");
-								SetArrayCell(g_ClientData[iClient], DATA_TIME, TIME_TAKE);
+								g_ClientData[iClient].Set(DATA_TIME, TIME_TAKE);
 								ShowTimeMenu(iClient);
 								return 0;
 							}
@@ -393,7 +393,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 				}
 				
 				decl iClientID; char sQuery[512];
-				iClientID = GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID);
+				iClientID = g_ClientData[iClient].Get(DATA_TARGET_ID);
 				if (GLOBAL_INFO & IS_MySQL)
 				{
 					FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_overrides` SET `expires` = '%i' WHERE `user_id` = '%i' AND `server_id` = '%i';", iExpires, iClientID, g_CVAR_iServerID);
@@ -427,7 +427,7 @@ public void SQL_Callback_ChangeTime(Handle hOwner, Handle hQuery, const char[] s
 		new iClient = CID(UserID);
 		if (iClient)
 		{
-			new iTarget = IsClientOnline(GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
+			new iTarget = IsClientOnline(g_ClientData[iClient].Get(DATA_TARGET_ID));
 			if (iTarget)
 			{
 				Clients_CheckVipAccess(iTarget, true);

@@ -6,7 +6,7 @@ void ShowDeleteVipPlayerMenu(int iClient)
 	
 	SetGlobalTransTarget(iClient);
 	
-	GetArrayString(g_ClientData[iClient], DATA_NAME, sBuffer, sizeof(sBuffer));
+	g_ClientData[iClient].GetString(DATA_NAME, sBuffer, sizeof(sBuffer));
 	SetMenuTitle(hMenu, "%t\n%s ?:\n \n", "MENU_DEL_VIP", sBuffer);
 	
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "CONFIRM");
@@ -26,15 +26,15 @@ public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iC
 		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if (Item == MenuCancel_ExitBack)ShowTargetInfoMenu(iClient, GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
+			if (Item == MenuCancel_ExitBack)ShowTargetInfoMenu(iClient, g_ClientData[iClient].Get(DATA_TARGET_ID));
 		}
 		case MenuAction_Select:
 		{
 			if (Item == 0)
 			{
 				char sBuffer[MAX_NAME_LENGTH]; iTarget;
-				GetArrayString(g_ClientData[iClient], DATA_NAME, sBuffer, sizeof(sBuffer));
-				iTarget = GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID);
+				g_ClientData[iClient].GetString(DATA_NAME, sBuffer, sizeof(sBuffer));
+				iTarget = g_ClientData[iClient].Get(DATA_TARGET_ID);
 				DB_RemoveClientFromID(iClient, iTarget, true);
 				
 				iTarget = IsClientOnline(iTarget);

@@ -341,7 +341,7 @@ void Clients_LoadVIPFeatures(int iClient)
 	
 	DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
 	
-	new iFeatures = GetArraySize(GLOBAL_ARRAY);
+	new iFeatures = (GLOBAL_ARRAY).Length;
 	DebugMessage("FeaturesArraySize: %i", iFeatures)
 	if (iFeatures > 0)
 	{
@@ -357,7 +357,7 @@ void Clients_LoadVIPFeatures(int iClient)
 			ArrayList hArray;
 			for (i = 0; i < iFeatures; ++i)
 			{
-				GetArrayString(GLOBAL_ARRAY, i, sFeatureName, sizeof(sFeatureName));
+				GLOBAL_ARRAY.GetString(i, sFeatureName, sizeof(sFeatureName));
 				if (GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
 				{
 					DebugMessage("LoadClientFeature: %i - %s", i, sFeatureName)

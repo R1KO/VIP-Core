@@ -26,12 +26,12 @@ public int MenuHandler_EditTimeMenu(Menu hMenu, MenuAction action, int iClient, 
 		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if (Item == MenuCancel_ExitBack)ShowTargetInfoMenu(iClient, GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
+			if (Item == MenuCancel_ExitBack)ShowTargetInfoMenu(iClient, g_ClientData[iClient].Get(DATA_TARGET_ID));
 		}
 		case MenuAction_Select:
 		{
-			SetArrayCell(g_ClientData[iClient], DATA_MENU_TYPE, MENU_TYPE_EDIT);
-			SetArrayCell(g_ClientData[iClient], DATA_TIME, Item);
+			g_ClientData[iClient].Set(DATA_MENU_TYPE, MENU_TYPE_EDIT);
+			g_ClientData[iClient].Set(DATA_TIME, Item);
 			ShowTimeMenu(iClient);
 		}
 	}
@@ -48,14 +48,14 @@ void ShowEditPassMenu(int iClient)
 												ON `o`.`user_id` = `u`.`id` \
 												WHERE `o`.`server_id` = '%i' \
 												AND `u`.`id` = '%i' LIMIT 1;", 
-			g_CVAR_iServerID, GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
+			g_CVAR_iServerID, g_ClientData[iClient].Get(DATA_TARGET_ID));
 	}
 	else
 	{
 		FormatEx(sQuery, sizeof(sQuery), "SELECT `password` \
 												FROM `vip_users` \
 												WHERE `id` = '%i' LIMIT 1;", 
-			GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
+			g_ClientData[iClient].Get(DATA_TARGET_ID));
 	}
 	
 	DebugMessage(sQuery)
@@ -116,7 +116,7 @@ public int MenuHandler_EditPassMenu(Menu hMenu, MenuAction action, int iClient, 
 		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if (Item == MenuCancel_ExitBack)ShowTargetInfoMenu(iClient, GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
+			if (Item == MenuCancel_ExitBack)ShowTargetInfoMenu(iClient, g_ClientData[iClient].Get(DATA_TARGET_ID));
 		}
 		case MenuAction_Select:
 		{
@@ -163,11 +163,11 @@ public int MenuHandler_DelPassMenu(Menu hMenu, MenuAction action, int iClient, i
 		{
 			char sQuery[256]; iTarget; char sBuffer[MAX_NAME_LENGTH];
 			
-			iTarget = GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID);
+			iTarget = g_ClientData[iClient].Get(DATA_TARGET_ID);
 			FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `password` = NULL WHERE `id` = '%i';", iTarget);
 			SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, sQuery);
 			
-			GetArrayString(g_ClientData[iClient], DATA_NAME, sBuffer, sizeof(sBuffer));
+			g_ClientData[iClient].GetString(DATA_NAME, sBuffer, sizeof(sBuffer));
 			
 			VIP_PrintToChatClient(iClient, "%t", "ADMIN_PASSWORD_REMOVED");
 			if (g_CVAR_bLogsEnable)LogToFile(g_sLogFile, "%T", "LOG_ADMIN_PASSWORD_REMOVED", iClient, iClient, sBuffer);
@@ -231,12 +231,12 @@ public int MenuHandler_EditVip_WaitPassMenu(Menu hMenu, MenuAction action, int i
 				case 0:
 				{
 					decl iTarget, char sQuery[256]; char sPass[64]; char sBuffer[MAX_NAME_LENGTH];
-					iTarget = GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID);
+					iTarget = g_ClientData[iClient].Get(DATA_TARGET_ID);
 					GetMenuItem(hMenu, Item, sPass, sizeof(sPass));
 					FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `password` = '%s' WHERE `id` = '%i';", sPass, iTarget);
 					SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, sQuery);
 					
-					GetArrayString(g_ClientData[iClient], DATA_NAME, sBuffer, sizeof(sBuffer));
+					g_ClientData[iClient].GetString(DATA_NAME, sBuffer, sizeof(sBuffer));
 					
 					VIP_PrintToChatClient(iClient, "%t", "ADMIN_SET_PASSWORD");
 					if (g_CVAR_bLogsEnable)LogToFile(g_sLogFile, "%T", "LOG_ADMIN_SET_PASSWORD", iClient, iClient, sBuffer, sPass);
@@ -266,7 +266,7 @@ void ShowEditGroupMenu(int iClient)
 	if (KvGotoFirstSubKey(g_hGroups))
 	{
 		char sTagetGroup[64]; char sGroupName[128];
-		GetArrayString(g_ClientData[iClient], DATA_GROUP, sTagetGroup, sizeof(sTagetGroup));
+		g_ClientData[iClient].GetString(DATA_GROUP, sTagetGroup, sizeof(sTagetGroup));
 		if (strcmp(sTagetGroup, "none") == 0)
 		{
 			sTagetGroup[0] = '\0';
@@ -302,14 +302,14 @@ public int MenuHandler_EditVip_GroupsList(Menu hMenu, MenuAction action, int iCl
 		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if (Item == MenuCancel_ExitBack)ShowTargetInfoMenu(iClient, GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID));
+			if (Item == MenuCancel_ExitBack)ShowTargetInfoMenu(iClient, g_ClientData[iClient].Get(DATA_TARGET_ID));
 		}
 		case MenuAction_Select:
 		{
 			char sQuery[256]; char sBuffer[MAX_NAME_LENGTH]; iTarget; char sGroup[MAX_NAME_LENGTH];
 			GetMenuItem(hMenu, Item, sGroup, sizeof(sGroup));
-			GetArrayString(g_ClientData[iClient], DATA_NAME, sBuffer, sizeof(sBuffer));
-			iTarget = GetArrayCell(g_ClientData[iClient], DATA_TARGET_ID);
+			g_ClientData[iClient].GetString(DATA_NAME, sBuffer, sizeof(sBuffer));
+			iTarget = g_ClientData[iClient].Get(DATA_TARGET_ID);
 			
 			if (GLOBAL_INFO & IS_MySQL)
 			{

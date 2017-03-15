@@ -66,7 +66,7 @@ public OnPluginStart()
 	LoadTranslations("vip_modules.phrases");
 	LoadTranslations("common.phrases");
 	
-	GLOBAL_ARRAY = CreateArray(ByteCountToCells(FEATURE_NAME_LENGTH));
+	GLOBAL_ARRAY = new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
 	GLOBAL_TRIE = CreateTrie();
 	ReadConfigs();
 	

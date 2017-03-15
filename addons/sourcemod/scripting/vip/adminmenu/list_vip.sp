@@ -47,7 +47,7 @@ void ShowVipPlayersListMenu(int iClient)
 		AddMenuItem(hMenu, "", sName, ITEMDRAW_DISABLED);
 	}
 	
-	SetArrayCell(g_ClientData[iClient], DATA_OFFSET, -1);
+	g_ClientData[iClient].Set(DATA_OFFSET, -1);
 	
 	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
 }
@@ -68,7 +68,7 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 			
 			if (strcmp(sUserID, "more") == 0) // Показать еще
 			{
-				ShowVipPlayersFromDBMenu(iClient, GetArrayCell(g_ClientData[iClient], DATA_OFFSET) + 20);
+				ShowVipPlayersFromDBMenu(iClient, g_ClientData[iClient].Get(DATA_OFFSET) + 20);
 				
 				return;
 			}
@@ -107,7 +107,7 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 			*/
 			
 			new UserID = StringToInt(sUserID);
-			SetArrayCell(g_ClientData[iClient], DATA_TARGET_ID, UserID);
+			g_ClientData[iClient].Set(DATA_TARGET_ID, UserID);
 			
 			ShowTargetInfoMenu(iClient, UserID);
 		}
@@ -241,7 +241,7 @@ public void SQL_Callback_SearchPlayers(Handle hOwner, Handle hQuery, const char[
 void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 {
 	// , iRowCount = 20
-	SetArrayCell(g_ClientData[iClient], DATA_OFFSET, iOffset);
+	g_ClientData[iClient].Set(DATA_OFFSET, iOffset);
 	
 	char sQuery[512];
 	if (GLOBAL_INFO & IS_MySQL)
@@ -299,7 +299,7 @@ public void SQL_Callback_SelectVipPlayers(Handle hOwner, Handle hQuery, const ch
 			FormatEx(sName, sizeof(sName), "%T", "NO_PLAYERS_AVAILABLE", iClient);
 			AddMenuItem(hMenu, "", sName, ITEMDRAW_DISABLED);
 		}
-		else if (GetArrayCell(g_ClientData[iClient], DATA_OFFSET) != -1)
+		else if (g_ClientData[iClient].Get(DATA_OFFSET) != -1)
 		{
 			AddMenuItem(hMenu, "", "ITEMDRAW_SPACER", ITEMDRAW_SPACER);
 			AddMenuItem(hMenu, "more", "Показать еще");
@@ -369,24 +369,24 @@ public void SQL_Callback_SelectVipClientInfo(Handle hOwner, Handle hQuery, const
 				SQL_FetchString(hQuery, 1, sGroup, sizeof(sGroup)); // GROUP
 				if (sGroup[0])
 				{
-					SetArrayString(g_ClientData[iClient], DATA_GROUP, sGroup);
+					g_ClientData[iClient].SetString(DATA_GROUP, sGroup);
 				}
 				else
 				{
 					//	strcopy(sGroup, sizeof(sGroup), "none");
-					SetArrayString(g_ClientData[iClient], DATA_GROUP, "none");
+					g_ClientData[iClient].SetString(DATA_GROUP, "none");
 					FormatEx(sGroup, sizeof(sGroup), "%t", "NONE");
 				}
 			}
 			else
 			{
 				//	strcopy(sGroup, sizeof(sGroup), "none");
-				SetArrayString(g_ClientData[iClient], DATA_GROUP, "none");
+				g_ClientData[iClient].SetString(DATA_GROUP, "none");
 				FormatEx(sGroup, sizeof(sGroup), "%t", "NONE");
 			}
 			
 			iExpires = SQL_FetchInt(hQuery, 2); // Expires
-			SetArrayCell(g_ClientData[iClient], DATA_AUTH_TYPE, iExpires);
+			g_ClientData[iClient].Set(DATA_AUTH_TYPE, iExpires);
 			
 			if (iExpires > 0)
 			{
@@ -407,7 +407,7 @@ public void SQL_Callback_SelectVipClientInfo(Handle hOwner, Handle hQuery, const
 			}
 			
 			SQL_FetchString(hQuery, 3, sName, sizeof(sName)); // Name
-			SetArrayString(g_ClientData[iClient], DATA_NAME, sName);
+			g_ClientData[iClient].SetString(DATA_NAME, sName);
 			
 			SQL_FetchString(hQuery, 4, sAuth, sizeof(sAuth)); // Auth
 			
@@ -497,7 +497,7 @@ public int MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iCli
 		{
 			if (Item == MenuCancel_ExitBack)
 			{
-				new iOffset = GetArrayCell(g_ClientData[iClient], DATA_OFFSET);
+				new iOffset = g_ClientData[iClient].Get(DATA_OFFSET);
 				if (iOffset == -1)
 				{
 					ShowVipPlayersListMenu(iClient);

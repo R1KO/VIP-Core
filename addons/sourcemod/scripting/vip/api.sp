@@ -693,33 +693,33 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 	
 	if (IsValidFeature(sFeatureName) == false)
 	{
-		if (GetArraySize(GLOBAL_ARRAY) == 0)
+		if ((GLOBAL_ARRAY).Length == 0)
 		{
 			RemoveMenuItem(g_hVIPMenu, 0);
 		}
 		
-		PushArrayString(GLOBAL_ARRAY, sFeatureName);
-		DebugMessage("PushArrayString -> %i", FindStringInArray(GLOBAL_ARRAY, sFeatureName))
+		GLOBAL_ARRAY.PushString(sFeatureName);
+		DebugMessage("PushArrayString -> %i", GLOBAL_ARRAY.FindString(sFeatureName))
 		
 		new VIP_FeatureType:FType = GetNativeCell(3);
 		DebugMessage("FeatureType -> %i", FType)
 		
-		ArrayList hArray = CreateArray();
+		ArrayList hArray = new ArrayList();
 		SetTrieValue(GLOBAL_TRIE, sFeatureName, hArray);
 		
-		PushArrayCell(hArray, hPlugin);
-		PushArrayCell(hArray, GetNativeCell(2));
-		PushArrayCell(hArray, FType);
+		hArray.Push(hPlugin);
+		hArray.Push(GetNativeCell(2));
+		hArray.Push(FType);
 		
 		switch (FType)
 		{
 			case TOGGLABLE:
 			{
-				PushArrayCell(hArray, RegClientCookie(sFeatureName, sFeatureName, CookieAccess_Private));
+				hArray.Push(RegClientCookie(sFeatureName, sFeatureName, CookieAccess_Private));
 			}
 			case SELECTABLE:
 			{
-				PushArrayCell(hArray, INVALID_HANDLE);
+				hArray.Push(INVALID_HANDLE);
 			}
 		}
 		
@@ -729,7 +729,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 			hDataPack.WriteFunction(GetNativeCell(4));
 			hDataPack.WriteFunction(GetNativeCell(5));
 			hDataPack.WriteFunction(GetNativeCell(6));
-			PushArrayCell(hArray, hDataPack);
+			hArray.Push(hDataPack);
 			
 			AddFeatureToVIPMenu(sFeatureName);
 		}
@@ -787,10 +787,10 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 			
 			RemoveFromTrie(GLOBAL_TRIE, sFeatureName);
 			
-			i = FindStringInArray(GLOBAL_ARRAY, sFeatureName);
+			i = GLOBAL_ARRAY.FindString(sFeatureName);
 			if (i != -1)
 			{
-				RemoveFromArray(GLOBAL_ARRAY, i);
+				GLOBAL_ARRAY.Erase(i);
 			}
 			
 			if (iFeatureType != HIDE)

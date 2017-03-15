@@ -39,7 +39,7 @@ void ReadConfigs()
 	hFile = OpenFile(sFeatureName, "r");
 	if (hFile != INVALID_HANDLE)
 	{
-		g_hSortArray = CreateArray(ByteCountToCells(FEATURE_NAME_LENGTH));
+		g_hSortArray = new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
 		
 		while (!IsEndOfFile(hFile) && ReadFileLine(hFile, sFeatureName, FEATURE_NAME_LENGTH))
 		{
@@ -47,16 +47,16 @@ void ReadConfigs()
 			TrimString(sFeatureName);
 			if (sFeatureName[0])
 			{
-				PushArrayString(g_hSortArray, sFeatureName);
-				DebugMessage("PushArrayString: %s (%i)", sFeatureName, FindStringInArray(g_hSortArray, sFeatureName))
+				g_hSortArray.PushString(sFeatureName);
+				DebugMessage("PushArrayString: %s (%i)", sFeatureName, g_hSortArray.FindString(sFeatureName))
 			}
 		}
 		
 		CloseHandle(hFile);
 		
-		DebugMessage("GetArraySize: %i", GetArraySize(g_hSortArray))
+		DebugMessage("GetArraySize: %i", (g_hSortArray).Length)
 		
-		if (GetArraySize(g_hSortArray) == 0)
+		if ((g_hSortArray).Length == 0)
 		{
 			CloseHandle(g_hSortArray);
 			g_hSortArray = INVALID_HANDLE;

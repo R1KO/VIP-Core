@@ -57,7 +57,7 @@ public int MenuHandler_AddVip_PlayerList(Menu hMenu, MenuAction action, int iCli
 			UserID = StringToInt(sUserID);
 			if (CID(UserID))
 			{
-				SetArrayCell(g_ClientData[iClient], DATA_TARGET_USER_ID, UserID);
+				g_ClientData[iClient].Set(DATA_TARGET_USER_ID, UserID);
 				ShowAuthTypeMenu(iClient);
 			} else VIP_PrintToChatClient(iClient, "%t", "PLAYER_NO_LONGER_AVAILABLE");
 		}
@@ -94,14 +94,14 @@ public int MenuHandler_AddVip_AuthType(Menu hMenu, MenuAction action, int iClien
 		}
 		case MenuAction_Select:
 		{
-			new iTarget = CID(GetArrayCell(g_ClientData[iClient], DATA_TARGET_USER_ID));
+			new iTarget = CID(g_ClientData[iClient].Get(DATA_TARGET_USER_ID));
 			if (iTarget)
 			{
 				char sAuthType[5];
 				GetMenuItem(hMenu, Item, sAuthType, sizeof(sAuthType));
-				SetArrayCell(g_ClientData[iClient], DATA_AUTH_TYPE, _:StringToInt(sAuthType));
-				SetArrayCell(g_ClientData[iClient], DATA_TIME, TIME_SET);
-				SetArrayCell(g_ClientData[iClient], DATA_MENU_TYPE, MENU_TYPE_ADD);
+				g_ClientData[iClient].Set(DATA_AUTH_TYPE, _:StringToInt(sAuthType));
+				g_ClientData[iClient].Set(DATA_TIME, TIME_SET);
+				g_ClientData[iClient].Set(DATA_MENU_TYPE, MENU_TYPE_ADD);
 				ShowTimeMenu(iClient);
 			} else VIP_PrintToChatClient(iClient, "%t", "Player no longer available");
 		}
@@ -144,18 +144,18 @@ public int MenuHandler_AddVip_GroupsList(Menu hMenu, MenuAction action, int iCli
 		{
 			if (Item == MenuCancel_ExitBack)
 			{
-				SetArrayCell(g_ClientData[iClient], DATA_TIME, TIME_SET);
+				g_ClientData[iClient].Set(DATA_TIME, TIME_SET);
 				ShowTimeMenu(iClient);
 			}
 		}
 		case MenuAction_Select:
 		{
-			new iTarget = CID(GetArrayCell(g_ClientData[iClient], DATA_TARGET_USER_ID));
+			new iTarget = CID(g_ClientData[iClient].Get(DATA_TARGET_USER_ID));
 			if (iTarget)
 			{
 				char sGroup[MAX_NAME_LENGTH];
 				GetMenuItem(hMenu, Item, sGroup, sizeof(sGroup));
-				UTIL_ADD_VIP_PLAYER(iClient, iTarget, "", GetArrayCell(g_ClientData[iClient], DATA_TIME), VIP_AuthType:GetArrayCell(g_ClientData[iClient], DATA_AUTH_TYPE), sGroup);
+				UTIL_ADD_VIP_PLAYER(iClient, iTarget, "", g_ClientData[iClient].Get(DATA_TIME), VIP_AuthType:g_ClientData[iClient].Get(DATA_AUTH_TYPE), sGroup);
 				//CloseHandleEx(g_ClientData[iClient]);
 				DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
 			} else VIP_PrintToChatClient(iClient, "%t", "Player no longer available");
