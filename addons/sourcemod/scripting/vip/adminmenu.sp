@@ -43,7 +43,7 @@ public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int 
 		{
 			char sTitle[128];
 			FormatEx(sTitle, sizeof(sTitle), "%T: \n ", "VIP_ADMIN_MENU_TITLE", iClient);
-			SetPanelTitle(Handle:iOption, sTitle);
+			Handle:iOption.SetTitle(sTitle);
 		}
 		case MenuAction_DisplayItem:
 		{

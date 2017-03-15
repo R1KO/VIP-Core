@@ -149,7 +149,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 				FormatEx(sTitle, sizeof(sTitle), "%T\n \n", "VIP_MENU_TITLE", iClient);
 			}
 			
-			SetPanelTitle(Handle:iOption, sTitle);
+			Handle:iOption.SetTitle(sTitle);
 		}
 		
 		case MenuAction_DrawItem:
