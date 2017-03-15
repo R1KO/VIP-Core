@@ -134,14 +134,14 @@ void AddItemsToTopMenu()
 {
 	if (VIPAdminMenuObject == INVALID_TOPMENUOBJECT)
 	{
-		VIPAdminMenuObject = AddToTopMenu(g_hTopMenu, "vip_admin", TopMenuObject_Category, Handler_MenuVIPAdmin, INVALID_TOPMENUOBJECT, "vip_admin", ADMFLAG_ROOT);
+		VIPAdminMenuObject = g_hTopMenu.AddItem("vip_admin", TopMenuObject_Category, Handler_MenuVIPAdmin, INVALID_TOPMENUOBJECT, "vip_admin", ADMFLAG_ROOT);
 		
 	}
 	
-	AddToTopMenu(g_hTopMenu, "vip_add", TopMenuObject_Item, Handler_MenuVIPAdd, VIPAdminMenuObject, "vip_add", ADMFLAG_ROOT);
-	AddToTopMenu(g_hTopMenu, "vip_list", TopMenuObject_Item, Handler_MenuVIPList, VIPAdminMenuObject, "vip_list", ADMFLAG_ROOT);
-	AddToTopMenu(g_hTopMenu, "vip_reload_players", TopMenuObject_Item, Handler_MenuVIPReloadPlayers, VIPAdminMenuObject, "vip_reload_players", ADMFLAG_ROOT);
-	AddToTopMenu(g_hTopMenu, "vip_reload_settings", TopMenuObject_Item, Handler_MenuVIPReloadSettings, VIPAdminMenuObject, "vip_reload_settings", ADMFLAG_ROOT);
+	g_hTopMenu.AddItem("vip_add", TopMenuObject_Item, Handler_MenuVIPAdd, VIPAdminMenuObject, "vip_add", ADMFLAG_ROOT);
+	g_hTopMenu.AddItem("vip_list", TopMenuObject_Item, Handler_MenuVIPList, VIPAdminMenuObject, "vip_list", ADMFLAG_ROOT);
+	g_hTopMenu.AddItem("vip_reload_players", TopMenuObject_Item, Handler_MenuVIPReloadPlayers, VIPAdminMenuObject, "vip_reload_players", ADMFLAG_ROOT);
+	g_hTopMenu.AddItem("vip_reload_settings", TopMenuObject_Item, Handler_MenuVIPReloadSettings, VIPAdminMenuObject, "vip_reload_settings", ADMFLAG_ROOT);
 }
 
 public void Handler_MenuVIPAdmin(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)

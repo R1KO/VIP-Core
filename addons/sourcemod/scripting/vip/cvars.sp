@@ -67,7 +67,7 @@ public void OnAdminFlagChange(ConVar hCvar, const char[] oldValue, const char[] 
 		{
 			if (VIPAdminMenuObject != INVALID_TOPMENUOBJECT)
 			{
-				RemoveFromTopMenu(g_hTopMenu, VIPAdminMenuObject);
+				g_hTopMenu.Remove(VIPAdminMenuObject);
 			}
 			
 			AddItemsToTopMenu();
@@ -84,7 +84,7 @@ public void OnAddItemToAdminMenuChange(ConVar hCvar, const char[] oldValue, cons
 	{
 		if (VIPAdminMenuObject != INVALID_TOPMENUOBJECT && g_hTopMenu != INVALID_HANDLE)
 		{
-			RemoveFromTopMenu(g_hTopMenu, VIPAdminMenuObject);
+			g_hTopMenu.Remove(VIPAdminMenuObject);
 			VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
 		}
 	}
@@ -92,7 +92,7 @@ public void OnAddItemToAdminMenuChange(ConVar hCvar, const char[] oldValue, cons
 	{
 		if (g_hTopMenu)
 		{
-			RemoveFromTopMenu(g_hTopMenu, VIPAdminMenuObject);
+			g_hTopMenu.Remove(VIPAdminMenuObject);
 			AddItemsToTopMenu();
 		}
 	}
