@@ -27,12 +27,12 @@ enum
 
 void InitVIPAdminMenu()
 {
-	g_hVIPAdminMenu = CreateMenu(Handler_VIPAdminMenu, MenuAction_Display | MenuAction_Select | MenuAction_DisplayItem);
+	g_hVIPAdminMenu = new Menu(Handler_VIPAdminMenu, MenuAction_Display | MenuAction_Select | MenuAction_DisplayItem);
 	
-	AddMenuItem(g_hVIPAdminMenu, "", "vip_add");
-	AddMenuItem(g_hVIPAdminMenu, "", "vip_list");
-	AddMenuItem(g_hVIPAdminMenu, "", "vip_reload_players");
-	AddMenuItem(g_hVIPAdminMenu, "", "vip_reload_settings");
+	g_hVIPAdminMenu.AddItem("", "vip_add");
+	g_hVIPAdminMenu.AddItem("", "vip_list");
+	g_hVIPAdminMenu.AddItem("", "vip_reload_players");
+	g_hVIPAdminMenu.AddItem("", "vip_reload_settings");
 }
 
 public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int iOption)
@@ -79,13 +79,13 @@ public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int 
 				{
 					ReloadVIPPlayers_CMD(iClient, 0);
 					
-					DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
+					g_hVIPAdminMenu.Display(iClient, MENU_TIME_FOREVER);
 				}
 				case 3:
 				{
 					ReloadVIPCfg_CMD(iClient, 0);
 					
-					DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
+					g_hVIPAdminMenu.Display(iClient, MENU_TIME_FOREVER);
 				}
 			}
 		}
@@ -235,17 +235,17 @@ void ShowTimeMenu(int iClient)
 	SetGlobalTransTarget(iClient);
 	
 	decl Handle:hMenu, Handle:hKv, iMenuType;
-	hMenu = CreateMenu(MenuHandler_TimeMenu);
+	hMenu = new Menu(MenuHandler_TimeMenu);
 	
 	iMenuType = g_ClientData[iClient].Get(DATA_TIME);
 	switch (iMenuType)
 	{
-		case TIME_SET:SetMenuTitle(hMenu, "%t:\n \n", "MENU_TIME_SET");
-		case TIME_ADD:SetMenuTitle(hMenu, "%t:\n \n", "MENU_TIME_ADD");
-		case TIME_TAKE:SetMenuTitle(hMenu, "%t:\n \n", "MENU_TIME_TAKE");
+		case TIME_SET:hMenu.SetTitle("%t:\n \n", "MENU_TIME_SET");
+		case TIME_ADD:hMenu.SetTitle("%t:\n \n", "MENU_TIME_ADD");
+		case TIME_TAKE:hMenu.SetTitle("%t:\n \n", "MENU_TIME_TAKE");
 	}
 	
-	SetMenuExitBackButton(hMenu, true);
+	hMenu.ExitBackButton = true;
 	
 	hKv = CreateConfig("data/vip/cfg/times.ini", "TIMES");
 	
@@ -264,7 +264,7 @@ void ShowTimeMenu(int iClient)
 			hKv.GetString(sClientLang, sBuffer, sizeof(sBuffer), "LangError");
 			if (strcmp(sBuffer, "LangError") == 0)hKv.GetString(sServerLang, sBuffer, sizeof(sBuffer), "LangError");
 			
-			AddMenuItem(hMenu, sTime, sBuffer);
+			hMenu.AddItem(sTime, sBuffer);
 			
 		}
 		while (hKv.GotoNextKey(false));
@@ -272,7 +272,7 @@ void ShowTimeMenu(int iClient)
 	
 	CloseHandle(hKv);
 	
-	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
+	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
 public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int Item)
@@ -297,7 +297,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 		case MenuAction_Select:
 		{
 			char sBuffer[64]; iType, iTime;
-			GetMenuItem(hMenu, Item, sBuffer, sizeof(sBuffer));
+			hMenu.GetItem(Item, sBuffer, sizeof(sBuffer));
 			iTime = StringToInt(sBuffer);
 			iType = g_ClientData[iClient].Get(DATA_TIME);
 			
@@ -312,7 +312,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 				else
 				{
 					VIP_PrintToChatClient(iClient, "%t", "PLAYER_NO_LONGER_AVAILABLE");
-					DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
+					g_hVIPAdminMenu.Display(iClient, MENU_TIME_FOREVER);
 				}
 				
 			}
@@ -438,7 +438,7 @@ public void SQL_Callback_ChangeTime(Handle hOwner, Handle hQuery, const char[] s
 
 void ReductionMenu(Handle &hMenu, int iNum)
 {
-	for (new i = 0; i < iNum; ++i)AddMenuItem(hMenu, "", "", ITEMDRAW_NOTEXT);
+	for (new i = 0; i < iNum; ++i)hMenu.AddItem("", "", ITEMDRAW_NOTEXT);
 }
 
 #include "vip/adminmenu/add_vip.sp"
@@ -452,6 +452,6 @@ void AddMenuTranslatedItem(Handle:hMenu, iClient, const char[] sItem)
 {
 	char sBuffer[128];
 	FormatEx(sBuffer, sizeof(sBuffer), "%T", sItem, iClient);
-	AddMenuItem(hMenu, sItem, sBuffer);
+	hMenu.AddItem(sItem, sBuffer);
 }
 */

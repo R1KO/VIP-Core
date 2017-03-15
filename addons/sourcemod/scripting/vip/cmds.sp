@@ -22,7 +22,7 @@ public Action VIPAdmin_CMD(int iClient, int iArgs)
 	{
 		CHECK_ACCESS(iClient)
 		
-		DisplayMenu(g_hTopMenu, iClient, MENU_TIME_FOREVER);
+		g_hTopMenu.Display(iClient, MENU_TIME_FOREVER);
 	}
 	
 	return Plugin_Handled;
@@ -188,7 +188,7 @@ public Action VIPMenu_CMD(int iClient, int iArgs)
 		{
 			if (g_iClientInfo[iClient] & IS_VIP)
 			{
-				DisplayMenu(g_hVIPMenu, iClient, MENU_TIME_FOREVER);
+				g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
 			}
 			else
 			{

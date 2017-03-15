@@ -7,9 +7,9 @@ static const char g_sToggleStatus[][] =
 
 void InitVIPMenu()
 {
-	g_hVIPMenu = CreateMenu(Handler_VIPMenu, MenuAction_Start | MenuAction_Display | MenuAction_Cancel | MenuAction_Select | MenuAction_DisplayItem | MenuAction_DrawItem);
+	g_hVIPMenu = new Menu(Handler_VIPMenu, MenuAction_Start | MenuAction_Display | MenuAction_Cancel | MenuAction_Select | MenuAction_DisplayItem | MenuAction_DrawItem);
 	
-	AddMenuItem(g_hVIPMenu, "NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
+	g_hVIPMenu.AddItem("NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
 }
 
 void AddFeatureToVIPMenu(const char[] sFeatureName)
@@ -19,7 +19,7 @@ void AddFeatureToVIPMenu(const char[] sFeatureName)
 	{
 		ResortFeaturesArray();
 		
-		RemoveAllMenuItems(g_hVIPMenu);
+		(g_hVIPMenu).RemoveAllItems();
 		
 		decl i, iSize; char sItemInfo[128];
 		ArrayList hArray;
@@ -30,14 +30,14 @@ void AddFeatureToVIPMenu(const char[] sFeatureName)
 			if (GLOBAL_TRIE.GetValue(sItemInfo, hArray) && VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) != HIDE)
 			{
 				DebugMessage("AddMenuItem: %s", sItemInfo)
-				AddMenuItem(g_hVIPMenu, sItemInfo, sItemInfo);
+				g_hVIPMenu.AddItem(sItemInfo, sItemInfo);
 			}
 		}
 	}
 	else
 	{
 		DebugMessage("AddMenuItem")
-		AddMenuItem(g_hVIPMenu, sFeatureName, sFeatureName);
+		g_hVIPMenu.AddItem(sFeatureName, sFeatureName);
 	}
 }
 
@@ -108,7 +108,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 		{
 			if(!(g_iClientInfo[iClient] & IS_VIP))
 			{
-				CancelMenu(g_hVIPMenu);
+				(g_hVIPMenu).Cancel();
 				DisplayClientInfo(iClient, "expired_info");
 				return 0;
 			}
@@ -155,7 +155,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 		case MenuAction_DrawItem:
 		{
 			decl iStyle;
-			GetMenuItem(g_hVIPMenu, iOption, sItemInfo, sizeof(sItemInfo), iStyle);
+			g_hVIPMenu.GetItem(iOption, sItemInfo, sizeof(sItemInfo), iStyle);
 			
 			DebugMessage("MenuAction_DrawItem: Client: %i, Feature: %s, iStyle: %i", iClient, sItemInfo, iStyle)
 			
@@ -193,7 +193,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 		
 		case MenuAction_DisplayItem:
 		{
-			GetMenuItem(g_hVIPMenu, iOption, sItemInfo, sizeof(sItemInfo));
+			g_hVIPMenu.GetItem(iOption, sItemInfo, sizeof(sItemInfo));
 			
 			DebugMessage("MenuAction_DisplayItem: Client: %i, Feature: %s", iClient, sItemInfo)
 			
@@ -248,7 +248,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 		
 		case MenuAction_Select:
 		{
-			GetMenuItem(g_hVIPMenu, iOption, sItemInfo, sizeof(sItemInfo));
+			g_hVIPMenu.GetItem(iOption, sItemInfo, sizeof(sItemInfo));
 			
 			if (GLOBAL_TRIE.GetValue(sItemInfo, hBuffer))
 			{
@@ -280,7 +280,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 					}
 				}
 				
-				DisplayMenuAtItem(hMenu, iClient, GetMenuSelectionPosition(), MENU_TIME_FOREVER);
+				hMenu.DisplayAt(iClient, ().Selection, MENU_TIME_FOREVER);
 				PlaySound(iClient, ITEM_TOGGLE_SOUND);
 			}
 		}

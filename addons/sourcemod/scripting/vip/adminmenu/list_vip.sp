@@ -1,23 +1,23 @@
 void ShowVipPlayersListMenu(int iClient)
 {
 	decl Handle:hMenu, char sUserID[12]; char sName[128]; i, iClientID;
-	hMenu = CreateMenu(MenuHandler_VipPlayersListMenu);
+	hMenu = new Menu(MenuHandler_VipPlayersListMenu);
 	
 	SetGlobalTransTarget(iClient);
 	
-	SetMenuTitle(hMenu, "%T:\n \n", "MENU_LIST_VIP", iClient);
-	SetMenuExitBackButton(hMenu, true);
+	hMenu.SetTitle("%T:\n \n", "MENU_LIST_VIP", iClient);
+	hMenu.ExitBackButton = true;
 	
 	
 	/*	FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "MENU_EDIT_VIP");
-		AddMenuItem(hMenu, "", sBuffer);
+		hMenu.AddItem("", sBuffer);
 		FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_DEL_VIP");
-		AddMenuItem(hMenu, "", sBuffer);
+		hMenu.AddItem("", sBuffer);
 	*/
 	
-	AddMenuItem(hMenu, "search", "Найти игрока\n \n");
+	hMenu.AddItem("search", "Найти игрока\n \n");
 	
-	AddMenuItem(hMenu, "show_all", "Показать всех\n \n");
+	hMenu.AddItem("show_all", "Показать всех\n \n");
 	
 	sUserID[0] = 0;
 	for (i = 1; i <= MaxClients; ++i)
@@ -34,22 +34,22 @@ void ShowVipPlayersListMenu(int iClient)
 				IntToString(iClientID, sUserID, sizeof(sUserID));
 			}
 			
-			AddMenuItem(hMenu, sUserID, sName);*/
+			hMenu.AddItem(sUserID, sName);*/
 			
 			IntToString(iClientID, sUserID, sizeof(sUserID));
-			AddMenuItem(hMenu, sUserID, sName, iClientID == -1 ? ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
+			hMenu.AddItem(sUserID, sName, iClientID == -1 ? ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
 		}
 	}
 	
 	if (sUserID[0] == 0)
 	{
 		FormatEx(sName, sizeof(sName), "%T", "NO_PLAYERS_AVAILABLE", iClient);
-		AddMenuItem(hMenu, "", sName, ITEMDRAW_DISABLED);
+		hMenu.AddItem("", sName, ITEMDRAW_DISABLED);
 	}
 	
 	g_ClientData[iClient].Set(DATA_OFFSET, -1);
 	
-	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
+	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
 public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iClient, int Item)
@@ -59,12 +59,12 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if (Item == MenuCancel_ExitBack)DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
+			if (Item == MenuCancel_ExitBack)g_hVIPAdminMenu.Display(iClient, MENU_TIME_FOREVER);
 		}
 		case MenuAction_Select:
 		{
 			char sUserID[12];
-			GetMenuItem(hMenu, Item, sUserID, sizeof(sUserID));
+			hMenu.GetItem(Item, sUserID, sizeof(sUserID));
 			
 			if (strcmp(sUserID, "more") == 0) // Показать еще
 			{
@@ -117,28 +117,28 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 void ShowWaitSearchMenu(int iClient, const char[] sSearch = "", bool bIsValid = false)
 {
 	decl Handle:hMenu; char sBuffer[128];
-	hMenu = CreateMenu(MenuHandler_SearchPlayersListMenu);
-	SetMenuTitle(hMenu, "%T \"%T\"\n \n", "ENTER_AUTH", iClient, "CONFIRM", iClient);
+	hMenu = new Menu(MenuHandler_SearchPlayersListMenu);
+	hMenu.SetTitle("%T \"%T\"\n \n", "ENTER_AUTH", iClient, "CONFIRM", iClient);
 	
 	
 	FormatEx(sBuffer, sizeof(sBuffer), "%T", "CONFIRM", iClient);
 	if (bIsValid)
 	{
 		//	g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_SEARCH;
-		AddMenuItem(hMenu, sSearch, sBuffer);
+		hMenu.AddItem(sSearch, sBuffer);
 	}
 	else
 	{
 		g_iClientInfo[iClient] |= IS_WAIT_CHAT_SEARCH;
-		AddMenuItem(hMenu, sSearch, sBuffer, ITEMDRAW_DISABLED);
+		hMenu.AddItem(sSearch, sBuffer, ITEMDRAW_DISABLED);
 	}
 	
 	FormatEx(sBuffer, sizeof(sBuffer), "%T", "CANCEL", iClient);
-	AddMenuItem(hMenu, "", sBuffer);
+	hMenu.AddItem("", sBuffer);
 	
 	ReductionMenu(hMenu, 4);
 	
-	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
+	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
 public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int iClient, int Item)
@@ -166,7 +166,7 @@ public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int 
 				case 0:
 				{
 					char sQuery[512]; char sAuth[32];
-					GetMenuItem(hMenu, Item, sAuth, sizeof(sAuth));
+					hMenu.GetItem(Item, sAuth, sizeof(sAuth));
 					if (GLOBAL_INFO & IS_MySQL)
 					{
 						FormatEx(sQuery, sizeof(sQuery), "SELECT `u`.`id`, \
@@ -211,11 +211,11 @@ public void SQL_Callback_SearchPlayers(Handle hOwner, Handle hQuery, const char[
 	if (iClient)
 	{
 		decl Handle:hMenu, char sUserID[12]; char sName[128];
-		hMenu = CreateMenu(MenuHandler_VipPlayersListMenu);
+		hMenu = new Menu(MenuHandler_VipPlayersListMenu);
 
 		SetGlobalTransTarget(iClient);
 
-		SetMenuTitle(hMenu, "%T:\n \n", "MENU_LIST_VIP", iClient);
+		hMenu.SetTitle("%T:\n \n", "MENU_LIST_VIP", iClient);
 		
 		sUserID[0] = 0;
 		
@@ -224,16 +224,16 @@ public void SQL_Callback_SearchPlayers(Handle hOwner, Handle hQuery, const char[
 			IntToString(SQL_FetchInt(hQuery, 0), sUserID, sizeof(sUserID));
 			SQL_FetchString(hQuery, 1, sName, sizeof(sName));
 			
-			AddMenuItem(hMenu, sUserID, sName);
+			hMenu.AddItem(sUserID, sName);
 		}
 	
 		if(sUserID[0] == 0)
 		{
 			FormatEx(sName, sizeof(sName), "%T", "NO_PLAYERS_AVAILABLE", iClient);
-			AddMenuItem(hMenu, "", sName, ITEMDRAW_DISABLED);
+			hMenu.AddItem("", sName, ITEMDRAW_DISABLED);
 		}
 
-		DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
+		hMenu.Display(iClient, MENU_TIME_FOREVER);
 
 	}
 }
@@ -277,12 +277,12 @@ public void SQL_Callback_SelectVipPlayers(Handle hOwner, Handle hQuery, const ch
 	if (iClient)
 	{
 		decl Handle:hMenu, char sUserID[12]; char sName[128];
-		hMenu = CreateMenu(MenuHandler_VipPlayersListMenu);
-		SetMenuExitBackButton(hMenu, true);
+		hMenu = new Menu(MenuHandler_VipPlayersListMenu);
+		hMenu.ExitBackButton = true;
 		
 		SetGlobalTransTarget(iClient);
 		
-		SetMenuTitle(hMenu, "%T:\n \n", "MENU_LIST_VIP", iClient);
+		hMenu.SetTitle("%T:\n \n", "MENU_LIST_VIP", iClient);
 		
 		sUserID[0] = 0;
 		
@@ -291,21 +291,21 @@ public void SQL_Callback_SelectVipPlayers(Handle hOwner, Handle hQuery, const ch
 			IntToString(SQL_FetchInt(hQuery, 0), sUserID, sizeof(sUserID));
 			SQL_FetchString(hQuery, 1, sName, sizeof(sName));
 			
-			AddMenuItem(hMenu, sUserID, sName);
+			hMenu.AddItem(sUserID, sName);
 		}
 		
 		if (sUserID[0] == 0)
 		{
 			FormatEx(sName, sizeof(sName), "%T", "NO_PLAYERS_AVAILABLE", iClient);
-			AddMenuItem(hMenu, "", sName, ITEMDRAW_DISABLED);
+			hMenu.AddItem("", sName, ITEMDRAW_DISABLED);
 		}
 		else if (g_ClientData[iClient].Get(DATA_OFFSET) != -1)
 		{
-			AddMenuItem(hMenu, "", "ITEMDRAW_SPACER", ITEMDRAW_SPACER);
-			AddMenuItem(hMenu, "more", "Показать еще");
+			hMenu.AddItem("", "ITEMDRAW_SPACER", ITEMDRAW_SPACER);
+			hMenu.AddItem("more", "Показать еще");
 		}
 		
-		DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
+		hMenu.Display(iClient, MENU_TIME_FOREVER);
 		
 	}
 }
@@ -360,9 +360,9 @@ public void SQL_Callback_SelectVipClientInfo(Handle hOwner, Handle hQuery, const
 			SetGlobalTransTarget(iClient);
 			
 			decl Handle:hMenu, char sGroup[64]; char sBuffer[64]; char sName[64]; char sAuthType[64]; char sAuth[64]; iExpires;
-			hMenu = CreateMenu(MenuHandler_VipClientInfoMenu);
+			hMenu = new Menu(MenuHandler_VipClientInfoMenu);
 			
-			SetMenuExitBackButton(hMenu, true);
+			hMenu.ExitBackButton = true;
 			
 			if (SQL_IsFieldNull(hQuery, 1) == false)
 			{
@@ -418,20 +418,20 @@ public void SQL_Callback_SelectVipClientInfo(Handle hOwner, Handle hQuery, const
 				case 2:FormatEx(sAuthType, sizeof(sAuthType), "%t", "NAME");
 			}
 			
-			SetMenuTitle(hMenu, "%t\n \n", "MENU_INFO_VIP_PLAYER", sName, sGroup, sBuffer, sAuthType, sAuth);
+			hMenu.SetTitle("%t\n \n", "MENU_INFO_VIP_PLAYER", sName, sGroup, sBuffer, sAuthType, sAuth);
 			
 			FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_DEL_VIP"); //		1. Удалить игрока
-			AddMenuItem(hMenu, "", sBuffer);
+			hMenu.AddItem("", sBuffer);
 			FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_TIME"); //		2. Изменить срок 
-			AddMenuItem(hMenu, "", sBuffer);
+			hMenu.AddItem("", sBuffer);
 			FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_PASS"); //		3. Изменить пароль
-			AddMenuItem(hMenu, "", sBuffer);
+			hMenu.AddItem("", sBuffer);
 			FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_GROUP"); //		4. Изменить группу
-			AddMenuItem(hMenu, "", sBuffer);
+			hMenu.AddItem("", sBuffer);
 			
 			ReductionMenu(hMenu, 2);
 			
-			DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
+			hMenu.Display(iClient, MENU_TIME_FOREVER);
 		}
 		else
 		{
@@ -445,9 +445,9 @@ void ShowTargetTempInfo(int iClient, int UserID)
 	SetGlobalTransTarget(iClient);
 
 	decl Handle:hMenu, char sGroup[64]; char sBuffer[64]; char sName[64]; char sAuthType[64]; char sAuth[64]; iExpires;
-	hMenu = CreateMenu(MenuHandler_VipClientInfoMenu);
+	hMenu = new Menu(MenuHandler_VipClientInfoMenu);
 
-	SetMenuExitBackButton(hMenu, true);
+	hMenu.ExitBackButton = true;
 	
 	if(g_hFeatures[iClient].GetString(KEY_GROUP, sGroup, sizeof(sGroup)) == false)	// GROUP
 	{
@@ -474,18 +474,18 @@ void ShowTargetTempInfo(int iClient, int UserID)
 	}
 
 
-	SetMenuTitle(hMenu, "%t\n \n", "MENU_INFO_VIP_PLAYER", sName, sGroup, sBuffer, sAuthType, sAuth);
+	hMenu.SetTitle("%t\n \n", "MENU_INFO_VIP_PLAYER", sName, sGroup, sBuffer, sAuthType, sAuth);
 
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_DEL_VIP");        	//		1. Удалить игрока
-	AddMenuItem(hMenu, "", sBuffer);
+	hMenu.AddItem("", sBuffer);
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_TIME");       //		2. Изменить срок 
-	AddMenuItem(hMenu, "", sBuffer);
+	hMenu.AddItem("", sBuffer);
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_PASS");       //		3. Изменить группу 
-	AddMenuItem(hMenu, "", sBuffer);
+	hMenu.AddItem("", sBuffer);
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_GROUP");     //		4. Изменить пароль
-	AddMenuItem(hMenu, "", sBuffer);
+	hMenu.AddItem("", sBuffer);
 	
-	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
+	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 */
 public int MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iClient, int Item)

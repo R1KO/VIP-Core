@@ -1,22 +1,22 @@
 void ShowEditTimeMenu(int iClient)
 {
 	decl Handle:hMenu; char sBuffer[128];
-	hMenu = CreateMenu(MenuHandler_EditTimeMenu);
+	hMenu = new Menu(MenuHandler_EditTimeMenu);
 	
 	SetGlobalTransTarget(iClient);
-	SetMenuTitle(hMenu, "%t:\n \n", "MENU_EDIT_TIME");
-	SetMenuExitBackButton(hMenu, true);
+	hMenu.SetTitle("%t:\n \n", "MENU_EDIT_TIME");
+	hMenu.ExitBackButton = true;
 	
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_TIME_SET");
-	AddMenuItem(hMenu, "", sBuffer);
+	hMenu.AddItem("", sBuffer);
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_TIME_ADD");
-	AddMenuItem(hMenu, "", sBuffer);
+	hMenu.AddItem("", sBuffer);
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_TIME_TAKE");
-	AddMenuItem(hMenu, "", sBuffer);
+	hMenu.AddItem("", sBuffer);
 	
 	ReductionMenu(hMenu, 3);
 	
-	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
+	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
 public int MenuHandler_EditTimeMenu(Menu hMenu, MenuAction action, int iClient, int Item)
@@ -79,28 +79,28 @@ public void SQL_Callback_SelectClientPass(Handle hOwner, Handle hQuery, const ch
 			SetGlobalTransTarget(iClient);
 			
 			decl Handle:hMenu; char sBuffer[128];
-			hMenu = CreateMenu(MenuHandler_EditPassMenu);
-			SetMenuTitle(hMenu, "%t:\n \n", "MENU_EDIT_PASS");
-			SetMenuExitBackButton(hMenu, true);
+			hMenu = new Menu(MenuHandler_EditPassMenu);
+			hMenu.SetTitle("%t:\n \n", "MENU_EDIT_PASS");
+			hMenu.ExitBackButton = true;
 			SQL_FetchString(hQuery, 0, sBuffer, sizeof(sBuffer));
 			if (sBuffer[0])
 			{
 				FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_PASS");
-				AddMenuItem(hMenu, "edit_pass", sBuffer);
+				hMenu.AddItem("edit_pass", sBuffer);
 				FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_DEL_PASS");
-				AddMenuItem(hMenu, "del_pass", sBuffer);
+				hMenu.AddItem("del_pass", sBuffer);
 				
 				ReductionMenu(hMenu, 4);
 			}
 			else
 			{
 				FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_ADD_PASS");
-				AddMenuItem(hMenu, "add_pass", sBuffer);
+				hMenu.AddItem("add_pass", sBuffer);
 				
 				ReductionMenu(hMenu, 5);
 			}
 			
-			DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
+			hMenu.Display(iClient, MENU_TIME_FOREVER);
 		}
 		else
 		{
@@ -121,7 +121,7 @@ public int MenuHandler_EditPassMenu(Menu hMenu, MenuAction action, int iClient, 
 		case MenuAction_Select:
 		{
 			char sInfo[4];
-			GetMenuItem(hMenu, Item, sInfo, sizeof(sInfo));
+			hMenu.GetItem(Item, sInfo, sizeof(sInfo));
 			switch (sInfo[0])
 			{
 				case 'a', 'e':ShowWaitPassMenu(iClient);
@@ -136,18 +136,18 @@ void ShowDelPassMenu(int iClient)
 	SetGlobalTransTarget(iClient);
 	
 	decl Handle:hMenu; char sBuffer[128];
-	hMenu = CreateMenu(MenuHandler_DelPassMenu);
-	SetMenuTitle(hMenu, "%t:\n \n", "MENU_DEL_PASS");
-	SetMenuExitBackButton(hMenu, true);
+	hMenu = new Menu(MenuHandler_DelPassMenu);
+	hMenu.SetTitle("%t:\n \n", "MENU_DEL_PASS");
+	hMenu.ExitBackButton = true;
 	
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "CONFIRM");
-	AddMenuItem(hMenu, "", sBuffer);
+	hMenu.AddItem("", sBuffer);
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "CANCEL");
-	AddMenuItem(hMenu, "", sBuffer);
+	hMenu.AddItem("", sBuffer);
 	
 	ReductionMenu(hMenu, 4);
 	
-	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
+	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
 public int MenuHandler_DelPassMenu(Menu hMenu, MenuAction action, int iClient, int Item)
@@ -183,27 +183,27 @@ void ShowWaitPassMenu(int iClient, const char[] sPass = "", const bool bIsValid 
 	
 	decl Handle:hMenu; char sBuffer[128];
 	
-	hMenu = CreateMenu(MenuHandler_EditVip_WaitPassMenu);
-	SetMenuTitle(hMenu, "%t \"%t\"\n \n", "ENTER_PASS", "CONFIRM");
+	hMenu = new Menu(MenuHandler_EditVip_WaitPassMenu);
+	hMenu.SetTitle("%t \"%t\"\n \n", "ENTER_PASS", "CONFIRM");
 	
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "CONFIRM");
 	if (bIsValid)
 	{
-		AddMenuItem(hMenu, sPass, sBuffer);
+		hMenu.AddItem(sPass, sBuffer);
 		//	g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_PASS;
 	}
 	else
 	{
-		AddMenuItem(hMenu, sPass, sBuffer, ITEMDRAW_DISABLED);
+		hMenu.AddItem(sPass, sBuffer, ITEMDRAW_DISABLED);
 		g_iClientInfo[iClient] |= IS_WAIT_CHAT_PASS;
 	}
 	
 	FormatEx(sBuffer, sizeof(sBuffer), "%t", "CANCEL");
-	AddMenuItem(hMenu, "", sBuffer);
+	hMenu.AddItem("", sBuffer);
 	
 	ReductionMenu(hMenu, 4);
 	
-	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
+	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
 public int MenuHandler_EditVip_WaitPassMenu(Menu hMenu, MenuAction action, int iClient, int Item)
@@ -232,7 +232,7 @@ public int MenuHandler_EditVip_WaitPassMenu(Menu hMenu, MenuAction action, int i
 				{
 					decl iTarget, char sQuery[256]; char sPass[64]; char sBuffer[MAX_NAME_LENGTH];
 					iTarget = g_ClientData[iClient].Get(DATA_TARGET_ID);
-					GetMenuItem(hMenu, Item, sPass, sizeof(sPass));
+					hMenu.GetItem(Item, sPass, sizeof(sPass));
 					FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `password` = '%s' WHERE `id` = '%i';", sPass, iTarget);
 					SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, sQuery);
 					
@@ -256,9 +256,9 @@ void ShowEditGroupMenu(int iClient)
 	SetGlobalTransTarget(iClient);
 	
 	decl Handle:hMenu; char sGroup[64];
-	hMenu = CreateMenu(MenuHandler_EditVip_GroupsList);
-	SetMenuTitle(hMenu, "%t:\n \n", "GROUP");
-	SetMenuExitBackButton(hMenu, true);
+	hMenu = new Menu(MenuHandler_EditVip_GroupsList);
+	hMenu.SetTitle("%t:\n \n", "GROUP");
+	hMenu.ExitBackButton = true;
 	
 	sGroup[0] = 0;
 	
@@ -278,11 +278,11 @@ void ShowEditGroupMenu(int iClient)
 				if (sTagetGroup[0] && strcmp(sTagetGroup, sGroup, true) == 0)
 				{
 					FormatEx(sGroupName, sizeof(sGroupName), "%s (%t)", sGroup, "CURRENT");
-					AddMenuItem(hMenu, sGroup, sGroupName, ITEMDRAW_DISABLED);
+					hMenu.AddItem(sGroup, sGroupName, ITEMDRAW_DISABLED);
 				}
 				else
 				{
-					AddMenuItem(hMenu, sGroup, sGroup);
+					hMenu.AddItem(sGroup, sGroup);
 				}
 			}
 		} while KvGotoNextKey(g_hGroups);
@@ -290,9 +290,9 @@ void ShowEditGroupMenu(int iClient)
 	if (sGroup[0] == 0)
 	{
 		FormatEx(sGroup, sizeof(sGroup), "%t", "NO_GROUPS_AVAILABLE");
-		AddMenuItem(hMenu, "", sGroup, ITEMDRAW_DISABLED);
+		hMenu.AddItem("", sGroup, ITEMDRAW_DISABLED);
 	}
-	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
+	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
 public int MenuHandler_EditVip_GroupsList(Menu hMenu, MenuAction action, int iClient, int Item)
@@ -307,7 +307,7 @@ public int MenuHandler_EditVip_GroupsList(Menu hMenu, MenuAction action, int iCl
 		case MenuAction_Select:
 		{
 			char sQuery[256]; char sBuffer[MAX_NAME_LENGTH]; iTarget; char sGroup[MAX_NAME_LENGTH];
-			GetMenuItem(hMenu, Item, sGroup, sizeof(sGroup));
+			hMenu.GetItem(Item, sGroup, sizeof(sGroup));
 			g_ClientData[iClient].GetString(DATA_NAME, sBuffer, sizeof(sBuffer));
 			iTarget = g_ClientData[iClient].Get(DATA_TARGET_ID);
 			

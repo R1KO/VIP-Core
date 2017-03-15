@@ -544,7 +544,7 @@ public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
 	iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient))
 	{
-		DisplayMenu(g_hVIPMenu, iClient, MENU_TIME_FOREVER);
+		g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
 	}
 }
 
@@ -616,7 +616,7 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 					Clients_OnVIPClientLoaded(iClient);
 					if (g_CVAR_bAutoOpenMenu)
 					{
-						DisplayMenu(g_hVIPMenu, iClient, MENU_TIME_FOREVER);
+						g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
 					}
 					
 					DisplayClientInfo(iClient, iTime == 0 ? "connect_info_perm":"connect_info_time");
@@ -695,7 +695,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 	{
 		if ((GLOBAL_ARRAY).Length == 0)
 		{
-			RemoveMenuItem(g_hVIPMenu, 0);
+			g_hVIPMenu.RemoveItem(0);
 		}
 		
 		GLOBAL_ARRAY.PushString(sFeatureName);
@@ -796,20 +796,20 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 			if (iFeatureType != HIDE)
 			{
 				char sItemInfo[FEATURE_NAME_LENGTH]; iSize;
-				iSize = GetMenuItemCount(g_hVIPMenu);
+				iSize = (g_hVIPMenu).ItemCount;
 				for (i = 0; i < iSize; ++i)
 				{
-					GetMenuItem(g_hVIPMenu, i, sItemInfo, sizeof(sItemInfo));
+					g_hVIPMenu.GetItem(i, sItemInfo, sizeof(sItemInfo));
 					if (strcmp(sItemInfo, sFeatureName, true) == 0)
 					{
-						RemoveMenuItem(g_hVIPMenu, i);
+						g_hVIPMenu.RemoveItem(i);
 						break;
 					}
 				}
 				
-				if (GetMenuItemCount(g_hVIPMenu) == 0)
+				if ((g_hVIPMenu).ItemCount == 0)
 				{
-					AddMenuItem(g_hVIPMenu, "NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
+					g_hVIPMenu.AddItem("NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
 				}
 			}
 			
