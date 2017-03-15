@@ -17,7 +17,7 @@ void ShowAddVIPMenu(int iClient)
 					continue;
 				}
 				
-				GetTrieValue(g_hFeatures[i], KEY_CID, iClientID);
+				g_hFeatures[i].GetValue(KEY_CID, iClientID);
 				if (iClientID != -1)
 				{
 					continue;

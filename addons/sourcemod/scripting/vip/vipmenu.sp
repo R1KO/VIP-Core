@@ -27,7 +27,7 @@ void AddFeatureToVIPMenu(const char[] sFeatureName)
 		for (i = 0; i < iSize; ++i)
 		{
 			GLOBAL_ARRAY.GetString(i, sItemInfo, sizeof(sItemInfo));
-			if (GetTrieValue(GLOBAL_TRIE, sItemInfo, hArray) && VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) != HIDE)
+			if (GLOBAL_TRIE.GetValue(sItemInfo, hArray) && VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) != HIDE)
 			{
 				DebugMessage("AddMenuItem: %s", sItemInfo)
 				AddMenuItem(g_hVIPMenu, sItemInfo, sItemInfo);
@@ -127,7 +127,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 			
 			DebugMessage("MenuAction_Display: Client: %i", iClient)
 			char sTitle[256]; iExp;
-			if (GetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iExp) && iExp > 0)
+			if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp) && iExp > 0)
 			{
 				decl iTime;
 				if ((iTime = GetTime()) < iExp)
@@ -159,7 +159,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 			
 			DebugMessage("MenuAction_DrawItem: Client: %i, Feature: %s, iStyle: %i", iClient, sItemInfo, iStyle)
 			
-			if (GetTrieValue(GLOBAL_TRIE, sItemInfo, hBuffer))
+			if (GLOBAL_TRIE.GetValue(sItemInfo, hBuffer))
 			{
 				if (VIP_ValueType:hBuffer.Get(FEATURES_VALUE_TYPE) != VIP_NULL && Features_GetStatus(iClient, sItemInfo) == NO_ACCESS)
 				{
@@ -199,7 +199,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 			
 			char sDisplay[128];
 			
-			if (GetTrieValue(GLOBAL_TRIE, sItemInfo, hBuffer))
+			if (GLOBAL_TRIE.GetValue(sItemInfo, hBuffer))
 			{
 				DataPack hDataPack = view_as<DataPack>(hBuffer.Get(FEATURES_MENU_CALLBACKS));
 				hDataPack.Position = ITEM_DISPLAY;
@@ -250,7 +250,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 		{
 			GetMenuItem(g_hVIPMenu, iOption, sItemInfo, sizeof(sItemInfo));
 			
-			if (GetTrieValue(GLOBAL_TRIE, sItemInfo, hBuffer))
+			if (GLOBAL_TRIE.GetValue(sItemInfo, hBuffer))
 			{
 				DebugMessage("MenuAction_Select: Client: %i, Feature: %s", iClient, sItemInfo)
 				

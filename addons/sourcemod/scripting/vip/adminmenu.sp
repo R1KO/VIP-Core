@@ -225,7 +225,7 @@ int IsClientOnline(int ID)
 	decl i, iClientID;
 	for (i = 1; i <= MaxClients; ++i)
 	{
-		if (IsClientInGame(i) && g_hFeatures[i] != INVALID_HANDLE && GetTrieValue(g_hFeatures[i], KEY_CID, iClientID) && iClientID == ID)return i;
+		if (IsClientInGame(i) && g_hFeatures[i] != INVALID_HANDLE && g_hFeatures[i].GetValue(KEY_CID, iClientID) && iClientID == ID)return i;
 	}
 	return 0;
 }

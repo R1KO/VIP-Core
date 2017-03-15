@@ -137,12 +137,12 @@ void ReplaceValues(int iClient, char[] sBuffer, int iBufLen, bool bExt)
 	char sName[MAX_NAME_LENGTH]; char sGroup[64];
 	GetClientName(iClient, sName, sizeof(sName));
 	ReplaceString(sBuffer, iBufLen, "{NAME}", sName);
-	GetTrieString(g_hFeatures[iClient], KEY_GROUP, sGroup, sizeof(sGroup));
+	g_hFeatures[iClient].GetString(KEY_GROUP, sGroup, sizeof(sGroup));
 	ReplaceString(sBuffer, iBufLen, "{GROUP}", sGroup);
 	if (bExt)
 	{
 		char sExpires[64]; iExpires;
-		GetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iExpires);
+		g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExpires);
 		FormatTime(sExpires, sizeof(sExpires), "%d/%m/%Y - %H:%M", iExpires);
 		ReplaceString(sBuffer, iBufLen, "{EXPIRES}", sExpires);
 		UTIL_GetTimeFromStamp(sExpires, sizeof(sExpires), iExpires - GetTime(), iClient);

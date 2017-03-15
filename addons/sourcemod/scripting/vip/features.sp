@@ -15,7 +15,7 @@ void Features_TurnOffAll(int iClient)
 		for (i = 0; i < iFeatures; ++i)
 		{
 			GLOBAL_ARRAY.GetString(i, sFeatureName, sizeof(sFeatureName));
-			if (GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
+			if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 			{
 				if (VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) == TOGGLABLE)
 				{
@@ -50,7 +50,7 @@ void Features_TurnOnAll(int iClient)
 		for (i = 0; i < iFeatures; ++i)
 		{
 			GLOBAL_ARRAY.GetString(i, sFeatureName, sizeof(sFeatureName));
-			if (GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
+			if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 			{
 				if (VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) == TOGGLABLE)
 				{
@@ -74,13 +74,13 @@ void Features_TurnOnAll(int iClient)
 void Features_SetStatus(int iClient, const char[] sFeatureName, const VIP_ToggleState Status)
 {
 	DebugMessage("Features_SetStatus: %N (%i) -> Feature: %s, Status: %i", iClient, iClient, sFeatureName, Status)
-	SetTrieValue(g_hFeatureStatus[iClient], sFeatureName, Status);
+	g_hFeatureStatus[iClient].SetValue(sFeatureName, Status);
 }
 
 VIP_ToggleState Features_GetStatus(int iClient, const char[] sFeatureName)
 {
 	static VIP_ToggleState:Status;
-	if (GetTrieValue(g_hFeatureStatus[iClient], sFeatureName, Status))
+	if (g_hFeatureStatus[iClient].GetValue(sFeatureName, Status))
 	{
 		DebugMessage("Features_GetStatus: %N (%i) -> Feature: %s, Status: %i", iClient, iClient, sFeatureName, Status)
 		return Status;

@@ -24,7 +24,7 @@ void ShowVipPlayersListMenu(int iClient)
 	{
 		if (IsClientInGame(i) && (g_iClientInfo[i] & IS_VIP) && (g_iClientInfo[i] & IS_AUTHORIZED) && IsFakeClient(i) == false && GetClientName(i, sName, sizeof(sName)))
 		{
-			GetTrieValue(g_hFeatures[i], KEY_CID, iClientID);
+			g_hFeatures[i].GetValue(KEY_CID, iClientID);
 			/*if(iClientID == -1)
 			{
 				FormatEx(sUserID, sizeof(sUserID), "uid_%i", UID(i));
@@ -449,12 +449,12 @@ void ShowTargetTempInfo(int iClient, int UserID)
 
 	SetMenuExitBackButton(hMenu, true);
 	
-	if(GetTrieString(g_hFeatures[iClient], KEY_GROUP, sGroup, sizeof(sGroup)) == false)	// GROUP
+	if(g_hFeatures[iClient].GetString(KEY_GROUP, sGroup, sizeof(sGroup)) == false)	// GROUP
 	{
 		FormatEx(sGroup, sizeof(sGroup), "%t", "NONE");
 	}
 
-	GetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iExpires);
+	g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExpires);
 	if(iExpires > 0)
 	{
 		new iTime = GetTime();

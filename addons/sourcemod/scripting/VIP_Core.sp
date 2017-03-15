@@ -67,7 +67,7 @@ public OnPluginStart()
 	LoadTranslations("common.phrases");
 	
 	GLOBAL_ARRAY = new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
-	GLOBAL_TRIE = CreateTrie();
+	GLOBAL_TRIE = new StringMap();
 	ReadConfigs();
 	
 	InitVIPMenu();

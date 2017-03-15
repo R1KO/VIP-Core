@@ -237,9 +237,9 @@ public void SQL_Callback_OnClientAuthorized(Handle hOwner, Handle hQuery, const 
 					new VIP_AuthType:AuthType = VIP_AuthType:SQL_FetchInt(hQuery, 1);
 					Clients_CreateClientVIPSettings(iClient, iExpires, AuthType);
 					
-					SetTrieValue(g_hFeatures[iClient], KEY_CID, SQL_FetchInt(hQuery, 0));
+					g_hFeatures[iClient].SetValue(KEY_CID, SQL_FetchInt(hQuery, 0));
 					
-					SetTrieString(g_hFeatures[iClient], KEY_GROUP, sBuffer);
+					g_hFeatures[iClient].SetString(KEY_GROUP, sBuffer);
 					DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
 					if (AreClientCookiesCached(iClient))
 					{
@@ -318,11 +318,11 @@ void Clients_OnVIPClientLoaded(int iClient)
 
 void Clients_CreateClientVIPSettings(int iClient, int iExp, VIP_AuthType AuthType = AUTH_STEAM)
 {
-	g_hFeatures[iClient] = CreateTrie();
-	g_hFeatureStatus[iClient] = CreateTrie();
+	g_hFeatures[iClient] = new StringMap();
+	g_hFeatureStatus[iClient] = new StringMap();
 	
-	SetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iExp);
-	SetTrieValue(g_hFeatures[iClient], KEY_AUTHTYPE, AuthType);
+	g_hFeatures[iClient].SetValue(KEY_EXPIRES, iExp);
+	g_hFeatures[iClient].SetValue(KEY_AUTHTYPE, AuthType);
 }
 
 #if DEBUG_MODE 1
@@ -347,7 +347,7 @@ void Clients_LoadVIPFeatures(int iClient)
 	{
 		char sFeatureName[FEATURE_NAME_LENGTH];
 		
-		GetTrieString(g_hFeatures[iClient], KEY_GROUP, sFeatureName, sizeof(sFeatureName));
+		g_hFeatures[iClient].GetString(KEY_GROUP, sFeatureName, sizeof(sFeatureName));
 		if (UTIL_CheckValidVIPGroup(sFeatureName))
 		{
 			char sBuffer[64]; Handle:hCookie, 
@@ -358,7 +358,7 @@ void Clients_LoadVIPFeatures(int iClient)
 			for (i = 0; i < iFeatures; ++i)
 			{
 				GLOBAL_ARRAY.GetString(i, sFeatureName, sizeof(sFeatureName));
-				if (GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
+				if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 				{
 					DebugMessage("LoadClientFeature: %i - %s", i, sFeatureName)
 					
@@ -409,7 +409,7 @@ bool GetValue(iClient, VIP_ValueType:ValueType, const char[] sFeatureName)
 			if (view_as<bool>(KvGetNum(g_hGroups, sFeatureName)))
 			{
 				DebugMessage("value: 1")
-				return SetTrieValue(g_hFeatures[iClient], sFeatureName, true);
+				return g_hFeatures[iClient].SetValue(sFeatureName, true);
 			}
 			return false;
 		}
@@ -420,7 +420,7 @@ bool GetValue(iClient, VIP_ValueType:ValueType, const char[] sFeatureName)
 			if (iValue != 0)
 			{
 				DebugMessage("value: %i", iValue)
-				return SetTrieValue(g_hFeatures[iClient], sFeatureName, iValue);
+				return g_hFeatures[iClient].SetValue(sFeatureName, iValue);
 			}
 			return false;
 		}
@@ -431,7 +431,7 @@ bool GetValue(iClient, VIP_ValueType:ValueType, const char[] sFeatureName)
 			if (fValue != 0.0)
 			{
 				DebugMessage("value: %f", fValue)
-				return SetTrieValue(g_hFeatures[iClient], sFeatureName, fValue);
+				return g_hFeatures[iClient].SetValue(sFeatureName, fValue);
 			}
 			
 			return false;
@@ -443,7 +443,7 @@ bool GetValue(iClient, VIP_ValueType:ValueType, const char[] sFeatureName)
 			if (sBuffer[0])
 			{
 				DebugMessage("value: %s", sBuffer)
-				return SetTrieString(g_hFeatures[iClient], sFeatureName, sBuffer);
+				return g_hFeatures[iClient].SetString(sFeatureName, sBuffer);
 			}
 			return false;
 		}
@@ -512,7 +512,7 @@ public Action:Timer_OnPlayerSpawn(Handle:hTimer, any UserID)
 			if (g_iClientInfo[iClient] & IS_VIP)
 			{
 				decl iExp;
-				if (GetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iExp) && iExp > 0 && iExp < GetTime())
+				if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp) && iExp > 0 && iExp < GetTime())
 				{
 					Clients_ExpiredClient(iClient);
 				}
@@ -535,7 +535,7 @@ public Event_RoundEnd(Handle:hEvent, const char[] name, bool dontBroadcast)
 		if (IsClientInGame(i))
 		{
 			g_iClientInfo[i] &= ~IS_SPAWNED;
-			if ((g_iClientInfo[i] & IS_VIP) && GetTrieValue(g_hFeatures[i], KEY_EXPIRES, iExp) && iExp > 0 && iExp < iTime)
+			if ((g_iClientInfo[i] & IS_VIP) && g_hFeatures[i].GetValue(KEY_EXPIRES, iExp) && iExp > 0 && iExp < iTime)
 			{
 				Clients_ExpiredClient(i);
 			}
@@ -551,7 +551,7 @@ public Action:Timer_VIP_Expired(Handle:hTimer, any UserID)
 	if (iClient && g_iClientInfo[iClient] & IS_VIP)
 	{
 		decl iExp;
-		if (GetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iExp) && iExp > 0 && iExp < GetTime())
+		if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp) && iExp > 0 && iExp < GetTime())
 		{
 			DebugMessage("Timer_VIP_Expired %N:", iClient)
 			
@@ -566,12 +566,12 @@ void Clients_ExpiredClient(int iClient)
 	Features_TurnOffAll(iClient);
 	
 	decl iClientID;
-	GetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iClientID);
+	g_hFeatures[iClient].GetValue(KEY_EXPIRES, iClientID);
 	if (g_CVAR_iDeleteExpired == 0 || GetTime() >= ((g_CVAR_iDeleteExpired * 86400) + iClientID))
 	{
-		if (GetTrieValue(g_hFeatures[iClient], "IsTempVIP", iClientID) == false)
+		if (g_hFeatures[iClient].GetValue("IsTempVIP", iClientID) == false)
 		{
-			if (GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID))
+			if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID))
 			{
 				if (g_CVAR_bLogsEnable)
 				{

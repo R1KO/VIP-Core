@@ -158,7 +158,7 @@ void DB_UpdateClientName(int iClient)
 	if (hStmt != INVALID_HANDLE)
 	{
 		char sName[MAX_NAME_LENGTH]; iClientID;
-		GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID);
+		g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
 		GetClientName(iClient, SZF(sName));
 		
 		SQL_BindParamString(hStmt, 0, sName, false);

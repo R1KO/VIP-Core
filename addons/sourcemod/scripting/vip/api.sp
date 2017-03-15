@@ -335,7 +335,7 @@ public int Native_GetClientID(Handle hPlugin, int iNumParams)
 	if (CheckValidClient(iClient))
 	{
 		decl iClientID;
-		if (GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID))
+		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID))
 		{
 			return iClientID;
 		}
@@ -354,7 +354,7 @@ public int Native_GetClientVIPGroup(Handle hPlugin, int iNumParams)
 		
 		sGroup[0] = 0;
 		
-		if (GetTrieString(g_hFeatures[iClient], KEY_GROUP, sGroup, sizeof(sGroup)))
+		if (g_hFeatures[iClient].GetString(KEY_GROUP, sGroup, sizeof(sGroup)))
 		{
 			SetNativeString(2, sGroup, GetNativeCell(3), true);
 			return true;
@@ -373,12 +373,12 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 		GetNativeString(2, sGroup, sizeof(sGroup));
 		if (UTIL_CheckValidVIPGroup(sGroup))
 		{
-			if (SetTrieString(g_hFeatures[iClient], KEY_GROUP, sGroup))
+			if (g_hFeatures[iClient].SetString(KEY_GROUP, sGroup))
 			{
 				if (view_as<bool>(GetNativeCell(3)))
 				{
 					decl iClientID;
-					if (GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID) && iClientID != -1)
+					if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 					{
 						char sQuery[256];
 						if (GLOBAL_INFO & IS_MySQL)
@@ -411,7 +411,7 @@ public int Native_GetClientAccessTime(Handle hPlugin, int iNumParams)
 	if (CheckValidClient(iClient))
 	{
 		decl iExp;
-		if (GetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iExp))
+		if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp))
 		{
 			return iExp;
 		}
@@ -433,12 +433,12 @@ public int Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
 			return false;
 		}
 		
-		if (SetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iTime))
+		if (g_hFeatures[iClient].SetValue(KEY_EXPIRES, iTime))
 		{
 			if (view_as<bool>(GetNativeCell(3)))
 			{
 				decl iClientID;
-				if (GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID) && iClientID != -1)
+				if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 				{
 					char sQuery[256];
 					if (GLOBAL_INFO & IS_MySQL)
@@ -467,7 +467,7 @@ public int Native_SetClientPassword(Handle hPlugin, int iNumParams)
 	if (CheckValidClient(iClient))
 	{
 		decl iClientID;
-		if (GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID) && iClientID != -1)
+		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 		{
 			char sPassKey[64]; char sPassword[64]; char sQuery[256]; char sBuffer[64];
 			GetNativeString(2, sPassKey, sizeof(sPassKey));
@@ -530,7 +530,7 @@ public int Native_GetClientAuthType(Handle hPlugin, int iNumParams)
 	if (CheckValidClient(iClient))
 	{
 		decl VIP_AuthType:AuthType;
-		if (GetTrieValue(g_hFeatures[iClient], KEY_AUTHTYPE, AuthType))
+		if (g_hFeatures[iClient].GetValue(KEY_AUTHTYPE, AuthType))
 		{
 			return _:AuthType;
 		}
@@ -559,7 +559,7 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 			if (g_iClientInfo[iClient] & IS_AUTHORIZED)
 			{
 				decl iClientID;
-				GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID);
+				g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
 				if (iClientID != -1)
 				{
 					ThrowNativeError(SP_ERROR_NATIVE, "The player %L is already a VIP/Игрок %L уже является VIP-игроком", iClient, iClient);
@@ -605,8 +605,8 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 						Clients_CreateExpiredTimer(iClient, iTime + iCurrentTime, iCurrentTime);
 					}
 					
-					SetTrieString(g_hFeatures[iClient], KEY_GROUP, sGroup);
-					SetTrieValue(g_hFeatures[iClient], KEY_CID, -1);
+					g_hFeatures[iClient].SetString(KEY_GROUP, sGroup);
+					g_hFeatures[iClient].SetValue(KEY_CID, -1);
 					
 					Clients_LoadVIPFeatures(iClient);
 					g_iClientInfo[iClient] |= IS_VIP;
@@ -647,7 +647,7 @@ public int Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
 		if (view_as<bool>(GetNativeCell(2)) == true)
 		{
 			decl iClientID;
-			if (GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID) && iClientID != -1)
+			if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 			{
 				DB_RemoveClientFromID(0, iClientID, true);
 			}
@@ -705,7 +705,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 		DebugMessage("FeatureType -> %i", FType)
 		
 		ArrayList hArray = new ArrayList();
-		SetTrieValue(GLOBAL_TRIE, sFeatureName, hArray);
+		GLOBAL_TRIE.SetValue(sFeatureName, hArray);
 		
 		hArray.Push(hPlugin);
 		hArray.Push(GetNativeCell(2));
@@ -739,7 +739,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 		{
 			if (IsClientInGame(iClient) && g_iClientInfo[iClient] & IS_VIP)
 			{
-				if (GetTrieString(g_hFeatures[iClient], KEY_GROUP, sGroup, sizeof(sGroup)))
+				if (g_hFeatures[iClient].GetString(KEY_GROUP, sGroup, sizeof(sGroup)))
 				{
 					KvRewind(g_hGroups);
 					if (KvJumpToKey(g_hGroups, sGroup, false))
@@ -766,7 +766,7 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 	if (IsValidFeature(sFeatureName))
 	{
 		ArrayList hArray;
-		if (GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
+		if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 		{
 			decl i, VIP_FeatureType:iFeatureType;
 			iFeatureType = VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE);
@@ -785,7 +785,7 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 			
 			delete hArray;
 			
-			RemoveFromTrie(GLOBAL_TRIE, sFeatureName);
+			GLOBAL_TRIE.Remove(sFeatureName);
 			
 			i = GLOBAL_ARRAY.FindString(sFeatureName);
 			if (i != -1)
@@ -819,8 +819,8 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 				{
 					if (g_iClientInfo[i] & IS_VIP)
 					{
-						RemoveFromTrie(g_hFeatures[i], sFeatureName);
-						RemoveFromTrie(g_hFeatureStatus[i], sFeatureName);
+						g_hFeatures[i].Remove(sFeatureName);
+						g_hFeatureStatus[i].Remove(sFeatureName);
 					}
 				}
 			}
@@ -886,7 +886,7 @@ public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 		NewStatus = VIP_ToggleState:GetNativeCell(3);
 		
 		ArrayList hArray;
-		if (GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
+		if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 		{
 			if (VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) == TOGGLABLE)
 			{
@@ -919,7 +919,7 @@ public int Native_GetClientFeatureInt(Handle hPlugin, int iNumParams)
 		char sFeatureName[FEATURE_NAME_LENGTH]; iValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 		
-		if (GetTrieValue(g_hFeatures[iClient], sFeatureName, iValue) && iValue != 0)
+		if (g_hFeatures[iClient].GetValue(sFeatureName, iValue) && iValue != 0)
 		{
 			return iValue;
 		}
@@ -937,7 +937,7 @@ public int Native_GetClientFeatureFloat(Handle hPlugin, int iNumParams)
 		char sFeatureName[FEATURE_NAME_LENGTH]; Float:fValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 		
-		if (GetTrieValue(g_hFeatures[iClient], sFeatureName, fValue) && fValue != 0.0)
+		if (g_hFeatures[iClient].GetValue(sFeatureName, fValue) && fValue != 0.0)
 		{
 			return _:fValue;
 		}
@@ -954,7 +954,7 @@ public int Native_GetClientFeatureBool(Handle hPlugin, int iNumParams)
 		char sFeatureName[FEATURE_NAME_LENGTH]; bool bValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 		
-		return GetTrieValue(g_hFeatures[iClient], sFeatureName, bValue);
+		return g_hFeatures[iClient].GetValue(sFeatureName, bValue);
 	}
 	
 	return false;
@@ -970,7 +970,7 @@ public int Native_GetClientFeatureString(Handle hPlugin, int iNumParams)
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 		
 		iLen = GetNativeCell(4);
-		if (GetTrieString(g_hFeatures[iClient], sFeatureName, sBuffer, sizeof(sBuffer)))
+		if (g_hFeatures[iClient].GetString(sFeatureName, sBuffer, sizeof(sBuffer)))
 		{
 			SetNativeString(3, sBuffer, iLen, true);
 			return true;
@@ -988,7 +988,7 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 	if(CheckValidClient(iClient))
 	{
 		char sFeatureName[64]; Handle:hArray; char sFeatureValue[256];
-		if(GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
+		if(GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 		{
 			char sFeatureValue[256];
 			GetNativeString(3, sFeatureValue, sizeof(sFeatureValue));
@@ -996,7 +996,7 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 			if(!(g_iClientInfo[iClient] & IS_VIP))
 			{
 				Clients_CreateClientVIPSettings(iClient, 0);
-				SetTrieValue(g_hFeatures[iClient], KEY_CID, -1);
+				g_hFeatures[iClient].SetValue(KEY_CID, -1);
 				g_iClientInfo[iClient] |= IS_VIP;
 				g_iClientInfo[iClient] |= IS_LOADED;
 				g_iClientInfo[iClient] |= IS_AUTHORIZED;
@@ -1006,19 +1006,19 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 			{
 				case BOOL:
 				{
-					SetTrieValue(g_hFeatures[iClient], sFeatureName, view_as<bool>(StringToInt(sFeatureValue)));
+					g_hFeatures[iClient].SetValue(sFeatureName, view_as<bool>(StringToInt(sFeatureValue)));
 				}
 				case INT:
 				{
-					SetTrieValue(g_hFeatures[iClient], sFeatureName, StringToInt(sFeatureValue));
+					g_hFeatures[iClient].SetValue(sFeatureName, StringToInt(sFeatureValue));
 				}
 				case FLOAT:
 				{
-					SetTrieValue(g_hFeatures[iClient], sFeatureName, StringToFloat(sFeatureValue));
+					g_hFeatures[iClient].SetValue(sFeatureName, StringToFloat(sFeatureValue));
 				}
 				case STRING:
 				{
-					SetTrieString(g_hFeatures[iClient], sFeatureName, sFeatureValue);
+					g_hFeatures[iClient].SetString(sFeatureName, sFeatureValue);
 				}
 				default:
 				{
