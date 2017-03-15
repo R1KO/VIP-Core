@@ -58,10 +58,10 @@ void Download_Socket()
 	ParseURL(url, hostname, sizeof(hostname), location, sizeof(location), filename, sizeof(filename));
 	FormatEx(request, sizeof(request), "GET %s HTTP/1.0\r\nHost: %s\r\nUser-agent: plugin\r\nConnection: close\r\nPragma: no-cache\r\nCache-Control: no-cache\r\n\r\n", PLUGIN_URL, SITE);
 	
-	new Handle:hDLPack = CreateDataPack();
-	WritePackCell(hDLPack, 0);
-	WritePackCell(hDLPack, _:file);
-	WritePackString(hDLPack, request);
+	new Handle:hDLPack = new DataPack();
+	hDLPack.WriteCell(0);
+	hDLPack.WriteCell(_:file);
+	hDLPack.WriteString(request);
 	
 	new Handle:socket = SocketCreate(SOCKET_TCP, OnSocketError);
 	SocketSetArg(socket, hDLPack);
@@ -91,8 +91,8 @@ void ParseURL(const char[] url, char[] host, int maxHost, char[] location, int m
 public OnSocketConnected(Handle:socket, any hDLPack)
 {
 	char request[MAX_URL_LENGTH + 128];
-	SetPackPosition(hDLPack, 16);
-	ReadPackString(hDLPack, request, sizeof(request));
+	hDLPack.Position = 16;
+	hDLPack.ReadString(request, sizeof(request));
 	
 	SocketSend(socket, request);
 }
@@ -101,8 +101,8 @@ public OnSocketReceive(Handle:socket, char[] data, const size, any hDLPack)
 {
 	new idx = 0;
 	
-	SetPackPosition(hDLPack, 0);
-	bool bParsedHeader = view_as<bool>(ReadPackCell(hDLPack));
+	hDLPack.Position = 0;
+	bool bParsedHeader = view_as<bool>((hDLPack).ReadCell());
 	
 	if (!bParsedHeader)
 	{
@@ -111,12 +111,12 @@ public OnSocketReceive(Handle:socket, char[] data, const size, any hDLPack)
 		else
 			idx += 4;
 		
-		SetPackPosition(hDLPack, 0);
-		WritePackCell(hDLPack, 1);
+		hDLPack.Position = 0;
+		hDLPack.WriteCell(1);
 	}
 	
-	SetPackPosition(hDLPack, 8);
-	new Handle:file = Handle:ReadPackCell(hDLPack);
+	hDLPack.Position = 8;
+	new Handle:file = Handle:(hDLPack).ReadCell();
 	
 	while (idx < size)
 	{
@@ -126,16 +126,16 @@ public OnSocketReceive(Handle:socket, char[] data, const size, any hDLPack)
 
 public OnSocketDisconnected(Handle:socket, any hDLPack)
 {
-	SetPackPosition(hDLPack, 8);
-	CloseHandle(Handle:ReadPackCell(hDLPack));
+	hDLPack.Position = 8;
+	CloseHandle(Handle:(hDLPack).ReadCell());
 	CloseHandle(hDLPack);
 	CloseHandle(socket);
 }
 
 public OnSocketError(Handle:socket, const errorType, const errorNum, any hDLPack)
 {
-	SetPackPosition(hDLPack, 8);
-	CloseHandle(Handle:ReadPackCell(hDLPack));
+	hDLPack.Position = 8;
+	CloseHandle(Handle:(hDLPack).ReadCell());
 	CloseHandle(hDLPack);
 	CloseHandle(socket);
 	

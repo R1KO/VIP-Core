@@ -182,16 +182,16 @@ void DB_RemoveClientFromID(int iClient = 0, int iClientID, bool bNotify)
 {
 	DebugMessage("DB_RemoveClientFromID %N (%i): - > iClientID: %i, : bNotify: %b", iClient, iClient, iClientID, bNotify)
 	char sQuery[256]; Handle:hDataPack;
-	hDataPack = CreateDataPack();
-	WritePackCell(hDataPack, iClientID);
-	WritePackCell(hDataPack, bNotify);
+	hDataPack = new DataPack();
+	hDataPack.WriteCell(iClientID);
+	hDataPack.WriteCell(bNotify);
 	if (iClient)
 	{
-		WritePackCell(hDataPack, UID(iClient));
+		hDataPack.WriteCell(UID(iClient));
 	}
 	else
 	{
-		WritePackCell(hDataPack, 0);
+		hDataPack.WriteCell(0);
 	}
 	
 	if (GLOBAL_INFO & IS_MySQL)
@@ -219,7 +219,7 @@ public void SQL_Callback_RemoveClient(Handle hOwner, Handle hQuery, const char[]
 	{
 		ResetPack(hDataPack);
 		
-		new iClientID = ReadPackCell(hDataPack);
+		new iClientID = (hDataPack).ReadCell();
 		
 		if (g_CVAR_bLogsEnable)
 		{
@@ -234,9 +234,9 @@ public void SQL_Callback_RemoveClient(Handle hOwner, Handle hQuery, const char[]
 			SQL_TQuery(g_hDatabase, SQL_Callback_RemoveClient2, sQuery, iClientID);
 		}
 		
-		if (view_as<bool>(ReadPackCell(hDataPack)))
+		if (view_as<bool>((hDataPack).ReadCell()))
 		{
-			new iClient = ReadPackCell(hDataPack);
+			new iClient = (hDataPack).ReadCell();
 			
 			if (iClient)
 			{
