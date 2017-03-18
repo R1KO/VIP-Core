@@ -19,18 +19,24 @@
 #define IS_MySQL					(1<<1)
 #define IS_LOADING					(1<<2)
 
+/*
+#define	KEY_CID			"Core->ClientID"
+#define	KEY_EXPIRES		"Core->Expires"
+#define	KEY_GROUP		"Core->Group"
+#define	KEY_AUTHTYPE	"Core->AuthType"
+*/
 
-#define	KEY_CID			"ClientID"
-#define	KEY_EXPIRES		"expires"
-#define	KEY_GROUP		"vip_group"
-#define	KEY_AUTHTYPE	"AuthType"
+char	KEY_CID[]		= "Core->ClientID";
+char	KEY_EXPIRES[]	= "Core->Expires";
+char	KEY_GROUP[]		= "Core->Group";
+char	KEY_AUTHTYPE[]	= "Core->AuthType";
 
 enum
 {
 	FEATURES_PLUGIN = 0,
 	FEATURES_VALUE_TYPE,
-	FEATURES_COOKIE,
 	FEATURES_ITEM_TYPE,
+	FEATURES_COOKIE,
 	FEATURES_MENU_CALLBACKS
 }
 
@@ -46,13 +52,12 @@ enum
 	TIME_MODE_DAYS
 }
 
-enum GameType
+char g_sToggleStatus[][] =
 {
-	GAME_UNKNOWN = -1,
-	GAME_CSS_34,
-	GAME_CSS,
-	GAME_CSGO
-}
+	"DISABLED",
+	"ENABLED",
+	"NO_ACCESS"
+};
 
 #define FEATURE_NAME_LENGTH 64
 
@@ -102,6 +107,7 @@ Handle		g_hGlobalForward_OnVIPClientLoaded;
 Handle		g_hGlobalForward_OnVIPClientAdded;
 Handle		g_hGlobalForward_OnVIPClientRemoved;
 Handle		g_hGlobalForward_OnPlayerSpawn;
+Handle		g_hGlobalForward_OnFeatureToggle;
 
 EngineVersion	g_EngineVersion;
 

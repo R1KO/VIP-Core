@@ -4,7 +4,7 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION	"3.0 DEV #2"
+#define VIP_VERSION	"3.0 DEV #3"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -16,7 +16,7 @@
 #define REQUIRE_PLUGIN
 #endif
 
-public Plugin:myinfo =
+public Plugin myinfo =
 {
 	name = "[VIP] Core",
 	author = "R1KO (skype: vova.andrienko1)",
@@ -26,11 +26,11 @@ public Plugin:myinfo =
 
 
 #if DEBUG_MODE 1
-new String:g_sDebugLogFile[PLATFORM_MAX_PATH];
+char g_sDebugLogFile[PLATFORM_MAX_PATH];
 
-stock DebugMsg(const String:sMsg[], any:...)
+stock void DebugMsg(const char[] sMsg, any ...)
 {
-	decl String:sBuffer[250];
+	static char sBuffer[512];
 	VFormat(sBuffer, sizeof(sBuffer), sMsg, 2);
 	LogToFile(g_sDebugLogFile, sBuffer);
 }
@@ -56,7 +56,7 @@ stock DebugMsg(const String:sMsg[], any:...)
 #include "vip/cmds.sp"
 #include "vip/clients.sp"
 
-public OnPluginStart()
+public void OnPluginStart()
 {
 	#if DEBUG_MODE 1
 	BuildPath(Path_SM, g_sDebugLogFile, sizeof(g_sDebugLogFile), "logs/VIP_Debug.log");
@@ -105,26 +105,24 @@ public OnPluginStart()
 	#endif
 }
 
-public OnAllPluginsLoaded()
+public void OnAllPluginsLoaded()
 {
 	DB_OnPluginStart();
 }
 
 #if USE_ADMINMENU 1
-public Action:OnClientSayCommand(iClient, const String:sCommand[], const String:sArgs[])
+public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[] sArgs)
 {
 	if(iClient > 0 && iClient <= MaxClients && sArgs[0])
 	{
-		if(g_iClientInfo[iClient] & IS_WAIT_CHAT_PASS || g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+		if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 		{
-			if(g_iClientInfo[iClient] & IS_WAIT_CHAT_PASS)
-			{
-				ShowWaitPassMenu(iClient, sArgs, true);
-			}
-			else if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+			/*
+			if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 			{
 				ShowWaitSearchMenu(iClient, sArgs, true);
 			}
+			*/
 
 			return Plugin_Handled;
 		}

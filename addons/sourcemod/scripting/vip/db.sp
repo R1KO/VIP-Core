@@ -1,9 +1,9 @@
-DB_OnPluginStart()
+void DB_OnPluginStart()
 {
 	DB_Connect();
 }
 
-DB_Connect()
+void DB_Connect()
 {
 //	DebugMessage("DB_Connect: %b", g_bIsVIPLoaded)
 	DebugMessage("DB_Connect")
@@ -21,16 +21,22 @@ DB_Connect()
 	
 	SET_BIT(GLOBAL_INFO, IS_LOADING);
 
-	if (SQL_CheckConfig("vip"))
+	if (SQL_CheckConfig("vip_core"))
 	{
-		Database.Connect(OnDBConnect, "vip", 1);
+		Database.Connect(OnDBConnect, "vip_core", 0);
 	}
 	else
 	{
+		KeyValues hKeyValues = new KeyValues("");
+		hKeyValues.SetString("driver", "sqlite");
+		hKeyValues.SetString("database", "vip_core");
+
 		char sError[256];
-		sError[0] = '\0';
-		g_hDatabase = SQLite_UseDatabase("vip", sError, sizeof(sError));
-		OnDBConnect(g_hDatabase, sError, 0);
+		g_hDatabase = SQL_ConnectCustom(hKeyValues, SZF(sError), false);
+
+		delete hKeyValues;
+	
+		OnDBConnect(g_hDatabase, sError, 1);
 	}
 }
 
@@ -45,23 +51,32 @@ public void OnDBConnect(Database hDatabase, const char[] sError, any data)
 	}
 
 	g_hDatabase = hDatabase;
-
-	char sDriver[8];
-	g_hDatabase.Driver.GetIdentifier(SZF(sDriver));
-
-	if(strcmp(sDriver, "mysql", false) == 0)
+	
+	if(data == 1)
 	{
-		SET_BIT(GLOBAL_INFO, IS_MySQL);
-		
-		g_hDatabase.SetCharset("utf8");
-
-		SQL_FastQuery(g_hDatabase, "SET NAMES \"UTF8\"");
-		SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
-		SQL_FastQuery(g_hDatabase, "SET CHARSET 'utf8'");
+		UNSET_BIT(GLOBAL_INFO, IS_MySQL);
 	}
 	else
 	{
-		UNSET_BIT(GLOBAL_INFO, IS_MySQL);
+		char sDriver[8];
+		g_hDatabase.Driver.GetIdentifier(SZF(sDriver));
+
+		if(strcmp(sDriver, "mysql", false) == 0)
+		{
+			SET_BIT(GLOBAL_INFO, IS_MySQL);
+			
+			/*
+			g_hDatabase.SetCharset("utf8");
+
+			SQL_FastQuery(g_hDatabase, "SET NAMES \"UTF8\"");
+			SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
+			SQL_FastQuery(g_hDatabase, "SET CHARSET 'utf8'");
+			*/
+		}
+		else
+		{
+			UNSET_BIT(GLOBAL_INFO, IS_MySQL);
+		}
 	}
 
 	DebugMessage("OnDBConnect %x, %u - > (MySQL: %b)", g_hDatabase, g_hDatabase, GLOBAL_INFO & IS_MySQL)
@@ -84,17 +99,14 @@ CreateTables()
 	SQL_LockDatabase(g_hDatabase);
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		SQL_FastQuery(g_hDatabase, "SET NAMES \"UTF8\"");
-		SQL_FastQuery(g_hDatabase, "SET CHARSET \"UTF8\"");
-		SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
+		g_hDatabase.Query(SQL_Callback_ErrorCheck,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 																		`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, \
 																		`auth` VARCHAR(64) UNIQUE NOT NULL, \
 																		`name` VARCHAR(64) NOT NULL default 'unknown', \
-																		`auth_type` TINYINT(2) UNSIGNED NOT NULL default '0', \
 																		PRIMARY KEY (`id`), \
 																		UNIQUE KEY `auth_id` (`auth`)) DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;");
 
-		SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck,	"CREATE TABLE IF NOT EXISTS `vip_overrides` (\
+		g_hDatabase.Query(SQL_Callback_ErrorCheck,	"CREATE TABLE IF NOT EXISTS `vip_overrides` (\
 																		`user_id` INT(10) UNSIGNED NOT NULL, \
 																		`server_id` INT(10) UNSIGNED NOT NULL, \
 																		`group` VARCHAR(64) default NULL, \
@@ -103,14 +115,18 @@ CreateTables()
 																		UNIQUE KEY `user_id` (`user_id`, `server_id`), \
 																		CONSTRAINT `vip_overrides_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `vip_users` (`id`)  ON DELETE CASCADE ON UPDATE CASCADE\
 																		) DEFAULT CHARSET=utf8;");
+
+		SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
+		SQL_FastQuery(g_hDatabase, "SET CHARSET 'utf8'");
+
+		g_hDatabase.SetCharset("utf8");
 	}
 	else
 	{
-		SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
+		g_hDatabase.Query(SQL_Callback_ErrorCheck,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 																		`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
 																		`auth` VARCHAR(32) UNIQUE NOT NULL, \
 																		`name` VARCHAR(64) NOT NULL default 'unknown', \
-																		`auth_type` INTEGER NOT NULL default '0', \
 																		`group` VARCHAR(64) default NULL, \
 																		`expires` INTEGER NOT NULL default '0');");
 	}
@@ -139,15 +155,24 @@ public SQL_Callback_ErrorCheck(Handle:hOwner, Handle:hQuery, const String:sError
 
 DB_UpdateClientName(iClient)
 {
-	SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
+//	SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
 
+	char sQuery[256], sName[MAX_NAME_LENGTH*2+1];
+	int iClientID;
+	g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
+	GetClientName(iClient, sQuery, MAX_NAME_LENGTH);
+	g_hDatabase.Escape(sQuery, SZF(sName));
+	FormatEx(SZF(sQuery), "UPDATE `vip_users` SET `name` = '%s' WHERE `id` = '%i';", sName, iClientID);
+	g_hDatabase.Query(SQL_Callback_ErrorCheck, sQuery);
+
+	/*
 	decl Handle:hStmt, String:sError[256];
 
 	hStmt = SQL_PrepareQuery(g_hDatabase, "UPDATE `vip_users` SET `name` = ? WHERE `id` = ?;", SZF(sError));
 	if (hStmt != null)
 	{
 		decl String:sName[MAX_NAME_LENGTH], iClientID;
-		GetTrieValue(g_hFeatures[iClient], KEY_CID, iClientID);
+		g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
 		GetClientName(iClient, SZF(sName));
 
 		SQL_BindParamString(hStmt, 0, sName, false);	
@@ -165,6 +190,7 @@ DB_UpdateClientName(iClient)
 	{
 		LogError("[VIP Core] Fail SQL_PrepareQuery: %s", sError);
 	}
+	*/
 }
 
 DB_RemoveClientFromID(iClient = 0, iClientID, bool:bNotify)
@@ -193,7 +219,7 @@ DB_RemoveClientFromID(iClient = 0, iClientID, bool:bNotify)
 	}
 
 	DebugMessage(sQuery)
-	SQL_TQuery(g_hDatabase, SQL_Callback_RemoveClient, sQuery, hDataPack);
+	g_hDatabase.Query(SQL_Callback_RemoveClient, sQuery, hDataPack);
 }
 
 public SQL_Callback_RemoveClient(Handle:hOwner, Handle:hQuery, const String:sError[], any:hDataPack)
@@ -220,7 +246,7 @@ public SQL_Callback_RemoveClient(Handle:hOwner, Handle:hQuery, const String:sErr
 		{
 			decl String:sQuery[256];
 			FormatEx(sQuery, sizeof(sQuery), "SELECT COUNT(*) AS vip_count FROM `vip_overrides` WHERE `user_id` = '%i';", iClientID);
-			SQL_TQuery(g_hDatabase, SQL_Callback_RemoveClient2, sQuery, iClientID);
+			g_hDatabase.Query(SQL_Callback_RemoveClient2, sQuery, iClientID);
 		}
 
 		if(bool:ReadPackCell(hDataPack))
@@ -254,7 +280,7 @@ public SQL_Callback_RemoveClient2(Handle:hOwner, Handle:hQuery, const String:sEr
 		decl String:sQuery[256];
 		FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `vip_users` WHERE `id` = '%i';", iClientID);
 
-		SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, sQuery, iClientID);
+		g_hDatabase.Query(SQL_Callback_ErrorCheck, sQuery, iClientID);
 	}
 }
 /*
@@ -272,7 +298,7 @@ public SQL_Callback_DeleteExpired(Handle:hOwner, Handle:hQuery, const String:sEr
 		{
 			decl String:sQuery[256];
 			FormatEx(sQuery, sizeof(sQuery), "SELECT COUNT(*) AS vip_count FROM `vip_overrides` WHERE `user_id` = '%i';", iClientID);
-			SQL_TQuery(g_hDatabase, SQL_Callback_RemoveClient2, sQuery, iClientID);
+			g_hDatabase.Query(SQL_Callback_RemoveClient2, sQuery, iClientID);
 
 			if(g_CVAR_bLogsEnable)
 			{
@@ -302,7 +328,7 @@ RemoveExpiredPlayers()
 	}
 
 	DebugMessage(sQuery)
-	SQL_TQuery(g_hDatabase, SQL_Callback_RemoveExpiredPlayers, sQuery);
+	g_hDatabase.Query(SQL_Callback_RemoveExpiredPlayers, sQuery);
 }
 
 public SQL_Callback_RemoveExpiredPlayers(Handle:hOwner, Handle:hQuery, const String:sError[], any:iData)

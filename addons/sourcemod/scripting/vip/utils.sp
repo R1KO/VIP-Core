@@ -186,9 +186,10 @@ UTIL_ReloadVIPPlayers(iClient, bool:bNotify)
 	}
 }
 
-UTIL_ADD_VIP_PLAYER(const iClient = 0, const iTarget = 0, const String:sIdentity[] = "", const iTime, VIP_AuthType:AuthType, const String:sGroup[] = "")
+void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, const char[] sIdentity = "", int iTime, const char[] sGroup)
 {
-	decl String:sQuery[256], String:sAuth[32], String:sName[MAX_NAME_LENGTH*2+1], iExpires, Handle:hDataPack;
+	char sQuery[256], sAuth[32], sName[MAX_NAME_LENGTH*2+1];
+	int iExpires;
 
 	if(iTime)
 	{
@@ -209,95 +210,53 @@ UTIL_ADD_VIP_PLAYER(const iClient = 0, const iTarget = 0, const String:sIdentity
 		strcopy(sName, sizeof(sName), "unknown");
 	}
 
-	switch(AuthType)
+	if(iTarget)
 	{
-		case AUTH_STEAM:
-		{
-			if(iTarget)
-			{
-				GetClientAuthId(iTarget, AuthId_Engine, sAuth, sizeof(sAuth));
-			}
-			else
-			{
-				strcopy(sAuth, sizeof(sAuth), sIdentity);
-			}
-		}
-		case AUTH_IP:
-		{
-			if(iTarget)
-			{
-				GetClientIP(iTarget, sAuth, sizeof(sAuth));
-			}
-			else
-			{
-				strcopy(sAuth, sizeof(sAuth), sIdentity);
-			}
-		}
-		case AUTH_NAME:
-		{
-			if(iTarget)
-			{
-				strcopy(sAuth, sizeof(sAuth), sName);
-			}
-			else
-			{
-				SQL_EscapeString(g_hDatabase, sIdentity, sAuth, sizeof(sAuth));
-				strcopy(sName, sizeof(sName), sAuth);
-			}
-		}
-	}
-
-	if (GLOBAL_INFO & IS_MySQL)
-	{
-		hDataPack = CreateDataPack();
-		WritePackString(hDataPack, sName);
-		WritePackCell(hDataPack, AuthType);
-		WritePackString(hDataPack, sAuth);
-		WritePackCell(hDataPack, iExpires);
-		WritePackString(hDataPack, sGroup);
-		WritePackCell(hDataPack, iTime);
-
-		WritePackClient(hDataPack, iClient);
-		WritePackClient(hDataPack, iTarget);
-
-		FormatEx(sQuery, sizeof(sQuery), "SELECT `id` FROM `vip_users` WHERE `auth` = '%s' AND `auth_type` = '%i' LIMIT 1;", sAuth, AuthType);
-		DebugMessage("sQuery: %s", sQuery)
-		SQL_TQuery(g_hDatabase, SQL_Callback_CheckVIPClient, sQuery, hDataPack);
-		return;
-	}
-
-//	FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_users` (`auth`, `auth_type`, `name`) VALUES ('%s', '%i', '%s');", sAuth, AuthType, sName);
-
-	FormatEx(sQuery, sizeof(sQuery), "INSERT OR REPLACE INTO `vip_users` (`auth`, `auth_type`, `name`, `expires`, `group`) VALUES ('%s', '%i', '%s', '%i', '%s');", sAuth, AuthType, sName, iExpires, sGroup);
-//	LogMessage("sQuery: '%s'", sQuery);
-
-	hDataPack = CreateDataPack();
-	WritePackString(hDataPack, sAuth);
-	WritePackCell(hDataPack, iExpires);	
-	WritePackString(hDataPack, sGroup);
-	WritePackCell(hDataPack, iTime);
-
-	WritePackClient(hDataPack, iClient);
-	WritePackClient(hDataPack, iTarget);
-	
-	SQL_TQuery(g_hDatabase, SQL_Callback_OnVIPClientAdded, sQuery, hDataPack);
-}
-
-WritePackClient(&Handle:hDataPack, iClient)
-{
-	if(iClient)
-	{
-		WritePackCell(hDataPack, UID(iClient));
+		GetClientAuthId(iTarget, AuthId_Engine, sAuth, sizeof(sAuth));
 	}
 	else
 	{
-		WritePackCell(hDataPack, 0);
+		strcopy(sAuth, sizeof(sAuth), sIdentity);
+	}
+
+	DataPack hDataPack = new DataPack();
+
+	hDataPack.WriteString(sName);
+	hDataPack.WriteString(sAuth);
+	hDataPack.WriteCell(iExpires);	
+	hDataPack.WriteString(sGroup);
+	hDataPack.WriteCell(iTime);
+
+	WritePackClient(hDataPack, iClient);
+	WritePackClient(hDataPack, iTarget);
+
+	if (GLOBAL_INFO & IS_MySQL)
+	{
+		FormatEx(sQuery, sizeof(sQuery), "SELECT `id` FROM `vip_users` WHERE `auth` = '%s' LIMIT 1;", sAuth);
+		DebugMessage("sQuery: %s", sQuery)
+		g_hDatabase.Query(SQL_Callback_CheckVIPClient, sQuery, hDataPack);
+		return;
+	}
+
+	FormatEx(sQuery, sizeof(sQuery), "INSERT OR REPLACE INTO `vip_users` (`auth`, `name`, `expires`, `group`) VALUES ('%s', '%s', '%i', '%s');", sAuth, sName, iExpires, sGroup);
+	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, sQuery, hDataPack);
+}
+
+void WritePackClient(DataPack &hDataPack, iClient)
+{
+	if(iClient)
+	{
+		hDataPack.WriteCell(UID(iClient));
+	}
+	else
+	{
+		hDataPack.WriteCell(0);
 	}
 }
 
-ReadPackClient(&Handle:hDataPack)
+int ReadPackClient(DataPack &hDataPack)
 {
-	new iClient = ReadPackCell(hDataPack);		
+	int iClient = hDataPack.ReadCell();		
 	if (iClient)
 	{
 		iClient = CID(iClient);
@@ -306,47 +265,48 @@ ReadPackClient(&Handle:hDataPack)
 	return iClient;
 }
 
-public SQL_Callback_CheckVIPClient(Handle:hOwner, Handle:hQuery, const String:sError[], any:hDataPack)
+public SQL_Callback_CheckVIPClient(Handle:hOwner, Handle:hQuery, const String:sError[], any:hPack)
 {
 	if (hQuery == null || sError[0])
 	{
+		CloseHandle(hPack);
 		LogError("SQL_Callback_CheckVIPClient: %s", sError);
 		return;
 	}
+	
+	DataPack hDataPack = view_as<DataPack>(hPack);
+
+	hDataPack.Reset();
 
 	if(SQL_FetchRow(hQuery))
 	{
-		ResetPack(hDataPack);
-		decl String:sGroup[64], iExpires;
-		
-		ReadPackString(hDataPack, sGroup, sizeof(sGroup));	// sName
-		iExpires = ReadPackCell(hDataPack);						// AuthType
-		ReadPackString(hDataPack, sGroup, sizeof(sGroup));	// sAuth
-		iExpires = ReadPackCell(hDataPack);						// iExpires
-		ReadPackString(hDataPack, sGroup, sizeof(sGroup));	// sGroup
+		char sGroup[64];
+		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sName
+		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sAuth
+		int iExpires = hDataPack.ReadCell();					// iExpires
+		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sGroup
 		
 		DebugMessage("SQL_Callback_CheckVIPClient: id - %i", SQL_FetchInt(hQuery, 0))
-		SetClientOverrides(hDataPack, SQL_FetchInt(hQuery, 0), iExpires, sGroup);
+		SetClientOverrides(hPack, SQL_FetchInt(hQuery, 0), iExpires, sGroup);
 	}
 	else
 	{
 		SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
 
-		ResetPack(hDataPack);
-		decl String:sQuery[256], String:sAuth[32], String:sName[MAX_NAME_LENGTH*2+1], AuthType;
-		ReadPackString(hDataPack, sName, sizeof(sName));
-		AuthType = ReadPackCell(hDataPack);
-		ReadPackString(hDataPack, sAuth, sizeof(sAuth));
-		FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_users` (`auth`, `auth_type`, `name`) VALUES ('%s', '%i', '%s');", sAuth, AuthType, sName);
+		decl String:sQuery[256], String:sAuth[32], String:sName[MAX_NAME_LENGTH*2+1];
+		hDataPack.ReadString(sName, sizeof(sName));
+		hDataPack.ReadString(sAuth, sizeof(sAuth));
+		FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_users` (`auth`, `name`) VALUES ('%s', '%s');", sAuth, sName);
 		DebugMessage("sQuery: %s", sQuery)
-		SQL_TQuery(g_hDatabase, SQL_Callback_CreateVIPClient, sQuery, hDataPack);
+		g_hDatabase.Query(SQL_Callback_CreateVIPClient, sQuery, hPack);
 	}
 }
 
-public SQL_Callback_CreateVIPClient(Handle:hOwner, Handle:hQuery, const String:sError[], any:hDataPack)
+public SQL_Callback_CreateVIPClient(Handle:hOwner, Handle:hQuery, const String:sError[], any:hPack)
 {
 	if (hQuery == null || sError[0])
 	{
+		CloseHandle(hPack);
 		LogError("SQL_Callback_CreateVIPClient: %s", sError);
 		return;
 	}
@@ -354,56 +314,73 @@ public SQL_Callback_CreateVIPClient(Handle:hOwner, Handle:hQuery, const String:s
 	if(SQL_GetAffectedRows(g_hDatabase))
 	{
 		DebugMessage("SQL_Callback_CreateVIPClient")
-		ResetPack(hDataPack);
+		DataPack hDataPack = view_as<DataPack>(hPack);
+
+		hDataPack.Reset();
+		int iClientID = SQL_GetInsertId(g_hDatabase);
+		hDataPack.WriteCell(iClientID);
 		decl String:sGroup[64], iExpires;
 		
-		ReadPackString(hDataPack, sGroup, sizeof(sGroup));	// sName
-		iExpires = ReadPackCell(hDataPack);						// AuthType
-		ReadPackString(hDataPack, sGroup, sizeof(sGroup));	// sAuth
-		iExpires = ReadPackCell(hDataPack);						// iExpires
-		ReadPackString(hDataPack, sGroup, sizeof(sGroup));	// sGroup
+		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sName
+		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sAuth
+		iExpires = hDataPack.ReadCell();					// iExpires
+		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sGroup
 		
-		SetClientOverrides(hDataPack, SQL_GetInsertId(g_hDatabase), iExpires, sGroup);
+		SetClientOverrides(hPack, iClientID, iExpires, sGroup);
+	}
+	else
+	{
+		CloseHandle(hPack);
 	}
 }
 
-SetClientOverrides(&Handle:hDataPack, iClientID, iExpires, const String:sGroup[])
+SetClientOverrides(any hPack, iClientID, iExpires, const String:sGroup[])
 {
 	decl String:sQuery[512];
 //	FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_overrides` (`user_id`, `server_id`, `expires`, `group`) VALUES ('%i', '%i', '%i', '%s');", iClientID, g_CVAR_iServerID, iExpires, sGroup);
 	FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_overrides` (`user_id`, `server_id`, `expires`, `group`) VALUES ('%i', '%i', '%i', '%s') \
 		ON DUPLICATE KEY UPDATE `expires` = '%i', `group` = '%s';", iClientID, g_CVAR_iServerID, iExpires, sGroup, iExpires, sGroup);
 	DebugMessage("sQuery: %s", sQuery)
-	SQL_TQuery(g_hDatabase, SQL_Callback_OnVIPClientAdded, sQuery, hDataPack);
+	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, sQuery, hPack);
 }
 
-public SQL_Callback_OnVIPClientAdded(Handle:hOwner, Handle:hQuery, const String:sError[], any:hDataPack)
+public SQL_Callback_OnVIPClientAdded(Handle:hOwner, Handle:hQuery, const String:sError[], any:hPack)
 {
 	if (hQuery == null || sError[0])
 	{
+		CloseHandle(hPack);
 		LogError("SQL_Callback_OnVIPClientAdded: %s", sError);
 		return;
 	}
 
 	if(SQL_GetAffectedRows(g_hDatabase))
 	{
-		ResetPack(hDataPack);
-	
-		decl iClient, iTarget, iTime, iExpires, String:sExpires[64], String:sTime[64], String:sAuth[32], String:sGroup[64];
+		DataPack hDataPack = view_as<DataPack>(hPack);
+
+		hDataPack.Reset();
+
+		int iClientID;
 		if (GLOBAL_INFO & IS_MySQL)
 		{
-			ReadPackString(hDataPack, sGroup, sizeof(sGroup));
-			iExpires = ReadPackCell(hDataPack);
+			iClientID = hDataPack.ReadCell();
 		}
-		
-		ReadPackString(hDataPack, sAuth, sizeof(sAuth));
-		iExpires = ReadPackCell(hDataPack);
-		ReadPackString(hDataPack, sGroup, sizeof(sGroup));
+		else
+		{
+			hDataPack.Position = 9;
+			iClientID = SQL_GetInsertId(g_hDatabase);
+		}
+	
+		int iClient, iTarget, iTime, iExpires;
+		char sExpires[64], sName[MAX_NAME_LENGTH], sTime[64], sAuth[32], sGroup[64];
+		hDataPack.ReadString(sName, sizeof(sName));
+		hDataPack.ReadString(sAuth, sizeof(sAuth));
+		iExpires = hDataPack.ReadCell();
+		hDataPack.ReadString(sGroup, sizeof(sGroup));
 		if(sGroup[0] == '\0')
 		{
 			FormatEx(sGroup, sizeof(sGroup), "%T", "NONE", iClient);
 		}
-		iTime = ReadPackCell(hDataPack);
+		iTime = hDataPack.ReadCell();
 		if(iTime)
 		{
 			UTIL_GetTimeFromStamp(sExpires, sizeof(sExpires), iTime, iClient);
@@ -417,6 +394,8 @@ public SQL_Callback_OnVIPClientAdded(Handle:hOwner, Handle:hQuery, const String:
 
 		iClient = ReadPackClient(hDataPack);
 		iTarget = ReadPackClient(hDataPack);
+		
+		CloseHandle(hPack);
 
 		if(iTarget)
 		{
@@ -426,12 +405,16 @@ public SQL_Callback_OnVIPClientAdded(Handle:hOwner, Handle:hQuery, const String:
 
 		if (iClient)
 		{
-			VIP_PrintToChatClient(iClient, "%t", "ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY");
+			VIP_PrintToChatClient(iClient, "%t", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", sName, sAuth, iClientID);
 		}
 		else
 		{
-			PrintToServer("%T", "ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY", LANG_SERVER);
+			PrintToServer("%T", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", LANG_SERVER, sName, sAuth, iClientID);
 		}
-		if(g_CVAR_bLogsEnable) LogToFile(g_sLogFile, "%T", "LOG_ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY", iClient, iClient, sAuth, sExpires, sTime, sGroup);
+
+		if(g_CVAR_bLogsEnable)
+		{
+			LogToFile(g_sLogFile, "%T", "LOG_ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY", iClient, iClient, sName, sAuth, iClientID, sExpires, sTime, sGroup);
+		}
 	}
 }

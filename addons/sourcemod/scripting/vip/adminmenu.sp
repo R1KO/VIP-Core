@@ -1,10 +1,8 @@
-
 enum
 {
 	DATA_MENU_TYPE = 0,
 	DATA_TARGET_USER_ID,
 	DATA_TARGET_ID,
-	DATA_AUTH_TYPE,
 	DATA_TIME,
 	DATA_NAME,
 	DATA_GROUP,
@@ -30,7 +28,7 @@ InitVIPAdminMenu()
 	g_hVIPAdminMenu = CreateMenu(Handler_VIPAdminMenu, MenuAction_Display|MenuAction_Select|MenuAction_DisplayItem);
 
 	AddMenuItem(g_hVIPAdminMenu, "", "vip_add");
-	AddMenuItem(g_hVIPAdminMenu, "", "vip_list");
+	AddMenuItem(g_hVIPAdminMenu, "", "vip_list", ITEMDRAW_DISABLED);
 	AddMenuItem(g_hVIPAdminMenu, "", "vip_reload_players");
 	AddMenuItem(g_hVIPAdminMenu, "", "vip_reload_settings");
 }
@@ -72,8 +70,10 @@ public Handler_VIPAdminMenu(Handle:hMenu, MenuAction:action, iClient, iOption)
 				}
 				case 1:
 				{
+					/*
 					InitiateDataArray(iClient);
 					ShowVipPlayersListMenu(iClient);
+					*/
 				}
 				case 2:
 				{
@@ -139,7 +139,9 @@ AddItemsToTopMenu()
 	}
 
 	g_hTopMenu.AddItem("vip_add",				Handler_MenuVIPAdd,				VIPAdminMenuObject, "vip_add",				g_CVAR_iAdminFlag);
+	/*
 	g_hTopMenu.AddItem("vip_list",				Handler_MenuVIPList,			VIPAdminMenuObject, "vip_list",				g_CVAR_iAdminFlag);
+	*/
 	g_hTopMenu.AddItem("vip_reload_players",	Handler_MenuVIPReloadPlayers,	VIPAdminMenuObject, "vip_reload_players",	g_CVAR_iAdminFlag);
 	g_hTopMenu.AddItem("vip_reload_settings",	Handler_MenuVIPReloadSettings,	VIPAdminMenuObject, "vip_reload_settings",	g_CVAR_iAdminFlag);
 }
@@ -166,7 +168,7 @@ public Handler_MenuVIPAdd(Handle:hMenu, TopMenuAction:action, TopMenuObject:obje
 		}
 	}
 }
-
+/*
 public Handler_MenuVIPList(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, String:sBuffer[], maxlength)
 {
 	switch(action)
@@ -179,7 +181,7 @@ public Handler_MenuVIPList(Handle:hMenu, TopMenuAction:action, TopMenuObject:obj
 		}
 	}
 }
-
+*/
 public Handler_MenuVIPReloadPlayers(Handle:hMenu, TopMenuAction:action, TopMenuObject:object_id, iClient, String:sBuffer[], maxlength)
 {
 	switch(action)
@@ -234,18 +236,21 @@ ShowTimeMenu(iClient)
 {
 	SetGlobalTransTarget(iClient);
 
-	decl Handle:hMenu, Handle:hKv, iMenuType;
-	hMenu = CreateMenu(MenuHandler_TimeMenu);
+	decl Handle:hKv, iMenuType;
+	Menu hMenu = new Menu(MenuHandler_TimeMenu);
 	
+	hMenu.SetTitle("%t:\n \n", "MENU_TIME_SET");
+	/*
 	iMenuType = GetArrayCell(g_ClientData[iClient], DATA_TIME);
 	switch(iMenuType)
 	{
-		case TIME_SET: 	SetMenuTitle(hMenu, "%t:\n \n", "MENU_TIME_SET");
-		case TIME_ADD:	SetMenuTitle(hMenu, "%t:\n \n", "MENU_TIME_ADD");
-		case TIME_TAKE:	SetMenuTitle(hMenu, "%t:\n \n", "MENU_TIME_TAKE");
+		case TIME_SET: 	hMenu.SetTitle("%t:\n \n", "MENU_TIME_SET");
+		case TIME_ADD:	hMenu.SetTitle("%t:\n \n", "MENU_TIME_ADD");
+		case TIME_TAKE:	hMenu.SetTitle("%t:\n \n", "MENU_TIME_TAKE");
 	}
+	*/
 
-	SetMenuExitBackButton(hMenu, true);
+	hMenu.ExitBackButton = true;
 
 	hKv = CreateConfig("data/vip/cfg/times.ini", "TIMES");
 
@@ -261,10 +266,13 @@ ShowTimeMenu(iClient)
 
 			if(iMenuType != TIME_SET && sTime[0] == '0') continue;
 
-			KvGetString(hKv, sClientLang, sBuffer, sizeof(sBuffer), "LangError");
-			if(strcmp(sBuffer, "LangError") == 0) KvGetString(hKv, sServerLang, sBuffer, sizeof(sBuffer), "LangError");
+			KvGetString(hKv, sClientLang, sBuffer, sizeof(sBuffer));
+			if(!sBuffer[0])
+			{
+				KvGetString(hKv, sServerLang, sBuffer, sizeof(sBuffer), "LangError");
+			}
 
-			AddMenuItem(hMenu, sTime, sBuffer);
+			hMenu.AddItem(sTime, sBuffer);
 
 		}
 		while (KvGotoNextKey(hKv, false));
@@ -272,10 +280,44 @@ ShowTimeMenu(iClient)
 
 	CloseHandle(hKv);
 
-	DisplayMenu(hMenu, iClient, MENU_TIME_FOREVER);
+	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_TimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
+public MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int Item)
+{
+	switch(action)
+	{
+		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_Cancel:
+		{
+			if(Item == MenuCancel_ExitBack)
+			{
+				ShowAddVIPMenu(iClient);
+			}
+		}
+		case MenuAction_Select:
+		{
+			new iTarget = GetClientOfUserId(GetArrayCell(g_ClientData[iClient], DATA_TARGET_USER_ID));
+			if (iTarget)
+			{
+				decl String:sBuffer[64], iType, iTime;
+				hMenu.GetItem(Item, sBuffer, sizeof(sBuffer));
+				SetArrayCell(g_ClientData[iClient], DATA_TIME, StringToInt(sBuffer));
+				ShowGroupMenu(iClient);
+			}
+			else
+			{
+				VIP_PrintToChatClient(iClient, "%t", "PLAYER_NO_LONGER_AVAILABLE");
+				DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
+			}
+		}
+	
+	}
+	
+	return 0;
+}
+/*
+public MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch(action)
 	{
@@ -286,7 +328,7 @@ public MenuHandler_TimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 			{
 				if(GetArrayCell(g_ClientData[iClient], DATA_MENU_TYPE) == MENU_TYPE_ADD)
 				{
-					ShowAuthTypeMenu(iClient);
+					ShowAddVIPMenu(iClient);
 				}
 				else
 				{
@@ -297,7 +339,7 @@ public MenuHandler_TimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 		case MenuAction_Select:
 		{
 			decl String:sBuffer[64], iType, iTime;
-			GetMenuItem(hMenu, Item, sBuffer, sizeof(sBuffer));
+			hMenu.GetItem(Item, sBuffer, sizeof(sBuffer));
 			iTime = StringToInt(sBuffer);
 			iType = GetArrayCell(g_ClientData[iClient], DATA_TIME);
 
@@ -403,7 +445,7 @@ public MenuHandler_TimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 					FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `expires` = '%i' WHERE `id` = '%i';", iExpires, iClientID);
 				}
 
-				SQL_TQuery(g_hDatabase, SQL_Callback_ChangeTime, sQuery, UID(iClient));
+				g_hDatabase.Query(SQL_Callback_ChangeTime, sQuery, UID(iClient));
 
 				ShowTargetInfoMenu(iClient, iClientID);
 			}
@@ -413,7 +455,7 @@ public MenuHandler_TimeMenu(Handle:hMenu, MenuAction:action, iClient, Item)
 	
 	return 0;
 }
-
+*/
 public SQL_Callback_ChangeTime(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
 {
 	if (sError[0])
@@ -438,20 +480,21 @@ public SQL_Callback_ChangeTime(Handle:hOwner, Handle:hQuery, const String:sError
 
 ReductionMenu(&Handle:hMenu, iNum)
 {
-	for(new i = 0; i < iNum; ++i) AddMenuItem(hMenu, "", "", ITEMDRAW_NOTEXT);
+	for(new i = 0; i < iNum; ++i) hMenu.AddItem("", "", ITEMDRAW_NOTEXT);
 }
 
 #include "vip/adminmenu/add_vip.sp"
+/*
 #include "vip/adminmenu/edit_vip.sp"
 #include "vip/adminmenu/del_vip.sp"
 #include "vip/adminmenu/list_vip.sp"
-
+*/
 
 /*
 AddMenuTranslatedItem(Handle:hMenu, iClient, const String:sItem[])
 {
 	decl String:sBuffer[128];
 	FormatEx(sBuffer, sizeof(sBuffer), "%T", sItem, iClient);
-	AddMenuItem(hMenu, sItem, sBuffer);
+	hMenu.AddItem(sItem, sBuffer);
 }
 */

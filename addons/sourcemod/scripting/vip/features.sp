@@ -1,24 +1,22 @@
 
-Features_TurnOffAll(iClient)
+void Features_TurnOffAll(int iClient)
 {
 	DebugMessage("Features_TurnOffAll %N (%i)", iClient, iClient)
-	new iFeatures = GetArraySize(g_hFeaturesArray);
+	int iFeatures = g_hFeaturesArray.Length;
 	if(iFeatures != 0)
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH],
-			i,
-			VIP_ToggleState:OldStatus,
-			Function:Function_Toggle;
-		
-		ArrayList hArray;
-		DataPack hDataPack;
+		char				sFeatureName[FEATURE_NAME_LENGTH];
+		VIP_ToggleState		OldStatus;
+		Function			Function_Toggle;
+		ArrayList			hArray;
+		DataPack			hDataPack;
 
-		for(i=0; i < iFeatures; ++i)
+		for(int i = 0; i < iFeatures; ++i)
 		{
-			GetArrayString(g_hFeaturesArray, i, sFeatureName, sizeof(sFeatureName));
-			if(GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
+			g_hFeaturesArray.GetString(i, sFeatureName, sizeof(sFeatureName));
+			if(GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 			{
-				if(VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) == TOGGLABLE)
+				if(view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 				{
 					OldStatus = Features_GetStatus(iClient, sFeatureName);
 					hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
@@ -34,37 +32,35 @@ Features_TurnOffAll(iClient)
 	}
 }
 
-Features_TurnOnAll(iClient)
+void Features_TurnOnAll(int iClient)
 {
 	DebugMessage("Features_TurnOnAll %N (%i)", iClient, iClient)
 
-	new iFeatures = GetArraySize(g_hFeaturesArray);
+	int iFeatures = g_hFeaturesArray.Length;
 	if(iFeatures != 0)
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH],
-			i,
-			Function:Function_Toggle,
-			VIP_ToggleState:Status;
-		
-		ArrayList hArray;
-		DataPack hDataPack;
-	
-		for(i=0; i < iFeatures; ++i)
+		char				sFeatureName[FEATURE_NAME_LENGTH];
+		VIP_ToggleState		OldStatus;
+		Function			Function_Toggle;
+		ArrayList			hArray;
+		DataPack			hDataPack;
+
+		for(int i = 0; i < iFeatures; ++i)
 		{
 			GetArrayString(g_hFeaturesArray, i, sFeatureName, sizeof(sFeatureName));
 			if(GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
 			{
-				if(VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) == TOGGLABLE)
+				if(view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 				{
 					hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
 					hDataPack.Position = ITEM_SELECT;
 					Function_Toggle = hDataPack.ReadFunction();
 					if(Function_Toggle != INVALID_FUNCTION)
 					{
-						Status = Features_GetStatus(iClient, sFeatureName);
-						if(Status != NO_ACCESS)
+						OldStatus = Features_GetStatus(iClient, sFeatureName);
+						if(OldStatus != NO_ACCESS)
 						{
-							Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Toggle, iClient, sFeatureName, NO_ACCESS, Status);
+							Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Toggle, iClient, sFeatureName, NO_ACCESS, OldStatus);
 						}
 					}
 				}
@@ -73,16 +69,16 @@ Features_TurnOnAll(iClient)
 	}
 }
 
-Features_SetStatus(iClient, const String:sFeatureName[], const VIP_ToggleState:Status)
+void Features_SetStatus(int iClient, const char[] sFeatureName, VIP_ToggleState Status)
 {
 	DebugMessage("Features_SetStatus: %N (%i) -> Feature: %s, Status: %i", iClient, iClient, sFeatureName, Status)
 	SetTrieValue(g_hFeatureStatus[iClient], sFeatureName, Status);
 }
 
-VIP_ToggleState:Features_GetStatus(iClient, const String:sFeatureName[])
+VIP_ToggleState Features_GetStatus(int iClient, const char[] sFeatureName)
 {
-	static VIP_ToggleState:Status;
-	if(GetTrieValue(g_hFeatureStatus[iClient], sFeatureName, Status))
+	static VIP_ToggleState Status;
+	if(g_hFeatureStatus[iClient].GetValue(sFeatureName, Status))
 	{
 		DebugMessage("Features_GetStatus: %N (%i) -> Feature: %s, Status: %i", iClient, iClient, sFeatureName, Status)
 		return Status;
