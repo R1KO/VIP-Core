@@ -25,12 +25,12 @@ enum
 
 void InitVIPAdminMenu()
 {
-	g_hVIPAdminMenu = CreateMenu(Handler_VIPAdminMenu, MenuAction_Display|MenuAction_Select|MenuAction_DisplayItem);
+	g_hVIPAdminMenu = new Menu(Handler_VIPAdminMenu, MenuAction_Display | MenuAction_Select | MenuAction_DisplayItem);
 
-	AddMenuItem(g_hVIPAdminMenu, "", "vip_add");
-	AddMenuItem(g_hVIPAdminMenu, "", "vip_list", ITEMDRAW_DISABLED);
-	AddMenuItem(g_hVIPAdminMenu, "", "vip_reload_players");
-	AddMenuItem(g_hVIPAdminMenu, "", "vip_reload_settings");
+	g_hVIPAdminMenu.AddItem("", "vip_add");
+	g_hVIPAdminMenu.AddItem("", "vip_list", ITEMDRAW_DISABLED);
+	g_hVIPAdminMenu.AddItem("", "vip_reload_players");
+	g_hVIPAdminMenu.AddItem("", "vip_reload_settings");
 }
 
 public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int iOption)
@@ -254,7 +254,7 @@ void ShowTimeMenu(int iClient)
 
 	hKv = CreateConfig("data/vip/cfg/times.ini", "TIMES");
 	
-	if (KvGotoFirstSubKey(hKv))
+	if (hKv.GotoFirstSubKey())
 	{
 		char sBuffer[128]; char sTime[32]; char sClientLang[3]; char sServerLang[3];
 		GetLanguageInfo(GetServerLanguage(), sServerLang, sizeof(sServerLang));

@@ -71,7 +71,7 @@ void ShowEditGroupMenu(int iClient)
 					hMenu.AddItem(sGroup, sGroup);
 				}
 			}
-		} while KvGotoNextKey(g_hGroups);
+		} while g_hGroups.GotoNextKey();
 	}
 	if (sGroup[0] == 0)
 	{

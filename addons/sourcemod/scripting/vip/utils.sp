@@ -317,7 +317,7 @@ public void SQL_Callback_CreateVIPClient(Database hOwner, DBResultSet hQuery, co
 		DataPack hDataPack = view_as<DataPack>(hPack);
 
 		hDataPack.Reset();
-		int iClientID = SQL_GetInsertId(g_hDatabase);
+		int iClientID = g_hDatabase.InsertId;
 		hDataPack.WriteCell(iClientID);
 		char sGroup[64]; int iExpires;
 		
@@ -367,7 +367,7 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hQuery, c
 		else
 		{
 			hDataPack.Position = view_as<DataPackPos>(9);
-			iClientID = SQL_GetInsertId(g_hDatabase);
+			iClientID = g_hDatabase.InsertId;
 		}
 	
 		int iClient, iTarget, iTime, iExpires;

@@ -176,7 +176,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hQuery,
 				{
 					if (g_CVAR_bAutoOpenMenu)
 					{
-						DisplayMenu(g_hVIPMenu, iClient, MENU_TIME_FOREVER);
+						g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
 					}
 
 					DisplayClientInfo(iClient, iExpires == 0 ? "connect_info_perm":"connect_info_time");
