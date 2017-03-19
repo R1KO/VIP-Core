@@ -1,7 +1,7 @@
 public void OnConfigsExecuted()
 {
 	static bool bIsRegistered;
-	if(bIsRegistered == false)
+	if (bIsRegistered == false)
 	{
 		UTIL_LoadVipCmd(g_CVAR_hVIPMenu_CMD, VIPMenu_CMD);
 		
@@ -9,7 +9,7 @@ public void OnConfigsExecuted()
 	}
 }
 
-#define CHECK_ACCESS(%0) if(!(GetUserFlagBits(%0) & g_CVAR_iAdminFlag)) \
+#define CHECK_ACCESS(%0) if (!(GetUserFlagBits(%0) & g_CVAR_iAdminFlag)) \
 						{ \
 							ReplyToCommand(%0, "[VIP] %t", "COMMAND_NO_ACCESS"); \
 							return Plugin_Handled; \
@@ -22,7 +22,7 @@ public Action VIPAdmin_CMD(int iClient, int iArgs)
 	{
 		CHECK_ACCESS(iClient)
 		
-		g_hTopMenu.Display(iClient, MENU_TIME_FOREVER);
+		g_hTopMenu.Display(iClient, TopMenuPosition_Start); //g_hTopMenu.Display(iClient, MENU_TIME_FOREVER);
 	}
 	
 	return Plugin_Handled;
@@ -63,7 +63,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 	GetCmdArg(1, sAuth, sizeof(sAuth));
 
 	int iTarget = FindTarget(iClient, sAuth, true, false);
-	if(iTarget != -1)
+	if (iTarget != -1)
 	{
 		if (g_iClientInfo[iTarget] & IS_VIP)
 		{
@@ -72,7 +72,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 		}
 		sAuth[0] = 0;
 	}
-	else if((g_EngineVersion == Engine_CSS && strncmp(sAuth, "[U:1:", 5) != 0 && sAuth[strlen(sAuth)-1] != ']') ||
+	else if ((g_EngineVersion == Engine_CSS && strncmp(sAuth, "[U:1:", 5) != 0 && sAuth[strlen(sAuth)-1] != ']') ||
 		strncmp(sAuth, "STEAM_", 6) != 0)
 	{
 		ReplyToCommand(iClient, "[VIP] %t", "No matching client");
@@ -145,7 +145,7 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
-public void SQL_Callback_OnSelectRemoveClient(Handle hOwner, Handle hQuery, const char[] sError, any iClient)
+public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hQuery, const char[] sError, any iClient)
 {
 	if (hQuery == null || sError[0])
 	{

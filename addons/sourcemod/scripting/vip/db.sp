@@ -52,7 +52,7 @@ public void OnDBConnect(Database hDatabase, const char[] sError, any data)
 
 	g_hDatabase = hDatabase;
 	
-	if(data == 1)
+	if (data == 1)
 	{
 		UNSET_BIT(GLOBAL_INFO, IS_MySQL);
 	}
@@ -61,7 +61,7 @@ public void OnDBConnect(Database hDatabase, const char[] sError, any data)
 		char sDriver[8];
 		g_hDatabase.Driver.GetIdentifier(SZF(sDriver));
 
-		if(strcmp(sDriver, "mysql", false) == 0)
+		if (strcmp(sDriver, "mysql", false) == 0)
 		{
 			SET_BIT(GLOBAL_INFO, IS_MySQL);
 			
@@ -84,7 +84,7 @@ public void OnDBConnect(Database hDatabase, const char[] sError, any data)
 	CreateTables();
 }
 /*
-public Action:Timer_DB_Reconnect(Handle:timer)
+public Action Timer_DB_Reconnect(Handle timer)
 {
 	if (g_hDatabase == null)
 	{
@@ -166,7 +166,7 @@ void DB_UpdateClientName(int iClient)
 	g_hDatabase.Query(SQL_Callback_ErrorCheck, sQuery);
 
 	/*
-	decl Handle:hStmt, String:sError[256];
+	DBStatement hStmt; char sError[256];
 
 	hStmt = SQL_PrepareQuery(g_hDatabase, "UPDATE `vip_users` SET `name` = ? WHERE `id` = ?;", SZF(sError));
 	if (hStmt != null)
@@ -196,8 +196,8 @@ void DB_UpdateClientName(int iClient)
 void DB_RemoveClientFromID(int iClient = 0, int iClientID, bool bNotify)
 {
 	DebugMessage("DB_RemoveClientFromID %N (%i): - > iClientID: %i, : bNotify: %b", iClient, iClient, iClientID, bNotify)
-	char sQuery[256]; Handle:hDataPack;
-	hDataPack = new DataPack();
+	char sQuery[256];
+	DataPack hDataPack = new DataPack();
 	hDataPack.WriteCell(iClientID);
 	hDataPack.WriteCell(bNotify);
 	if (iClient)
@@ -222,7 +222,7 @@ void DB_RemoveClientFromID(int iClient = 0, int iClientID, bool bNotify)
 	g_hDatabase.Query(SQL_Callback_RemoveClient, sQuery, hDataPack);
 }
 
-public void SQL_Callback_RemoveClient(Handle hOwner, Handle hQuery, const char[] sError, any hDataPack)
+public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hQuery, const char[] sError, any hPack)
 {
 	if (sError[0])
 	{
@@ -230,11 +230,12 @@ public void SQL_Callback_RemoveClient(Handle hOwner, Handle hQuery, const char[]
 		return;
 	}
 	
-	if ((hOwner).AffectedRows)
+	if (hOwner.AffectedRows)
 	{
-		ResetPack(hDataPack);
+		DataPack hDataPack = view_as<DataPack>(hPack);
+		hDataPack.Reset();
 		
-		new iClientID = (hDataPack).ReadCell();
+		int iClientID = (view_as<DataPack>(hDataPack)).ReadCell();
 		
 		if (g_CVAR_bLogsEnable)
 		{
@@ -267,7 +268,7 @@ public void SQL_Callback_RemoveClient(Handle hOwner, Handle hQuery, const char[]
 	}
 }
 
-public void SQL_Callback_RemoveClient2(Handle hOwner, Handle hQuery, const char[] sError, any iClientID)
+public void SQL_Callback_RemoveClient2(Database hOwner, DBResultSet hQuery, const char[] sError, any iClientID)
 {
 	if (sError[0])
 	{
@@ -292,15 +293,15 @@ public void SQL_Callback_DeleteExpired(Handle hOwner, Handle hQuery, const char[
 		return;
 	}
 
-	if((hOwner).AffectedRows)
+	if ((hOwner).AffectedRows)
 	{
-		if(g_CVAR_iDeleteExpired != -1)
+		if (g_CVAR_iDeleteExpired != -1)
 		{
 			char sQuery[256];
 			FormatEx(sQuery, sizeof(sQuery), "SELECT COUNT(*) AS vip_count FROM `vip_overrides` WHERE `user_id` = '%i';", iClientID);
 			g_hDatabase.Query(SQL_Callback_RemoveClient2, sQuery, iClientID);
 
-			if(g_CVAR_bLogsEnable)
+			if (g_CVAR_bLogsEnable)
 			{
 				LogToFile(g_sLogFile, "%T", "ADMIN_VIP_PLAYER_DELETED", LANG_SERVER, iClientID);
 			//	LogToFile(g_sLogFile, "%T", "ADMIN_VIP_PLAYER_DELETED", LANG_SERVER, iClient, iClientID);
@@ -331,7 +332,7 @@ void RemoveExpiredPlayers()
 	g_hDatabase.Query(SQL_Callback_RemoveExpiredPlayers, sQuery);
 }
 
-public void SQL_Callback_RemoveExpiredPlayers(Handle hOwner, Handle hQuery, const char[] sError, any iData)
+public void SQL_Callback_RemoveExpiredPlayers(Database hOwner, DBResultSet hQuery, const char[] sError, any iData)
 {
 	if (sError[0])
 	{
@@ -342,7 +343,7 @@ public void SQL_Callback_RemoveExpiredPlayers(Handle hOwner, Handle hQuery, cons
 	DebugMessage("SQL_Callback_RemoveExpiredPlayers: %i", (hQuery).RowCount)
 	if ((hQuery).RowCount)
 	{
-		decl iExpires, iTime, iClientID;
+		int iExpires, iTime, iClientID;
 		iTime = GetTime();
 		while ((hQuery).FetchRow())
 		{

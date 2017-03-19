@@ -118,7 +118,7 @@ void DisplayInfo(int iClient, const char[] sKey, const char[] sKey2, char[] sBuf
 bool KvGetLangString(char[] sBuffer, int iBufLen, char[] sClientLang, char[] sServLang)
 {
 	DebugMessage("KvGetLangString: '%s', '%s'", sClientLang, sServLang)
-		g_hInfo.GetString(sClientLang, sBuffer, iBufLen);
+	g_hInfo.GetString(sClientLang, sBuffer, iBufLen);
 	DebugMessage("KvGetString (%s) = '%s'", sClientLang, sBuffer)
 	if (!sBuffer[0])
 	{

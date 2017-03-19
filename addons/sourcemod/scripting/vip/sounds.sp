@@ -22,7 +22,7 @@ void LoadSound(const char[] sSound)
 {
 	char sBuffer[200];
 	FormatEx(sBuffer, sizeof(sBuffer), "sound/%s", sSound);
-	if(FileExists(sBuffer))
+	if (FileExists(sBuffer))
 	{
 		AddFileToDownloadsTable(sBuffer);
 		PrecacheSound(sSound, true);

@@ -14,7 +14,7 @@ void ShowAddVIPMenu(int iClient)
 			if (g_iClientInfo[i] & IS_VIP)
 			{
 				g_hFeatures[i].GetValue(KEY_CID, iClientID);
-				if(iClientID != -1)
+				if (iClientID != -1)
 				{
 					continue;
 				}
@@ -65,7 +65,7 @@ public int MenuHandler_AddVip_PlayerList(Menu hMenu, MenuAction action, int iCli
 void ShowGroupMenu(int iClient)
 {
 	char sGroup[MAX_NAME_LENGTH];
-	hMenu = new Menu(MenuHandler_AddVip_GroupsList);
+	Menu hMenu = new Menu(MenuHandler_AddVip_GroupsList);
 	hMenu.SetTitle("%T:\n \n", "GROUP", iClient);
 	hMenu.ExitBackButton = true;
 	sGroup[0] = 0;
@@ -104,7 +104,7 @@ public int MenuHandler_AddVip_GroupsList(Menu hMenu, MenuAction action, int iCli
 		}
 		case MenuAction_Select:
 		{
-			new iTarget = CID(g_ClientData[iClient].Get(DATA_TARGET_USER_ID));
+			int iTarget = CID(g_ClientData[iClient].Get(DATA_TARGET_USER_ID));
 			if (iTarget)
 			{
 				char sGroup[MAX_NAME_LENGTH];

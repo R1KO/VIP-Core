@@ -1,4 +1,4 @@
-public OnMapStart()
+public void OnMapStart()
 {
 	LoadSounds();
 	ReadDownloads();
@@ -13,7 +13,7 @@ void OnReadyToStart()
 		
 		CreateForward_OnVIPLoaded();
 		
-		for (new iClient = 1; iClient <= MaxClients; ++iClient)
+		for (int iClient = 1; iClient <= MaxClients; ++iClient)
 		{
 			if (IsClientInGame(iClient))
 			{
@@ -74,7 +74,7 @@ KeyValues CreateConfig(const char[] sFile, const char[] sKvName)
 	char sPath[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, sPath, sizeof(sPath), sFile);
 	
-	hKeyValues = new KeyValues(sKvName);
+	KeyValues hKeyValues = new KeyValues(sKvName);
 	if (hKeyValues.ImportFromFile(sPath) == false)
 	{
 		hKeyValues.ExportToFile(sPath);

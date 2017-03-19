@@ -7,7 +7,7 @@ void ResetClient(int iClient)
 	UTIL_CloseHandleEx(g_hFeatureStatus[iClient]);
 }
 
-public OnClientPutInServer(iClient)
+public void OnClientPutInServer(int iClient)
 {
 	//	g_iClientInfo[iClient] = 0;
 	DebugMessage("OnClientPostAdminCheck %N (%i): %b", iClient, iClient, g_iClientInfo[iClient])
@@ -15,9 +15,9 @@ public OnClientPutInServer(iClient)
 	Clients_CheckVipAccess(iClient, true);
 }
 
-public OnClientDisconnect(iClient)
+public void OnClientDisconnect(int iClient)
 {
-	/*	if(g_bIsClientVIP[iClient])
+	/*	if (g_bIsClientVIP[iClient])
 	{
 		SaveClient(iClient);
 	}*/
@@ -35,7 +35,7 @@ void Clients_CheckVipAccess(int iClient, bool bNotify = false)
 	
 	if (IsFakeClient(iClient) == false && (GLOBAL_INFO & IS_STARTED) && g_hDatabase)
 	{
-		Clients_LoadClient(iClient, bool bNotify);
+		Clients_LoadClient(iClient, bNotify);
 		//	DebugMessage("Clients_CheckVipAccess %N:\tИгрок %sявляется VIP игроком", iClient, g_bIsClientVIP[iClient] ? "":"не ")
 	}
 	else
@@ -45,7 +45,7 @@ void Clients_CheckVipAccess(int iClient, bool bNotify = false)
 	}
 }
 
-void Clients_LoadClient(iClient, bool bNotify)
+void Clients_LoadClient(int iClient, bool bNotify)
 {
 	char sQuery[512]; char sAuth[32]; char sName[MAX_NAME_LENGTH * 2 + 1]; char sIP[24];
 	
@@ -86,7 +86,7 @@ void Clients_LoadClient(iClient, bool bNotify)
 	g_hDatabase.Query(SQL_Callback_OnClientAuthorized, sQuery, hDataPack);
 }
 
-public void SQL_Callback_OnClientAuthorized(Handle hOwner, Handle hQuery, const char[] sError, any hPack)
+public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hQuery, const char[] sError, any hPack)
 {
 	DataPack hDataPack = view_as<DataPack>(hPack);
 	if (hQuery == null || sError[0])
@@ -174,7 +174,7 @@ public void SQL_Callback_OnClientAuthorized(Handle hOwner, Handle hQuery, const 
 
 				if (hDataPack.ReadCell())
 				{
-					if(g_CVAR_bAutoOpenMenu)
+					if (g_CVAR_bAutoOpenMenu)
 					{
 						DisplayMenu(g_hVIPMenu, iClient, MENU_TIME_FOREVER);
 					}
@@ -266,24 +266,24 @@ void Clients_LoadVIPFeatures(int iClient)
 			for (int i = 0; i < iFeatures; ++i)
 			{
 				g_hFeaturesArray.GetString(i, SZF(sFeatureName));
-				if(GLOBAL_TRIE.GetValue(sFeatureName, hArray))
+				if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 				{
 					DebugMessage("LoadClientFeature: %i - %s", i, sFeatureName)
 
-					if(GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), sFeatureName))
+					if (GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), sFeatureName))
 					{
 						DebugMessage("GetValue: == true")
-						if(view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
+						if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 						{
 							hCookie = view_as<Handle>(hArray.Get(FEATURES_COOKIE));
 							GetClientCookie(iClient, hCookie, SZF(sBuffer));
 							DebugMessage("GetFeatureCookie: %s", sBuffer)
 							if (sBuffer[0] == '\0' ||
-								(StringToIntEx(sBuffer, _:Status) &&
-								(_:Status > 2 || _:Status < 0)))
+								(StringToIntEx(sBuffer, view_as<int>(Status)) &&
+								(view_as<int>(Status) > 2 || view_as<int>(Status) < 0)))
 							{
 								Status = ENABLED;
-								IntToString(_:Status, SZF(sBuffer));
+								IntToString(view_as<int>(Status), SZF(sBuffer));
 								SetClientCookie(iClient, hCookie, sBuffer);
 								//	Features_SaveStatus(iClient, sFeatureName, hCookie, Status);
 							}
@@ -418,7 +418,7 @@ public Action Timer_OnPlayerSpawn(Handle hTimer, any UserID)
 			
 			if (g_iClientInfo[iClient] & IS_VIP)
 			{
-				decl iExp;
+				int iExp;
 				if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp) && iExp > 0 && iExp < GetTime())
 				{
 					Clients_ExpiredClient(iClient);
@@ -478,7 +478,7 @@ void Clients_ExpiredClient(int iClient)
 	{
 		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 		{
-			if(g_CVAR_bLogsEnable)
+			if (g_CVAR_bLogsEnable)
 			{
 				LogToFile(g_sLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
 			}

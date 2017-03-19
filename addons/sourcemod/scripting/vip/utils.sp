@@ -10,8 +10,8 @@ void UTIL_CloseHandleEx(Handle &hValue)
 
 stock int UTIL_ReplaceChars(char[] sBuffer, int InChar, int OutChar)
 {
-	new iNum = 0;
-	for (new i = 0, iLen = strlen(sBuffer); i < iLen; ++i)
+	int iNum = 0;
+	for (int i = 0, iLen = strlen(sBuffer); i < iLen; ++i)
 	{
 		if (sBuffer[i] == InChar)
 		{
@@ -25,9 +25,9 @@ stock int UTIL_ReplaceChars(char[] sBuffer, int InChar, int OutChar)
 
 bool UTIL_StrCmpEx(const char[] sString1, const char[] sString2)
 {
-	decl MaxLen, i;
+	int MaxLen, i;
 	
-	new iLen1 = strlen(sString1), 
+	int iLen1 = strlen(sString1), 
 	iLen2 = strlen(sString2);
 	
 	MaxLen = (iLen1 > iLen2) ? iLen1:iLen2;
@@ -73,8 +73,8 @@ void UTIL_GetTimeFromStamp(char[] sBuffer, int maxlength, int iTimeStamp, int iC
 {
 	if (iTimeStamp > 31536000)
 	{
-		new years = iTimeStamp / 31536000;
-		new days = iTimeStamp / 86400 % 365;
+		int years = iTimeStamp / 31536000;
+		int days = iTimeStamp / 86400 % 365;
 		if (days > 0)
 		{
 			FormatEx(sBuffer, maxlength, "%d%T %d%T", years, "y.", iClient, days, "d.", iClient);
@@ -87,8 +87,8 @@ void UTIL_GetTimeFromStamp(char[] sBuffer, int maxlength, int iTimeStamp, int iC
 	}
 	if (iTimeStamp > 86400)
 	{
-		new days = iTimeStamp / 86400 % 365;
-		new hours = (iTimeStamp / 3600) % 24;
+		int days = iTimeStamp / 86400 % 365;
+		int hours = (iTimeStamp / 3600) % 24;
 		if (hours > 0)
 		{
 			FormatEx(sBuffer, maxlength, "%d%T %d%T", days, "d.", iClient, hours, "h.", iClient);
@@ -101,9 +101,9 @@ void UTIL_GetTimeFromStamp(char[] sBuffer, int maxlength, int iTimeStamp, int iC
 	}
 	else
 	{
-		new Hours = (iTimeStamp / 3600);
-		new Mins = (iTimeStamp / 60) % 60;
-		new Secs = iTimeStamp % 60;
+		int Hours = (iTimeStamp / 3600);
+		int Mins = (iTimeStamp / 60) % 60;
+		int Secs = iTimeStamp % 60;
 		
 		if (Hours > 0)
 		{
@@ -116,9 +116,9 @@ void UTIL_GetTimeFromStamp(char[] sBuffer, int maxlength, int iTimeStamp, int iC
 	}
 }
 
-void UTIL_LoadVipCmd(Handle &hCvar, ConCmd Call_CMD)
+void UTIL_LoadVipCmd(ConVar &hCvar, ConCmd Call_CMD)
 {
-	char sPart[64]; char sBuffer[128]; reloc_idx, iPos;
+	char sPart[64]; char sBuffer[128]; int reloc_idx, iPos;
 	hCvar.GetString(sBuffer, sizeof(sBuffer));
 	reloc_idx = 0;
 	while ((iPos = SplitString(sBuffer[reloc_idx], ";", sPart, sizeof(sPart))))
@@ -146,7 +146,7 @@ void UTIL_LoadVipCmd(Handle &hCvar, ConCmd Call_CMD)
 	}
 }
 
-int UTIL_GetConVarAdminFlag(Handle &hCvar)
+int UTIL_GetConVarAdminFlag(ConVar &hCvar)
 {
 	char sBuffer[32];
 	hCvar.GetString(sBuffer, sizeof(sBuffer));
@@ -161,7 +161,7 @@ bool UTIL_CheckValidVIPGroup(const char[] sGroup)
 
 stock int UTIL_SearchCharInString(const char[] sBuffer, int c)
 {
-	decl iNum, i, iLen;
+	int iNum, i, iLen;
 	iNum = 0;
 	iLen = strlen(sBuffer);
 	for (i = 0; i < iLen; ++i)
@@ -172,7 +172,7 @@ stock int UTIL_SearchCharInString(const char[] sBuffer, int c)
 
 void UTIL_ReloadVIPPlayers(int iClient, bool bNotify)
 {
-	for (new i = 1; i <= MaxClients; ++i)
+	for (int i = 1; i <= MaxClients; ++i)
 	{
 		if (IsClientInGame(i))
 		{
@@ -242,7 +242,7 @@ void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, const char[] sIdentit
 	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, sQuery, hDataPack);
 }
 
-void WritePackClient(DataPack &hDataPack, iClient)
+void WritePackClient(DataPack &hDataPack, int iClient)
 {
 	if (iClient)
 	{
@@ -265,7 +265,7 @@ int ReadPackClient(DataPack &hDataPack)
 	return iClient;
 }
 
-public void SQL_Callback_CheckVIPClient(Handle hOwner, Handle hQuery, const char[] sError, any hDataPack)
+public void SQL_Callback_CheckVIPClient(Database hOwner, DBResultSet hQuery, const char[] sError, any hPack)
 {
 	if (hQuery == null || sError[0])
 	{
@@ -302,7 +302,7 @@ public void SQL_Callback_CheckVIPClient(Handle hOwner, Handle hQuery, const char
 	}
 }
 
-public void SQL_Callback_CreateVIPClient(Handle hOwner, Handle hQuery, const char[] sError, any hDataPack)
+public void SQL_Callback_CreateVIPClient(Database hOwner, DBResultSet hQuery, const char[] sError, any hPack)
 {
 	if (hQuery == null || sError[0])
 	{
@@ -311,7 +311,7 @@ public void SQL_Callback_CreateVIPClient(Handle hOwner, Handle hQuery, const cha
 		return;
 	}
 	
-	if ((g_hDatabase).AffectedRows)
+	if (g_hDatabase.AffectedRows)
 	{
 		DebugMessage("SQL_Callback_CreateVIPClient")
 		DataPack hDataPack = view_as<DataPack>(hPack);
@@ -344,7 +344,7 @@ void SetClientOverrides(any hPack, int iClientID, int iExpires, const char[] sGr
 	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, sQuery, hPack);
 }
 
-public void SQL_Callback_OnVIPClientAdded(Handle hOwner, Handle hQuery, const char[] sError, any hPack)
+public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hQuery, const char[] sError, any hPack)
 {
 	if (hQuery == null || sError[0])
 	{
@@ -353,7 +353,7 @@ public void SQL_Callback_OnVIPClientAdded(Handle hOwner, Handle hQuery, const ch
 		return;
 	}
 	
-	if ((g_hDatabase).AffectedRows)
+	if (g_hDatabase.AffectedRows)
 	{
 		DataPack hDataPack = view_as<DataPack>(hPack);
 
@@ -366,7 +366,7 @@ public void SQL_Callback_OnVIPClientAdded(Handle hOwner, Handle hQuery, const ch
 		}
 		else
 		{
-			hDataPack.Position = 9;
+			hDataPack.Position = view_as<DataPackPos>(9);
 			iClientID = SQL_GetInsertId(g_hDatabase);
 		}
 	
@@ -376,7 +376,7 @@ public void SQL_Callback_OnVIPClientAdded(Handle hOwner, Handle hQuery, const ch
 		hDataPack.ReadString(sAuth, sizeof(sAuth));
 		iExpires = hDataPack.ReadCell();
 		hDataPack.ReadString(sGroup, sizeof(sGroup));
-		if(sGroup[0] == '\0')
+		if (sGroup[0] == '\0')
 		{
 			FormatEx(sGroup, sizeof(sGroup), "%T", "NONE", iClient);
 		}
@@ -412,7 +412,7 @@ public void SQL_Callback_OnVIPClientAdded(Handle hOwner, Handle hQuery, const ch
 			PrintToServer("%T", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", LANG_SERVER, sName, sAuth, iClientID);
 		}
 
-		if(g_CVAR_bLogsEnable)
+		if (g_CVAR_bLogsEnable)
 		{
 			LogToFile(g_sLogFile, "%T", "LOG_ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY", iClient, iClient, sName, sAuth, iClientID, sExpires, sTime, sGroup);
 		}

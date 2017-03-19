@@ -29,7 +29,7 @@
 char	KEY_CID[]		= "Core->ClientID";
 char	KEY_EXPIRES[]	= "Core->Expires";
 char	KEY_GROUP[]		= "Core->Group";
-char	KEY_AUTHTYPE[]	= "Core->AuthType";
+//char	KEY_AUTHTYPE[]	= "Core->AuthType";
 
 enum
 {
@@ -61,7 +61,7 @@ char g_sToggleStatus[][] =
 
 #define FEATURE_NAME_LENGTH 64
 
-static const char g_sLogFile[] = "addons/sourcemod/logs/VIP_Logs.log";
+char g_sLogFile[] = "addons/sourcemod/logs/VIP_Logs.log";
 
 KeyValues	g_hGroups;
 KeyValues	g_hInfo;

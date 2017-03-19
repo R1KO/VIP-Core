@@ -70,7 +70,7 @@ VIP_ToggleState CreateForward_OnFeatureToggle(int iClient, const char[] sFeature
 	Call_PushCellRef(ResultStatus);
 	Call_Finish(aResult);
 
-	switch(aResult)
+	switch (aResult)
 	{
 		case Plugin_Continue:
 		{
@@ -174,7 +174,7 @@ public int Native_IsClientVIP(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient, false))
 	{
-		return bool:(g_iClientInfo[iClient] & IS_VIP);
+		return view_as<bool>(g_iClientInfo[iClient] & IS_VIP);
 	}
 	
 	return false;
@@ -182,7 +182,7 @@ public int Native_IsClientVIP(Handle hPlugin, int iNumParams)
 
 public int Native_PrintToChatClient(Handle hPlugin, int iNumParams)
 {
-	new iClient = GetNativeCell(1);
+	int iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient, false))
 	{
 		char sMessage[256];
@@ -226,7 +226,7 @@ void Print(int iClient, const char[] sFormat)
 		case Engine_SourceSDK2006:
 		{
 			ReplaceString(sMessage, sizeof(sMessage), "{LIGHTGREEN}", "\x03");
-			new iColor = ReplaceColors(sMessage, sizeof(sMessage));
+			int iColor = ReplaceColors(sMessage, sizeof(sMessage));
 			switch (iColor)
 			{
 				case  - 1:SayText2(iClient, 0, sMessage);
@@ -265,7 +265,7 @@ void Print(int iClient, const char[] sFormat)
 				"{BLUE}", 
 				"{PURPLE}"
 			}, 
-			char sColorCode[][] = 
+			sColorCode[][] = 
 			{
 				"\x02", 
 				"\x05", 
@@ -279,7 +279,7 @@ void Print(int iClient, const char[] sFormat)
 				"\x0E"
 			};
 			
-			for (new i = 0; i < sizeof(sColorName); ++i)
+			for (int i = 0; i < sizeof(sColorName); ++i)
 			{
 				ReplaceString(sMessage, sizeof(sMessage), sColorName[i], sColorCode[i]);
 			}
@@ -313,7 +313,7 @@ int ReplaceColors(char[] sMsg, int MaxLength)
 
 int FindPlayerByTeam(int iTeam)
 {
-	for (new i = 1; i <= MaxClients; i++)
+	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (IsClientInGame(i) && GetClientTeam(i) == iTeam)return i;
 	}
@@ -323,24 +323,26 @@ int FindPlayerByTeam(int iTeam)
 
 void SayText2(int iClient, int iAuthor = 0, const char[] sMessage)
 {
-	decl iClients[1], Handle:hBuffer;
+	int iClients[1]; Handle hBuffer; // methodmap
 	iClients[0] = iClient;
 	hBuffer = StartMessage("SayText2", iClients, 1, USERMSG_RELIABLE | USERMSG_BLOCKHOOKS);
 	if (GetUserMessageType() == UM_Protobuf)
 	{
-		hBuffer.SetInt("ent_idx", iAuthor);
-		hBuffer.SetBool("chat", true);
-		hBuffer.SetString("msg_name", sMessage);
-		hBuffer.AddString("params", "");
-		hBuffer.AddString("params", "");
-		hBuffer.AddString("params", "");
-		hBuffer.AddString("params", "");
+		Protobuf pbBuffer = UserMessageToProtobuf(hBuffer);
+		pbBuffer.SetInt("ent_idx", iAuthor);
+		pbBuffer.SetBool("chat", true);
+		pbBuffer.SetString("msg_name", sMessage);
+		pbBuffer.AddString("params", "");
+		pbBuffer.AddString("params", "");
+		pbBuffer.AddString("params", "");
+		pbBuffer.AddString("params", "");
 	}
 	else
 	{
-		hBuffer.WriteByte(iAuthor);
-		hBuffer.WriteByte(true);
-		BfWriteString(hBuffer, sMessage);
+		BfWrite bfBuffer = UserMessageToBfWrite(hBuffer);
+		bfBuffer.WriteByte(iAuthor);
+		bfBuffer.WriteByte(true);
+		bfBuffer.WriteString(sMessage);
 	}
 	EndMessage();
 }
@@ -362,7 +364,7 @@ public int Native_GetClientID(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient))
 	{
-		decl iClientID;
+		int iClientID;
 		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID))
 		{
 			return iClientID;
@@ -390,7 +392,7 @@ public int Native_GetClientVIPGroup(Handle hPlugin, int iNumParams)
 	return false;
 }
 
-public Native_SetClientVIPGroup(Handle:hPlugin, iNumParams)
+public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient))
@@ -403,7 +405,7 @@ public Native_SetClientVIPGroup(Handle:hPlugin, iNumParams)
 			{
 				if (view_as<bool>(GetNativeCell(3)))
 				{
-					decl iClientID;
+					int iClientID;
 					if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 					{
 						char sQuery[256];
@@ -435,7 +437,7 @@ public int Native_GetClientAccessTime(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient))
 	{
-		decl iExp;
+		int iExp;
 		if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp))
 		{
 			return iExp;
@@ -462,7 +464,7 @@ public int Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
 		{
 			if (view_as<bool>(GetNativeCell(3)))
 			{
-				decl iClientID;
+				int iClientID;
 				if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 				{
 					char sQuery[256];
@@ -486,15 +488,15 @@ public int Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
 	return false;
 }
 
-public void SQL_Callback_ChangeClientSettings(Handle hOwner, Handle hQuery, const char[] sError, any UserID)
+public void SQL_Callback_ChangeClientSettings(Database hOwner, DBResultSet hQuery, const char[] sError, any UserID)
 {
 	if (sError[0])
 	{
 		LogError("SQL_Callback_ChangeClientSettings: %s", sError);
 	}
 	
-	new iClient = CID(UserID);
-	if (iClient && (hOwner).AffectedRows)
+	int iClient = CID(UserID);
+	if (iClient && hOwner.AffectedRows)
 	{
 		Clients_CheckVipAccess(iClient, false);
 	}
@@ -505,9 +507,9 @@ public int Native_GetVIPClientTrie(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient))
 	{
-		return _:g_hFeatures[iClient];
+		return view_as<int>(g_hFeatures[iClient]);
 	}
-	return _:INVALID_HANDLE;
+	return view_as<int>(INVALID_HANDLE);
 }
 
 public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
@@ -540,7 +542,7 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 		if (UTIL_CheckValidVIPGroup(sGroup))
 		{
 			int iTime = GetNativeCell(2);
-			if(iTime >= 0)
+			if (iTime >= 0)
 			{
 				if (GetNativeCell(4))
 				{
@@ -597,7 +599,7 @@ public int Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
 	{
 		if (view_as<bool>(GetNativeCell(2)) == true)
 		{
-			decl iClientID;
+			int iClientID;
 			if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 			{
 				DB_RemoveClientFromID(0, iClientID, true);
@@ -664,7 +666,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 
 		if (FType != HIDE)
 		{
-			switch(FType)
+			switch (FType)
 			{
 				case TOGGLABLE:
 				{	
@@ -729,7 +731,7 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 			
 			GLOBAL_TRIE.Remove(sFeatureName);
 			
-			i = g_hFeaturesArray.FindString(sFeatureName);
+			int i = g_hFeaturesArray.FindString(sFeatureName);
 			if (i != -1)
 			{
 				g_hFeaturesArray.Erase(i);
@@ -737,7 +739,7 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 			
 			if (iFeatureType != HIDE)
 			{
-				char sItemInfo[FEATURE_NAME_LENGTH]; iSize;
+				char sItemInfo[FEATURE_NAME_LENGTH]; int iSize;
 				iSize = (g_hVIPMenu).ItemCount;
 				for (i = 0; i < iSize; ++i)
 				{
@@ -807,10 +809,10 @@ public int Native_GetClientFeatureStatus(Handle hPlugin, int iNumParams)
 		char sFeatureName[FEATURE_NAME_LENGTH];
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 		
-		return _:Features_GetStatus(iClient, sFeatureName);
+		return view_as<int>(Features_GetStatus(iClient, sFeatureName));
 	}
 	
-	return _:NO_ACCESS;
+	return view_as<int>(NO_ACCESS);
 }
 
 public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
@@ -818,16 +820,16 @@ public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient))
 	{
-		char sFeatureName[FEATURE_NAME_LENGTH]; VIP_ToggleState:OldStatus, VIP_ToggleState:NewStatus;
+		char sFeatureName[FEATURE_NAME_LENGTH]; VIP_ToggleState OldStatus; VIP_ToggleState NewStatus;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 		OldStatus = Features_GetStatus(iClient, sFeatureName);
 		
-		NewStatus = VIP_ToggleState:GetNativeCell(3);
+		NewStatus = view_as<VIP_ToggleState>(GetNativeCell(3));
 		
 		ArrayList hArray;
 		if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 		{
-			if (VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) == TOGGLABLE)
+			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 			{
 				DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
 				hDataPack.Position = ITEM_SELECT;
@@ -854,7 +856,7 @@ public int Native_GetClientFeatureInt(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient))
 	{
-		char sFeatureName[FEATURE_NAME_LENGTH]; iValue;
+		char sFeatureName[FEATURE_NAME_LENGTH]; int iValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 
 		if (g_hFeatures[iClient].GetValue(sFeatureName, iValue) && iValue != 0)
@@ -871,15 +873,15 @@ public int Native_GetClientFeatureFloat(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient))
 	{
-		char sFeatureName[FEATURE_NAME_LENGTH]; Float:fValue;
+		char sFeatureName[FEATURE_NAME_LENGTH]; float fValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 
 		if (g_hFeatures[iClient].GetValue(sFeatureName, fValue) && fValue != 0.0)
 		{
-			return _:fValue;
+			return view_as<int>(fValue);
 		}
 	}
-	return _:0.0;
+	return view_as<int>(0.0);
 }
 
 public int Native_GetClientFeatureBool(Handle hPlugin, int iNumParams)
@@ -901,7 +903,7 @@ public int Native_GetClientFeatureString(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient))
 	{
-		char sFeatureName[64]; char sBuffer[256]; iLen;
+		char sFeatureName[64]; char sBuffer[256]; int iLen;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 		
 		iLen = GetNativeCell(4);
@@ -919,15 +921,15 @@ public int Native_GetClientFeatureString(Handle hPlugin, int iNumParams)
 public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		char sFeatureName[64]; Handle:hArray; char sFeatureValue[256];
-		if(GLOBAL_TRIE.GetValue(sFeatureName, hArray))
+		char sFeatureName[64]; ArrayList hArray; char sFeatureValue[256];
+		if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 		{
 			char sFeatureValue[256];
 			GetNativeString(3, sFeatureValue, sizeof(sFeatureValue));
 			
-			if(!(g_iClientInfo[iClient] & IS_VIP))
+			if (!(g_iClientInfo[iClient] & IS_VIP))
 			{
 				Clients_CreateClientVIPSettings(iClient, 0);
 				g_hFeatures[iClient].SetValue(KEY_CID, -1);
@@ -936,7 +938,7 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 				g_iClientInfo[iClient] |= IS_AUTHORIZED;
 			}
 
-			switch(VIP_ValueType:hArray.Get(FEATURES_VALUE_TYPE))
+			switch (view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)))
 			{
 				case BOOL:
 				{
@@ -964,11 +966,11 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 
 			Features_SetStatus(iClient, sFeatureName, ENABLED);
 			
-			if(VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) == TOGGLABLE)
+			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 			{
-				new Function:Function_Select = Function:hArray.Get(FEATURES_ITEM_SELECT);
+				Function Function_Select = view_as<Function>(hArray.Get(FEATURES_ITEM_SELECT));
 				
-				if(Function_Select != INVALID_FUNCTION)
+				if (Function_Select != INVALID_FUNCTION)
 				{
 					NewStatus = Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Select, iClient, sFeatureName, NO_ACCESS, ENABLED);
 				}
@@ -1007,10 +1009,10 @@ public int Native_SecondsToTime(Handle hPlugin, int iNumParams)
 
 public int Native_GetTimeFromStamp(Handle hPlugin, int iNumParams)
 {
-	new iTimeStamp = GetNativeCell(3);
+	int iTimeStamp = GetNativeCell(3);
 	if (iTimeStamp > 0)
 	{
-		new iClient = GetNativeCell(4);
+		int iClient = GetNativeCell(4);
 		if (iClient == 0 || CheckValidClient(iClient, false))
 		{
 			char sBuffer[64];
@@ -1029,13 +1031,13 @@ public int Native_AddStringToggleStatus(Handle hPlugin, int iNumParams)
 	GetNativeString(4, sFeatureName, sizeof(sFeatureName));
 	if (IsValidFeature(sFeatureName))
 	{
-		new iClient = GetNativeCell(5);
+		int iClient = GetNativeCell(5);
 		if (CheckValidClient(iClient))
 		{
-			new iSize = GetNativeCell(3);
-			char sBuffer[iSize];
+			int iSize = GetNativeCell(3);
+			char[] sBuffer = new char[iSize]; // char sBuffer[iSize];
 			GetNativeString(1, sBuffer, iSize);
-			Format(sBuffer, iSize, "%s [%T]", sBuffer, g_sToggleStatus[_:Features_GetStatus(iClient, sFeatureName)], iClient);
+			Format(sBuffer, iSize, "%s [%T]", sBuffer, g_sToggleStatus[view_as<int>(Features_GetStatus(iClient, sFeatureName))], iClient);
 			SetNativeString(2, sBuffer, iSize, true);
 		}
 	}
@@ -1045,7 +1047,7 @@ public int Native_AddStringToggleStatus(Handle hPlugin, int iNumParams)
 	}
 }
 
-bool CheckValidClient(const &iClient, bool bCheckVIP = true)
+bool CheckValidClient(const int &iClient, bool bCheckVIP = true)
 {
 	if (iClient < 1 || iClient > MaxClients)
 	{

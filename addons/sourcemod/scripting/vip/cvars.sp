@@ -125,11 +125,6 @@ public void OnSpawnDelayChange(ConVar hCvar, const char[] oldValue, const char[]
 	g_CVAR_fSpawnDelay = GetConVarFloat(hCvar);
 }
 
-public void OnKickNotAuthorizedChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
-{
-	g_CVAR_bKickNotAuthorized = GetConVarBool(hCvar);
-}
-
 public void OnHideNoAccessItemsChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_bHideNoAccessItems = GetConVarBool(hCvar);

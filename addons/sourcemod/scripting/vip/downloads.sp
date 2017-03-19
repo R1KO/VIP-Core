@@ -47,7 +47,7 @@ bool Dir_AddToDownloadsTable(const char[] sPath)
 	
 	if (DirExists(sPath))
 	{
-		decl Handle:hDir;
+		DirectoryListing hDir;
 		hDir = OpenDirectory(sPath);
 		if (hDir != null)
 		{

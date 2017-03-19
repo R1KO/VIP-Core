@@ -41,7 +41,7 @@ public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int 
 		{
 			char sTitle[128];
 			FormatEx(sTitle, sizeof(sTitle), "%T: \n ", "VIP_ADMIN_MENU_TITLE", iClient);
-			Handle:iOption.SetTitle(sTitle);
+			(view_as<Menu>(iOption)).SetTitle(sTitle);
 		}
 		case MenuAction_DisplayItem:
 		{
@@ -94,7 +94,7 @@ public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int 
 	return 0;
 }
 
-public OnLibraryAdded(const char[] sLibraryName)
+public void OnLibraryAdded(const char[] sLibraryName)
 {
 	if (strcmp(sLibraryName, "adminmenu") == 0)
 	{
@@ -106,7 +106,7 @@ public OnLibraryAdded(const char[] sLibraryName)
 	}
 }
 
-public OnLibraryRemoved(const char[] sLibraryName)
+public void OnLibraryRemoved(const char[] sLibraryName)
 {
 	if (strcmp(sLibraryName, "adminmenu") == 0)
 	{
@@ -224,8 +224,8 @@ void InitiateDataArray(int iClient)
 
 int IsClientOnline(int ID)
 {
-	decl i, iClientID;
-	for (i = 1; i <= MaxClients; ++i)
+	int iClientID;
+	for (int i = 1; i <= MaxClients; ++i)
 	{
 		if (IsClientInGame(i) && g_hFeatures[i] != null && GetTrieValue(g_hFeatures[i], KEY_CID, iClientID) && iClientID == ID) return i;
 	}
@@ -242,7 +242,7 @@ void ShowTimeMenu(int iClient)
 	hMenu.SetTitle("%t:\n \n", "MENU_TIME_SET");
 	/*
 	iMenuType = g_ClientData[iClient].Get(DATA_TIME);
-	switch(iMenuType)
+	switch (iMenuType)
 	{
 		case TIME_SET: 	hMenu.SetTitle("%t:\n \n", "MENU_TIME_SET");
 		case TIME_ADD:	hMenu.SetTitle("%t:\n \n", "MENU_TIME_ADD");
@@ -264,10 +264,10 @@ void ShowTimeMenu(int iClient)
 		{
 			hKv.GetSectionName(sTime, sizeof(sTime));
 
-			if(iMenuType != TIME_SET && sTime[0] == '0') continue;
+			if (iMenuType != TIME_SET && sTime[0] == '0') continue;
 
 			hKv.GetString(sClientLang, sBuffer, sizeof(sBuffer), "LangError");
-			if(!sBuffer[0])
+			if (!sBuffer[0])
 			{
 				hKv.GetString(sServerLang, sBuffer, sizeof(sBuffer), "LangError");
 			}
@@ -290,19 +290,19 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 		case MenuAction_End: CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack)
+			if (Item == MenuCancel_ExitBack)
 			{
 				ShowAddVIPMenu(iClient);
 			}
 		}
 		case MenuAction_Select:
 		{
-			int iTarget = GetClientOfUserId(g_ClientData[iClient].GetCell(DATA_TARGET_USER_ID));
+			int iTarget = GetClientOfUserId(g_ClientData[iClient].Get(DATA_TARGET_USER_ID));
 			if (iTarget)
 			{
-				char sBuffer[64]; int iType, iTime;
+				char sBuffer[64]; //int iType, iTime;
 				hMenu.GetItem(Item, sBuffer, sizeof(sBuffer));
-				g_ClientData[iClient].SetCell(DATA_TIME, StringToInt(sBuffer));
+				g_ClientData[iClient].Set(DATA_TIME, StringToInt(sBuffer));
 				ShowGroupMenu(iClient);
 			}
 			else
@@ -345,7 +345,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 			
 			if (g_ClientData[iClient].Get(DATA_MENU_TYPE) == MENU_TYPE_ADD)
 			{
-				new iTarget = GetClientOfUserId(g_ClientData[iClient].Get(DATA_TARGET_USER_ID));
+				int iTarget = GetClientOfUserId(g_ClientData[iClient].Get(DATA_TARGET_USER_ID));
 				if (iTarget)
 				{
 					g_ClientData[iClient].Set(DATA_TIME, iTime);
@@ -456,7 +456,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 	return 0;
 }
 */
-public void SQL_Callback_ChangeTime(Handle hOwner, Handle hQuery, const char[] sError, any UserID)
+public void SQL_Callback_ChangeTime(Database hOwner, DBResultSet hQuery, const char[] sError, any UserID)
 {
 	if (sError[0])
 	{
@@ -464,12 +464,12 @@ public void SQL_Callback_ChangeTime(Handle hOwner, Handle hQuery, const char[] s
 		return;
 	}
 	
-	if ((hOwner).AffectedRows)
+	if (hOwner.AffectedRows)
 	{
-		new iClient = CID(UserID);
+		int iClient = CID(UserID);
 		if (iClient)
 		{
-			new iTarget = IsClientOnline(g_ClientData[iClient].Get(DATA_TARGET_ID));
+			int iTarget = IsClientOnline(g_ClientData[iClient].Get(DATA_TARGET_ID));
 			if (iTarget)
 			{
 				Clients_CheckVipAccess(iTarget, true);
@@ -478,7 +478,7 @@ public void SQL_Callback_ChangeTime(Handle hOwner, Handle hQuery, const char[] s
 	}
 }
 
-void ReductionMenu(Handle &hMenu, int iNum)
+stock void ReductionMenu(Handle &hMenu, int iNum)
 {
 	for (int i = 0; i < iNum; ++i)
 	{
@@ -494,7 +494,7 @@ void ReductionMenu(Handle &hMenu, int iNum)
 */
 
 /*
-void AddMenuTranslatedItem(Handle:hMenu, iClient, const char[] sItem)
+void AddMenuTranslatedItem(Menu hMenu, int iClient, const char[] sItem)
 {
 	char sBuffer[128];
 	FormatEx(sBuffer, sizeof(sBuffer), "%T", sItem, iClient);

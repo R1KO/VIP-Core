@@ -219,7 +219,7 @@ native bool VIP_GetClientVIPGroup(int iClient, char[] sGroup, int iMaxLength);
  *	-
  * @return true в случае успеха, иначе false.
 */
-native bool VIP_SetClientVIPGroup(int iClient, const char[] sGroup, bool:bInDB = true);
+native bool VIP_SetClientVIPGroup(int iClient, const char[] sGroup, bool bInDB = true);
 
 /**
  *	Получает Handle adt trie настроек VIP-игрока.
@@ -492,7 +492,7 @@ native bool VIP_GetTimeFromStamp(char[] sBuffer, int iMaxLength, int iTimeStamp,
 */
 native void VIP_AddStringToggleStatus(const char[] sInput, char[] sBuffer, int iMaxLength, const char[] sFeatureName, int iClient);
 
-public SharedPlugin:__pl_vip_core= 
+public SharedPlugin __pl_vip_core= 
 {
 	name = "vip_core",
 	file = "VIP_Core.smx",
@@ -504,7 +504,7 @@ public SharedPlugin:__pl_vip_core=
 };
 
 #if !defined REQUIRE_PLUGIN
-public __pl_vip_SetNTVOptional()
+public void __pl_vip_SetNTVOptional()
 {
 	MarkNativeAsOptional("VIP_CheckClient");
 	MarkNativeAsOptional("VIP_IsClientVIP");

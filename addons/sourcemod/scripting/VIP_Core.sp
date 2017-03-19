@@ -97,7 +97,7 @@ public void OnPluginStart()
 	if (LibraryExists("adminmenu"))
 	{
 		TopMenu hTopMenu = GetAdminTopMenu();
-		if(hTopMenu != null)
+		if (hTopMenu != null)
 		{
 			OnAdminMenuReady(hTopMenu);
 		}
@@ -118,7 +118,7 @@ public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[
 		if (g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 		{
 			/*
-			if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+			if (g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 			{
 				ShowWaitSearchMenu(iClient, sArgs, true);
 			}
