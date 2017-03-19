@@ -4,29 +4,32 @@
 
 //#define ERROR_SOUND					"buttons/weapon_confirm.wav"
 
-LoadSounds()
+void LoadSounds()
 {
 	PrecacheSound(NO_ACCESS_SOUND, true);
 	PrecacheSound(ERROR_SOUND, true);
 	PrecacheSound(ITEM_TOGGLE_SOUND, true);
 }
 /*
-LoadSounds()
+void LoadSounds()
 {
 	LoadSound(NO_ACCESS_SOUND);
 	LoadSound(NO_ACCESS_SOUND2);
 	LoadSound(ITEM_TOGGLE_SOUND);
 }
 
-LoadSound(const String:sSound[])
+void LoadSound(const char[] sSound)
 {
-	decl String:sBuffer[200];
+	char sBuffer[200];
 	FormatEx(sBuffer, sizeof(sBuffer), "sound/%s", sSound);
-	if(FileExists(sBuffer))
+	if (FileExists(sBuffer))
 	{
 		AddFileToDownloadsTable(sBuffer);
 		PrecacheSound(sSound, true);
 	}
 }*/
 
-PlaySound(iClient, const String:sSound[]) ClientCommand(iClient, "playgamesound %s", sSound);
+void PlaySound(int iClient, const char[] sSound)
+{
+	ClientCommand(iClient, "playgamesound %s", sSound);
+} 

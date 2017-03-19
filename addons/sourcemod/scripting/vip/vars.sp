@@ -29,26 +29,26 @@
 char	KEY_CID[]		= "Core->ClientID";
 char	KEY_EXPIRES[]	= "Core->Expires";
 char	KEY_GROUP[]		= "Core->Group";
-char	KEY_AUTHTYPE[]	= "Core->AuthType";
+//char	KEY_AUTHTYPE[]	= "Core->AuthType";
 
 enum
 {
-	FEATURES_PLUGIN = 0,
-	FEATURES_VALUE_TYPE,
-	FEATURES_ITEM_TYPE,
-	FEATURES_COOKIE,
+	FEATURES_PLUGIN = 0, 
+	FEATURES_VALUE_TYPE, 
+	FEATURES_COOKIE, 
+	FEATURES_ITEM_TYPE, 
 	FEATURES_MENU_CALLBACKS
 }
 
-DataPackPos ITEM_SELECT		= view_as<DataPackPos>(0);
-DataPackPos ITEM_DISPLAY	= view_as<DataPackPos>(9);
-DataPackPos ITEM_DRAW		= view_as<DataPackPos>(18);
+DataPackPos ITEM_SELECT = view_as<DataPackPos>(0);
+DataPackPos ITEM_DISPLAY = view_as<DataPackPos>(9);
+DataPackPos ITEM_DRAW = view_as<DataPackPos>(18);
 
 enum
 {
-	TIME_MODE_SECONDS = 0,
-	TIME_MODE_MINUTES,
-	TIME_MODE_HOURS,
+	TIME_MODE_SECONDS = 0, 
+	TIME_MODE_MINUTES, 
+	TIME_MODE_HOURS, 
 	TIME_MODE_DAYS
 }
 
@@ -61,7 +61,7 @@ char g_sToggleStatus[][] =
 
 #define FEATURE_NAME_LENGTH 64
 
-char		g_sLogFile[] = "addons/sourcemod/logs/VIP_Logs.log";
+char g_sLogFile[] = "addons/sourcemod/logs/VIP_Logs.log";
 
 KeyValues	g_hGroups;
 KeyValues	g_hInfo;
@@ -78,12 +78,12 @@ Menu		g_hVIPMenu;
 ArrayList	g_hFeaturesArray;
 ArrayList	g_hSortArray;
 
-StringMap	g_hFeatures[MAXPLAYERS+1];
-StringMap	g_hFeatureStatus[MAXPLAYERS+1];
+StringMap	g_hFeatures[MAXPLAYERS + 1];
+StringMap	g_hFeatureStatus[MAXPLAYERS + 1];
 
-ArrayList	g_ClientData[MAXPLAYERS+1];
+ArrayList	g_ClientData[MAXPLAYERS + 1];
 
-int			g_iClientInfo[MAXPLAYERS+1];
+int			g_iClientInfo[MAXPLAYERS + 1];
 
 // Cvar`s
 ConVar		g_CVAR_hVIPMenu_CMD;

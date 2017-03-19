@@ -1,5 +1,5 @@
 
-CreateForwards()
+void CreateForwards()
 {
 	// Global Forwards
 	g_hGlobalForward_OnVIPLoaded					= CreateGlobalForward("VIP_OnVIPLoaded", ET_Ignore);
@@ -12,13 +12,13 @@ CreateForwards()
 }
 
 // Global Forwards
-CreateForward_OnVIPLoaded()
+void CreateForward_OnVIPLoaded()
 {
 	Call_StartForward(g_hGlobalForward_OnVIPLoaded);
 	Call_Finish();
 }
 
-CreateForward_OnClientLoaded(iClient)
+void CreateForward_OnClientLoaded(int iClient)
 {
 	Call_StartForward(g_hGlobalForward_OnClientLoaded);
 	Call_PushCell(iClient);
@@ -26,14 +26,14 @@ CreateForward_OnClientLoaded(iClient)
 	Call_Finish();
 }
 
-CreateForward_OnVIPClientLoaded(iClient)
+void CreateForward_OnVIPClientLoaded(int iClient)
 {
 	Call_StartForward(g_hGlobalForward_OnVIPClientLoaded);
 	Call_PushCell(iClient);
 	Call_Finish();
 }
 
-CreateForward_OnVIPClientAdded(iAdmin, iClient)
+void CreateForward_OnVIPClientAdded(int iAdmin, int iClient)
 {
 	Call_StartForward(g_hGlobalForward_OnVIPClientAdded);
 	Call_PushCell(iAdmin);
@@ -41,7 +41,7 @@ CreateForward_OnVIPClientAdded(iAdmin, iClient)
 	Call_Finish();
 }
 
-CreateForward_OnVIPClientRemoved(iClient, const char[] sReason)
+void CreateForward_OnVIPClientRemoved(int iClient, const char[] sReason)
 {
 	Call_StartForward(g_hGlobalForward_OnVIPClientRemoved);
 	Call_PushCell(iClient);
@@ -49,7 +49,7 @@ CreateForward_OnVIPClientRemoved(iClient, const char[] sReason)
 	Call_Finish();
 }
 
-CreateForward_OnPlayerSpawn(iClient, iTeam)
+void CreateForward_OnPlayerSpawn(int iClient, int iTeam)
 {
 	Call_StartForward(g_hGlobalForward_OnPlayerSpawn);
 	Call_PushCell(iClient);
@@ -70,7 +70,7 @@ VIP_ToggleState CreateForward_OnFeatureToggle(int iClient, const char[] sFeature
 	Call_PushCellRef(ResultStatus);
 	Call_Finish(aResult);
 
-	switch(aResult)
+	switch (aResult)
 	{
 		case Plugin_Continue:
 		{
@@ -154,83 +154,83 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] sError, int err_m
 	MarkNativeAsOptional("PbSetBool");
 	MarkNativeAsOptional("PbSetString");
 	MarkNativeAsOptional("PbAddString");
-
+	
 	RegPluginLibrary("vip_core");
-
-	return APLRes_Success; 
+	
+	return APLRes_Success;
 }
 
-public Native_CheckClient(Handle hPlugin, int iNumParams)
+public int Native_CheckClient(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient, false))
+	if (CheckValidClient(iClient, false))
 	{
-		Clients_CheckVipAccess(iClient, bool:GetNativeCell(2));
+		Clients_CheckVipAccess(iClient, view_as<bool>(GetNativeCell(2)));
 	}
 }
 
-public Native_IsClientVIP(Handle hPlugin, int iNumParams)
+public int Native_IsClientVIP(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient, false))
+	if (CheckValidClient(iClient, false))
 	{
-		return bool:(g_iClientInfo[iClient] & IS_VIP);
+		return view_as<bool>(g_iClientInfo[iClient] & IS_VIP);
 	}
-
+	
 	return false;
 }
 
-public Native_PrintToChatClient(Handle hPlugin, int iNumParams)
+public int Native_PrintToChatClient(Handle hPlugin, int iNumParams)
 {
-	new iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient, false))
+	int iClient = GetNativeCell(1);
+	if (CheckValidClient(iClient, false))
 	{
-		decl String:sMessage[256];
+		char sMessage[256];
 		SetGlobalTransTarget(iClient);
 		FormatNativeString(0, 2, 3, sizeof(sMessage), _, sMessage);
-	//	Format(sMessage, sizeof(sMessage), "%t%s", "VIP_CHAT_PREFIX", sMessage);
+		//	Format(sMessage, sizeof(sMessage), "%t%s", "VIP_CHAT_PREFIX", sMessage);
 		
 		Print(iClient, sMessage);
 		
-	//	PrintToChat(iClient, "%t%s", "VIP_CHAT_PREFIX", sMessage);
+		//	PrintToChat(iClient, "%t%s", "VIP_CHAT_PREFIX", sMessage);
 	}
 }
 
-public Native_PrintToChatAll(Handle hPlugin, int iNumParams)
+public int Native_PrintToChatAll(Handle hPlugin, int iNumParams)
 {
-	decl i, String:sMessage[256];
-
-	for (i = 1; i <= MaxClients; ++i)
+	char sMessage[256];
+	
+	for (int i = 1; i <= MaxClients; ++i)
 	{
 		if (IsClientInGame(i) && IsFakeClient(i) == false)
 		{
 			SetGlobalTransTarget(i);
 			FormatNativeString(0, 1, 2, sizeof(sMessage), _, sMessage);
 			Print(i, sMessage);
-		//	PrintToChat(i, "%t%s", "VIP_CHAT_PREFIX", sMessage);
+			//	PrintToChat(i, "%t%s", "VIP_CHAT_PREFIX", sMessage);
 		}
 	}
 }
 
-Print(iClient, const String:sFormat[])
+void Print(int iClient, const char[] sFormat)
 {
-	decl String:sMessage[256];
+	char sMessage[256];
 	FormatEx(sMessage, sizeof(sMessage), g_EngineVersion == Engine_CSGO ? " \x01%t %s":"\x01%t %s", "VIP_CHAT_PREFIX", sFormat);
 	
 	ReplaceString(sMessage, sizeof(sMessage), "\\n", "\n");
 	ReplaceString(sMessage, sizeof(sMessage), "{DEFAULT}", "\x01");
 	ReplaceString(sMessage, sizeof(sMessage), "{GREEN}", "\x04");
-
-	switch(g_EngineVersion)
+	
+	switch (g_EngineVersion)
 	{
 		case Engine_SourceSDK2006:
 		{
 			ReplaceString(sMessage, sizeof(sMessage), "{LIGHTGREEN}", "\x03");
-			new iColor = ReplaceColors(sMessage, sizeof(sMessage));
-			switch(iColor)
+			int iColor = ReplaceColors(sMessage, sizeof(sMessage));
+			switch (iColor)
 			{
-				case -1:	SayText2(iClient, 0, sMessage);
-				case 0:		SayText2(iClient, iClient, sMessage);
+				case  - 1:SayText2(iClient, 0, sMessage);
+				case 0:SayText2(iClient, iClient, sMessage);
 				default:
 				{
 					SayText2(iClient, FindPlayerByTeam(iColor), sMessage);
@@ -240,7 +240,7 @@ Print(iClient, const String:sFormat[])
 		case Engine_CSS, Engine_TF2, Engine_DODS, Engine_HL2DM:
 		{
 			ReplaceString(sMessage, sizeof(sMessage), "#", "\x07");
-			if(ReplaceString(sMessage, sizeof(sMessage), "{TEAM}", "\x03"))
+			if (ReplaceString(sMessage, sizeof(sMessage), "{TEAM}", "\x03"))
 			{
 				SayText2(iClient, iClient, sMessage);
 			}
@@ -252,39 +252,39 @@ Print(iClient, const String:sFormat[])
 		}
 		case Engine_CSGO:
 		{
-			static const	String:sColorName[][] =
-							{
-								"{RED}",
-								"{LIME}",
-								"{LIGHTGREEN}",
-								"{LIGHTRED}",
-								"{GRAY}",
-								"{LIGHTOLIVE}",
-								"{OLIVE}",
-								"{LIGHTBLUE}",
-								"{BLUE}", 
-								"{PURPLE}"
-							},
-							String:sColorCode[][] =
-							{
-								"\x02",
-							    "\x05",
-							    "\x06",
-							    "\x07",
-							    "\x08",
-							    "\x09",
-							    "\x10",
-							    "\x0B",
-							    "\x0C",
-							    "\x0E"
-							};
-
-			for(new i = 0; i < sizeof(sColorName); ++i)
+			static const char sColorName[][] = 
+			{
+				"{RED}", 
+				"{LIME}", 
+				"{LIGHTGREEN}", 
+				"{LIGHTRED}", 
+				"{GRAY}", 
+				"{LIGHTOLIVE}", 
+				"{OLIVE}", 
+				"{LIGHTBLUE}", 
+				"{BLUE}", 
+				"{PURPLE}"
+			}, 
+			sColorCode[][] = 
+			{
+				"\x02", 
+				"\x05", 
+				"\x06", 
+				"\x07", 
+				"\x08", 
+				"\x09", 
+				"\x10", 
+				"\x0B", 
+				"\x0C", 
+				"\x0E"
+			};
+			
+			for (int i = 0; i < sizeof(sColorName); ++i)
 			{
 				ReplaceString(sMessage, sizeof(sMessage), sColorName[i], sColorCode[i]);
 			}
 			
-			if(ReplaceString(sMessage, sizeof(sMessage), "{TEAM}", "\x03"))
+			if (ReplaceString(sMessage, sizeof(sMessage), "{TEAM}", "\x03"))
 			{
 				SayText2(iClient, iClient, sMessage);
 			}
@@ -295,61 +295,63 @@ Print(iClient, const String:sFormat[])
 		}
 		default:
 		{
-			ReplaceString(sMessage, sizeof(sMessage), "{TEAM}",	"\x03");
+			ReplaceString(sMessage, sizeof(sMessage), "{TEAM}", "\x03");
 		}
 	}
 }
 
-ReplaceColors(String:sMsg[], MaxLength)
+int ReplaceColors(char[] sMsg, int MaxLength)
 {
-	if(ReplaceString(sMsg, MaxLength, "{TEAM}",	"\x03"))	return 0;
-
-	if(ReplaceString(sMsg, MaxLength, "{BLUE}",	"\x03"))	return 3;
-	if(ReplaceString(sMsg, MaxLength, "{RED}",	"\x03"))	return 2;
-	if(ReplaceString(sMsg, MaxLength, "{GRAY}",	"\x03"))	return 1;
-
+	if (ReplaceString(sMsg, MaxLength, "{TEAM}", "\x03"))return 0;
+	
+	if (ReplaceString(sMsg, MaxLength, "{BLUE}", "\x03"))return 3;
+	if (ReplaceString(sMsg, MaxLength, "{RED}", "\x03"))return 2;
+	if (ReplaceString(sMsg, MaxLength, "{GRAY}", "\x03"))return 1;
+	
 	return -1;
 }
 
-FindPlayerByTeam(iTeam)
+int FindPlayerByTeam(int iTeam)
 {
-	for (new i = 1; i <= MaxClients; i++)
+	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsClientInGame(i) && GetClientTeam(i) == iTeam) return i;
+		if (IsClientInGame(i) && GetClientTeam(i) == iTeam)return i;
 	}
-
+	
 	return 0;
 }
 
-SayText2(iClient, iAuthor = 0, const String:sMessage[])
+void SayText2(int iClient, int iAuthor = 0, const char[] sMessage)
 {
-	decl iClients[1], Handle:hBuffer;
+	int iClients[1]; Handle hBuffer; // methodmap
 	iClients[0] = iClient;
-	hBuffer = StartMessage("SayText2", iClients, 1, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS);
-	if(GetUserMessageType() == UM_Protobuf)
+	hBuffer = StartMessage("SayText2", iClients, 1, USERMSG_RELIABLE | USERMSG_BLOCKHOOKS);
+	if (GetUserMessageType() == UM_Protobuf)
 	{
-		PbSetInt(hBuffer, "ent_idx", iAuthor);
-		PbSetBool(hBuffer, "chat", true);
-		PbSetString(hBuffer, "msg_name", sMessage);
-		PbAddString(hBuffer, "params", "");
-		PbAddString(hBuffer, "params", "");
-		PbAddString(hBuffer, "params", "");
-		PbAddString(hBuffer, "params", "");
+		Protobuf pbBuffer = UserMessageToProtobuf(hBuffer);
+		pbBuffer.SetInt("ent_idx", iAuthor);
+		pbBuffer.SetBool("chat", true);
+		pbBuffer.SetString("msg_name", sMessage);
+		pbBuffer.AddString("params", "");
+		pbBuffer.AddString("params", "");
+		pbBuffer.AddString("params", "");
+		pbBuffer.AddString("params", "");
 	}
 	else
 	{
-		BfWriteByte(hBuffer, iAuthor);
-		BfWriteByte(hBuffer, true);
-		BfWriteString(hBuffer, sMessage);
+		BfWrite bfBuffer = UserMessageToBfWrite(hBuffer);
+		bfBuffer.WriteByte(iAuthor);
+		bfBuffer.WriteByte(true);
+		bfBuffer.WriteString(sMessage);
 	}
 	EndMessage();
 }
 
-public Native_LogMessage(Handle hPlugin, int iNumParams)
+public int Native_LogMessage(Handle hPlugin, int iNumParams)
 {
-	if(g_CVAR_bLogsEnable)
+	if (g_CVAR_bLogsEnable)
 	{
-		decl String:sMessage[512];
+		char sMessage[512];
 		SetGlobalTransTarget(LANG_SERVER);
 		FormatNativeString(0, 1, 2, sizeof(sMessage), _, sMessage);
 		
@@ -357,31 +359,31 @@ public Native_LogMessage(Handle hPlugin, int iNumParams)
 	}
 }
 
-public Native_GetClientID(Handle hPlugin, int iNumParams)
+public int Native_GetClientID(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		decl iClientID;
-		if(g_hFeatures[iClient].GetValue(KEY_CID, iClientID))
+		int iClientID;
+		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID))
 		{
 			return iClientID;
 		}
 	}
-
+	
 	return -1;
 }
 
-public Native_GetClientVIPGroup(Handle hPlugin, int iNumParams)
+public int Native_GetClientVIPGroup(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		decl String:sGroup[64];
+		char sGroup[64];
 		
 		sGroup[0] = 0;
-
-		if(GetTrieString(g_hFeatures[iClient], KEY_GROUP, sGroup, sizeof(sGroup)))
+		
+		if (g_hFeatures[iClient].GetString(KEY_GROUP, sGroup, sizeof(sGroup)))
 		{
 			SetNativeString(2, sGroup, GetNativeCell(3), true);
 			return true;
@@ -390,23 +392,23 @@ public Native_GetClientVIPGroup(Handle hPlugin, int iNumParams)
 	return false;
 }
 
-public Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
+public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		decl String:sGroup[64];
+		char sGroup[64];
 		GetNativeString(2, sGroup, sizeof(sGroup));
-		if(UTIL_CheckValidVIPGroup(sGroup))
+		if (UTIL_CheckValidVIPGroup(sGroup))
 		{
-			if(SetTrieString(g_hFeatures[iClient], KEY_GROUP, sGroup))
+			if (g_hFeatures[iClient].SetString(KEY_GROUP, sGroup))
 			{
-				if(bool:GetNativeCell(3))
+				if (view_as<bool>(GetNativeCell(3)))
 				{
-					decl iClientID;
-					if(g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
+					int iClientID;
+					if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 					{
-						decl String:sQuery[256];
+						char sQuery[256];
 						if (GLOBAL_INFO & IS_MySQL)
 						{
 							FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_overrides` SET `group` = '%s' WHERE `user_id` = '%i' AND `server_id` = '%i';", sGroup, iClientID, g_CVAR_iServerID);
@@ -418,7 +420,7 @@ public Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 						g_hDatabase.Query(SQL_Callback_ChangeClientSettings, sQuery, UID(iClient));
 					}
 				}
-
+				
 				return true;
 			}
 		}
@@ -430,42 +432,42 @@ public Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 	return false;
 }
 
-public Native_GetClientAccessTime(Handle hPlugin, int iNumParams)
+public int Native_GetClientAccessTime(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		decl iExp;
-		if(g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp))
+		int iExp;
+		if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp))
 		{
 			return iExp;
 		}
 	}
-
+	
 	return -1;
 }
 
-public Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
+public int Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
 {
-	new iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	int iClient = GetNativeCell(1);
+	if (CheckValidClient(iClient))
 	{
-		new iTime = GetNativeCell(2);
+		int iTime = GetNativeCell(2);
 		
-		if(iTime < 0 || (iTime != 0 && iTime < GetTime()))
+		if (iTime < 0 || (iTime != 0 && iTime < GetTime()))
 		{
 			ThrowNativeError(SP_ERROR_NATIVE, "Invalid time/Некорректное время (%i)", iTime);
 			return false;
 		}
 		
-		if(SetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iTime))
+		if (g_hFeatures[iClient].SetValue(KEY_EXPIRES, iTime))
 		{
-			if(bool:GetNativeCell(3))
+			if (view_as<bool>(GetNativeCell(3)))
 			{
-				decl iClientID;
-				if(g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
+				int iClientID;
+				if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 				{
-					decl String:sQuery[256];
+					char sQuery[256];
 					if (GLOBAL_INFO & IS_MySQL)
 					{
 						FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_overrides` SET `expires` = '%i' WHERE `user_id` = '%i' AND `server_id` = '%i';", iTime, iClientID, g_CVAR_iServerID);
@@ -478,57 +480,57 @@ public Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
 					g_hDatabase.Query(SQL_Callback_ChangeClientSettings, sQuery, UID(iClient));
 				}
 			}
-
+			
 			return true;
 		}
 	}
-
+	
 	return false;
 }
 
-public SQL_Callback_ChangeClientSettings(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
+public void SQL_Callback_ChangeClientSettings(Database hOwner, DBResultSet hQuery, const char[] sError, any UserID)
 {
 	if (sError[0])
 	{
 		LogError("SQL_Callback_ChangeClientSettings: %s", sError);
 	}
 	
-	new iClient = CID(UserID);
-	if(iClient && SQL_GetAffectedRows(hOwner))
+	int iClient = CID(UserID);
+	if (iClient && hOwner.AffectedRows)
 	{
 		Clients_CheckVipAccess(iClient, false);
 	}
 }
-	
-public Native_GetVIPClientTrie(Handle hPlugin, int iNumParams)
+
+public int Native_GetVIPClientTrie(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		return _:g_hFeatures[iClient];
+		return view_as<int>(g_hFeatures[iClient]);
 	}
-	return _:INVALID_HANDLE;
+	return view_as<int>(INVALID_HANDLE);
 }
 
-public Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
+public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
 		g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
 	}
 }
 
-public Native_SetClientVIP(Handle hPlugin, int iNumParams)
+public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient, false))
+	if (CheckValidClient(iClient, false))
 	{
-		if(g_iClientInfo[iClient] & IS_VIP)
+		if (g_iClientInfo[iClient] & IS_VIP)
 		{
-			decl iClientID;
+			int iClientID;
 			g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
-			if(iClientID != -1)
+			if (iClientID != -1)
 			{
 				ThrowNativeError(SP_ERROR_NATIVE, "The player %L is already a VIP/Игрок %L уже является VIP-игроком", iClient, iClient);
 				return;
@@ -537,18 +539,18 @@ public Native_SetClientVIP(Handle hPlugin, int iNumParams)
 		
 		char sGroup[64];
 		GetNativeString(3, SZF(sGroup));
-		if(UTIL_CheckValidVIPGroup(sGroup))
+		if (UTIL_CheckValidVIPGroup(sGroup))
 		{
 			int iTime = GetNativeCell(2);
-			if(iTime >= 0)
+			if (iTime >= 0)
 			{
-				if(GetNativeCell(4))
+				if (GetNativeCell(4))
 				{
 					UTIL_ADD_VIP_PLAYER(0, iClient, _, iTime, sGroup);
 				}
 				else
 				{
-					if(iTime == 0)
+					if (iTime == 0)
 					{
 						Clients_CreateClientVIPSettings(iClient, iTime);
 					}
@@ -559,20 +561,20 @@ public Native_SetClientVIP(Handle hPlugin, int iNumParams)
 						Clients_CreateClientVIPSettings(iClient, iTime+iCurrentTime);
 						Clients_CreateExpiredTimer(iClient, iTime+iCurrentTime, iCurrentTime);
 					}
-
-					SetTrieString(g_hFeatures[iClient], KEY_GROUP, sGroup);
-					SetTrieValue(g_hFeatures[iClient], KEY_CID, -1);
-
+					
+					g_hFeatures[iClient].SetString(KEY_GROUP, sGroup);
+					g_hFeatures[iClient].SetValue(KEY_CID, -1);
+					
 					Clients_LoadVIPFeatures(iClient);
 					g_iClientInfo[iClient] |= IS_VIP;
 					g_iClientInfo[iClient] |= IS_LOADED;
 					
 					Clients_OnVIPClientLoaded(iClient);
-					if(g_CVAR_bAutoOpenMenu)
+					if (g_CVAR_bAutoOpenMenu)
 					{
 						g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
 					}
-
+					
 					DisplayClientInfo(iClient, iTime == 0 ? "connect_info_perm":"connect_info_time");
 				}
 				
@@ -590,81 +592,81 @@ public Native_SetClientVIP(Handle hPlugin, int iNumParams)
 	}
 }
 
-public Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
+public int Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		if(bool:GetNativeCell(2) == true)
+		if (view_as<bool>(GetNativeCell(2)) == true)
 		{
-			decl iClientID;
-			if(g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
+			int iClientID;
+			if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 			{
 				DB_RemoveClientFromID(0, iClientID, true);
 			}
 		}
-
+		
 		ResetClient(iClient);
-
+		
 		CreateForward_OnVIPClientRemoved(iClient, "Removed by native");
-
-		if(bool:GetNativeCell(3))
+		
+		if (view_as<bool>(GetNativeCell(3)))
 		{
 			DisplayClientInfo(iClient, "expired_info");
 		}
-
+		
 		return true;
 	}
-
+	
 	return false;
 }
 
-public Native_IsValidVIPGroup(Handle hPlugin, int iNumParams)
+public int Native_IsValidVIPGroup(Handle hPlugin, int iNumParams)
 {
-	decl String:sGroup[64];
+	char sGroup[64];
 	GetNativeString(1, sGroup, sizeof(sGroup));
 	return UTIL_CheckValidVIPGroup(sGroup);
 }
 
-public Native_IsVIPLoaded(Handle hPlugin, int iNumParams)
+public int Native_IsVIPLoaded(Handle hPlugin, int iNumParams)
 {
 	return ((GLOBAL_INFO & IS_STARTED) && g_hDatabase);
 }
 
-public Native_RegisterFeature(Handle hPlugin, int iNumParams)
+public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 {
-	decl String:sFeatureName[FEATURE_NAME_LENGTH];
+	char sFeatureName[FEATURE_NAME_LENGTH];
 	GetNativeString(1, sFeatureName, sizeof(sFeatureName));
 	
 	#if DEBUG_MODE
-	decl String:sPluginName[FEATURE_NAME_LENGTH];
+	char sPluginName[FEATURE_NAME_LENGTH];
 	GetPluginFilename(hPlugin, sPluginName, FEATURE_NAME_LENGTH);
 	DebugMessage("Register feature \"%s\" (%s)", sFeatureName, sPluginName)
 	#endif
-
-	if(IsValidFeature(sFeatureName) == false)
+	
+	if (IsValidFeature(sFeatureName) == false)
 	{
-		if(GetArraySize(g_hFeaturesArray) == 0)
+		if (g_hFeaturesArray.Length == 0)
 		{
-			RemoveMenuItem(g_hVIPMenu, 0);
+			g_hVIPMenu.RemoveItem(0);
 		}
 
-		PushArrayString(g_hFeaturesArray, sFeatureName);
+		g_hFeaturesArray.PushString(sFeatureName);
 		DebugMessage("PushArrayString -> %i", FindStringInArray(g_hFeaturesArray, sFeatureName))
 
 		VIP_FeatureType FType = view_as<VIP_FeatureType>(GetNativeCell(3));
 		DebugMessage("FeatureType -> %i", FType)
 
 		ArrayList hArray = new ArrayList();
-		SetTrieValue(GLOBAL_TRIE, sFeatureName, hArray);
+		GLOBAL_TRIE.SetValue(sFeatureName, hArray);
 		
 		hArray.Push(hPlugin);
 		hArray.Push(GetNativeCell(2));
 		hArray.Push(FType);
 
-		if(FType != HIDE)
+		if (FType != HIDE)
 		{
-			switch(FType)
+			switch (FType)
 			{
 				case TOGGLABLE:
 				{	
@@ -681,7 +683,7 @@ public Native_RegisterFeature(Handle hPlugin, int iNumParams)
 			hDataPack.WriteFunction(GetNativeCell(5));
 			hDataPack.WriteFunction(GetNativeCell(6));
 			hArray.Push(hDataPack);
-
+			
 			AddFeatureToVIPMenu(sFeatureName);
 		}
 		
@@ -701,73 +703,73 @@ public Native_RegisterFeature(Handle hPlugin, int iNumParams)
 	}
 }
 
-public Native_UnregisterFeature(Handle hPlugin, int iNumParams)
+public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 {
-	decl String:sFeatureName[FEATURE_NAME_LENGTH];
+	char sFeatureName[FEATURE_NAME_LENGTH];
 	GetNativeString(1, sFeatureName, sizeof(sFeatureName));
 	
-	if(IsValidFeature(sFeatureName))
+	if (IsValidFeature(sFeatureName))
 	{
 		ArrayList hArray;
-		if(GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
+		if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 		{
 			VIP_FeatureType iFeatureType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
-			if(iFeatureType == TOGGLABLE)
+			if (iFeatureType == TOGGLABLE)
 			{
 				delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
 			}
 			
-			if(iFeatureType != HIDE)
+			if (iFeatureType != HIDE)
 			{
 				DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
 				delete hDataPack;
-
+				
 				AddFeatureToVIPMenu(sFeatureName);
 			}
-
+			
 			delete hArray;
-
-			RemoveFromTrie(GLOBAL_TRIE, sFeatureName);
-
-			int i = FindStringInArray(g_hFeaturesArray, sFeatureName);
-			if(i != -1)
+			
+			GLOBAL_TRIE.Remove(sFeatureName);
+			
+			int i = g_hFeaturesArray.FindString(sFeatureName);
+			if (i != -1)
 			{
-				RemoveFromArray(g_hFeaturesArray, i);
+				g_hFeaturesArray.Erase(i);
 			}
-
-			if(iFeatureType != HIDE)
+			
+			if (iFeatureType != HIDE)
 			{
-				decl String:sItemInfo[FEATURE_NAME_LENGTH], iSize;
-				iSize = GetMenuItemCount(g_hVIPMenu);
-				for(i = 0; i < iSize; ++i)
+				char sItemInfo[FEATURE_NAME_LENGTH]; int iSize;
+				iSize = (g_hVIPMenu).ItemCount;
+				for (i = 0; i < iSize; ++i)
 				{
-					GetMenuItem(g_hVIPMenu, i, sItemInfo, sizeof(sItemInfo));
-					if(strcmp(sItemInfo, sFeatureName, true) == 0)
+					g_hVIPMenu.GetItem(i, sItemInfo, sizeof(sItemInfo));
+					if (strcmp(sItemInfo, sFeatureName, true) == 0)
 					{
-						RemoveMenuItem(g_hVIPMenu, i);
+						g_hVIPMenu.RemoveItem(i);
 						break;
 					}
 				}
 				
-				if(GetMenuItemCount(g_hVIPMenu) == 0)
+				if ((g_hVIPMenu).ItemCount == 0)
 				{
-					AddMenuItem(g_hVIPMenu, "NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
+					g_hVIPMenu.AddItem("NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
 				}
 			}
 			
-			for(i = 1; i <= MaxClients; ++i)
+			for (i = 1; i <= MaxClients; ++i)
 			{
-				if(IsClientInGame(i))
+				if (IsClientInGame(i))
 				{
-					if(g_iClientInfo[i] & IS_VIP)
+					if (g_iClientInfo[i] & IS_VIP)
 					{
-						RemoveFromTrie(g_hFeatures[i], sFeatureName);
-						RemoveFromTrie(g_hFeatureStatus[i], sFeatureName);
+						g_hFeatures[i].Remove(sFeatureName);
+						g_hFeatureStatus[i].Remove(sFeatureName);
 					}
 				}
 			}
 		}
-
+		
 		DebugMessage("Feature \"%s\" unregistered", sFeatureName)
 	}
 	else
@@ -776,68 +778,68 @@ public Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 	}
 }
 
-public Native_IsValidFeature(Handle hPlugin, int iNumParams)
+public int Native_IsValidFeature(Handle hPlugin, int iNumParams)
 {
-	decl String:sFeatureName[FEATURE_NAME_LENGTH];
+	char sFeatureName[FEATURE_NAME_LENGTH];
 	GetNativeString(1, sFeatureName, sizeof(sFeatureName));
-
-	return _:IsValidFeature(sFeatureName);
+	
+	return view_as<int>(IsValidFeature(sFeatureName));
 }
 
-public Native_IsClientFeatureUse(Handle hPlugin, int iNumParams)
+public int Native_IsClientFeatureUse(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH];
+		char sFeatureName[FEATURE_NAME_LENGTH];
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
-
+		
 		DebugMessage("Native_IsClientFeatureUse: %N (%i) - %s -> %i", iClient, iClient, sFeatureName, Features_GetStatus(iClient, sFeatureName))
 		return (Features_GetStatus(iClient, sFeatureName) == ENABLED);
 	}
-
+	
 	return false;
 }
 
-public Native_GetClientFeatureStatus(Handle hPlugin, int iNumParams)
+public int Native_GetClientFeatureStatus(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH];
+		char sFeatureName[FEATURE_NAME_LENGTH];
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
-
-		return _:Features_GetStatus(iClient, sFeatureName);
+		
+		return view_as<int>(Features_GetStatus(iClient, sFeatureName));
 	}
-
-	return _:NO_ACCESS;
+	
+	return view_as<int>(NO_ACCESS);
 }
 
-public Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
+public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH], VIP_ToggleState:OldStatus, VIP_ToggleState:NewStatus;
+		char sFeatureName[FEATURE_NAME_LENGTH]; VIP_ToggleState OldStatus; VIP_ToggleState NewStatus;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 		OldStatus = Features_GetStatus(iClient, sFeatureName);
-
-		NewStatus = VIP_ToggleState:GetNativeCell(3);
-
+		
+		NewStatus = view_as<VIP_ToggleState>(GetNativeCell(3));
+		
 		ArrayList hArray;
-		if(GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
+		if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 		{
-			if(VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) == TOGGLABLE)
+			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 			{
 				DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
 				hDataPack.Position = ITEM_SELECT;
 				Function Function_Select = hDataPack.ReadFunction();
-				if(Function_Select != INVALID_FUNCTION)
+				if (Function_Select != INVALID_FUNCTION)
 				{
 					Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Select, iClient, sFeatureName, OldStatus, NewStatus);
 				}
-
-				if(OldStatus != NewStatus)
+				
+				if (OldStatus != NewStatus)
 				{
 					Features_SetStatus(iClient, sFeatureName, NewStatus);
 					return true;
@@ -849,110 +851,110 @@ public Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 	return false;
 }
 
-public Native_GetClientFeatureInt(Handle hPlugin, int iNumParams)
+public int Native_GetClientFeatureInt(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH], iValue;
+		char sFeatureName[FEATURE_NAME_LENGTH]; int iValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 
-		if(g_hFeatures[iClient].GetValue(sFeatureName, iValue) && iValue != 0)
+		if (g_hFeatures[iClient].GetValue(sFeatureName, iValue) && iValue != 0)
 		{
 			return iValue;
 		}
 	}
-
+	
 	return 0;
 }
 
-public Native_GetClientFeatureFloat(Handle hPlugin, int iNumParams)
+public int Native_GetClientFeatureFloat(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH], Float:fValue;
+		char sFeatureName[FEATURE_NAME_LENGTH]; float fValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 
-		if(g_hFeatures[iClient].GetValue(sFeatureName, fValue) && fValue != 0.0)
+		if (g_hFeatures[iClient].GetValue(sFeatureName, fValue) && fValue != 0.0)
 		{
-			return _:fValue;
+			return view_as<int>(fValue);
 		}
 	}
-	return _:0.0;
+	return view_as<int>(0.0);
 }
 
-public Native_GetClientFeatureBool(Handle hPlugin, int iNumParams)
+public int Native_GetClientFeatureBool(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[FEATURE_NAME_LENGTH], bool:bValue;
+		char sFeatureName[FEATURE_NAME_LENGTH]; bool bValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
 
 		return g_hFeatures[iClient].GetValue(sFeatureName, bValue);
 	}
-
+	
 	return false;
 }
 
-public Native_GetClientFeatureString(Handle hPlugin, int iNumParams)
+public int Native_GetClientFeatureString(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[64], String:sBuffer[256], iLen;
+		char sFeatureName[64]; char sBuffer[256]; int iLen;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
-
+		
 		iLen = GetNativeCell(4);
-		if(GetTrieString(g_hFeatures[iClient], sFeatureName, sBuffer, sizeof(sBuffer)))
+		if (g_hFeatures[iClient].GetString(sFeatureName, sBuffer, sizeof(sBuffer)))
 		{
 			SetNativeString(3, sBuffer, iLen, true);
 			return true;
 		}
 	}
-
+	
 	return false;
 }
 
 /*
-public Native_GiveClientFeature(Handle hPlugin, int iNumParams)
+public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if(CheckValidClient(iClient))
+	if (CheckValidClient(iClient))
 	{
-		decl String:sFeatureName[64], Handle:hArray, String:sFeatureValue[256];
-		if(GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
+		char sFeatureName[64]; ArrayList hArray; char sFeatureValue[256];
+		if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 		{
-			decl String:sFeatureValue[256];
+			char sFeatureValue[256];
 			GetNativeString(3, sFeatureValue, sizeof(sFeatureValue));
 			
-			if(!(g_iClientInfo[iClient] & IS_VIP))
+			if (!(g_iClientInfo[iClient] & IS_VIP))
 			{
 				Clients_CreateClientVIPSettings(iClient, 0);
-				SetTrieValue(g_hFeatures[iClient], KEY_CID, -1);
+				g_hFeatures[iClient].SetValue(KEY_CID, -1);
 				g_iClientInfo[iClient] |= IS_VIP;
 				g_iClientInfo[iClient] |= IS_LOADED;
 				g_iClientInfo[iClient] |= IS_AUTHORIZED;
 			}
 
-			switch(VIP_ValueType:hArray.Get(FEATURES_VALUE_TYPE))
+			switch (view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)))
 			{
 				case BOOL:
 				{
-					SetTrieValue(g_hFeatures[iClient], sFeatureName, bool:StringToInt(sFeatureValue));
+					g_hFeatures[iClient].SetValue(sFeatureName, view_as<bool>(StringToInt(sFeatureValue)));
 				}
 				case INT:
 				{
-					SetTrieValue(g_hFeatures[iClient], sFeatureName, StringToInt(sFeatureValue));
+					g_hFeatures[iClient].SetValue(sFeatureName, StringToInt(sFeatureValue));
 				}
 				case FLOAT:
 				{
-					SetTrieValue(g_hFeatures[iClient], sFeatureName, StringToFloat(sFeatureValue));
+					g_hFeatures[iClient].SetValue(sFeatureName, StringToFloat(sFeatureValue));
 				}
 				case STRING:
 				{
-					SetTrieString(g_hFeatures[iClient], sFeatureName, sFeatureValue);
+					g_hFeatures[iClient].SetString(sFeatureName, sFeatureValue);
 				}
 				default:
 				{
@@ -964,11 +966,11 @@ public Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 
 			Features_SetStatus(iClient, sFeatureName, ENABLED);
 			
-			if(VIP_FeatureType:hArray.Get(FEATURES_ITEM_TYPE) == TOGGLABLE)
+			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 			{
-				new Function:Function_Select = Function:hArray.Get(FEATURES_ITEM_SELECT);
+				Function Function_Select = view_as<Function>(hArray.Get(FEATURES_ITEM_SELECT));
 				
-				if(Function_Select != INVALID_FUNCTION)
+				if (Function_Select != INVALID_FUNCTION)
 				{
 					NewStatus = Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Select, iClient, sFeatureName, NO_ACCESS, ENABLED);
 				}
@@ -985,57 +987,57 @@ public Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 }
 */
 
-public Native_GetDatabase(Handle hPlugin, int iNumParams)
+public int Native_GetDatabase(Handle hPlugin, int iNumParams)
 {
-	return _:CloneHandle(g_hDatabase, hPlugin);
+	return view_as<int>(CloneHandle(g_hDatabase, hPlugin));
 }
 
-public Native_GetDatabaseType(Handle hPlugin, int iNumParams)
+public int Native_GetDatabaseType(Handle hPlugin, int iNumParams)
 {
 	return (GLOBAL_INFO & IS_MySQL);
 }
 
-public Native_TimeToSeconds(Handle hPlugin, int iNumParams)
+public int Native_TimeToSeconds(Handle hPlugin, int iNumParams)
 {
 	return UTIL_TimeToSeconds(GetNativeCell(1));
 }
 
-public Native_SecondsToTime(Handle hPlugin, int iNumParams)
+public int Native_SecondsToTime(Handle hPlugin, int iNumParams)
 {
 	return UTIL_SecondsToTime(GetNativeCell(1));
 }
 
-public Native_GetTimeFromStamp(Handle hPlugin, int iNumParams)
+public int Native_GetTimeFromStamp(Handle hPlugin, int iNumParams)
 {
-	new iTimeStamp = GetNativeCell(3);
-	if(iTimeStamp > 0)
+	int iTimeStamp = GetNativeCell(3);
+	if (iTimeStamp > 0)
 	{
-		new iClient = GetNativeCell(4);
-		if(iClient == 0 || CheckValidClient(iClient, false))
+		int iClient = GetNativeCell(4);
+		if (iClient == 0 || CheckValidClient(iClient, false))
 		{
-			decl String:sBuffer[64];
+			char sBuffer[64];
 			UTIL_GetTimeFromStamp(sBuffer, sizeof(sBuffer), iTimeStamp, iClient);
 			SetNativeString(1, sBuffer, GetNativeCell(2), true);
 			return true;
 		}
 	}
-
+	
 	return false;
 }
 
-public Native_AddStringToggleStatus(Handle hPlugin, int iNumParams)
+public int Native_AddStringToggleStatus(Handle hPlugin, int iNumParams)
 {
-	decl String:sFeatureName[FEATURE_NAME_LENGTH];
+	char sFeatureName[FEATURE_NAME_LENGTH];
 	GetNativeString(4, sFeatureName, sizeof(sFeatureName));
-	if(IsValidFeature(sFeatureName))
+	if (IsValidFeature(sFeatureName))
 	{
-		new iClient = GetNativeCell(5);
-		if(CheckValidClient(iClient))
+		int iClient = GetNativeCell(5);
+		if (CheckValidClient(iClient))
 		{
-			new iSize = GetNativeCell(3);
-			decl String:sBuffer[iSize];
+			int iSize = GetNativeCell(3);
+			char[] sBuffer = new char[iSize]; // char sBuffer[iSize];
 			GetNativeString(1, sBuffer, iSize);
-			Format(sBuffer, iSize, "%s [%T]", sBuffer, g_sToggleStatus[_:Features_GetStatus(iClient, sFeatureName)], iClient);
+			Format(sBuffer, iSize, "%s [%T]", sBuffer, g_sToggleStatus[view_as<int>(Features_GetStatus(iClient, sFeatureName))], iClient);
 			SetNativeString(2, sBuffer, iSize, true);
 		}
 	}
@@ -1045,7 +1047,7 @@ public Native_AddStringToggleStatus(Handle hPlugin, int iNumParams)
 	}
 }
 
-bool:CheckValidClient(const &iClient, bool:bCheckVIP = true)
+bool CheckValidClient(const int &iClient, bool bCheckVIP = true)
 {
 	if (iClient < 1 || iClient > MaxClients)
 	{
@@ -1053,7 +1055,7 @@ bool:CheckValidClient(const &iClient, bool:bCheckVIP = true)
 		return false;
 	}
 	if (IsClientInGame(iClient) == false)
-	{	
+	{
 		ThrowNativeError(SP_ERROR_NATIVE, "Client %i is not connected/Игрок %i не подключен", iClient, iClient);
 		return false;
 	}
@@ -1072,8 +1074,8 @@ bool:CheckValidClient(const &iClient, bool:bCheckVIP = true)
 		}
 		*/
 		
-		return bool:(g_iClientInfo[iClient] & IS_VIP);
+		return view_as<bool>(g_iClientInfo[iClient] & IS_VIP);
 	}
-
+	
 	return true;
 }

@@ -18,9 +18,9 @@
 
 public Plugin myinfo =
 {
-	name = "[VIP] Core",
-	author = "R1KO (skype: vova.andrienko1)",
-	version = VIP_VERSION,
+	name = "[VIP] Core", 
+	author = "R1KO (skype: vova.andrienko1)", 
+	version = VIP_VERSION, 
 	url = "http://hlmod.ru"
 };
 
@@ -61,7 +61,7 @@ public void OnPluginStart()
 	#if DEBUG_MODE 1
 	BuildPath(Path_SM, g_sDebugLogFile, sizeof(g_sDebugLogFile), "logs/VIP_Debug.log");
 	#endif
-
+	
 	LoadTranslations("vip_core.phrases");
 	LoadTranslations("vip_modules.phrases");
 	LoadTranslations("common.phrases");
@@ -75,29 +75,29 @@ public void OnPluginStart()
 	#if USE_ADMINMENU 1
 	InitVIPAdminMenu();
 	#endif
-
+	
 	CreateCvars();
 	CreateForwards();
-
+	
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_death", Event_PlayerDeath);
 	HookEvent("round_end", Event_RoundEnd, EventHookMode_PostNoCopy);
 	HookEventEx("cs_match_end_restart", Event_MatchEndRestart, EventHookMode_PostNoCopy);
-
-	RegConsoleCmd("sm_refresh_vips",	ReloadVIPPlayers_CMD);
-	RegConsoleCmd("sm_reload_vip_cfg",	ReloadVIPCfg_CMD);
-	RegConsoleCmd("sm_addvip",			AddVIP_CMD);
-	RegConsoleCmd("sm_delvip",			DelVIP_CMD);
-
+	
+	RegConsoleCmd("sm_refresh_vips", ReloadVIPPlayers_CMD);
+	RegConsoleCmd("sm_reload_vip_cfg", ReloadVIPCfg_CMD);
+	RegConsoleCmd("sm_addvip", AddVIP_CMD);
+	RegConsoleCmd("sm_delvip", DelVIP_CMD);
+	
 	g_EngineVersion = GetEngineVersion();
-
+	
 	#if USE_ADMINMENU 1
-	RegConsoleCmd("sm_vipadmin",		VIPAdmin_CMD);
-
-	if(LibraryExists("adminmenu"))
+	RegConsoleCmd("sm_vipadmin", VIPAdmin_CMD);
+	
+	if (LibraryExists("adminmenu"))
 	{
 		TopMenu hTopMenu = GetAdminTopMenu();
-		if(hTopMenu != null)
+		if (hTopMenu != null)
 		{
 			OnAdminMenuReady(hTopMenu);
 		}
@@ -113,12 +113,12 @@ public void OnAllPluginsLoaded()
 #if USE_ADMINMENU 1
 public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[] sArgs)
 {
-	if(iClient > 0 && iClient <= MaxClients && sArgs[0])
+	if (iClient > 0 && iClient <= MaxClients && sArgs[0])
 	{
-		if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+		if (g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 		{
 			/*
-			if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+			if (g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 			{
 				ShowWaitSearchMenu(iClient, sArgs, true);
 			}
@@ -127,7 +127,7 @@ public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[
 			return Plugin_Handled;
 		}
 	}
-
+	
 	return Plugin_Continue;
 }
 #endif

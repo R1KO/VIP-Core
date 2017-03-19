@@ -5,7 +5,7 @@ void DB_OnPluginStart()
 
 void DB_Connect()
 {
-//	DebugMessage("DB_Connect: %b", g_bIsVIPLoaded)
+	//	DebugMessage("DB_Connect: %b", g_bIsVIPLoaded)
 	DebugMessage("DB_Connect")
 	
 	if (GLOBAL_INFO & IS_LOADING)
@@ -52,7 +52,7 @@ public void OnDBConnect(Database hDatabase, const char[] sError, any data)
 
 	g_hDatabase = hDatabase;
 	
-	if(data == 1)
+	if (data == 1)
 	{
 		UNSET_BIT(GLOBAL_INFO, IS_MySQL);
 	}
@@ -61,7 +61,7 @@ public void OnDBConnect(Database hDatabase, const char[] sError, any data)
 		char sDriver[8];
 		g_hDatabase.Driver.GetIdentifier(SZF(sDriver));
 
-		if(strcmp(sDriver, "mysql", false) == 0)
+		if (strcmp(sDriver, "mysql", false) == 0)
 		{
 			SET_BIT(GLOBAL_INFO, IS_MySQL);
 			
@@ -78,13 +78,13 @@ public void OnDBConnect(Database hDatabase, const char[] sError, any data)
 			UNSET_BIT(GLOBAL_INFO, IS_MySQL);
 		}
 	}
-
+	
 	DebugMessage("OnDBConnect %x, %u - > (MySQL: %b)", g_hDatabase, g_hDatabase, GLOBAL_INFO & IS_MySQL)
-
+	
 	CreateTables();
 }
 /*
-public Action:Timer_DB_Reconnect(Handle:timer)
+public Action Timer_DB_Reconnect(Handle timer)
 {
 	if (g_hDatabase == null)
 	{
@@ -93,7 +93,7 @@ public Action:Timer_DB_Reconnect(Handle:timer)
 	return Plugin_Stop;
 }
 */
-CreateTables()
+void CreateTables()
 {
 	DebugMessage("CreateTables")
 	SQL_LockDatabase(g_hDatabase);
@@ -130,22 +130,22 @@ CreateTables()
 																		`group` VARCHAR(64) default NULL, \
 																		`expires` INTEGER NOT NULL default '0');");
 	}
-
+	
 	SQL_UnlockDatabase(g_hDatabase);
 	
 	UNSET_BIT(GLOBAL_INFO, IS_LOADING);
 
 	OnReadyToStart();
-
+	
 	UTIL_ReloadVIPPlayers(0, false);
 	
-	if(g_CVAR_iDeleteExpired != -1)
+	if (g_CVAR_iDeleteExpired != -1)
 	{
 		RemoveExpiredPlayers();
 	}
 }
 
-public SQL_Callback_ErrorCheck(Handle:hOwner, Handle:hQuery, const String:sError[], any:data)
+public void SQL_Callback_ErrorCheck(Handle hOwner, Handle hQuery, const char[] sError, any data)
 {
 	if (sError[0])
 	{
@@ -153,7 +153,7 @@ public SQL_Callback_ErrorCheck(Handle:hOwner, Handle:hQuery, const String:sError
 	}
 }
 
-DB_UpdateClientName(iClient)
+void DB_UpdateClientName(int iClient)
 {
 //	SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
 
@@ -166,24 +166,24 @@ DB_UpdateClientName(iClient)
 	g_hDatabase.Query(SQL_Callback_ErrorCheck, sQuery);
 
 	/*
-	decl Handle:hStmt, String:sError[256];
+	DBStatement hStmt; char sError[256];
 
 	hStmt = SQL_PrepareQuery(g_hDatabase, "UPDATE `vip_users` SET `name` = ? WHERE `id` = ?;", SZF(sError));
 	if (hStmt != null)
 	{
-		decl String:sName[MAX_NAME_LENGTH], iClientID;
+		char sName[MAX_NAME_LENGTH]; int iClientID;
 		g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
 		GetClientName(iClient, SZF(sName));
-
-		SQL_BindParamString(hStmt, 0, sName, false);	
-		SQL_BindParamInt(hStmt, 1, iClientID, false);
-
+		
+		hStmt.BindString(0, sName, false);
+		hStmt.BindInt(1, iClientID, false);
+		
 		if (!SQL_Execute(hStmt))
 		{
 			SQL_GetError(hStmt, SZF(sError));
 			LogError("[VIP Core] Fail SQL_Execute: %s", sError);
 		}
-
+		
 		CloseHandle(hStmt);
 	}
 	else
@@ -193,20 +193,20 @@ DB_UpdateClientName(iClient)
 	*/
 }
 
-DB_RemoveClientFromID(iClient = 0, iClientID, bool:bNotify)
+void DB_RemoveClientFromID(int iClient = 0, int iClientID, bool bNotify)
 {
 	DebugMessage("DB_RemoveClientFromID %N (%i): - > iClientID: %i, : bNotify: %b", iClient, iClient, iClientID, bNotify)
-	decl String:sQuery[256], Handle:hDataPack;
-	hDataPack = CreateDataPack();
-	WritePackCell(hDataPack, iClientID);
-	WritePackCell(hDataPack, bNotify);
-	if(iClient)
+	char sQuery[256];
+	DataPack hDataPack = new DataPack();
+	hDataPack.WriteCell(iClientID);
+	hDataPack.WriteCell(bNotify);
+	if (iClient)
 	{
-		WritePackCell(hDataPack, UID(iClient));
+		hDataPack.WriteCell(UID(iClient));
 	}
 	else
 	{
-		WritePackCell(hDataPack, 0);
+		hDataPack.WriteCell(0);
 	}
 	
 	if (GLOBAL_INFO & IS_MySQL)
@@ -217,12 +217,12 @@ DB_RemoveClientFromID(iClient = 0, iClientID, bool:bNotify)
 	{
 		FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `vip_users` WHERE `id` = '%i';", iClientID);
 	}
-
+	
 	DebugMessage(sQuery)
 	g_hDatabase.Query(SQL_Callback_RemoveClient, sQuery, hDataPack);
 }
 
-public SQL_Callback_RemoveClient(Handle:hOwner, Handle:hQuery, const String:sError[], any:hDataPack)
+public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hQuery, const char[] sError, any hPack)
 {
 	if (sError[0])
 	{
@@ -230,44 +230,45 @@ public SQL_Callback_RemoveClient(Handle:hOwner, Handle:hQuery, const String:sErr
 		return;
 	}
 	
-	if(SQL_GetAffectedRows(hOwner))
+	if (hOwner.AffectedRows)
 	{
-		ResetPack(hDataPack);
-
-		new iClientID = ReadPackCell(hDataPack);
-
-		if(g_CVAR_bLogsEnable)
+		DataPack hDataPack = view_as<DataPack>(hPack);
+		hDataPack.Reset();
+		
+		int iClientID = (view_as<DataPack>(hDataPack)).ReadCell();
+		
+		if (g_CVAR_bLogsEnable)
 		{
 			LogToFile(g_sLogFile, "%T", "ADMIN_VIP_PLAYER_DELETED", LANG_SERVER, iClientID);
-		//	LogToFile(g_sLogFile, "%T", "ADMIN_VIP_PLAYER_DELETED", LANG_SERVER, iClient, iClientID);
+			//	LogToFile(g_sLogFile, "%T", "ADMIN_VIP_PLAYER_DELETED", LANG_SERVER, iClient, iClientID);
 		}
-
+		
 		if (GLOBAL_INFO & IS_MySQL)
 		{
-			decl String:sQuery[256];
+			char sQuery[256];
 			FormatEx(sQuery, sizeof(sQuery), "SELECT COUNT(*) AS vip_count FROM `vip_overrides` WHERE `user_id` = '%i';", iClientID);
 			g_hDatabase.Query(SQL_Callback_RemoveClient2, sQuery, iClientID);
 		}
-
-		if(bool:ReadPackCell(hDataPack))
+		
+		if (hDataPack.ReadCell())
 		{
-			new iClient = ReadPackCell(hDataPack);
+			int iClient = (hDataPack).ReadCell();
 			
-			if(iClient)
+			if (iClient)
 			{
 				iClient = CID(iClient);
-				if(iClient == 0)
+				if (iClient == 0)
 				{
 					return;
 				}
 			}
-
+			
 			ReplyToCommand(iClient, "%t", "ADMIN_VIP_PLAYER_DELETED", iClientID);
 		}
 	}
 }
 
-public SQL_Callback_RemoveClient2(Handle:hOwner, Handle:hQuery, const String:sError[], any:iClientID)
+public void SQL_Callback_RemoveClient2(Database hOwner, DBResultSet hQuery, const char[] sError, any iClientID)
 {
 	if (sError[0])
 	{
@@ -275,16 +276,16 @@ public SQL_Callback_RemoveClient2(Handle:hOwner, Handle:hQuery, const String:sEr
 		return;
 	}
 	
-	if (SQL_FetchRow(hQuery) && SQL_FetchInt(hQuery, 0) == 0)
+	if ((hQuery).FetchRow() && hQuery.FetchInt(0) == 0)
 	{
-		decl String:sQuery[256];
+		char sQuery[256];
 		FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `vip_users` WHERE `id` = '%i';", iClientID);
 
 		g_hDatabase.Query(SQL_Callback_ErrorCheck, sQuery, iClientID);
 	}
 }
 /*
-public SQL_Callback_DeleteExpired(Handle:hOwner, Handle:hQuery, const String:sError[], any:iClientID)
+public void SQL_Callback_DeleteExpired(Handle hOwner, Handle hQuery, const char[] sError, any iClientID)
 {
 	if (sError[0])
 	{
@@ -292,15 +293,15 @@ public SQL_Callback_DeleteExpired(Handle:hOwner, Handle:hQuery, const String:sEr
 		return;
 	}
 
-	if(SQL_GetAffectedRows(hOwner))
+	if ((hOwner).AffectedRows)
 	{
-		if(g_CVAR_iDeleteExpired != -1)
+		if (g_CVAR_iDeleteExpired != -1)
 		{
-			decl String:sQuery[256];
+			char sQuery[256];
 			FormatEx(sQuery, sizeof(sQuery), "SELECT COUNT(*) AS vip_count FROM `vip_overrides` WHERE `user_id` = '%i';", iClientID);
 			g_hDatabase.Query(SQL_Callback_RemoveClient2, sQuery, iClientID);
 
-			if(g_CVAR_bLogsEnable)
+			if (g_CVAR_bLogsEnable)
 			{
 				LogToFile(g_sLogFile, "%T", "ADMIN_VIP_PLAYER_DELETED", LANG_SERVER, iClientID);
 			//	LogToFile(g_sLogFile, "%T", "ADMIN_VIP_PLAYER_DELETED", LANG_SERVER, iClient, iClientID);
@@ -310,48 +311,48 @@ public SQL_Callback_DeleteExpired(Handle:hOwner, Handle:hQuery, const String:sEr
 }
 */
 
-RemoveExpiredPlayers()
+void RemoveExpiredPlayers()
 {
-	decl String:sQuery[512];
-
+	char sQuery[512];
+	
 	if (GLOBAL_INFO & IS_MySQL)
 	{
 		FormatEx(sQuery, sizeof(sQuery), "SELECT `user_id`, \
 												`expires` \
 												FROM `vip_overrides` \
-												WHERE `server_id` = '%i';",
-												g_CVAR_iServerID);
+												WHERE `server_id` = '%i';", 
+			g_CVAR_iServerID);
 	}
 	else
 	{
 		FormatEx(sQuery, sizeof(sQuery), "SELECT `id`, `expires`, `group` FROM `vip_users`;");
 	}
-
+	
 	DebugMessage(sQuery)
 	g_hDatabase.Query(SQL_Callback_RemoveExpiredPlayers, sQuery);
 }
 
-public SQL_Callback_RemoveExpiredPlayers(Handle:hOwner, Handle:hQuery, const String:sError[], any:iData)
+public void SQL_Callback_RemoveExpiredPlayers(Database hOwner, DBResultSet hQuery, const char[] sError, any iData)
 {
 	if (sError[0])
 	{
 		LogError("SQL_Callback_RemoveExpiredPlayers: %s", sError);
 		return;
 	}
-
-	DebugMessage("SQL_Callback_RemoveExpiredPlayers: %i", SQL_GetRowCount(hQuery))
-	if(SQL_GetRowCount(hQuery))
+	
+	DebugMessage("SQL_Callback_RemoveExpiredPlayers: %i", (hQuery).RowCount)
+	if ((hQuery).RowCount)
 	{
-		decl iExpires, iTime, iClientID;
+		int iExpires, iTime, iClientID;
 		iTime = GetTime();
-		while(SQL_FetchRow(hQuery))
+		while ((hQuery).FetchRow())
 		{
-			iExpires = SQL_FetchInt(hQuery, 1);
-			if(iExpires && iTime > iExpires)
+			iExpires = hQuery.FetchInt(1);
+			if (iExpires && iTime > iExpires)
 			{
-				if(g_CVAR_iDeleteExpired == 0 || iTime >= ((g_CVAR_iDeleteExpired*86400)+iExpires))
+				if (g_CVAR_iDeleteExpired == 0 || iTime >= ((g_CVAR_iDeleteExpired * 86400) + iExpires))
 				{
-					iClientID = SQL_FetchInt(hQuery, 0);
+					iClientID = hQuery.FetchInt(0);
 					DebugMessage("RemoveExpiredPlayers iClientID: %i", iClientID)
 					
 					DB_RemoveClientFromID(0, iClientID, false);
@@ -359,4 +360,4 @@ public SQL_Callback_RemoveExpiredPlayers(Handle:hOwner, Handle:hQuery, const Str
 			}
 		}
 	}
-}
+} 

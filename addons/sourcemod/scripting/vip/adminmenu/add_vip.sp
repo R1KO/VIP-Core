@@ -1,4 +1,4 @@
-ShowAddVIPMenu(iClient)
+void ShowAddVIPMenu(int iClient)
 {
 	char sUserId[12], sName[64];
 	Menu hMenu = new Menu(MenuHandler_AddVip_PlayerList);
@@ -11,24 +11,24 @@ ShowAddVIPMenu(iClient)
 	{
 		if (IsClientInGame(i) && IsFakeClient(i) == false)
 		{
-			if(g_iClientInfo[i] & IS_VIP)
+			if (g_iClientInfo[i] & IS_VIP)
 			{
 				g_hFeatures[i].GetValue(KEY_CID, iClientID);
-				if(iClientID != -1)
+				if (iClientID != -1)
 				{
 					continue;
 				}
 			}
 
-			if(GetClientName(i, sName, sizeof(sName)))
+			if (GetClientName(i, sName, sizeof(sName)))
 			{
 				IntToString(UID(i), sUserId, sizeof(sUserId));
 				hMenu.AddItem(sUserId, sName);
 			}
 		}
 	}
-
-	if(sUserId[0] == 0)
+	
+	if (sUserId[0] == 0)
 	{
 		FormatEx(sName, sizeof(sName), "%T", "NO_PLAYERS_AVAILABLE", iClient);
 		hMenu.AddItem("", sName, ITEMDRAW_DISABLED);
@@ -37,21 +37,21 @@ ShowAddVIPMenu(iClient)
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_AddVip_PlayerList(Menu hMenu, MenuAction action, int iClient, int Item)
+public int MenuHandler_AddVip_PlayerList(Menu hMenu, MenuAction action, int iClient, int Item)
 {
-	switch(action)
+	switch (action)
 	{
-		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack) DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
+			if (Item == MenuCancel_ExitBack)g_hVIPAdminMenu.Display(iClient, MENU_TIME_FOREVER);
 		}
 		case MenuAction_Select:
 		{
-			decl String:sUserID[12], UserID;
+			char sUserID[12]; int UserID;
 			hMenu.GetItem(Item, sUserID, sizeof(sUserID));
 			UserID = StringToInt(sUserID);
-			if(CID(UserID))
+			if (CID(UserID))
 			{
 				SetArrayCell(g_ClientData[iClient], DATA_TARGET_USER_ID, UserID);
 				SetArrayCell(g_ClientData[iClient], DATA_TIME, TIME_SET);
@@ -62,25 +62,25 @@ public MenuHandler_AddVip_PlayerList(Menu hMenu, MenuAction action, int iClient,
 	}
 }
 
-ShowGroupMenu(iClient)
+void ShowGroupMenu(int iClient)
 {
-	decl String:sGroup[MAX_NAME_LENGTH];
+	char sGroup[MAX_NAME_LENGTH];
 	Menu hMenu = new Menu(MenuHandler_AddVip_GroupsList);
 	hMenu.SetTitle("%T:\n \n", "GROUP", iClient);
 	hMenu.ExitBackButton = true;
-	sGroup[0] = 0; 
-	KvRewind(g_hGroups);
-	if(KvGotoFirstSubKey(g_hGroups))
+	sGroup[0] = 0;
+	g_hGroups.Rewind();
+	if (g_hGroups.GotoFirstSubKey())
 	{
 		do
 		{
-			if (KvGetSectionName(g_hGroups, sGroup, sizeof(sGroup)))
+			if (g_hGroups.GetSectionName(sGroup, sizeof(sGroup)))
 			{
 				hMenu.AddItem(sGroup, sGroup);
 			}
-		} while KvGotoNextKey(g_hGroups);
+		} while g_hGroups.GotoNextKey();
 	}
-	if(sGroup[0] == 0)
+	if (sGroup[0] == 0)
 	{
 		FormatEx(sGroup, sizeof(sGroup), "%T", "NO_GROUPS_AVAILABLE", iClient);
 		hMenu.AddItem("", sGroup, ITEMDRAW_DISABLED);
@@ -89,25 +89,25 @@ ShowGroupMenu(iClient)
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_AddVip_GroupsList(Menu hMenu, MenuAction action, int iClient, int Item)
+public int MenuHandler_AddVip_GroupsList(Menu hMenu, MenuAction action, int iClient, int Item)
 {
-	switch(action)
+	switch (action)
 	{
-		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_End:CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack)
+			if (Item == MenuCancel_ExitBack)
 			{
-				SetArrayCell(g_ClientData[iClient], DATA_TIME, TIME_SET);
+				g_ClientData[iClient].Set(DATA_TIME, TIME_SET);
 				ShowTimeMenu(iClient);
 			}
 		}
 		case MenuAction_Select:
 		{
-			new iTarget = CID(GetArrayCell(g_ClientData[iClient], DATA_TARGET_USER_ID));
+			int iTarget = CID(g_ClientData[iClient].Get(DATA_TARGET_USER_ID));
 			if (iTarget)
 			{
-				decl String:sGroup[MAX_NAME_LENGTH];
+				char sGroup[MAX_NAME_LENGTH];
 				hMenu.GetItem(Item, sGroup, sizeof(sGroup));
 				UTIL_ADD_VIP_PLAYER(iClient, iTarget, "", GetArrayCell(g_ClientData[iClient], DATA_TIME), sGroup);
 				//CloseHandleEx(g_ClientData[iClient]);
