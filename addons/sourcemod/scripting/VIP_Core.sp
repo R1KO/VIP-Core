@@ -4,7 +4,7 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION	"3.0 DEV #1"
+#define VIP_VERSION	"3.0 DEV #3"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -16,7 +16,7 @@
 #define REQUIRE_PLUGIN
 #endif
 
-public Plugin:myinfo = 
+public Plugin myinfo =
 {
 	name = "[VIP] Core", 
 	author = "R1KO (skype: vova.andrienko1)", 
@@ -28,9 +28,9 @@ public Plugin:myinfo =
 #if DEBUG_MODE 1
 char g_sDebugLogFile[PLATFORM_MAX_PATH];
 
-stock void DebugMsg(const char[] sMsg, any...)
+stock void DebugMsg(const char[] sMsg, any ...)
 {
-	char sBuffer[250];
+	static char sBuffer[512];
 	VFormat(sBuffer, sizeof(sBuffer), sMsg, 2);
 	LogToFile(g_sDebugLogFile, sBuffer);
 }
@@ -56,7 +56,7 @@ stock void DebugMsg(const char[] sMsg, any...)
 #include "vip/cmds.sp"
 #include "vip/clients.sp"
 
-public OnPluginStart()
+public void OnPluginStart()
 {
 	#if DEBUG_MODE 1
 	BuildPath(Path_SM, g_sDebugLogFile, sizeof(g_sDebugLogFile), "logs/VIP_Debug.log");
@@ -65,9 +65,10 @@ public OnPluginStart()
 	LoadTranslations("vip_core.phrases");
 	LoadTranslations("vip_modules.phrases");
 	LoadTranslations("common.phrases");
-	
-	GLOBAL_ARRAY = new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
-	GLOBAL_TRIE = new StringMap();
+
+	g_hFeaturesArray	= new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
+	GLOBAL_TRIE			= new StringMap();
+
 	ReadConfigs();
 	
 	InitVIPMenu();
@@ -95,8 +96,8 @@ public OnPluginStart()
 	
 	if (LibraryExists("adminmenu"))
 	{
-		decl Handle:hTopMenu;
-		if ((hTopMenu = GetAdminTopMenu()))
+		TopMenu hTopMenu = GetAdminTopMenu();
+		if(hTopMenu != null)
 		{
 			OnAdminMenuReady(hTopMenu);
 		}
@@ -104,27 +105,25 @@ public OnPluginStart()
 	#endif
 }
 
-public OnAllPluginsLoaded()
+public void OnAllPluginsLoaded()
 {
 	DB_OnPluginStart();
 }
 
 #if USE_ADMINMENU 1
-public Action:OnClientSayCommand(iClient, const char[] sCommand, const char[] sArgs)
+public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[] sArgs)
 {
 	if (iClient > 0 && iClient <= MaxClients && sArgs[0])
 	{
-		if (g_iClientInfo[iClient] & IS_WAIT_CHAT_PASS || g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+		if (g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 		{
-			if (g_iClientInfo[iClient] & IS_WAIT_CHAT_PASS)
-			{
-				ShowWaitPassMenu(iClient, sArgs, true);
-			}
-			else if (g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+			/*
+			if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 			{
 				ShowWaitSearchMenu(iClient, sArgs, true);
 			}
-			
+			*/
+
 			return Plugin_Handled;
 		}
 	}

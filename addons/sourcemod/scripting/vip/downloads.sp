@@ -2,11 +2,11 @@
 
 void ReadDownloads()
 {
-	char sBuffer[PLATFORM_MAX_PATH]; Handle:hFile;
+	char sBuffer[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, sBuffer, sizeof(sBuffer), "data/vip/modules/downloadlist.txt");
-	hFile = OpenFile(sBuffer, "r");
-	
-	if (hFile != INVALID_HANDLE)
+	File hFile = OpenFile(sBuffer, "r");
+
+	if (hFile != null)
 	{
 		while ((hFile).EndOfFile() == false && hFile.ReadLine(sBuffer, sizeof(sBuffer)))
 		{
@@ -49,7 +49,7 @@ bool Dir_AddToDownloadsTable(const char[] sPath)
 	{
 		decl Handle:hDir;
 		hDir = OpenDirectory(sPath);
-		if (hDir != INVALID_HANDLE)
+		if (hDir != null)
 		{
 			char dirEntry[PLATFORM_MAX_PATH];
 			while (hDir.GetNext(dirEntry, sizeof(dirEntry)))

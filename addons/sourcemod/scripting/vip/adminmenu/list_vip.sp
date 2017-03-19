@@ -1,10 +1,10 @@
 void ShowVipPlayersListMenu(int iClient)
 {
-	decl Handle:hMenu, char sUserID[12]; char sName[128]; i, iClientID;
-	hMenu = new Menu(MenuHandler_VipPlayersListMenu);
+	char sUserID[12], sName[128]; int i, iClientID;
+	Menu hMenu = new Menu(MenuHandler_VipPlayersListMenu);
 	
 	SetGlobalTransTarget(iClient);
-	
+
 	hMenu.SetTitle("%T:\n \n", "MENU_LIST_VIP", iClient);
 	hMenu.ExitBackButton = true;
 	
@@ -22,7 +22,7 @@ void ShowVipPlayersListMenu(int iClient)
 	sUserID[0] = 0;
 	for (i = 1; i <= MaxClients; ++i)
 	{
-		if (IsClientInGame(i) && (g_iClientInfo[i] & IS_VIP) && (g_iClientInfo[i] & IS_AUTHORIZED) && IsFakeClient(i) == false && GetClientName(i, sName, sizeof(sName)))
+		if (IsClientInGame(i) && (g_iClientInfo[i] & IS_VIP) && IsFakeClient(i) == false && GetClientName(i, sName, sizeof(sName)))
 		{
 			g_hFeatures[i].GetValue(KEY_CID, iClientID);
 			/*if(iClientID == -1)
@@ -116,11 +116,11 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 
 void ShowWaitSearchMenu(int iClient, const char[] sSearch = "", bool bIsValid = false)
 {
-	decl Handle:hMenu; char sBuffer[128];
-	hMenu = new Menu(MenuHandler_SearchPlayersListMenu);
+	char sBuffer[128];
+	Menu hMenu = new Menu(MenuHandler_SearchPlayersListMenu);
 	hMenu.SetTitle("%T \"%T\"\n \n", "ENTER_AUTH", iClient, "CONFIRM", iClient);
-	
-	
+
+
 	FormatEx(sBuffer, sizeof(sBuffer), "%T", "CONFIRM", iClient);
 	if (bIsValid)
 	{
@@ -165,7 +165,7 @@ public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int 
 			{
 				case 0:
 				{
-					char sQuery[512]; char sAuth[32];
+					char sQuery[512], sAuth[32];
 					hMenu.GetItem(Item, sAuth, sizeof(sAuth));
 					if (GLOBAL_INFO & IS_MySQL)
 					{
@@ -201,7 +201,7 @@ public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int 
 /*
 public void SQL_Callback_SearchPlayers(Handle hOwner, Handle hQuery, const char[] sError, any UserID)
 {
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hQuery == null || sError[0])
 	{
 		LogError("SQL_Callback_SearchPlayers: %s", sError);
 		return;
@@ -210,8 +210,8 @@ public void SQL_Callback_SearchPlayers(Handle hOwner, Handle hQuery, const char[
 	new iClient = CID(UserID);
 	if (iClient)
 	{
-		decl Handle:hMenu, char sUserID[12]; char sName[128];
-		hMenu = new Menu(MenuHandler_VipPlayersListMenu);
+		char sUserID[12], sName[128];
+		Menu hMenu = new Menu(MenuHandler_VipPlayersListMenu);
 
 		SetGlobalTransTarget(iClient);
 
@@ -267,7 +267,7 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 
 public void SQL_Callback_SelectVipPlayers(Handle hOwner, Handle hQuery, const char[] sError, any UserID)
 {
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hQuery == null || sError[0])
 	{
 		LogError("SQL_Callback_SelectVipPlayers: %s", sError);
 		return;
@@ -276,12 +276,12 @@ public void SQL_Callback_SelectVipPlayers(Handle hOwner, Handle hQuery, const ch
 	new iClient = CID(UserID);
 	if (iClient)
 	{
-		decl Handle:hMenu, char sUserID[12]; char sName[128];
-		hMenu = new Menu(MenuHandler_VipPlayersListMenu);
+		char sUserID[12], String:sName[128];
+		Menu hMenu = new Menu(MenuHandler_VipPlayersListMenu);
 		hMenu.ExitBackButton = true;
-		
+
 		SetGlobalTransTarget(iClient);
-		
+
 		hMenu.SetTitle("%T:\n \n", "MENU_LIST_VIP", iClient);
 		
 		sUserID[0] = 0;
@@ -315,8 +315,7 @@ void ShowTargetInfoMenu(int iClient, int iClientID)
 	char sQuery[512];
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(sQuery, sizeof(sQuery), "SELECT `u`.`auth_type`, \
-												`o`.`group`, \
+		FormatEx(sQuery, sizeof(sQuery), "SELECT `o`.`group`, \
 												`o`.`expires`, \
 												`u`.`name`, \
 												`u`.`auth` \
@@ -329,8 +328,7 @@ void ShowTargetInfoMenu(int iClient, int iClientID)
 	}
 	else
 	{
-		FormatEx(sQuery, sizeof(sQuery), "SELECT `auth_type`, \
-												`group`, \
+		FormatEx(sQuery, sizeof(sQuery), "SELECT `group`, \
 												`expires`, \
 												`name`, \
 												`auth` \
@@ -346,7 +344,7 @@ void ShowTargetInfoMenu(int iClient, int iClientID)
 
 public void SQL_Callback_SelectVipClientInfo(Handle hOwner, Handle hQuery, const char[] sError, any UserID)
 {
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hQuery == null || sError[0])
 	{
 		LogError("SQL_Callback_SelectVipClientInfo: %s", sError);
 		return;
@@ -359,8 +357,8 @@ public void SQL_Callback_SelectVipClientInfo(Handle hOwner, Handle hQuery, const
 		{
 			SetGlobalTransTarget(iClient);
 			
-			decl Handle:hMenu, char sGroup[64]; char sBuffer[64]; char sName[64]; char sAuthType[64]; char sAuth[64]; iExpires;
-			hMenu = new Menu(MenuHandler_VipClientInfoMenu);
+			char sGroup[64], sBuffer[64], sName[64], sAuth[64]; int iExpires;
+			Menu hMenu = new Menu(MenuHandler_VipClientInfoMenu);
 			
 			hMenu.ExitBackButton = true;
 			
@@ -405,28 +403,20 @@ public void SQL_Callback_SelectVipClientInfo(Handle hOwner, Handle hQuery, const
 			{
 				FormatEx(sBuffer, sizeof(sBuffer), "%t", "NEVER");
 			}
-			
+
+
 			hQuery.FetchString(3, sName, sizeof(sName)); // Name
 			g_ClientData[iClient].SetString(DATA_NAME, sName);
-			
+
 			hQuery.FetchString(4, sAuth, sizeof(sAuth)); // Auth
-			
-			switch (hQuery.FetchInt(0))
-			{
-				case 0:FormatEx(sAuthType, sizeof(sAuthType), "%t", "STEAM_ID");
-				case 1:FormatEx(sAuthType, sizeof(sAuthType), "%t", "IP");
-				case 2:FormatEx(sAuthType, sizeof(sAuthType), "%t", "NAME");
-			}
-			
-			hMenu.SetTitle("%t\n \n", "MENU_INFO_VIP_PLAYER", sName, sGroup, sBuffer, sAuthType, sAuth);
-			
-			FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_DEL_VIP"); //		1. Удалить игрока
+
+			hMenu.SetTitle("%t\n \n", "MENU_INFO_VIP_PLAYER", sName, sGroup, sBuffer, sAuth);
+
+			FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_DEL_VIP");        	//		1. Удалить игрока
 			hMenu.AddItem("", sBuffer);
-			FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_TIME"); //		2. Изменить срок 
+			FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_TIME");       //		2. Изменить срок 
 			hMenu.AddItem("", sBuffer);
-			FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_PASS"); //		3. Изменить пароль
-			hMenu.AddItem("", sBuffer);
-			FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_GROUP"); //		4. Изменить группу
+			FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_GROUP");     //		4. Изменить группу
 			hMenu.AddItem("", sBuffer);
 			
 			ReductionMenu(hMenu, 2);
@@ -444,12 +434,12 @@ void ShowTargetTempInfo(int iClient, int UserID)
 {
 	SetGlobalTransTarget(iClient);
 
-	decl Handle:hMenu, char sGroup[64]; char sBuffer[64]; char sName[64]; char sAuthType[64]; char sAuth[64]; iExpires;
-	hMenu = new Menu(MenuHandler_VipClientInfoMenu);
+	char sGroup[64], sBuffer[64], sName[64], sAuthType[64], sAuth[64]; int iExpires;
+	Menu hMenu = new Menu(MenuHandler_VipClientInfoMenu);
 
 	hMenu.ExitBackButton = true;
 	
-	if(g_hFeatures[iClient].GetString(KEY_GROUP, sGroup, sizeof(sGroup)) == false)	// GROUP
+	if (g_hFeatures[iClient].GetString(KEY_GROUP, sGroup, sizeof(sGroup)) == false)	// GROUP
 	{
 		FormatEx(sGroup, sizeof(sGroup), "%t", "NONE");
 	}
@@ -512,10 +502,9 @@ public int MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iCli
 		{
 			switch (Item)
 			{
-				case 0:ShowDeleteVipPlayerMenu(iClient);
-				case 1:ShowEditTimeMenu(iClient);
-				case 2:ShowEditPassMenu(iClient);
-				case 3:ShowEditGroupMenu(iClient);
+				case 0:	ShowDeleteVipPlayerMenu(iClient);
+				case 1:	ShowEditTimeMenu(iClient);
+				case 2: ShowEditGroupMenu(iClient);	
 			}
 		}
 	}

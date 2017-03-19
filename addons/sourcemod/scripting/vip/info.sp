@@ -10,8 +10,8 @@ void DisplayClientInfo(int iClient, const char[] sKey)
 	}
 	DebugMessage("sServLang = '%s'", sServLang)
 	
-	(GLOBAL_INFO_KV).Rewind();
-	if (GLOBAL_INFO_KV.JumpToKey(sKey))
+	(g_hInfo).Rewind();
+	if (g_hInfo.JumpToKey(sKey))
 	{
 		DebugMessage("KvJumpToKey: %s", sKey)
 		char sBuffer[1028]; char sClientLang[4];
@@ -26,8 +26,8 @@ void DisplayClientInfo(int iClient, const char[] sKey)
 void DisplayInfo(int iClient, const char[] sKey, const char[] sKey2, char[] sBuffer, int iBufLen, char[] sClientLang, char[] sServLang)
 {
 	DebugMessage("DisplayInfo: Client: %N (%i) -> '%s', '%s', '%s', '%s'", iClient, iClient, sKey, sKey2, sClientLang, sServLang)
-	(GLOBAL_INFO_KV).Rewind();
-	if (GLOBAL_INFO_KV.JumpToKey(sKey) && GLOBAL_INFO_KV.JumpToKey(sKey2))
+	(g_hInfo).Rewind();
+	if (g_hInfo.JumpToKey(sKey) && g_hInfo.JumpToKey(sKey2))
 	{
 		DebugMessage("KvJumpToKey: %s", sKey2)
 		switch (sKey2[0])
@@ -50,12 +50,12 @@ void DisplayInfo(int iClient, const char[] sKey, const char[] sKey2, char[] sBuf
 			{
 				DebugMessage("case 'm'")
 				
-				int iTime = GLOBAL_INFO_KV.GetNum("time", 0);
-				if (!GLOBAL_INFO_KV.JumpToKey(sClientLang))
+				int iTime = g_hInfo.GetNum("time", 0);
+				if (!g_hInfo.JumpToKey(sClientLang))
 				{
-					if (!GLOBAL_INFO_KV.JumpToKey(sServLang))
+					if (!g_hInfo.JumpToKey(sServLang))
 					{
-						if (!KvGotoFirstSubKey(GLOBAL_INFO_KV))
+						if (!g_hInfo.GotoFirstSubKey())
 						{
 							return;
 						}
@@ -63,13 +63,13 @@ void DisplayInfo(int iClient, const char[] sKey, const char[] sKey2, char[] sBuf
 				}
 				
 				DebugMessage("KvJumpToKey: (%s|%s)", sClientLang, sServLang)
-				if (GLOBAL_INFO_KV.GotoFirstSubKey(false))
+				if (g_hInfo.GotoFirstSubKey(false))
 				{
 					DebugMessage("KvGotoFirstSubKey")
-					new Handle:hPanel = new Panel();
+					Panel hPanel = new Panel();
 					do
 					{
-						GLOBAL_INFO_KV.GetString(NULL_STRING, sBuffer, 128);
+						g_hInfo.GetString(NULL_STRING, sBuffer, 128);
 						DebugMessage("KvGetString = '%s'", sBuffer)
 						if (sBuffer[0])
 						{
@@ -85,7 +85,7 @@ void DisplayInfo(int iClient, const char[] sKey, const char[] sKey2, char[] sBuf
 							}
 							hPanel.DrawText(sBuffer);
 						}
-					} while (GLOBAL_INFO_KV.GotoNextKey(false));
+					} while (g_hInfo.GotoNextKey(false));
 					
 					hPanel.DrawText(" \n");
 					
@@ -118,11 +118,11 @@ void DisplayInfo(int iClient, const char[] sKey, const char[] sKey2, char[] sBuf
 bool KvGetLangString(char[] sBuffer, int iBufLen, char[] sClientLang, char[] sServLang)
 {
 	DebugMessage("KvGetLangString: '%s', '%s'", sClientLang, sServLang)
-	GLOBAL_INFO_KV.GetString(sClientLang, sBuffer, iBufLen);
+		g_hInfo.GetString(sClientLang, sBuffer, iBufLen);
 	DebugMessage("KvGetString (%s) = '%s'", sClientLang, sBuffer)
 	if (!sBuffer[0])
 	{
-		GLOBAL_INFO_KV.GetString(sServLang, sBuffer, iBufLen);
+		g_hInfo.GetString(sServLang, sBuffer, iBufLen);
 		DebugMessage("KvGetString (%s) = '%s'", sServLang, sBuffer)
 		if (!sBuffer[0])
 		{
@@ -141,7 +141,7 @@ void ReplaceValues(int iClient, char[] sBuffer, int iBufLen, bool bExt)
 	ReplaceString(sBuffer, iBufLen, "{GROUP}", sGroup);
 	if (bExt)
 	{
-		char sExpires[64]; iExpires;
+		char sExpires[64]; int iExpires;
 		g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExpires);
 		FormatTime(sExpires, sizeof(sExpires), "%d/%m/%Y - %H:%M", iExpires);
 		ReplaceString(sBuffer, iBufLen, "{EXPIRES}", sExpires);

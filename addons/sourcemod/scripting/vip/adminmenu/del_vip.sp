@@ -1,9 +1,9 @@
 void ShowDeleteVipPlayerMenu(int iClient)
 {
-	decl Handle:hMenu; char sBuffer[128];
-	
-	hMenu = new Menu(MenuHandler_DeleteVipPlayerMenu);
-	
+	char sBuffer[128];
+
+	Menu hMenu = new Menu(MenuHandler_DeleteVipPlayerMenu);
+
 	SetGlobalTransTarget(iClient);
 	
 	g_ClientData[iClient].GetString(DATA_NAME, sBuffer, sizeof(sBuffer));
@@ -48,7 +48,7 @@ public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iC
 				ReplyToCommand(iClient, "%t", "ADMIN_VIP_IDENTITY_DELETED", sBuffer);
 				if (g_CVAR_bLogsEnable)LogToFile(g_sLogFile, "%T", "LOG_ADMIN_VIP_IDENTITY_DELETED", iClient, iClient, sBuffer);
 			}
-			g_hVIPAdminMenu.Display(iClient, MENU_TIME_FOREVER);
+			g_hVIPAdminMenu.Display(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
 		}
 	}
 }

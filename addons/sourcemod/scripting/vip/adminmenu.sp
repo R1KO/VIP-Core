@@ -1,14 +1,12 @@
-
 enum
 {
-	DATA_MENU_TYPE = 0, 
-	DATA_TARGET_USER_ID, 
-	DATA_TARGET_ID, 
-	DATA_AUTH_TYPE, 
-	DATA_TIME, 
-	DATA_NAME, 
-	DATA_GROUP, 
-	DATA_OFFSET, 
+	DATA_MENU_TYPE = 0,
+	DATA_TARGET_USER_ID,
+	DATA_TARGET_ID,
+	DATA_TIME,
+	DATA_NAME,
+	DATA_GROUP,
+	DATA_OFFSET,
 	DATA_SIZE
 }
 
@@ -27,12 +25,12 @@ enum
 
 void InitVIPAdminMenu()
 {
-	g_hVIPAdminMenu = new Menu(Handler_VIPAdminMenu, MenuAction_Display | MenuAction_Select | MenuAction_DisplayItem);
-	
-	g_hVIPAdminMenu.AddItem("", "vip_add");
-	g_hVIPAdminMenu.AddItem("", "vip_list");
-	g_hVIPAdminMenu.AddItem("", "vip_reload_players");
-	g_hVIPAdminMenu.AddItem("", "vip_reload_settings");
+	g_hVIPAdminMenu = CreateMenu(Handler_VIPAdminMenu, MenuAction_Display|MenuAction_Select|MenuAction_DisplayItem);
+
+	AddMenuItem(g_hVIPAdminMenu, "", "vip_add");
+	AddMenuItem(g_hVIPAdminMenu, "", "vip_list", ITEMDRAW_DISABLED);
+	AddMenuItem(g_hVIPAdminMenu, "", "vip_reload_players");
+	AddMenuItem(g_hVIPAdminMenu, "", "vip_reload_settings");
 }
 
 public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int iOption)
@@ -72,8 +70,10 @@ public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int 
 				}
 				case 1:
 				{
+					/*
 					InitiateDataArray(iClient);
 					ShowVipPlayersListMenu(iClient);
+					*/
 				}
 				case 2:
 				{
@@ -98,8 +98,8 @@ public OnLibraryAdded(const char[] sLibraryName)
 {
 	if (strcmp(sLibraryName, "adminmenu") == 0)
 	{
-		decl Handle:hTopMenu;
-		if ((hTopMenu = GetAdminTopMenu()))
+		TopMenu hTopMenu = GetAdminTopMenu();
+		if (hTopMenu != null)
 		{
 			OnAdminMenuReady(hTopMenu);
 		}
@@ -110,13 +110,14 @@ public OnLibraryRemoved(const char[] sLibraryName)
 {
 	if (strcmp(sLibraryName, "adminmenu") == 0)
 	{
-		g_hTopMenu = INVALID_HANDLE;
+		g_hTopMenu = null;
 		VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
 	}
 }
 
-public OnAdminMenuReady(Handle:hTopMenu)
+public void OnAdminMenuReady(Handle aTopMenu)
 {
+	TopMenu hTopMenu = TopMenu.FromHandle(aTopMenu);
 	if (g_hTopMenu == hTopMenu)
 	{
 		return;
@@ -134,14 +135,15 @@ void AddItemsToTopMenu()
 {
 	if (VIPAdminMenuObject == INVALID_TOPMENUOBJECT)
 	{
-		VIPAdminMenuObject = g_hTopMenu.AddItem("vip_admin", TopMenuObject_Category, Handler_MenuVIPAdmin, INVALID_TOPMENUOBJECT, "vip_admin", ADMFLAG_ROOT);
-		
+		VIPAdminMenuObject = g_hTopMenu.AddCategory("vip_admin", Handler_MenuVIPAdmin, "vip_admin", g_CVAR_iAdminFlag);
 	}
-	
-	g_hTopMenu.AddItem("vip_add", TopMenuObject_Item, Handler_MenuVIPAdd, VIPAdminMenuObject, "vip_add", ADMFLAG_ROOT);
-	g_hTopMenu.AddItem("vip_list", TopMenuObject_Item, Handler_MenuVIPList, VIPAdminMenuObject, "vip_list", ADMFLAG_ROOT);
-	g_hTopMenu.AddItem("vip_reload_players", TopMenuObject_Item, Handler_MenuVIPReloadPlayers, VIPAdminMenuObject, "vip_reload_players", ADMFLAG_ROOT);
-	g_hTopMenu.AddItem("vip_reload_settings", TopMenuObject_Item, Handler_MenuVIPReloadSettings, VIPAdminMenuObject, "vip_reload_settings", ADMFLAG_ROOT);
+
+	g_hTopMenu.AddItem("vip_add",				Handler_MenuVIPAdd,				VIPAdminMenuObject, "vip_add",				g_CVAR_iAdminFlag);
+	/*
+	g_hTopMenu.AddItem("vip_list",				Handler_MenuVIPList,			VIPAdminMenuObject, "vip_list",				g_CVAR_iAdminFlag);
+	*/
+	g_hTopMenu.AddItem("vip_reload_players",	Handler_MenuVIPReloadPlayers,	VIPAdminMenuObject, "vip_reload_players",	g_CVAR_iAdminFlag);
+	g_hTopMenu.AddItem("vip_reload_settings",	Handler_MenuVIPReloadSettings,	VIPAdminMenuObject, "vip_reload_settings",	g_CVAR_iAdminFlag);
 }
 
 public void Handler_MenuVIPAdmin(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)
@@ -166,7 +168,7 @@ public void Handler_MenuVIPAdd(TopMenu hMenu, TopMenuAction action, TopMenuObjec
 		}
 	}
 }
-
+/*
 public void Handler_MenuVIPList(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)
 {
 	switch (action)
@@ -179,7 +181,7 @@ public void Handler_MenuVIPList(TopMenu hMenu, TopMenuAction action, TopMenuObje
 		}
 	}
 }
-
+*/
 public void Handler_MenuVIPReloadPlayers(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)
 {
 	switch (action)
@@ -209,7 +211,7 @@ public void Handler_MenuVIPReloadSettings(TopMenu hMenu, TopMenuAction action, T
 
 void InitiateDataArray(int iClient)
 {
-	if (g_ClientData[iClient] == INVALID_HANDLE)
+	if (g_ClientData[iClient] == null)
 	{
 		g_ClientData[iClient] = new ArrayList(ByteCountToCells(64), DATA_SIZE);
 	}
@@ -225,7 +227,7 @@ int IsClientOnline(int ID)
 	decl i, iClientID;
 	for (i = 1; i <= MaxClients; ++i)
 	{
-		if (IsClientInGame(i) && g_hFeatures[i] != INVALID_HANDLE && g_hFeatures[i].GetValue(KEY_CID, iClientID) && iClientID == ID)return i;
+		if (IsClientInGame(i) && g_hFeatures[i] != null && GetTrieValue(g_hFeatures[i], KEY_CID, iClientID) && iClientID == ID) return i;
 	}
 	return 0;
 }
@@ -233,20 +235,23 @@ int IsClientOnline(int ID)
 void ShowTimeMenu(int iClient)
 {
 	SetGlobalTransTarget(iClient);
+
+	KeyValues hKv; int iMenuType;
+	Menu hMenu = new Menu(MenuHandler_TimeMenu);
 	
-	decl Handle:hMenu, Handle:hKv, iMenuType;
-	hMenu = new Menu(MenuHandler_TimeMenu);
-	
+	hMenu.SetTitle("%t:\n \n", "MENU_TIME_SET");
+	/*
 	iMenuType = g_ClientData[iClient].Get(DATA_TIME);
-	switch (iMenuType)
+	switch(iMenuType)
 	{
-		case TIME_SET:hMenu.SetTitle("%t:\n \n", "MENU_TIME_SET");
-		case TIME_ADD:hMenu.SetTitle("%t:\n \n", "MENU_TIME_ADD");
-		case TIME_TAKE:hMenu.SetTitle("%t:\n \n", "MENU_TIME_TAKE");
+		case TIME_SET: 	hMenu.SetTitle("%t:\n \n", "MENU_TIME_SET");
+		case TIME_ADD:	hMenu.SetTitle("%t:\n \n", "MENU_TIME_ADD");
+		case TIME_TAKE:	hMenu.SetTitle("%t:\n \n", "MENU_TIME_TAKE");
 	}
-	
+	*/
+
 	hMenu.ExitBackButton = true;
-	
+
 	hKv = CreateConfig("data/vip/cfg/times.ini", "TIMES");
 	
 	if (KvGotoFirstSubKey(hKv))
@@ -258,23 +263,60 @@ void ShowTimeMenu(int iClient)
 		do
 		{
 			hKv.GetSectionName(sTime, sizeof(sTime));
-			
-			if (iMenuType != TIME_SET && sTime[0] == '0')continue;
-			
+
+			if(iMenuType != TIME_SET && sTime[0] == '0') continue;
+
 			hKv.GetString(sClientLang, sBuffer, sizeof(sBuffer), "LangError");
-			if (strcmp(sBuffer, "LangError") == 0)hKv.GetString(sServerLang, sBuffer, sizeof(sBuffer), "LangError");
-			
+			if(!sBuffer[0])
+			{
+				hKv.GetString(sServerLang, sBuffer, sizeof(sBuffer), "LangError");
+			}
+
 			hMenu.AddItem(sTime, sBuffer);
-			
+
 		}
 		while (hKv.GotoNextKey(false));
 	}
 	
 	CloseHandle(hKv);
-	
+
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
+public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int Item)
+{
+	switch (action)
+	{
+		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_Cancel:
+		{
+			if(Item == MenuCancel_ExitBack)
+			{
+				ShowAddVIPMenu(iClient);
+			}
+		}
+		case MenuAction_Select:
+		{
+			int iTarget = GetClientOfUserId(g_ClientData[iClient].GetCell(DATA_TARGET_USER_ID));
+			if (iTarget)
+			{
+				char sBuffer[64]; int iType, iTime;
+				hMenu.GetItem(Item, sBuffer, sizeof(sBuffer));
+				g_ClientData[iClient].SetCell(DATA_TIME, StringToInt(sBuffer));
+				ShowGroupMenu(iClient);
+			}
+			else
+			{
+				VIP_PrintToChatClient(iClient, "%t", "PLAYER_NO_LONGER_AVAILABLE");
+				g_hVIPAdminMenu.Display(iClient, MENU_TIME_FOREVER);
+			}
+		}
+	
+	}
+	
+	return 0;
+}
+/*
 public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
 	switch (action)
@@ -286,7 +328,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 			{
 				if (g_ClientData[iClient].Get(DATA_MENU_TYPE) == MENU_TYPE_ADD)
 				{
-					ShowAuthTypeMenu(iClient);
+					ShowAddVIPMenu(iClient);
 				}
 				else
 				{
@@ -296,7 +338,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 		}
 		case MenuAction_Select:
 		{
-			char sBuffer[64]; iType, iTime;
+			char sBuffer[64]; int iType, iTime;
 			hMenu.GetItem(Item, sBuffer, sizeof(sBuffer));
 			iTime = StringToInt(sBuffer);
 			iType = g_ClientData[iClient].Get(DATA_TIME);
@@ -392,7 +434,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 					}
 				}
 				
-				decl iClientID; char sQuery[512];
+				int iClientID; char sQuery[512];
 				iClientID = g_ClientData[iClient].Get(DATA_TARGET_ID);
 				if (GLOBAL_INFO & IS_MySQL)
 				{
@@ -402,9 +444,9 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 				{
 					FormatEx(sQuery, sizeof(sQuery), "UPDATE `vip_users` SET `expires` = '%i' WHERE `id` = '%i';", iExpires, iClientID);
 				}
-				
+
 				g_hDatabase.Query(SQL_Callback_ChangeTime, sQuery, UID(iClient));
-				
+
 				ShowTargetInfoMenu(iClient, iClientID);
 			}
 		}
@@ -413,7 +455,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 	
 	return 0;
 }
-
+*/
 public void SQL_Callback_ChangeTime(Handle hOwner, Handle hQuery, const char[] sError, any UserID)
 {
 	if (sError[0])
@@ -438,14 +480,18 @@ public void SQL_Callback_ChangeTime(Handle hOwner, Handle hQuery, const char[] s
 
 void ReductionMenu(Handle &hMenu, int iNum)
 {
-	for (new i = 0; i < iNum; ++i)hMenu.AddItem("", "", ITEMDRAW_NOTEXT);
+	for (int i = 0; i < iNum; ++i)
+	{
+		hMenu.AddItem("", "", ITEMDRAW_NOTEXT);
+	}
 }
 
 #include "vip/adminmenu/add_vip.sp"
+/*
 #include "vip/adminmenu/edit_vip.sp"
 #include "vip/adminmenu/del_vip.sp"
 #include "vip/adminmenu/list_vip.sp"
-
+*/
 
 /*
 void AddMenuTranslatedItem(Handle:hMenu, iClient, const char[] sItem)

@@ -12,63 +12,71 @@ void DB_Connect()
 	{
 		return;
 	}
-	
-	if (g_hDatabase != INVALID_HANDLE)
+
+	if (g_hDatabase != null)
 	{
-		GLOBAL_INFO &= ~IS_LOADING;
+		UNSET_BIT(GLOBAL_INFO, IS_LOADING);
 		return;
 	}
 	
-	GLOBAL_INFO |= IS_LOADING;
-	
-	if (SQL_CheckConfig("vip"))
+	SET_BIT(GLOBAL_INFO, IS_LOADING);
+
+	if (SQL_CheckConfig("vip_core"))
 	{
-		OnDBConnect.Connect("vip", 1);
+		Database.Connect(OnDBConnect, "vip_core", 0);
 	}
 	else
 	{
+		KeyValues hKeyValues = new KeyValues("");
+		hKeyValues.SetString("driver", "sqlite");
+		hKeyValues.SetString("database", "vip_core");
+
 		char sError[256];
-		sError[0] = '\0';
-		g_hDatabase = SQLite_UseDatabase("vip", sError, sizeof(sError));
-		OnDBConnect(g_hDatabase, g_hDatabase, sError, 0);
+		g_hDatabase = SQL_ConnectCustom(hKeyValues, SZF(sError), false);
+
+		delete hKeyValues;
+	
+		OnDBConnect(g_hDatabase, sError, 1);
 	}
 }
 
-public void OnDBConnect(Handle hOwner, Handle hQuery, const char[] sError, any data)
+public void OnDBConnect(Database hDatabase, const char[] sError, any data)
 {
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hDatabase == null || sError[0])
 	{
 		SetFailState("OnDBConnect %s", sError);
-		GLOBAL_INFO &= ~IS_LOADING;
-		//	CreateTimer(5.0, Timer_DB_Reconnect);
+		UNSET_BIT(GLOBAL_INFO, IS_MySQL);
+	//	CreateTimer(5.0, Timer_DB_Reconnect);
 		return;
 	}
+
+	g_hDatabase = hDatabase;
 	
-	g_hDatabase = hQuery;
-	
-	char sDriver[16];
-	if (data == 1)
+	if(data == 1)
 	{
-		hOwner.GetIdentifier(sDriver, sizeof(sDriver));
+		UNSET_BIT(GLOBAL_INFO, IS_MySQL);
 	}
 	else
 	{
-		SQL_ReadDriver(hOwner, sDriver, sizeof(sDriver));
-	}
-	
-	if (strcmp(sDriver, "mysql", false) == 0)
-	{
-		GLOBAL_INFO |= IS_MySQL;
-		
-		g_hDatabase.SetCharset("utf8");
-		
-		SQL_FastQuery(g_hDatabase, "SET NAMES \"UTF8\"");
-		SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
-		SQL_FastQuery(g_hDatabase, "SET CHARSET 'utf8'");
-	}
-	else
-	{
-		GLOBAL_INFO &= ~IS_MySQL;
+		char sDriver[8];
+		g_hDatabase.Driver.GetIdentifier(SZF(sDriver));
+
+		if(strcmp(sDriver, "mysql", false) == 0)
+		{
+			SET_BIT(GLOBAL_INFO, IS_MySQL);
+			
+			/*
+			g_hDatabase.SetCharset("utf8");
+
+			SQL_FastQuery(g_hDatabase, "SET NAMES \"UTF8\"");
+			SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
+			SQL_FastQuery(g_hDatabase, "SET CHARSET 'utf8'");
+			*/
+		}
+		else
+		{
+			UNSET_BIT(GLOBAL_INFO, IS_MySQL);
+		}
 	}
 	
 	DebugMessage("OnDBConnect %x, %u - > (MySQL: %b)", g_hDatabase, g_hDatabase, GLOBAL_INFO & IS_MySQL)
@@ -78,7 +86,7 @@ public void OnDBConnect(Handle hOwner, Handle hQuery, const char[] sError, any d
 /*
 public Action:Timer_DB_Reconnect(Handle:timer)
 {
-	if (g_hDatabase == INVALID_HANDLE)
+	if (g_hDatabase == null)
 	{
 		DB_Connect();
 	}
@@ -91,19 +99,14 @@ void CreateTables()
 	SQL_LockDatabase(g_hDatabase);
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		SQL_FastQuery(g_hDatabase, "SET NAMES \"UTF8\"");
-		SQL_FastQuery(g_hDatabase, "SET CHARSET \"UTF8\"");
-		SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, "CREATE TABLE IF NOT EXISTS `vip_users` (\
+		g_hDatabase.Query(SQL_Callback_ErrorCheck,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 																		`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, \
 																		`auth` VARCHAR(64) UNIQUE NOT NULL, \
 																		`name` VARCHAR(64) NOT NULL default 'unknown', \
-																		`auth_type` TINYINT(2) UNSIGNED NOT NULL default '0', \
-																		`pass_key` VARCHAR(64) default NULL, \
-																		`password` VARCHAR(64) default NULL, \
 																		PRIMARY KEY (`id`), \
 																		UNIQUE KEY `auth_id` (`auth`)) DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;");
-		
-		SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, "CREATE TABLE IF NOT EXISTS `vip_overrides` (\
+
+		g_hDatabase.Query(SQL_Callback_ErrorCheck,	"CREATE TABLE IF NOT EXISTS `vip_overrides` (\
 																		`user_id` INT(10) UNSIGNED NOT NULL, \
 																		`server_id` INT(10) UNSIGNED NOT NULL, \
 																		`group` VARCHAR(64) default NULL, \
@@ -112,24 +115,26 @@ void CreateTables()
 																		UNIQUE KEY `user_id` (`user_id`, `server_id`), \
 																		CONSTRAINT `vip_overrides_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `vip_users` (`id`)  ON DELETE CASCADE ON UPDATE CASCADE\
 																		) DEFAULT CHARSET=utf8;");
+
+		SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
+		SQL_FastQuery(g_hDatabase, "SET CHARSET 'utf8'");
+
+		g_hDatabase.SetCharset("utf8");
 	}
 	else
 	{
-		SQL_TQuery(g_hDatabase, SQL_Callback_ErrorCheck, "CREATE TABLE IF NOT EXISTS `vip_users` (\
+		g_hDatabase.Query(SQL_Callback_ErrorCheck,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 																		`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
 																		`auth` VARCHAR(32) UNIQUE NOT NULL, \
 																		`name` VARCHAR(64) NOT NULL default 'unknown', \
-																		`auth_type` INTEGER NOT NULL default '0', \
-																		`pass_key` VARCHAR(64) default NULL, \
-																		`password` VARCHAR(64) default NULL, \
 																		`group` VARCHAR(64) default NULL, \
 																		`expires` INTEGER NOT NULL default '0');");
 	}
 	
 	SQL_UnlockDatabase(g_hDatabase);
 	
-	GLOBAL_INFO &= ~IS_LOADING;
-	
+	UNSET_BIT(GLOBAL_INFO, IS_LOADING);
+
 	OnReadyToStart();
 	
 	UTIL_ReloadVIPPlayers(0, false);
@@ -150,14 +155,23 @@ public void SQL_Callback_ErrorCheck(Handle hOwner, Handle hQuery, const char[] s
 
 void DB_UpdateClientName(int iClient)
 {
-	SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
-	
-	decl Handle:hStmt; char sError[256];
-	
+//	SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
+
+	char sQuery[256], sName[MAX_NAME_LENGTH*2+1];
+	int iClientID;
+	g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
+	GetClientName(iClient, sQuery, MAX_NAME_LENGTH);
+	g_hDatabase.Escape(sQuery, SZF(sName));
+	FormatEx(SZF(sQuery), "UPDATE `vip_users` SET `name` = '%s' WHERE `id` = '%i';", sName, iClientID);
+	g_hDatabase.Query(SQL_Callback_ErrorCheck, sQuery);
+
+	/*
+	decl Handle:hStmt, String:sError[256];
+
 	hStmt = SQL_PrepareQuery(g_hDatabase, "UPDATE `vip_users` SET `name` = ? WHERE `id` = ?;", SZF(sError));
-	if (hStmt != INVALID_HANDLE)
+	if (hStmt != null)
 	{
-		char sName[MAX_NAME_LENGTH]; iClientID;
+		char sName[MAX_NAME_LENGTH]; int iClientID;
 		g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
 		GetClientName(iClient, SZF(sName));
 		
@@ -176,6 +190,7 @@ void DB_UpdateClientName(int iClient)
 	{
 		LogError("[VIP Core] Fail SQL_PrepareQuery: %s", sError);
 	}
+	*/
 }
 
 void DB_RemoveClientFromID(int iClient = 0, int iClientID, bool bNotify)
@@ -234,9 +249,9 @@ public void SQL_Callback_RemoveClient(Handle hOwner, Handle hQuery, const char[]
 			g_hDatabase.Query(SQL_Callback_RemoveClient2, sQuery, iClientID);
 		}
 		
-		if (view_as<bool>((hDataPack).ReadCell()))
+		if (hDataPack.ReadCell())
 		{
-			new iClient = (hDataPack).ReadCell();
+			int iClient = (hDataPack).ReadCell();
 			
 			if (iClient)
 			{
@@ -264,7 +279,7 @@ public void SQL_Callback_RemoveClient2(Handle hOwner, Handle hQuery, const char[
 	{
 		char sQuery[256];
 		FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `vip_users` WHERE `id` = '%i';", iClientID);
-		
+
 		g_hDatabase.Query(SQL_Callback_ErrorCheck, sQuery, iClientID);
 	}
 }

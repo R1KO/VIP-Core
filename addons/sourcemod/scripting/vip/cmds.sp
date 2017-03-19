@@ -1,7 +1,7 @@
-public OnConfigsExecuted()
+public void OnConfigsExecuted()
 {
 	static bool bIsRegistered;
-	if (bIsRegistered == false)
+	if(bIsRegistered == false)
 	{
 		UTIL_LoadVipCmd(g_CVAR_hVIPMenu_CMD, VIPMenu_CMD);
 		
@@ -10,10 +10,10 @@ public OnConfigsExecuted()
 }
 
 #define CHECK_ACCESS(%0) if(!(GetUserFlagBits(%0) & g_CVAR_iAdminFlag)) \
-{ \
-	ReplyToCommand( % 0, "[VIP] %t", "COMMAND_NO_ACCESS"); \
-	return Plugin_Handled; \
-}
+						{ \
+							ReplyToCommand(%0, "[VIP] %t", "COMMAND_NO_ACCESS"); \
+							return Plugin_Handled; \
+						}
 
 #if USE_ADMINMENU 1
 public Action VIPAdmin_CMD(int iClient, int iArgs)
@@ -52,83 +52,70 @@ public Action ReloadVIPCfg_CMD(int iClient, int iArgs)
 public Action AddVIP_CMD(int iClient, int iArgs)
 {
 	CHECK_ACCESS(iClient)
-	
-	if (iArgs < 2)
+
+	if (iArgs != 3)
 	{
-		ReplyToCommand(iClient, "[VIP] %t!\nSyntax: sm_addvip <steam|ip|name> <steam_id|ip|name|#userid> [time] [group]", "INCORRECT_USAGE");
+		ReplyToCommand(iClient, "[VIP] %t!\nSyntax: sm_addvip <steam_id|name|#userid> <group> <time>", "INCORRECT_USAGE");
 		return Plugin_Handled;
 	}
 	
-	char sAuth[64]; VIP_AuthType:AuthType;
+	char sAuth[64];
 	GetCmdArg(1, sAuth, sizeof(sAuth));
-	
-	if (!strcmp(sAuth, "steam"))AuthType = AUTH_STEAM;
-	else if (!strcmp(sAuth, "ip"))AuthType = AUTH_IP;
-	else if (!strcmp(sAuth, "name"))AuthType = AUTH_NAME;
-	else
+
+	int iTarget = FindTarget(iClient, sAuth, true, false);
+	if(iTarget != -1)
 	{
-		ReplyToCommand(iClient, "[VIP] %t", "INCORRECT_ID");
-		return Plugin_Handled;
-	}
-	
-	decl iTarget;
-	GetCmdArg(2, sAuth, sizeof(sAuth));
-	
-	iTarget = FindTarget(iClient, sAuth, true, false);
-	if (iTarget != -1)
-	{
-		if (g_iClientInfo[iTarget] & IS_VIP || g_iClientInfo[iTarget] & IS_AUTHORIZED)
+		if (g_iClientInfo[iTarget] & IS_VIP)
 		{
 			ReplyToCommand(iClient, "[VIP] %t", "ALREADY_HAS_VIP");
 			return Plugin_Handled;
 		}
 		sAuth[0] = 0;
 	}
+	else if((g_EngineVersion == Engine_CSS && strncmp(sAuth, "[U:1:", 5) != 0 && sAuth[strlen(sAuth)-1] != ']') ||
+		strncmp(sAuth, "STEAM_", 6) != 0)
+	{
+		ReplyToCommand(iClient, "[VIP] %t", "No matching client");
+		return Plugin_Handled;
+	}
 	else
 	{
 		iTarget = 0;
 	}
-	
-	char sBuffer[64];
-	new iTime = 0;
-	if (iArgs > 2)
+
+	char sGroup[64];
+	GetCmdArg(3, sGroup, sizeof(sGroup));
+	int iTime = StringToInt(sGroup);
+	if (iTime < 0)
 	{
-		GetCmdArg(3, sBuffer, sizeof(sBuffer));
-		StringToIntEx(sBuffer, iTime);
-		if (iTime < 0)
-		{
-			ReplyToCommand(iClient, "[VIP] %t", "INCORRECT_TIME");
-			return Plugin_Handled;
-		}
+		ReplyToCommand(iClient, "[VIP] %t", "INCORRECT_TIME");
+		return Plugin_Handled;
 	}
-	
-	sBuffer[0] = 0;
-	if (iArgs > 3)
+
+	sGroup[0] = 0;
+	GetCmdArg(2, sGroup, sizeof(sGroup));
+	if (sGroup[0] && UTIL_CheckValidVIPGroup(sGroup) == false)
 	{
-		GetCmdArg(4, sBuffer, sizeof(sBuffer));
-		if (sBuffer[0] && UTIL_CheckValidVIPGroup(sBuffer) == false)
-		{
-			ReplyToCommand(iClient, "%t", "VIP_GROUP_DOES_NOT_EXIST");
-			return Plugin_Handled;
-		}
+		ReplyToCommand(iClient, "%t", "VIP_GROUP_DOES_NOT_EXIST");
+		return Plugin_Handled;
 	}
-	
-	UTIL_ADD_VIP_PLAYER(iClient, iTarget, sAuth, UTIL_TimeToSeconds(iTime), AuthType, sBuffer);
-	
+
+	UTIL_ADD_VIP_PLAYER(iClient, iTarget, sAuth, UTIL_TimeToSeconds(iTime), sGroup);
+
 	return Plugin_Handled;
 }
 
 public Action DelVIP_CMD(int iClient, int iArgs)
 {
 	CHECK_ACCESS(iClient)
-	
-	if (iArgs < 1)
+
+	if (iArgs != 1)
 	{
 		ReplyToCommand(iClient, "%t!\nSyntax: sm_delvip <identity>", "INCORRECT_USAGE");
 		return Plugin_Handled;
 	}
 	
-	char sQuery[512]; char sAuth[MAX_NAME_LENGTH];
+	char sQuery[512], sAuth[MAX_NAME_LENGTH];
 	GetCmdArg(1, sAuth, sizeof(sAuth));
 	
 	if (GLOBAL_INFO & IS_MySQL)
@@ -152,15 +139,15 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 	{
 		iClient = UID(iClient);
 	}
-	
+
 	g_hDatabase.Query(SQL_Callback_OnSelectRemoveClient, sQuery, iClient);
-	
+
 	return Plugin_Handled;
 }
 
 public void SQL_Callback_OnSelectRemoveClient(Handle hOwner, Handle hQuery, const char[] sError, any iClient)
 {
-	if (hQuery == INVALID_HANDLE || sError[0])
+	if (hQuery == null || sError[0])
 	{
 		LogError("SQL_Callback_OnSelectRemoveClient: %s", sError);
 	}

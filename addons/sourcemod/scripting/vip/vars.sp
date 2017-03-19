@@ -1,8 +1,4 @@
-#define GLOBAL_ARRAY		g_hFeatureStatus[0]
 #define GLOBAL_TRIE			g_hFeatures[0]
-
-#define GLOBAL_INFO_KV		g_ClientData[0]
-
 #define GLOBAL_INFO			g_iClientInfo[0]
 
 #define UID(%0) 	GetClientUserId(%0)
@@ -13,22 +9,27 @@
 #define UNSET_BIT(%0,%1) 	%0 &= ~%1
 
 #define IS_VIP						(1<<0)	// VIP ли игрок
-#define IS_AUTHORIZED				(1<<1)	// Авторизирован ли игрок
-#define IS_LOADED					(1<<2)	// Загружен ли игрок
-#define IS_WAIT_CHAT_PASS			(1<<3)	// Ожидается ввод пароля в чат
-#define IS_WAIT_CHAT_SEARCH			(1<<4)	// Ожидается ввод значения для поиска в чат
-#define IS_SPAWNED					(1<<5)	// Игрок возродился
-#define IS_MENU_OPEN				(1<<6)	// VIP-меню открыто
+#define IS_LOADED					(1<<1)	// Загружен ли игрок
+#define IS_WAIT_CHAT_PASS			(1<<2)	// Ожидается ввод пароля в чат
+#define IS_WAIT_CHAT_SEARCH			(1<<3)	// Ожидается ввод значения для поиска в чат
+#define IS_SPAWNED					(1<<4)	// Игрок возродился
+#define IS_MENU_OPEN				(1<<5)	// VIP-меню открыто
 
 #define IS_STARTED					(1<<0)
 #define IS_MySQL					(1<<1)
 #define IS_LOADING					(1<<2)
 
+/*
+#define	KEY_CID			"Core->ClientID"
+#define	KEY_EXPIRES		"Core->Expires"
+#define	KEY_GROUP		"Core->Group"
+#define	KEY_AUTHTYPE	"Core->AuthType"
+*/
 
-#define	KEY_CID			"ClientID"
-#define	KEY_EXPIRES		"expires"
-#define	KEY_GROUP		"vip_group"
-#define	KEY_AUTHTYPE	"AuthType"
+char	KEY_CID[]		= "Core->ClientID";
+char	KEY_EXPIRES[]	= "Core->Expires";
+char	KEY_GROUP[]		= "Core->Group";
+char	KEY_AUTHTYPE[]	= "Core->AuthType";
 
 enum
 {
@@ -51,63 +52,65 @@ enum
 	TIME_MODE_DAYS
 }
 
-enum GameType
+char g_sToggleStatus[][] =
 {
-	GAME_UNKNOWN = -1, 
-	GAME_CSS_34, 
-	GAME_CSS, 
-	GAME_CSGO
-}
+	"DISABLED",
+	"ENABLED",
+	"NO_ACCESS"
+};
 
 #define FEATURE_NAME_LENGTH 64
 
 static const char g_sLogFile[] = "addons/sourcemod/logs/VIP_Logs.log";
 
-new Handle:g_hGroups;
-new Handle:g_hDatabase;
+KeyValues	g_hGroups;
+KeyValues	g_hInfo;
+
+Database	g_hDatabase;
 
 #if USE_ADMINMENU 1
-new Handle:g_hTopMenu;
-new Handle:g_hVIPAdminMenu;
+TopMenu		g_hTopMenu;
+Menu		g_hVIPAdminMenu;
 #endif
 
-new Handle:g_hVIPMenu;
+Menu		g_hVIPMenu;
 
-new Handle:g_hSortArray;
+ArrayList	g_hFeaturesArray;
+ArrayList	g_hSortArray;
 
-new Handle:g_hFeatures[MAXPLAYERS + 1];
-new Handle:g_hFeatureStatus[MAXPLAYERS + 1];
+StringMap	g_hFeatures[MAXPLAYERS + 1];
+StringMap	g_hFeatureStatus[MAXPLAYERS + 1];
 
-new Handle:g_ClientData[MAXPLAYERS + 1];
+ArrayList	g_ClientData[MAXPLAYERS + 1];
 
-new g_iClientInfo[MAXPLAYERS + 1];
+int			g_iClientInfo[MAXPLAYERS + 1];
 
 // Cvar`s
-new Handle:g_CVAR_hVIPMenu_CMD;
+ConVar		g_CVAR_hVIPMenu_CMD;
 
-new g_CVAR_iAdminFlag;
-new g_CVAR_iServerID;
-new g_CVAR_iTimeMode;
-new g_CVAR_iDeleteExpired;
-float g_CVAR_fSpawnDelay;
-bool g_CVAR_bAutoOpenMenu;
+int 		g_CVAR_iAdminFlag;
+int 		g_CVAR_iServerID;
+int 		g_CVAR_iTimeMode;
+int			g_CVAR_iDeleteExpired;
+float		g_CVAR_fSpawnDelay;
+bool		g_CVAR_bAutoOpenMenu;
 #if USE_ADMINMENU 1
-bool g_CVAR_bAddItemToAdminMenu;
+bool		g_CVAR_bAddItemToAdminMenu;
 #endif
-bool g_CVAR_bKickNotAuthorized;
-bool g_CVAR_bUpdateName;
-bool g_CVAR_bHideNoAccessItems;
-bool g_CVAR_bLogsEnable;
+bool		g_CVAR_bUpdateName;
+bool		g_CVAR_bHideNoAccessItems;
+bool		g_CVAR_bLogsEnable;
 
-new EngineVersion:g_EngineVersion;
+Handle		g_hGlobalForward_OnVIPLoaded;
+Handle		g_hGlobalForward_OnClientLoaded;
+Handle		g_hGlobalForward_OnVIPClientLoaded;
+Handle		g_hGlobalForward_OnVIPClientAdded;
+Handle		g_hGlobalForward_OnVIPClientRemoved;
+Handle		g_hGlobalForward_OnPlayerSpawn;
+Handle		g_hGlobalForward_OnFeatureToggle;
 
-new Handle:g_hGlobalForward_OnVIPLoaded;
-new Handle:g_hGlobalForward_OnClientLoaded;
-new Handle:g_hGlobalForward_OnVIPClientLoaded;
-new Handle:g_hGlobalForward_OnVIPClientAdded;
-new Handle:g_hGlobalForward_OnVIPClientRemoved;
-new Handle:g_hGlobalForward_OnPlayerSpawn;
+EngineVersion	g_EngineVersion;
 
 #if USE_ADMINMENU 1
-new TopMenuObject:VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
+TopMenuObject	VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
 #endif

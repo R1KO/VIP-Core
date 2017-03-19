@@ -3,7 +3,7 @@ void CreateCvars()
 {
 	CreateConVar("sm_vip_core_version", VIP_VERSION, "VIP-CORE VERSION", FCVAR_SPONLY | FCVAR_REPLICATED | FCVAR_NOTIFY | FCVAR_CHEAT | FCVAR_DONTRECORD);
 	
-	decl Handle:hCvar;
+	ConVar hCvar;
 	
 	hCvar = CreateConVar("sm_vip_admin_flag", "z", "Флаг админа, необходимый чтобы иметь доступ к управлению VIP-игроками.");
 	hCvar.AddChangeHook(OnAdminFlagChange);
@@ -40,11 +40,7 @@ void CreateCvars()
 	hCvar = CreateConVar("sm_vip_spawn_delay", "1.0", "Задержка перед установкой привилегий при возрождении игрока", _, true, 0.1);
 	hCvar.AddChangeHook(OnSpawnDelayChange);
 	g_CVAR_fSpawnDelay = GetConVarFloat(hCvar);
-	
-	hCvar = CreateConVar("sm_vip_kick_not_authorized", "0", "Выкидывать с сервера игроков, которые имеют VIP-статус, но не ввели пароль (0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
-	hCvar.AddChangeHook(OnKickNotAuthorizedChange);
-	g_CVAR_bKickNotAuthorized = GetConVarBool(hCvar);
-	
+
 	hCvar = CreateConVar("sm_vip_hide_no_access_items", "0", "Режим отображения недоступных функций в вип меню (0 - Сделать пункты неактивными, 1 - Скрывать пункты)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnHideNoAccessItemsChange);
 	g_CVAR_bHideNoAccessItems = GetConVarBool(hCvar);
@@ -82,7 +78,7 @@ public void OnAddItemToAdminMenuChange(ConVar hCvar, const char[] oldValue, cons
 	g_CVAR_bAddItemToAdminMenu = GetConVarBool(hCvar);
 	if (g_CVAR_bAddItemToAdminMenu)
 	{
-		if (VIPAdminMenuObject != INVALID_TOPMENUOBJECT && g_hTopMenu != INVALID_HANDLE)
+		if (VIPAdminMenuObject != INVALID_TOPMENUOBJECT && g_hTopMenu != null)
 		{
 			g_hTopMenu.Remove(VIPAdminMenuObject);
 			VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
