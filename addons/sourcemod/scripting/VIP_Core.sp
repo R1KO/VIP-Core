@@ -1,10 +1,12 @@
 #pragma semicolon 1
 
+#pragma newdecls required
+
 #include <sourcemod>
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION	"3.0 DEV #3"
+#define VIP_VERSION	"3.0 DEV #4"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -39,8 +41,8 @@ stock void DebugMsg(const char[] sMsg, any ...)
 #define DebugMessage(%0)
 #endif
 
-#include "vip/downloads.sp"
 #include "vip/vars.sp"
+#include "vip/downloads.sp"
 #include "vip/utils.sp"
 #include "vip/features.sp"
 #include "vip/sounds.sp"

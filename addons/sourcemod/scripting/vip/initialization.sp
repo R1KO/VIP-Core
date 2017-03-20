@@ -1,10 +1,10 @@
-public OnMapStart()
+public void OnMapStart()
 {
 	LoadSounds();
 	ReadDownloads();
 }
 
-OnReadyToStart()
+void OnReadyToStart()
 {
 	DebugMessage("OnReadyToStart")
 	if (!(GLOBAL_INFO & IS_STARTED))
@@ -13,7 +13,7 @@ OnReadyToStart()
 		
 		CreateForward_OnVIPLoaded();
 		
-		for (new iClient = 1; iClient <= MaxClients; ++iClient)
+		for (int iClient = 1; iClient <= MaxClients; ++iClient)
 		{
 			if (IsClientInGame(iClient))
 			{
@@ -23,64 +23,63 @@ OnReadyToStart()
 	}
 }
 
-ReadConfigs()
+void ReadConfigs()
 {
 	DebugMessage("ReadConfigs")
-
-	decl String:sFeatureName[255], Handle:hFile;
 
 	if (g_hSortArray != null)
 	{
 		delete g_hSortArray;
 		g_hSortArray = null;
 	}
-
+	
+	char sFeatureName[255];
 	BuildPath(Path_SM, sFeatureName, sizeof(sFeatureName), "data/vip/cfg/sort_menu.ini");
-	hFile = OpenFile(sFeatureName, "r");
+	File hFile = OpenFile(sFeatureName, "r");
 	if (hFile != null)
 	{
 		g_hSortArray = new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
 		
-		while (!IsEndOfFile(hFile) && ReadFileLine(hFile, sFeatureName, FEATURE_NAME_LENGTH))
+		while (!hFile.EndOfFile() && hFile.ReadLine(sFeatureName, FEATURE_NAME_LENGTH))
 		{
 			DebugMessage("ReadFileLine: %s", sFeatureName)
 			TrimString(sFeatureName);
 			if (sFeatureName[0])
 			{
-				PushArrayString(g_hSortArray, sFeatureName);
-				DebugMessage("PushArrayString: %s (%i)", sFeatureName, FindStringInArray(g_hSortArray, sFeatureName))
+				g_hSortArray.PushString(sFeatureName);
+				DebugMessage("PushArrayString: %s (%i)", sFeatureName, g_hSortArray.FindString(sFeatureName))
 			}
 		}
-
-		CloseHandle(hFile);
 		
-		DebugMessage("GetArraySize: %i", GetArraySize(g_hSortArray))
+		delete hFile;
 		
-		if(GetArraySize(g_hSortArray) == 0)
+		DebugMessage("GetArraySize: %i", (g_hSortArray).Length)
+		
+		if ((g_hSortArray).Length == 0)
 		{
 			delete g_hSortArray;
 			g_hSortArray = null;
 		}
 	}
-
+	
 	UTIL_CloseHandleEx(g_hGroups);
-
+	
 	g_hGroups = CreateConfig("data/vip/cfg/groups.ini", "VIP_GROUPS");
 	g_hInfo = CreateConfig("data/vip/cfg/info.ini", "VIP_INFO");
 }
 
-KeyValues CreateConfig(const String:sFile[], const String:sKvName[])
+KeyValues CreateConfig(const char[] sFile, const char[] sKvName)
 {
-	decl String:sPath[PLATFORM_MAX_PATH];
+	char sPath[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, sPath, sizeof(sPath), sFile);
-
+	
 	KeyValues hKeyValues = new KeyValues(sKvName);
-	if(FileToKeyValues(hKeyValues, sPath) == false)
+	if (hKeyValues.ImportFromFile(sPath) == false)
 	{
-		KeyValuesToFile(hKeyValues, sPath);
+		hKeyValues.ExportToFile(sPath);
 	}
-
-	KvRewind(hKeyValues);
-
+	
+	hKeyValues.Rewind();
+	
 	return hKeyValues;
-}
+} 

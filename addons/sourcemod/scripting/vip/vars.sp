@@ -29,7 +29,6 @@
 char	KEY_CID[]		= "Core->ClientID";
 char	KEY_EXPIRES[]	= "Core->Expires";
 char	KEY_GROUP[]		= "Core->Group";
-char	KEY_AUTHTYPE[]	= "Core->AuthType";
 
 enum
 {

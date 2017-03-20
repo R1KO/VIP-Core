@@ -1,15 +1,15 @@
 public void OnConfigsExecuted()
 {
 	static bool bIsRegistered;
-	if(bIsRegistered == false)
+	if (bIsRegistered == false)
 	{
 		UTIL_LoadVipCmd(g_CVAR_hVIPMenu_CMD, VIPMenu_CMD);
-
+		
 		bIsRegistered = true;
 	}
 }
 
-#define CHECK_ACCESS(%0) if(!(GetUserFlagBits(%0) & g_CVAR_iAdminFlag)) \
+#define CHECK_ACCESS(%0) if (!(GetUserFlagBits(%0) & g_CVAR_iAdminFlag)) \
 						{ \
 							ReplyToCommand(%0, "[VIP] %t", "COMMAND_NO_ACCESS"); \
 							return Plugin_Handled; \
@@ -18,13 +18,13 @@ public void OnConfigsExecuted()
 #if USE_ADMINMENU 1
 public Action VIPAdmin_CMD(int iClient, int iArgs)
 {
-	if(iClient)
+	if (iClient)
 	{
 		CHECK_ACCESS(iClient)
-
-		DisplayMenu(g_hTopMenu, iClient, MENU_TIME_FOREVER);
+		
+		g_hTopMenu.Display(iClient, TopMenuPosition_Start); //g_hTopMenu.Display(iClient, MENU_TIME_FOREVER);
 	}
-
+	
 	return Plugin_Handled;
 }
 #endif
@@ -32,20 +32,20 @@ public Action VIPAdmin_CMD(int iClient, int iArgs)
 public Action ReloadVIPPlayers_CMD(int iClient, int iArgs)
 {
 	CHECK_ACCESS(iClient)
-
+	
 	UTIL_ReloadVIPPlayers(iClient, true);
-
+	
 	return Plugin_Handled;
 }
 
 public Action ReloadVIPCfg_CMD(int iClient, int iArgs)
 {
 	CHECK_ACCESS(iClient)
-
+	
 	ReadConfigs();
 	UTIL_ReloadVIPPlayers(iClient, false);
 	ReplyToCommand(iClient, "[VIP] %t", "VIP_CFG_REFRESHED");
-
+	
 	return Plugin_Handled;
 }
 
@@ -53,26 +53,26 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 {
 	CHECK_ACCESS(iClient)
 
-	if(iArgs != 3)
+	if (iArgs != 3)
 	{
 		ReplyToCommand(iClient, "[VIP] %t!\nSyntax: sm_addvip <steam_id|name|#userid> <group> <time>", "INCORRECT_USAGE");
 		return Plugin_Handled;
 	}
 	
-	decl String:sAuth[64];
+	char sAuth[64];
 	GetCmdArg(1, sAuth, sizeof(sAuth));
 
 	int iTarget = FindTarget(iClient, sAuth, true, false);
-	if(iTarget != -1)
+	if (iTarget != -1)
 	{
-		if(g_iClientInfo[iTarget] & IS_VIP)
+		if (g_iClientInfo[iTarget] & IS_VIP)
 		{
 			ReplyToCommand(iClient, "[VIP] %t", "ALREADY_HAS_VIP");
 			return Plugin_Handled;
 		}
 		sAuth[0] = 0;
 	}
-	else if((g_EngineVersion == Engine_CSS && strncmp(sAuth, "[U:1:", 5) != 0 && sAuth[strlen(sAuth)-1] != ']') ||
+	else if ((g_EngineVersion == Engine_CSS && strncmp(sAuth, "[U:1:", 5) != 0 && sAuth[strlen(sAuth)-1] != ']') ||
 		strncmp(sAuth, "STEAM_", 6) != 0)
 	{
 		ReplyToCommand(iClient, "[VIP] %t", "No matching client");
@@ -86,7 +86,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 	char sGroup[64];
 	GetCmdArg(3, sGroup, sizeof(sGroup));
 	int iTime = StringToInt(sGroup);
-	if(iTime < 0)
+	if (iTime < 0)
 	{
 		ReplyToCommand(iClient, "[VIP] %t", "INCORRECT_TIME");
 		return Plugin_Handled;
@@ -94,7 +94,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 
 	sGroup[0] = 0;
 	GetCmdArg(2, sGroup, sizeof(sGroup));
-	if(sGroup[0] && UTIL_CheckValidVIPGroup(sGroup) == false)
+	if (sGroup[0] && UTIL_CheckValidVIPGroup(sGroup) == false)
 	{
 		ReplyToCommand(iClient, "%t", "VIP_GROUP_DOES_NOT_EXIST");
 		return Plugin_Handled;
@@ -109,7 +109,7 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 {
 	CHECK_ACCESS(iClient)
 
-	if(iArgs != 1)
+	if (iArgs != 1)
 	{
 		ReplyToCommand(iClient, "%t!\nSyntax: sm_delvip <identity>", "INCORRECT_USAGE");
 		return Plugin_Handled;
@@ -117,7 +117,7 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 	
 	char sQuery[512], sAuth[MAX_NAME_LENGTH];
 	GetCmdArg(1, sAuth, sizeof(sAuth));
-
+	
 	if (GLOBAL_INFO & IS_MySQL)
 	{
 		FormatEx(sQuery, sizeof(sQuery), "SELECT `id` \
@@ -133,9 +133,9 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 											FROM `vip_users` \
 											WHERE `auth` = '%s' LIMIT 1;", sAuth);
 	}
-
+	
 	DebugMessage(sQuery)
-	if(iClient)
+	if (iClient)
 	{
 		iClient = UID(iClient);
 	}
@@ -145,21 +145,21 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
-public SQL_Callback_OnSelectRemoveClient(Handle:hOwner, Handle:hQuery, const String:sError[], any:iClient)
+public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hQuery, const char[] sError, any iClient)
 {
 	if (hQuery == null || sError[0])
 	{
 		LogError("SQL_Callback_OnSelectRemoveClient: %s", sError);
 	}
 	
-	if(iClient)
+	if (iClient)
 	{
 		iClient = CID(iClient);
 	}
-
-	if (SQL_FetchRow(hQuery))
+	
+	if ((hQuery).FetchRow())
 	{
-		DB_RemoveClientFromID(iClient, SQL_FetchInt(hQuery, 0), true);
+		DB_RemoveClientFromID(iClient, hQuery.FetchInt(0), true);
 	}
 	else
 	{
@@ -169,24 +169,24 @@ public SQL_Callback_OnSelectRemoveClient(Handle:hOwner, Handle:hQuery, const Str
 
 public Action VIPMenu_CMD(int iClient, int iArgs)
 {
-	if(iClient)
+	if (iClient)
 	{
-		if(OnVipMenuFlood(iClient) == false)
+		if (OnVipMenuFlood(iClient) == false)
 		{
-			if(g_iClientInfo[iClient] & IS_VIP)
+			if (g_iClientInfo[iClient] & IS_VIP)
 			{
-				DisplayMenu(g_hVIPMenu, iClient, MENU_TIME_FOREVER);
+				g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
 			}
 			else
 			{
 				/*
 				PrintToChat(iClient, "%t%t", "VIP_CHAT_PREFIX", "COMMAND_NO_ACCESS");
 				*/
-
+				
 				PlaySound(iClient, NO_ACCESS_SOUND);
 				DisplayClientInfo(iClient, "no_access_info");
 			}
 		}
 	}
 	return Plugin_Handled;
-}
+} 

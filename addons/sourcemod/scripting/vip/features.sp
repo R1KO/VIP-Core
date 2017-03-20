@@ -75,7 +75,7 @@ void Features_SetStatus(int iClient, const char[] sFeatureName, VIP_ToggleState 
 	SetTrieValue(g_hFeatureStatus[iClient], sFeatureName, Status);
 }
 
-VIP_ToggleState Features_GetStatus(int iClient, const char[] sFeatureName)
+VIP_ToggleState Features_GetStatus(const int &iClient, const char[] sFeatureName)
 {
 	static VIP_ToggleState Status;
 	if(g_hFeatureStatus[iClient].GetValue(sFeatureName, Status))

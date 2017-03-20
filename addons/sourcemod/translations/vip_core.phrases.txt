@@ -284,71 +284,6 @@
 		"ru"		"Админ {1} сократил срок VIP-игроку {2} на {3}"
 		"ua"		"Адмін {1} зменшив термін дії VIP гравцю {2} до {3}"
 	}
-	"MENU_EDIT_PASS"
-	{
-		"en"		"Edit password"
-		"fi"		"Muuta salasana"
-		"de"		"Kennwort ändern"
-		"pt_p"		"Editar password"
-		"ru"		"Изменить пароль"
-		"ua"		"Редагувати пароль"
-	}
-	"MENU_DEL_PASS"
-	{
-		"en"		"Remove paswrod"
-		"fi"		"Poista salasana"
-		"de"		"Kennwort entfernen"
-		"pt_p"		"Remover password"
-		"ru"		"Удалить пароль"
-		"ua"		"Видалити пароль"
-	}
-	"ADMIN_PASSWORD_REMOVED"
-	{
-		"en"		"Password has been successfully removed"
-		"fi"		"Salasana on onnistuneesti poistettu!"
-		"de"		"Kennwort ist erfolgreich gelöscht"
-		"pt_p"		"A password foi removida com sucesso"
-		"ru"		"Пароль успешно удален!"
-		"ua"		"Пароль успішно видалено!"
-	}
-	"LOG_ADMIN_PASSWORD_REMOVED"
-	{
-		"#format"	"{1:L},{2:s}"
-		"en"		"Admin {1} removed {2} VIP-password"
-		"fi"		"Admin {1} Poisti VIP-pelaajalle {2} VIP-salasanan"
-		"de"		"Admin {1} hat VIP-Kennwort von {2} entfernt"
-		"pt_p"		"O Admin {1} removeu {2} VIP-password"
-		"ru"		"Админ {1} удалил пароль VIP-игроку {2}"
-		"ua"		"Адмін {1} видалив {2} VIP-пароль"
-	}
-	"MENU_ADD_PASS"
-	{
-		"en"		"Add a password"
-		"fi"		"Lisää salasana"
-		"de"		"Kennwort hinzufügen"
-		"pt_p"		"Adicionar password"
-		"ru"		"Добавить пароль"
-		"ua"		"Додати пароль"
-	}
-	"ADMIN_SET_PASSWORD"
-	{
-		"en"		"Password has been set!"
-		"fi"		"Salasana on asetettu!"
-		"de"		"Kennwort erfolgreich hinzugefügt!"
-		"pt_p"		"Foi definida a password!"
-		"ru"		"Пароль успешно установлен!"
-		"ua"		"Пароль успішно встановлено!"
-	}
-	"LOG_ADMIN_SET_PASSWORD"
-	{
-		"#format"	"{1:L},{2:s},{3:s}"
-		"en"		"Admin {1} has set password for VIP-player: {2} (Password: {3})"
-		"fi"		"Admin {1} on asettanut salasanan VIP-pelaajalle: {2} (Salasana: {3})"
-		"de"		"Admin {1} hat Kennwort für VIP-Spieler hinzufügt: {2} (Kennwort: {3})"
-		"pt_p"		"O Admin {1} definiu uma password para o VIP: {2} (Password: {3})"
-		"ru"		"Админ {1} установил пароль VIP-игроку {2} (Пароль: {3})"
-		"ua"		"Адмін {1} встановив пароль для VIP-гравця: {2} (Пароль: {3})"
-	}
 	"MENU_EDIT_GROUP"
 	{
 		"en"		"Edit VIP-group"
@@ -599,15 +534,6 @@
 		"ru"		"Истек"
 		"es"		"Expirado"
 		"ua"		"Закінчився"
-	}
-	"ENTER_PASS"
-	{
-		"en"		"Type password to chat\nand hit"
-		"fi"		"Kirjoita salasana chattiin\nja paina"
-		"de"		"Geben Sie das Kennwort zum Chat\nund drücken Sie"
-		"pt_p"		"Introduzir a password no chat\nand Pressionar"
-		"ru"		"Введите в чат пароль\nи нажмите"
-		"ua"		"Введіть в чат пароль\nі натисніть"
 	}
 	"ENTER_AUTH"
 	{
