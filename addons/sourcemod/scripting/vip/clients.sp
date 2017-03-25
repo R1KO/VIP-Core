@@ -10,7 +10,7 @@ void ResetClient(int iClient)
 public void OnClientPutInServer(int iClient)
 {
 	//	g_iClientInfo[iClient] = 0;
-	DebugMessage("OnClientPostAdminCheck %N (%i): %b", iClient, iClient, g_iClientInfo[iClient])
+	DebugMessage("OnClientPutInServer %N (%i): %b", iClient, iClient, g_iClientInfo[iClient])
 	
 	Clients_CheckVipAccess(iClient, true);
 }
@@ -151,15 +151,6 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hQuery,
 				g_hFeatures[iClient].SetValue(KEY_CID, iClientID);
 
 				g_hFeatures[iClient].SetString(KEY_GROUP, sGroup);
-				DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
-				if (AreClientCookiesCached(iClient))
-				{
-					Clients_LoadVIPFeatures(iClient);
-				}
-				else
-				{
-					CreateTimer(1.0, Timer_CheckCookies, UID(iClient), TIMER_FLAG_NO_MAPCHANGE);
-				}
 				
 				g_iClientInfo[iClient] |= IS_VIP;
 				g_iClientInfo[iClient] |= IS_LOADED;
@@ -179,6 +170,16 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hQuery,
 					}
 
 					DisplayClientInfo(iClient, iExpires == 0 ? "connect_info_perm":"connect_info_time");
+				}
+
+				DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
+				if (AreClientCookiesCached(iClient))
+				{
+					Clients_LoadVIPFeatures(iClient);
+				}
+				else
+				{
+					CreateTimer(1.0, Timer_CheckCookies, UID(iClient), TIMER_FLAG_NO_MAPCHANGE);
 				}
 			}
 			else
@@ -201,7 +202,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hQuery,
 public Action Timer_CheckCookies(Handle hTimer, any UserID)
 {
 	int iClient = CID(UserID);
-	DebugMessage("Timer_CheckCookies -> UserID: %i, iClient: %i, IsClientVIP: %b,", UserID, iClient, g_bIsClientVIP[iClient])
+	DebugMessage("Timer_CheckCookies -> UserID: %i, iClient: %i, IsClientVIP: %b,", UserID, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP))
 	if (iClient && g_iClientInfo[iClient] & IS_VIP)
 	{
 		DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
@@ -221,7 +222,7 @@ public Action Timer_CheckCookies(Handle hTimer, any UserID)
 void Clients_OnVIPClientLoaded(int iClient)
 {
 	CreateForward_OnVIPClientLoaded(iClient);
-	
+
 	Features_TurnOnAll(iClient);
 }
 
@@ -276,10 +277,9 @@ void Clients_LoadVIPFeatures(int iClient)
 						{
 							hCookie = view_as<Handle>(hArray.Get(FEATURES_COOKIE));
 							GetClientCookie(iClient, hCookie, SZF(sBuffer));
+							Status = view_as<VIP_ToggleState>(StringToInt(sBuffer));
 							DebugMessage("GetFeatureCookie: %s", sBuffer)
-							if (sBuffer[0] == '\0' ||
-								(StringToIntEx(sBuffer, view_as<int>(Status)) &&
-								(view_as<int>(Status) > 2 || view_as<int>(Status) < 0)))
+							if (sBuffer[0] == '\0' || (view_as<int>(Status) > 2 || view_as<int>(Status) < 0))
 							{
 								Status = ENABLED;
 								IntToString(view_as<int>(Status), SZF(sBuffer));
@@ -299,6 +299,8 @@ void Clients_LoadVIPFeatures(int iClient)
 			}
 		}
 	}
+
+	DebugMessage("Clients_OnVIPClientLoaded: %i %N", iClient, iClient)
 
 	Clients_OnVIPClientLoaded(iClient);
 }

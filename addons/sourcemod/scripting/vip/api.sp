@@ -509,6 +509,7 @@ public int Native_GetVIPClientTrie(Handle hPlugin, int iNumParams)
 	{
 		return view_as<int>(g_hFeatures[iClient]);
 	}
+
 	return view_as<int>(INVALID_HANDLE);
 }
 
@@ -565,12 +566,12 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 					
 					g_hFeatures[iClient].SetString(KEY_GROUP, sGroup);
 					g_hFeatures[iClient].SetValue(KEY_CID, -1);
-					
-					Clients_LoadVIPFeatures(iClient);
 					g_iClientInfo[iClient] |= IS_VIP;
 					g_iClientInfo[iClient] |= IS_LOADED;
 					
-					Clients_OnVIPClientLoaded(iClient);
+					Clients_LoadVIPFeatures(iClient);
+					
+				//	Clients_OnVIPClientLoaded(iClient);
 					if (g_CVAR_bAutoOpenMenu)
 					{
 						g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);

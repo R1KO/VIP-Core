@@ -40,7 +40,7 @@ void Features_TurnOnAll(int iClient)
 	if(iFeatures != 0)
 	{
 		char				sFeatureName[FEATURE_NAME_LENGTH];
-		VIP_ToggleState		OldStatus;
+		VIP_ToggleState		NewStatus;
 		Function			Function_Toggle;
 		ArrayList			hArray;
 		DataPack			hDataPack;
@@ -57,10 +57,10 @@ void Features_TurnOnAll(int iClient)
 					Function_Toggle = hDataPack.ReadFunction();
 					if(Function_Toggle != INVALID_FUNCTION)
 					{
-						OldStatus = Features_GetStatus(iClient, sFeatureName);
-						if(OldStatus != NO_ACCESS)
+						NewStatus = Features_GetStatus(iClient, sFeatureName);
+						if(NewStatus != NO_ACCESS)
 						{
-							Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Toggle, iClient, sFeatureName, NO_ACCESS, OldStatus);
+							Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Toggle, iClient, sFeatureName, NO_ACCESS, NewStatus);
 						}
 					}
 				}

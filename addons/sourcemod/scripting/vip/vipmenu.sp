@@ -75,11 +75,11 @@ void ResortFeaturesArray()
 }
 
 #if DEBUG_MODE 1
-stock void PrintArray(Handle &hArray)
+stock void PrintArray(ArrayList &hArray)
 {
 	DebugMessage("PrintArray")
 	int i, iSize; char sItemInfo[128];
-	iSize = (hArray).Length;
+	iSize = hArray.Length;
 	if (iSize)
 	{
 		for (i = 0; i < iSize; ++i)
@@ -93,7 +93,10 @@ stock void PrintArray(Handle &hArray)
 
 public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOption)
 {
-	static char sItemInfo[FEATURE_NAME_LENGTH]; ArrayList hBuffer; Function Function_Call; ArrayList hPlugin; // Handle hBuffer, Handle hPlugin,
+	static char sItemInfo[FEATURE_NAME_LENGTH];
+	ArrayList hBuffer;
+	Function Function_Call;
+	ArrayList hPlugin; // Handle hBuffer, Handle hPlugin,
 	/*
 	switch (action)
 	{
@@ -152,7 +155,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 			
 			DebugMessage("MenuAction_DrawItem: Client: %i, Feature: %s, iStyle: %i", iClient, sItemInfo, iStyle)
 			
-			if (GLOBAL_TRIE.GetValue(sItemInfo, view_as<DataPack>(hBuffer)))
+			if (GLOBAL_TRIE.GetValue(sItemInfo, hBuffer))
 			{
 				if (view_as<VIP_ValueType>(hBuffer.Get(FEATURES_VALUE_TYPE)) != VIP_NULL && Features_GetStatus(iClient, sItemInfo) == NO_ACCESS)
 				{

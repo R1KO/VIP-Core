@@ -324,7 +324,7 @@ public void SQL_Callback_CreateVIPClient(Database hOwner, DBResultSet hResult, c
 		
 		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sName
 		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sAuth
-		iExpires = hDataPack.ReadCell();					// iExpires
+		iExpires = hDataPack.ReadCell();				// iExpires
 		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sGroup
 		
 		SetClientOverrides(hPack, iClientID, iExpires, sGroup);
@@ -367,7 +367,7 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 		}
 		else
 		{
-			hDataPack.Position = view_as<DataPackPos>(9);
+		//	hDataPack.Position = view_as<DataPackPos>(9);
 			iClientID = hResult.InsertId;
 		}
 	

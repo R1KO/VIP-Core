@@ -6,7 +6,7 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION	"3.0 DEV #4"
+#define VIP_VERSION	"3.0 DEV #5"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -25,7 +25,6 @@ public Plugin myinfo =
 	version = VIP_VERSION,
 	url = "http://hlmod.ru"
 };
-
 
 #if DEBUG_MODE 1
 char g_sDebugLogFile[PLATFORM_MAX_PATH];
