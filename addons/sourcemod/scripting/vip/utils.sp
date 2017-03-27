@@ -279,7 +279,7 @@ public void SQL_Callback_CheckVIPClient(Database hOwner, DBResultSet hResult, co
 
 	hDataPack.Reset();
 
-	if ((hResult).FetchRow())
+	if (hResult.FetchRow())
 	{
 		char sGroup[64];
 		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sName

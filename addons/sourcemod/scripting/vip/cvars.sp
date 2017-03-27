@@ -74,19 +74,20 @@ public void OnAdminFlagChange(ConVar hCvar, const char[] oldValue, const char[] 
 public void OnAddItemToAdminMenuChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_bAddItemToAdminMenu = hCvar.BoolValue;
-	if(g_CVAR_bAddItemToAdminMenu)
+
+	if(g_hTopMenu != null)
 	{
 		if(VIPAdminMenuObject != INVALID_TOPMENUOBJECT && g_hTopMenu != null)
 		{
-			RemoveFromTopMenu(g_hTopMenu, VIPAdminMenuObject);
+			g_hTopMenu.Remove(VIPAdminMenuObject);
+		}
+
+		if(g_CVAR_bAddItemToAdminMenu)
+		{
 			VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
 		}
-	}
-	else
-	{
-		if(g_hTopMenu)
+		else
 		{
-			RemoveFromTopMenu(g_hTopMenu, VIPAdminMenuObject);
 			AddItemsToTopMenu();
 		}
 	}
