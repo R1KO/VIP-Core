@@ -5,6 +5,7 @@
 2. Исправление события возрождения игрока:
 	- Фатальная ошибка при запуске модуля: `Native "VIP_HookClientSpawn" was not found`
 	- Предупреждение при компиляции модуля: `warning 234: symbol "VIP_HookClientSpawn" is marked as deprecated: Use VIP_OnPlayerSpawn`
+	- Фатальная ошибка при компиляции модуля: ` error 017: undefined symbol "VIP_HookClientSpawn"`
 
 Для примера будет использован следующий код:
 ```cpp
