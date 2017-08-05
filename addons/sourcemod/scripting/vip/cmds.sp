@@ -22,7 +22,8 @@ public Action VIPAdmin_CMD(int iClient, int iArgs)
 	{
 		CHECK_ACCESS(iClient)
 		
-		g_hTopMenu.Display(iClient, TopMenuPosition_Start); //g_hTopMenu.Display(iClient, MENU_TIME_FOREVER);
+	//	g_hTopMenu.Display(iClient, TopMenuPosition_Start); //g_hTopMenu.Display(iClient, MENU_TIME_FOREVER);
+		g_hVIPAdminMenu.Display(iClient, MENU_TIME_FOREVER);
 	}
 	
 	return Plugin_Handled;

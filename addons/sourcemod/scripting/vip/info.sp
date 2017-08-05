@@ -6,7 +6,7 @@ void DisplayClientInfo(int iClient, const char[] sKey)
 	static char sServLang[4];
 	if (!sServLang[0])
 	{
-		GetLanguageInfo(GetServerLanguage(), sServLang, sizeof(sServLang));
+		GetLanguageInfo(GetServerLanguage(), SZF(sServLang));
 	}
 	DebugMessage("sServLang = '%s'", sServLang)
 	
@@ -14,12 +14,13 @@ void DisplayClientInfo(int iClient, const char[] sKey)
 	if (g_hInfo.JumpToKey(sKey))
 	{
 		DebugMessage("KvJumpToKey: %s", sKey)
-		char sBuffer[1028]; char sClientLang[4];
-		GetLanguageInfo(GetClientLanguage(iClient), sClientLang, sizeof(sClientLang));
+		char sClientLang[4];
+		GetLanguageInfo(GetClientLanguage(iClient), SZF(sClientLang));
 		DebugMessage("sClientLang = '%s'", sClientLang)
-		DisplayInfo(iClient, sKey, "chat", sBuffer, sizeof(sBuffer), sClientLang, sServLang);
-		DisplayInfo(iClient, sKey, "menu", sBuffer, sizeof(sBuffer), sClientLang, sServLang);
-		DisplayInfo(iClient, sKey, "url", sBuffer, sizeof(sBuffer), sClientLang, sServLang);
+		char sBuffer[1028];
+		DisplayInfo(iClient, sKey, "chat", SZF(sBuffer), sClientLang, sServLang);
+		DisplayInfo(iClient, sKey, "menu", SZF(sBuffer), sClientLang, sServLang);
+		DisplayInfo(iClient, sKey, "url", SZF(sBuffer), sClientLang, sServLang);
 	}
 }
 
@@ -89,12 +90,12 @@ void DisplayInfo(int iClient, const char[] sKey, const char[] sKey2, char[] sBuf
 					
 					hPanel.DrawText(" \n");
 					
-					hPanel.CurrentKey = g_EngineVersion == Engine_CSGO ? 9:10;
+					hPanel.CurrentKey = g_iMaxPageItems;
 					
 					hPanel.DrawItem("Выход", ITEMDRAW_CONTROL);
 					
 					hPanel.Send(iClient, SelectInfoPanel, iTime);
-					CloseHandle(hPanel);
+					delete hPanel;
 				}
 			}
 			case 'u':
@@ -135,17 +136,21 @@ bool KvGetLangString(char[] sBuffer, int iBufLen, char[] sClientLang, char[] sSe
 void ReplaceValues(int iClient, char[] sBuffer, int iBufLen, bool bExt)
 {
 	char sName[MAX_NAME_LENGTH]; char sGroup[64];
-	GetClientName(iClient, sName, sizeof(sName));
+	GetClientName(iClient, SZF(sName));
 	ReplaceString(sBuffer, iBufLen, "{NAME}", sName);
-	g_hFeatures[iClient].GetString(KEY_GROUP, sGroup, sizeof(sGroup));
+	g_hFeatures[iClient].GetString(KEY_GROUP, SZF(sGroup));
 	ReplaceString(sBuffer, iBufLen, "{GROUP}", sGroup);
 	if (bExt)
 	{
-		char sExpires[64]; int iExpires;
+		int iExpires;
 		g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExpires);
-		FormatTime(sExpires, sizeof(sExpires), "%d/%m/%Y - %H:%M", iExpires);
+		DebugMessage("GetValue(%s) = %d", KEY_EXPIRES, iExpires)
+		DebugMessage("GetTime() = %d", GetTime())
+		DebugMessage("TIMELEFT = %d", iExpires - GetTime())
+		char sExpires[64];
+		FormatTime(SZF(sExpires), "%d/%m/%Y - %H:%M", iExpires);
 		ReplaceString(sBuffer, iBufLen, "{EXPIRES}", sExpires);
-		UTIL_GetTimeFromStamp(sExpires, sizeof(sExpires), iExpires - GetTime(), iClient);
+		UTIL_GetTimeFromStamp(SZF(sExpires), iExpires - GetTime(), iClient);
 		ReplaceString(sBuffer, iBufLen, "{TIMELEFT}", sExpires);
 	}
 	//	{NAME}	- Ник игрока

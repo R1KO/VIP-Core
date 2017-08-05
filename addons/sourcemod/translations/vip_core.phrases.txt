@@ -145,12 +145,13 @@
 		"fi"		"VIP-Pelaaja {1} ({2}, ID: {3}) onnistuneesti lisätty!"
 		"de"		"VIP-Spieler {1} ({2}, ID: {3}) erfolgreich hinzugefügt!"
 		"pt_p"		"VIP adicionado {1} ({2}, ID: {3}) com sucesso!"
-		"ru"		"VIP-Игрок {1} ({2}, ID: {3}) успешно добавлен!"
-		"ua"		"VIP-Гравець {1} ({2}, ID: {3}) успішно доданий!"
+		"ru"		"{DEFAULT}VIP-Игрок {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}, ID: {GREEN}{3}{DEFAULT}) успешно добавлен!"
+		"ua"		"{DEFAULT}VIP-Гравець {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}, ID: {GREEN}{3}{DEFAULT}) успішно доданий!"
 	}
 	"LOG_ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY"
 	{
 		"#format"	"{1:L},{2:s},{3:s},{4:i},{5:s},{6:s},{7:s}"
+		"en"		"Admin {1} added the VIP identifier {2} ({3}, ID: {4} Deadline: {5}, Expires: {6}, Group: {7})"
 		"ru"		"Админ {1} добавил VIP-идентификатор {2} ({3}, ID: {4} Срок: {5}, Истекает: {6}, Группа: {7})"
 	}
 	"ADMIN_ADD_VIP_IDENTITY_FAILED"
@@ -333,33 +334,23 @@
 	}
 	"ADMIN_VIP_PLAYER_DELETED"
 	{
-		"#format"	"{1:i}"
-		"en"		"VIP-player (ID: {1}) was successfully removed"
-		"fi"		"VIP-Pelaaja (ID: {1}) on onnistuneesti poistettu"
-		"de"		"VIP-Spieler (ID: {1}) war erfolgreich gelöscht"
-		"pt_p"		"O VIP do jogador (ID: {1}) foi removido com sucesso"
-		"ru"		"VIP-игрок (ID: {1}) успешно удален"
-		"ua"		"VIP-гравець (ID: {1}) успішно видалений"
-	}
-	"ADMIN_VIP_IDENTITY_DELETED"
-	{
-		"#format"	"{1:s}"
-		"en"		"VIP-ID {1} was successfully removed"
-		"fi"		"VIP-tunnus {1} on onnistuneesti poistettu"
-		"de"		"VIP-ID {1} war erfolgreich gelöscht"
-		"pt_p"		"O VIP-ID {1} foi removido com sucesso"
-		"ru"		"VIP-идентификатор {1} успешно удален"
-		"ua"		"VIP-ідентифікатор {1} успішно видалено"
+		"#format"	"{1:s},{2:i}"
+		"en"		"VIP-player {1} (ID: {2}) was successfully removed"
+		"fi"		"VIP-Pelaaja {1} (ID: {2}) on onnistuneesti poistettu"
+		"de"		"VIP-Spieler {1} (ID: {2}) war erfolgreich gelöscht"
+		"pt_p"		"O VIP do jogador {1} (ID: {2}) foi removido com sucesso"
+		"ru"		"VIP-игрок {1} (ID: {2}) успешно удален"
+		"ua"		"VIP-гравець {1} (ID: {2}) успішно видалений"
 	}
 	"LOG_ADMIN_VIP_IDENTITY_DELETED"
 	{
-		"#format"	"{1:L},{2:s}"
-		"en"		"Admin {1} has successfully removed VIP-ID {2}"
-		"fi"		"Admin {1} Poisti VIP-tunnuksen {2}"
-		"de"		"Admin {1} hat VIP-ID {2} erfolgreich gelöscht"
-		"pt_p"		"O Admin {1} removeu com sucesso o VIP-ID {2}"
-		"ru"		"Админ {1} удалил VIP-идентификатор {2}"
-		"ua"		"Адмін {1} видалив VIP-ідентифікатор {2}"
+		"#format"	"{1:L},{2:s},{3:i}"
+		"en"		"Admin {1} has successfully removed VIP-ID {2} (ID: {3})"
+		"fi"		"Admin {1} Poisti VIP-tunnuksen {2} (ID: {3})"
+		"de"		"Admin {1} hat VIP-ID {2} (ID: {3}) erfolgreich gelöscht"
+		"pt_p"		"O Admin {1} removeu com sucesso o VIP-ID {2} (ID: {3})"
+		"ru"		"Админ {1} удалил VIP-идентификатор {2} (ID: {3})"
+		"ua"		"Адмін {1} видалив VIP-ідентифікатор {2} (ID: {3})"
 	}
 	"MENU_LIST_VIP"
 	{
@@ -370,15 +361,28 @@
 		"ru"		"Список VIP-игроков"
 		"ua"		"Список VIP-гравців"
 	}
+	"MENU_SEARCH"
+	{
+		"#format"	"{1:s},{2:d}"
+		"en"		"On request: {1}\nFound: {2} players"
+		"ru"		"По запросу: {1}\nНайдено: {2} игроков"
+		"ua"		"За запитом: {1}\nЗнайдено: {2} гравців"
+	}
 	"MENU_INFO_VIP_PLAYER"
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s}"
-		"en"		"Information:\n \nName:\n{1}\nGroup:\n{2}\nExpires:\n{3}\nIdentifier:\n{4}"
-		"fi"		"Tiedotus:\n \nNimi:\n{1}\nRyhmä:\n{2}\nErääntyy:\n{3}\nTunnus:\n{4}"
-		"de"		"Accountinformationen:\n \nDer Name:\n{1}\nDie Gruppe:\n{2}\nLäuft ab:\n{3}\nIdentifiziert durch:\n{4}"
-		"pt_p"		"Informação:\n \nNome:\n{1}\nGrupo:\n{2}\nExpira:\n{3}\nIdentificação:\n{4}"
-		"ru"		"Информация:\n \nИмя:\n{1}\nГруппа:\n{2}\nИстекает:\n{3}\nИдентификатор:\n{4}"
-		"ua"		"Інформація:\n \nІм'я:\n{1}\nГрупа:\n{2}\nЗакінчується:\n{3}\nІдентифікатор:\n{4}"
+		"en"		"Information:\n \nName:\n{1}\nSteamID:\n{2}\nGroup:\n{3}\nExpires:\n{4}"
+		"fi"		"Tiedotus:\n \nNimi:\n{1}\nSteamID:\n{2}\nRyhmä:\n{3}\nErääntyy:\n{4}"
+		"de"		"Accountinformationen:\n \nDer Name:\n{1}\nSteamID:\n{2}\nDie Gruppe:\n{3}\nLäuft ab:\n{4}"
+		"pt_p"		"Informação:\n \nNome:\n{1}\nSteamID:\n{2}\nGrupo:\n{3}\nExpira:\n{4}"
+		"ru"		"Информация:\n \nИмя:\n{1}\nSteamID:\n{2}\nГруппа:\n{3}\nИстекает:\n{4}"
+		"ua"		"Інформація:\n \nІм'я:\n{1}\nSteamID:\n{2}\nГрупа:\n{3}\nЗакінчується:\n{4}"
+	}
+	"TEMPORARY"
+	{
+		"en"		"Temporary"
+		"ru"		"Временный"
+		"ua"		"Тимчасовий"
 	}
 	"INFO"
 	{

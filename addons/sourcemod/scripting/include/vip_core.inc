@@ -110,6 +110,24 @@ forward Action VIP_OnFeatureToggle(int iClient, const char[] sFeatureName, VIP_T
 forward void VIP_OnVIPLoaded();
 
 /**
+ *	Вызывается когда VIP-функция была зарегистрирована.
+ *	-
+ * @param sFeatureName		Уникальное имя ф-и.
+ *	-
+ * @noreturn
+*/
+forward void VIP_OnFeatureRegistered(const char[] sFeatureName);
+
+/**
+ *	Вызывается когда VIP-функция была удалена.
+ *	-
+ * @param sFeatureName		Уникальное имя ф-и.
+ *	-
+ * @noreturn
+*/
+forward void VIP_OnFeatureUnregistered(const char[] sFeatureName);
+
+/**
  *	Вызывается когда игрок был загружен.
  *	-
  * @param iClient			Индекс игрока.
@@ -177,7 +195,7 @@ native bool VIP_IsClientVIP(int iClient);
  *	-
  * @return	Уникальный ID или -1 если временный.
 */
-native void VIP_GetClientID(int iClient);
+native int VIP_GetClientID(int iClient);
 
 /**
  *	Получает время окончания VIP-прав у игрока (unix).
@@ -274,10 +292,11 @@ native void VIP_LogMessage(const char[] sMessage, any ...);
  *	Отправляет игроку VIP-меню.
  *	-
  * @param iClient			Индекс игрока.
+ * @param bSelection		Режим открытия (true - на первой странице, false - на странице последнего выбранного пункта).
  *	-
  * @noreturn
 */
-native void VIP_SendClientVIPMenu(int iClient);
+native void VIP_SendClientVIPMenu(int iClient, bool bSelection = false);
 
 /**
  *	Выдает игроку VIP-права.
@@ -348,6 +367,43 @@ native void VIP_UnregisterFeature(const char[] sFeatureName);
  * @return	Возвращает true в случае если функция существует, иначе false.
 */
 native bool VIP_IsValidFeature(const char[] sFeatureName);
+
+/**
+ *	Получает тип функции.
+ *	-
+ * @param sFeatureName			Уникальное имя ф-и.
+ *	-
+ * @return	Возвращает элемент списка VIP_FeatureType.
+*/
+native VIP_FeatureType VIP_GetFeatureType(const char[] sFeatureName);
+
+/**
+ *	Получает тип значения функции.
+ *	-
+ * @param sFeatureName			Уникальное имя ф-и.
+ *	-
+ * @return	Возвращает элемент списка VIP_ValueType.
+*/
+native VIP_ValueType VIP_GetFeatureValueType(const char[] sFeatureName);
+
+/**
+ *	Устанаваливает значение функции по-умолчанию.
+ *	-
+ * @param sFeatureName			Уникальное имя ф-и.
+ * @param bStatus				Значение (true - Включена, false - Выключена).
+ *	-
+ * @noreturn
+*/
+native void VIP_SetFeatureDefStatus(const char[] sFeatureName, bool bStatus);
+
+/**
+ *	Заполняет adt массив ф-ями.
+ *	-
+ * @param hArray			Массив типа ArrayList.
+ *	-
+ * @return	Количество добавленных элементов.
+*/
+native int VIP_FillArrayByFeatures(ArrayList hArray);
 
 /**
  *	Возвращает статус VIP-функции у игрока.
@@ -505,13 +561,22 @@ public SharedPlugin __pl_vip_core=
 };
 
 #if !defined REQUIRE_PLUGIN
-public void __pl_vip_SetNTVOptional()
+public void __pl_vip_core_SetNTVOptional()
 {
+	MarkNativeAsOptional("VIP_IsVIPLoaded");
+	MarkNativeAsOptional("VIP_GetDatabase");
+	MarkNativeAsOptional("VIP_GetDatabaseType");
+	MarkNativeAsOptional("VIP_RegisterFeature");
+	MarkNativeAsOptional("VIP_UnregisterFeature");
+	MarkNativeAsOptional("VIP_IsValidFeature");
+	MarkNativeAsOptional("VIP_GetFeatureType");
+	MarkNativeAsOptional("VIP_GetFeatureValueType");
+	MarkNativeAsOptional("VIP_SetFeatureDefStatus");
+	MarkNativeAsOptional("VIP_FillArrayByFeatures");
+	MarkNativeAsOptional("VIP_SetClientVIP");
+	MarkNativeAsOptional("VIP_RemoveClientVIP");
 	MarkNativeAsOptional("VIP_CheckClient");
 	MarkNativeAsOptional("VIP_IsClientVIP");
-	MarkNativeAsOptional("VIP_PrintToChatClient");
-	MarkNativeAsOptional("VIP_PrintToChatAll");
-	MarkNativeAsOptional("VIP_LogMessage");
 	MarkNativeAsOptional("VIP_GetClientID");
 	MarkNativeAsOptional("VIP_GetClientVIPGroup");
 	MarkNativeAsOptional("VIP_SetClientVIPGroup");
@@ -519,13 +584,7 @@ public void __pl_vip_SetNTVOptional()
 	MarkNativeAsOptional("VIP_SetClientAccessTime");
 	MarkNativeAsOptional("VIP_GetVIPClientTrie");
 	MarkNativeAsOptional("VIP_SendClientVIPMenu");
-	MarkNativeAsOptional("VIP_SetClientVIP");
-	MarkNativeAsOptional("VIP_RemoveClientVIP");
 	MarkNativeAsOptional("VIP_IsValidVIPGroup");
-	MarkNativeAsOptional("VIP_IsVIPLoaded");
-	MarkNativeAsOptional("VIP_RegisterFeature");
-	MarkNativeAsOptional("VIP_UnregisterFeature");
-	MarkNativeAsOptional("VIP_IsValidFeature");
 	MarkNativeAsOptional("VIP_GetClientFeatureStatus");
 	MarkNativeAsOptional("VIP_SetClientFeatureStatus");
 	MarkNativeAsOptional("VIP_IsClientFeatureUse");
@@ -533,13 +592,15 @@ public void __pl_vip_SetNTVOptional()
 	MarkNativeAsOptional("VIP_GetClientFeatureFloat");
 	MarkNativeAsOptional("VIP_GetClientFeatureBool");
 	MarkNativeAsOptional("VIP_GetClientFeatureString");
-	MarkNativeAsOptional("VIP_GiveClientFeature");
-	MarkNativeAsOptional("VIP_GetDatabase");
-	MarkNativeAsOptional("VIP_GetDatabaseType");
+	MarkNativeAsOptional("VIP_PrintToChatClient");
+	MarkNativeAsOptional("VIP_PrintToChatAll");
+	MarkNativeAsOptional("VIP_LogMessage");
 	MarkNativeAsOptional("VIP_TimeToSeconds");
 	MarkNativeAsOptional("VIP_SecondsToTime");
 	MarkNativeAsOptional("VIP_GetTimeFromStamp");
 	MarkNativeAsOptional("VIP_AddStringToggleStatus");
 }
 #endif
+
+	
 

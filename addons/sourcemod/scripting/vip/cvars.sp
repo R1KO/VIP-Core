@@ -7,11 +7,13 @@ void CreateCvars()
 	hCvar.AddChangeHook(OnAdminFlagChange);
 	g_CVAR_iAdminFlag = UTIL_GetConVarAdminFlag(hCvar);
 
+	/*
 	#if USE_ADMINMENU 1
 	hCvar = CreateConVar("sm_vip_add_item_to_admin_menu", "1", "Добавить пункт \"Управление VIP\" в админ-меню.");
 	hCvar.AddChangeHook(OnAddItemToAdminMenuChange);
 	g_CVAR_bAddItemToAdminMenu = hCvar.BoolValue;
 	#endif
+	*/
 
 	g_CVAR_hVIPMenu_CMD = CreateConVar("sm_vip_menu_commands", "vip;sm_vip;sm_vipmenu", "Команды для вызова VIP-меню (разделять ;)");
 
@@ -42,6 +44,10 @@ void CreateCvars()
 	hCvar = CreateConVar("sm_vip_hide_no_access_items", "0", "Режим отображения недоступных функций в вип меню (0 - Сделать пункты неактивными, 1 - Скрывать пункты)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnHideNoAccessItemsChange);
 	g_CVAR_bHideNoAccessItems = hCvar.BoolValue;
+
+	hCvar = CreateConVar("sm_vip_features_default_status", "1", "Статус функций по-умолчанию (0 - Выключены, 1 - Включены)", _, true, 0.0, true, 1.0);
+	hCvar.AddChangeHook(OnDefaultStatusChange);
+	g_CVAR_bDefaultStatus = hCvar.BoolValue;
 	
 	hCvar = CreateConVar("sm_vip_logs_enable", "1", "Вести ли лог logs/VIP_Logs.log (0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnLogsEnableChange);
@@ -54,6 +60,7 @@ public void OnAdminFlagChange(ConVar hCvar, const char[] oldValue, const char[] 
 {
 	g_CVAR_iAdminFlag = UTIL_GetConVarAdminFlag(hCvar);
 
+	/*
 	#if USE_ADMINMENU 1
 	if(g_CVAR_bAddItemToAdminMenu)
 	{
@@ -68,8 +75,9 @@ public void OnAdminFlagChange(ConVar hCvar, const char[] oldValue, const char[] 
 		}
 	}
 	#endif
+	*/
 }
-
+/*
 #if USE_ADMINMENU 1
 public void OnAddItemToAdminMenuChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
@@ -94,7 +102,7 @@ public void OnAddItemToAdminMenuChange(ConVar hCvar, const char[] oldValue, cons
 }
 
 #endif
-
+*/
 public void OnServerIDChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_iServerID = hCvar.IntValue;
@@ -122,6 +130,10 @@ public void OnSpawnDelayChange(ConVar hCvar, const char[] oldValue, const char[]
 public void OnHideNoAccessItemsChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {
 	g_CVAR_bHideNoAccessItems = hCvar.BoolValue;
+}
+public void OnDefaultStatusChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
+{
+	g_CVAR_bDefaultStatus = hCvar.BoolValue;
 }
 public void OnLogsEnableChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
 {

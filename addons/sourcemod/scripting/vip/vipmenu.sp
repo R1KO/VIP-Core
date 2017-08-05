@@ -12,14 +12,15 @@ void AddFeatureToVIPMenu(const char[] sFeatureName)
 	{
 		ResortFeaturesArray();
 		
-		(g_hVIPMenu).RemoveAllItems();
+		g_hVIPMenu.RemoveAllItems();
 		
-		int i, iSize; char sItemInfo[128];
+		int i, iSize;
+		char sItemInfo[128];
 		ArrayList hArray;
-		iSize = (g_hFeaturesArray).Length;
+		iSize = g_hFeaturesArray.Length;
 		for (i = 0; i < iSize; ++i)
 		{
-			g_hFeaturesArray.GetString(i, sItemInfo, sizeof(sItemInfo));
+			g_hFeaturesArray.GetString(i, SZF(sItemInfo));
 			if (GLOBAL_TRIE.GetValue(sItemInfo, hArray) && view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) != HIDE)
 			{
 				DebugMessage("AddMenuItem: %s", sItemInfo)
@@ -121,6 +122,8 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 		{
 			SET_BIT(g_iClientInfo[iClient], IS_MENU_OPEN);
 			
+			g_hFeatures[iClient].Remove(KEY_MENUITEM);
+
 			DebugMessage("MenuAction_Display: Client: %i", iClient)
 			char sTitle[256]; int iExp;
 			if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp) && iExp > 0)
@@ -169,16 +172,12 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 				if (Function_Call != INVALID_FUNCTION)
 				{
 					hPlugin = hBuffer.Get(FEATURES_PLUGIN);
-					DebugMessage("GetPluginStatus = %i", GetPluginStatus(hPlugin))
-					if (view_as<PluginStatus>(GetPluginStatus(hPlugin)) == Plugin_Running)
-					{
-						Call_StartFunction(hPlugin, Function_Call);
-						Call_PushCell(iClient);
-						Call_PushString(sItemInfo);
-						Call_PushCell(iStyle);
-						Call_Finish(iStyle);
-						DebugMessage("Function_Draw -> iStyle: %i", iStyle)
-					}
+					Call_StartFunction(hPlugin, Function_Call);
+					Call_PushCell(iClient);
+					Call_PushString(sItemInfo);
+					Call_PushCell(iStyle);
+					Call_Finish(iStyle);
+					DebugMessage("Function_Draw -> iStyle: %i", iStyle)
 				}
 			}
 			
@@ -203,24 +202,21 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 				if (Function_Call != INVALID_FUNCTION)
 				{
 					hPlugin = view_as<ArrayList>(hBuffer.Get(FEATURES_PLUGIN));
-					DebugMessage("GetPluginStatus = %i", GetPluginStatus(hPlugin))
-					if (GetPluginStatus(hPlugin) == Plugin_Running)
+
+					sDisplay[0] = 0;
+					bool bResult;
+					Call_StartFunction(hPlugin, Function_Call);
+					Call_PushCell(iClient);
+					Call_PushString(sItemInfo);
+					Call_PushStringEx(sDisplay, sizeof(sDisplay), SM_PARAM_STRING_UTF8 | SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+					Call_PushCell(sizeof(sDisplay));
+					Call_Finish(bResult);
+					
+					DebugMessage("Function_Display: bResult: %b", bResult)
+					
+					if (bResult)
 					{
-						sDisplay[0] = 0;
-						bool bResult;
-						Call_StartFunction(hPlugin, Function_Call);
-						Call_PushCell(iClient);
-						Call_PushString(sItemInfo);
-						Call_PushStringEx(sDisplay, sizeof(sDisplay), SM_PARAM_STRING_UTF8 | SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
-						Call_PushCell(sizeof(sDisplay));
-						Call_Finish(bResult);
-						
-						DebugMessage("Function_Display: bResult: %b", bResult)
-						
-						if (bResult)
-						{
-							return RedrawMenuItem(sDisplay);
-						}
+						return RedrawMenuItem(sDisplay);
 					}
 				}
 				
@@ -248,13 +244,13 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 			
 			if (GLOBAL_TRIE.GetValue(sItemInfo, hBuffer))
 			{
+				PlaySound(iClient, ITEM_TOGGLE_SOUND);
 				DebugMessage("MenuAction_Select: Client: %i, Feature: %s", iClient, sItemInfo)
 				
 				DataPack hDataPack = view_as<DataPack>(hBuffer.Get(FEATURES_MENU_CALLBACKS));
 				hDataPack.Position = ITEM_SELECT;
 				Function_Call = hDataPack.ReadFunction();
 				hPlugin = view_as<ArrayList>(hBuffer.Get(FEATURES_PLUGIN));
-				DebugMessage("GetPluginStatus = %i", GetPluginStatus(hPlugin))
 				if (view_as<VIP_FeatureType>(hBuffer.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 				{
 					char sBuffer[4];
@@ -262,7 +258,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 
 					OldStatus = Features_GetStatus(iClient, sItemInfo);
 					NewStatus = (OldStatus == ENABLED) ? DISABLED:ENABLED;
-					if (Function_Call != INVALID_FUNCTION && GetPluginStatus(hPlugin) == Plugin_Running)
+					if (Function_Call != INVALID_FUNCTION)
 					{
 						NewStatus = Function_OnItemToggle(hPlugin, Function_Call, iClient, sItemInfo, OldStatus, NewStatus);
 					}
@@ -277,17 +273,16 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 							SetClientCookie(iClient, view_as<Handle>(GetArrayCell(hBuffer, FEATURES_COOKIE)), sBuffer);
 						}
 					}
-				}
-				else
-				{
-					if (Function_Call != INVALID_FUNCTION && GetPluginStatus(hPlugin) == Plugin_Running && Function_OnItemSelect(hPlugin, Function_Call, iClient, sItemInfo) == false)
-					{
-						return 0;
-					}
+
+					hMenu.DisplayAt(iClient, hMenu.Selection, MENU_TIME_FOREVER);
+					return 0;
 				}
 				
-				hMenu.DisplayAt(iClient, hMenu.Selection, MENU_TIME_FOREVER);
-				PlaySound(iClient, ITEM_TOGGLE_SOUND);
+				g_hFeatures[iClient].SetValue(KEY_MENUITEM, hMenu.Selection);
+				if (Function_OnItemSelect(hPlugin, Function_Call, iClient, sItemInfo))
+				{
+					hMenu.DisplayAt(iClient, hMenu.Selection, MENU_TIME_FOREVER);
+				}
 			}
 		}
 	}

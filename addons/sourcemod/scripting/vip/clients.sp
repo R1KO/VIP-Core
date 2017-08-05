@@ -10,9 +10,12 @@ void ResetClient(int iClient)
 public void OnClientPutInServer(int iClient)
 {
 	//	g_iClientInfo[iClient] = 0;
-	DebugMessage("OnClientPutInServer %N (%i): %b", iClient, iClient, g_iClientInfo[iClient])
+	DebugMessage("OnClientPutInServer %N (%d): %b", iClient, iClient, g_iClientInfo[iClient])
 	
-	Clients_CheckVipAccess(iClient, true);
+	if(!IsFakeClient(iClient) && !IsClientSourceTV(iClient))
+	{
+		Clients_CheckVipAccess(iClient, true);
+	}
 }
 
 public void OnClientDisconnect(int iClient)
@@ -23,7 +26,7 @@ public void OnClientDisconnect(int iClient)
 	}*/
 	
 	ResetClient(iClient);
-	UTIL_CloseHandleEx(g_ClientData[iClient]);
+	UTIL_CloseHandleEx(g_hClientData[iClient]);
 	g_iClientInfo[iClient] = 0;
 }
 
@@ -47,34 +50,31 @@ void Clients_CheckVipAccess(int iClient, bool bNotify = false)
 
 void Clients_LoadClient(int iClient, bool bNotify)
 {
-	char sQuery[512]; char sAuth[32]; char sName[MAX_NAME_LENGTH * 2 + 1]; char sIP[24];
+	char sQuery[512], sAuth[32];
 	
-	GetClientAuthId(iClient, AuthId_Engine, sAuth, sizeof(sAuth));
-	
-	GetClientIP(iClient, sIP, sizeof(sIP));
-	GetClientName(iClient, sQuery, sizeof(sQuery));
-	
-	DebugMessage("Clients_LoadClient %N (%i), %b: - > %x, %u", iClient, iClient, g_iClientInfo[iClient], g_hDatabase, g_hDatabase)
-	g_hDatabase.Escape(sQuery, sName, sizeof(sName));
-	
+	GetClientAuthId(iClient, AuthId_Engine, SZF(sAuth));
+
+	DebugMessage("Clients_LoadClient %N (%d), %b: - > %x, %u", iClient, iClient, g_iClientInfo[iClient], g_hDatabase, g_hDatabase)
+
 	if (GLOBAL_INFO & IS_MySQL)
 	{
 		FormatEx(sQuery, sizeof(sQuery), "SELECT `u`.`id`, \
 												`o`.`expires`, \
-												`o`.`group` \
+												`o`.`group`, \
+												`u`.`name` \
 												FROM `vip_users` AS `u` \
 												LEFT JOIN `vip_overrides` AS `o` \
 												ON `o`.`user_id` = `u`.`id` \
-												WHERE `o`.`server_id` = '%i' \
+												WHERE `o`.`server_id` = %d \
 												AND `auth` = '%s' LIMIT 1;",
-												g_CVAR_iServerID, sAuth, sIP, sName);
+												g_CVAR_iServerID, sAuth);
 	}
 	else
 	{
-		FormatEx(sQuery, sizeof(sQuery), "SELECT `id`, `expires`, `group` \
+		FormatEx(sQuery, sizeof(sQuery), "SELECT `id`, `expires`, `group`, `name` \
 											FROM `vip_users` \
 											WHERE `auth` = '%s' LIMIT 1;",
-											sAuth, sIP, sName);
+											sAuth);
 	}
 	
 	DataPack hDataPack = new DataPack();
@@ -86,10 +86,10 @@ void Clients_LoadClient(int iClient, bool bNotify)
 	g_hDatabase.Query(SQL_Callback_OnClientAuthorized, sQuery, hDataPack);
 }
 
-public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hQuery, const char[] sError, any hPack)
+public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult, const char[] sError, any hPack)
 {
 	DataPack hDataPack = view_as<DataPack>(hPack);
-	if (hQuery == null || sError[0])
+	if (hResult == null || sError[0])
 	{
 		LogError("SQL_Callback_OnClientAuthorized: %s", sError);
 		delete hDataPack;
@@ -99,23 +99,23 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hQuery,
 	hDataPack.Reset();
 	
 	int iClient = CID(hDataPack.ReadCell());
-	DebugMessage("SQL_Callback_OnClientAuthorized: %i", iClient)
+	DebugMessage("SQL_Callback_OnClientAuthorized: %d", iClient)
 	if (iClient)
 	{
-		if ((hQuery).FetchRow())
+		if ((hResult).FetchRow())
 		{
-			int iExpires = hQuery.FetchInt(1),
-			iClientID = hQuery.FetchInt(0);
-			DebugMessage("Clients_LoadClient %N (%i):\texpires: %i", iClient, iClient, iExpires)
+			int iExpires = hResult.FetchInt(1),
+			iClientID = hResult.FetchInt(0);
+			DebugMessage("Clients_LoadClient %N (%d):\texpires: %d", iClient, iClient, iExpires)
 			if (iExpires > 0)
 			{
 				int iTime = GetTime();
-				DebugMessage("Clients_LoadClient %N (%i):\tTime: %i", iClient, iClient, iTime)
+				DebugMessage("Clients_LoadClient %N (%d):\tTime: %d", iClient, iClient, iTime)
 				
 				if (iTime > iExpires)
 				{
 					delete hDataPack;
-					DebugMessage("Clients_LoadClient %N (%i):\tTime: %i", iClient, iClient, iTime)
+					DebugMessage("Clients_LoadClient %N (%d):\tTime: %d", iClient, iClient, iTime)
 					
 					if (g_CVAR_iDeleteExpired == 0 || iTime >= ((g_CVAR_iDeleteExpired * 86400) + iExpires))
 					{
@@ -124,9 +124,11 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hQuery,
 							LogToFile(g_sLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
 						}
 						
-						DebugMessage("Clients_LoadClient %N (%i):\tDelete", iClient, iClient)
+						DebugMessage("Clients_LoadClient %N (%d):\tDelete", iClient, iClient)
 						
-						DB_RemoveClientFromID(0, iClientID, false);
+						char sName[MAX_NAME_LENGTH*2+1];
+						hResult.FetchString(3, SZF(sName));
+						DB_RemoveClientFromID(0, iClientID, false, sName);
 					}
 
 					CreateForward_OnVIPClientRemoved(iClient, "Expired");
@@ -142,8 +144,8 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hQuery,
 			}
 
 			char sGroup[64];
-			hQuery.FetchString(2, sGroup, sizeof(sGroup));
-			DebugMessage("Clients_LoadClient %N (%i):\tvip_group: %s", iClient, iClient, sGroup)
+			hResult.FetchString(2, SZF(sGroup));
+			DebugMessage("Clients_LoadClient %N (%d):\tvip_group: %s", iClient, iClient, sGroup)
 			if (sGroup[0] && UTIL_CheckValidVIPGroup(sGroup))
 			{
 				Clients_CreateClientVIPSettings(iClient, iExpires);
@@ -202,7 +204,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hQuery,
 public Action Timer_CheckCookies(Handle hTimer, any UserID)
 {
 	int iClient = CID(UserID);
-	DebugMessage("Timer_CheckCookies -> UserID: %i, iClient: %i, IsClientVIP: %b,", UserID, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP))
+	DebugMessage("Timer_CheckCookies -> UserID: %d, iClient: %d, IsClientVIP: %b,", UserID, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP))
 	if (iClient && g_iClientInfo[iClient] & IS_VIP)
 	{
 		DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
@@ -228,17 +230,20 @@ void Clients_OnVIPClientLoaded(int iClient)
 
 void Clients_CreateClientVIPSettings(int iClient, int iExp)
 {
+	/*
 	g_hFeatures[iClient] = new StringMap();
 	g_hFeatureStatus[iClient] = new StringMap();
+	*/
+	g_hFeatures[iClient] = CreateTrie();
+	g_hFeatureStatus[iClient] = CreateTrie();
 
 	g_hFeatures[iClient].SetValue(KEY_EXPIRES, iExp);
 }
 
 #if DEBUG_MODE 1
-
 public void OnClientCookiesCached(int iClient)
 {
-	DebugMessage("OnClientCookiesCached %i %N", iClient, iClient)
+	DebugMessage("OnClientCookiesCached %d %N", iClient, iClient)
 	
 	DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
 }
@@ -251,12 +256,12 @@ void Clients_LoadVIPFeatures(int iClient)
 	DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
 
 	int iFeatures = g_hFeaturesArray.Length;
-	DebugMessage("FeaturesArraySize: %i", iFeatures)
+	DebugMessage("FeaturesArraySize: %d", iFeatures)
 	if (iFeatures > 0)
 	{
 		char sFeatureName[FEATURE_NAME_LENGTH];
 
-		g_hFeatures[iClient].GetString(KEY_GROUP, sFeatureName, sizeof(sFeatureName));
+		g_hFeatures[iClient].GetString(KEY_GROUP, SZF(sFeatureName));
 		if (UTIL_CheckValidVIPGroup(sFeatureName))
 		{
 			char				sBuffer[4];
@@ -268,7 +273,7 @@ void Clients_LoadVIPFeatures(int iClient)
 				g_hFeaturesArray.GetString(i, SZF(sFeatureName));
 				if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 				{
-					DebugMessage("LoadClientFeature: %i - %s", i, sFeatureName)
+					DebugMessage("LoadClientFeature: %d - %s", i, sFeatureName)
 
 					if (GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), sFeatureName))
 					{
@@ -278,10 +283,17 @@ void Clients_LoadVIPFeatures(int iClient)
 							hCookie = view_as<Handle>(hArray.Get(FEATURES_COOKIE));
 							GetClientCookie(iClient, hCookie, SZF(sBuffer));
 							Status = view_as<VIP_ToggleState>(StringToInt(sBuffer));
-							DebugMessage("GetFeatureCookie: %s", sBuffer)
+							DebugMessage("GetFeatureCookie: '%s'", sBuffer)
 							if (sBuffer[0] == '\0' || (view_as<int>(Status) > 2 || view_as<int>(Status) < 0))
 							{
-								Status = ENABLED;
+								if(hArray.Length == 6)
+								{
+									Status = hArray.Get(FEATURES_DEF_STATUS) ? ENABLED:DISABLED;
+								}
+								else
+								{
+									Status = g_CVAR_bDefaultStatus ? ENABLED:DISABLED;
+								}
 								IntToString(view_as<int>(Status), SZF(sBuffer));
 								SetClientCookie(iClient, hCookie, sBuffer);
 								//	Features_SaveStatus(iClient, sFeatureName, hCookie, Status);
@@ -291,7 +303,7 @@ void Clients_LoadVIPFeatures(int iClient)
 						{
 							Status = ENABLED;
 						}
-						
+
 						Features_SetStatus(iClient, sFeatureName, Status);
 						//	Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function:hArray.Get(FEATURES_ITEM_SELECT), iClient, sFeatureName, NO_ACCESS, ENABLED);
 					}
@@ -300,14 +312,14 @@ void Clients_LoadVIPFeatures(int iClient)
 		}
 	}
 
-	DebugMessage("Clients_OnVIPClientLoaded: %i %N", iClient, iClient)
+	DebugMessage("Clients_OnVIPClientLoaded: %d %N", iClient, iClient)
 
 	Clients_OnVIPClientLoaded(iClient);
 }
 
 bool GetValue(int iClient, VIP_ValueType ValueType, const char[] sFeatureName)
 {
-	DebugMessage("GetValue: %i - %s", ValueType, sFeatureName)
+	DebugMessage("GetValue: %d - %s", ValueType, sFeatureName)
 	switch (ValueType)
 	{
 		case VIP_NULL:
@@ -329,7 +341,7 @@ bool GetValue(int iClient, VIP_ValueType ValueType, const char[] sFeatureName)
 			iValue = g_hGroups.GetNum(sFeatureName);
 			if (iValue != 0)
 			{
-				DebugMessage("value: %i", iValue)
+				DebugMessage("value: %d", iValue)
 				return g_hFeatures[iClient].SetValue(sFeatureName, iValue);
 			}
 			return false;
@@ -349,7 +361,7 @@ bool GetValue(int iClient, VIP_ValueType ValueType, const char[] sFeatureName)
 		case STRING:
 		{
 			char sBuffer[256];
-			g_hGroups.GetString(sFeatureName, sBuffer, sizeof(sBuffer));
+			g_hGroups.GetString(sFeatureName, SZF(sBuffer));
 			if (sBuffer[0])
 			{
 				DebugMessage("value: %s", sBuffer)
@@ -370,13 +382,13 @@ void Clients_CreateExpiredTimer(int iClient, int iExp, int iTime)
 {
 	int iTimeLeft;
 	GetMapTimeLeft(iTimeLeft);
-	DebugMessage("Clients_CreateExpiredTimer %N (%i):\tiTimeLeft: %i", iClient, iClient, iTimeLeft)
+	DebugMessage("Clients_CreateExpiredTimer %N (%d):\tiTimeLeft: %d", iClient, iClient, iTimeLeft)
 	if (iTimeLeft > 0)
 	{
-		DebugMessage("Clients_CreateExpiredTimer %N (%i):\tiTimeLeft+iTime: %i", iClient, iClient, iTimeLeft + iTime)
+		DebugMessage("Clients_CreateExpiredTimer %N (%d):\tiTimeLeft+iTime: %d", iClient, iClient, iTimeLeft + iTime)
 		if ((iTimeLeft + iTime) > iExp)
 		{
-			DebugMessage("Clients_CreateExpiredTimer %N (%i):\tTimerDealy: %f", iClient, iClient, float((iExp - iTime) + 3))
+			DebugMessage("Clients_CreateExpiredTimer %N (%d):\tTimerDealy: %f", iClient, iClient, float((iExp - iTime) + 3))
 			
 			CreateTimer(float((iExp - iTime) + 3), Timer_VIP_Expired, UID(iClient), TIMER_FLAG_NO_MAPCHANGE);
 		}
@@ -395,7 +407,7 @@ public void Event_PlayerSpawn(Event hEvent, const char[] sEvName, bool bDontBroa
 {
 	int UserID = hEvent.GetInt("userid");
 	int iClient = CID(UserID);
-	DebugMessage("Event_PlayerSpawn: %N (%i)", iClient, iClient)
+	DebugMessage("Event_PlayerSpawn: %N (%d)", iClient, iClient)
 	if (!(g_iClientInfo[iClient] & IS_SPAWNED))
 	{
 		CreateTimer(g_CVAR_fSpawnDelay, Timer_OnPlayerSpawn, UserID, TIMER_FLAG_NO_MAPCHANGE);
@@ -405,7 +417,7 @@ public void Event_PlayerSpawn(Event hEvent, const char[] sEvName, bool bDontBroa
 public void Event_PlayerDeath(Event hEvent, const char[] sEvName, bool bDontBroadcast)
 {
 	int iClient = CID(hEvent.GetInt("userid"));
-	DebugMessage("Event_PlayerDeath: %N (%i)", iClient, iClient)
+	DebugMessage("Event_PlayerDeath: %N (%d)", iClient, iClient)
 	g_iClientInfo[iClient] &= ~IS_SPAWNED;
 }
 
@@ -417,7 +429,7 @@ public Action Timer_OnPlayerSpawn(Handle hTimer, any UserID)
 		int iTeam = GetClientTeam(iClient);
 		if (iTeam > 1 && IsPlayerAlive(iClient))
 		{
-			DebugMessage("Timer_OnPlayerSpawn: %N (%i)", iClient, iClient)
+			DebugMessage("Timer_OnPlayerSpawn: %N (%d)", iClient, iClient)
 			
 			if (g_iClientInfo[iClient] & IS_VIP)
 			{
@@ -455,7 +467,7 @@ public void Event_RoundEnd(Event hEvent, const char[] sEvName, bool bDontBroadca
 
 public Action Timer_VIP_Expired(Handle hTimer, any UserID)
 {
-	DebugMessage("Timer_VIP_Expired %i:", UserID)
+	DebugMessage("Timer_VIP_Expired %d:", UserID)
 	
 	int iClient = CID(UserID);
 	if (iClient && g_iClientInfo[iClient] & IS_VIP)

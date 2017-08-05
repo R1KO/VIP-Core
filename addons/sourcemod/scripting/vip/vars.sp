@@ -5,6 +5,9 @@
 #define CID(%0) 	GetClientOfUserId(%0)
 #define SZF(%0) 	%0, sizeof(%0)
 
+#define I2S(%0,%1,%2) 	IntToString(%0,%1,%2)
+#define S2I(%0) 		StringToInt(%0)
+
 #define SET_BIT(%0,%1) 		%0 |= %1
 #define UNSET_BIT(%0,%1) 	%0 &= ~%1
 
@@ -19,16 +22,10 @@
 #define IS_MySQL					(1<<1)
 #define IS_LOADING					(1<<2)
 
-/*
-#define	KEY_CID			"Core->ClientID"
-#define	KEY_EXPIRES		"Core->Expires"
-#define	KEY_GROUP		"Core->Group"
-#define	KEY_AUTHTYPE	"Core->AuthType"
-*/
-
 char	KEY_CID[]		= "Core->ClientID";
 char	KEY_EXPIRES[]	= "Core->Expires";
 char	KEY_GROUP[]		= "Core->Group";
+char	KEY_MENUITEM[]	= "Core->SelectionItem";
 
 enum
 {
@@ -36,7 +33,8 @@ enum
 	FEATURES_VALUE_TYPE,
 	FEATURES_ITEM_TYPE,
 	FEATURES_COOKIE,
-	FEATURES_MENU_CALLBACKS
+	FEATURES_MENU_CALLBACKS,
+	FEATURES_DEF_STATUS
 }
 
 DataPackPos ITEM_SELECT		= view_as<DataPackPos>(0);
@@ -80,9 +78,11 @@ ArrayList	g_hSortArray;
 StringMap	g_hFeatures[MAXPLAYERS+1];
 StringMap	g_hFeatureStatus[MAXPLAYERS+1];
 
-ArrayList	g_ClientData[MAXPLAYERS+1];
+StringMap	g_hClientData[MAXPLAYERS+1];
 
 int			g_iClientInfo[MAXPLAYERS+1];
+
+int			g_iMaxPageItems;
 
 // Cvar`s
 ConVar		g_CVAR_hVIPMenu_CMD;
@@ -93,11 +93,14 @@ int 		g_CVAR_iTimeMode;
 int			g_CVAR_iDeleteExpired;
 float		g_CVAR_fSpawnDelay;
 bool		g_CVAR_bAutoOpenMenu;
+/*
 #if USE_ADMINMENU 1
 bool		g_CVAR_bAddItemToAdminMenu;
 #endif
+*/
 bool		g_CVAR_bUpdateName;
 bool		g_CVAR_bHideNoAccessItems;
+bool		g_CVAR_bDefaultStatus;
 bool		g_CVAR_bLogsEnable;
 
 Handle		g_hGlobalForward_OnVIPLoaded;
@@ -107,6 +110,8 @@ Handle		g_hGlobalForward_OnVIPClientAdded;
 Handle		g_hGlobalForward_OnVIPClientRemoved;
 Handle		g_hGlobalForward_OnPlayerSpawn;
 Handle		g_hGlobalForward_OnFeatureToggle;
+Handle		g_hGlobalForward_OnFeatureRegistered;
+Handle		g_hGlobalForward_OnFeatureUnregistered;
 
 EngineVersion	g_EngineVersion;
 

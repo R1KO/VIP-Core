@@ -6,7 +6,7 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION	"3.0 DEV #5"
+#define VIP_VERSION	"3.0 DEV #7"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -29,7 +29,7 @@ public Plugin myinfo =
 #if DEBUG_MODE 1
 char g_sDebugLogFile[PLATFORM_MAX_PATH];
 
-stock void DebugMsg(const char[] sMsg, any ...)
+void DebugMsg(const char[] sMsg, any ...)
 {
 	static char sBuffer[512];
 	VFormat(sBuffer, sizeof(sBuffer), sMsg, 2);
@@ -60,18 +60,19 @@ stock void DebugMsg(const char[] sMsg, any ...)
 public void OnPluginStart()
 {
 	#if DEBUG_MODE 1
-	BuildPath(Path_SM, g_sDebugLogFile, sizeof(g_sDebugLogFile), "logs/VIP_Debug.log");
+	BuildPath(Path_SM, SZF(g_sDebugLogFile), "logs/VIP_Debug.log");
 	#endif
 
 	LoadTranslations("vip_core.phrases");
 	LoadTranslations("vip_modules.phrases");
 	LoadTranslations("common.phrases");
 
+	g_iMaxPageItems = GetMaxPageItems(GetMenuStyleHandle(MenuStyle_Default));
 	g_hFeaturesArray	= new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
 	GLOBAL_TRIE			= new StringMap();
 
 	ReadConfigs();
-	
+
 	InitVIPMenu();
 	#if USE_ADMINMENU 1
 	InitVIPAdminMenu();
@@ -118,12 +119,10 @@ public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[
 	{
 		if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 		{
-			/*
 			if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 			{
-				ShowWaitSearchMenu(iClient, sArgs, true);
+				ShowWaitSearchMenu(iClient, sArgs);
 			}
-			*/
 
 			return Plugin_Handled;
 		}

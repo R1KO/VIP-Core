@@ -1,159 +1,165 @@
-ShowVipPlayersListMenu(iClient)
+#define LIST_OFFSET		60
+
+void ShowVipPlayersListMenu(int iClient)
 {
-	decl String:sUserID[12], String:sName[128], i, iClientID;
+	g_hClientData[iClient].SetValue(DATA_KEY_MenuListType, MENU_TYPE_ONLINE_LIST);
+	g_hClientData[iClient].Remove(DATA_KEY_Search);
+
+	char sUserID[16], sName[128];
+	int i, iClientID;
 	Menu hMenu = new Menu(MenuHandler_VipPlayersListMenu);
 
-	SetGlobalTransTarget(iClient);
-
-	hMenu.SetTitle("%T:\n \n", "MENU_LIST_VIP", iClient);
+	hMenu.SetTitle("%T:\n ", "MENU_LIST_VIP", iClient);
 	hMenu.ExitBackButton = true;
-	
-	
-	/*	FormatEx(sBuffer, sizeof(sBuffer), "%t\n \n", "MENU_EDIT_VIP");
-		hMenu.AddItem("", sBuffer);
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_DEL_VIP");
-		hMenu.AddItem("", sBuffer);
-	*/
-	
-	hMenu.AddItem("search", "Найти игрока\n \n");
-	
-	hMenu.AddItem("show_all", "Показать всех\n \n");
-	
+
+	hMenu.AddItem("search", "Найти игрока\n ");
+
+	hMenu.AddItem("show_all", "Показать всех\n ");
+
 	sUserID[0] = 0;
 	for (i = 1; i <= MaxClients; ++i)
 	{
-		if (IsClientInGame(i) && (g_iClientInfo[i] & IS_VIP) && IsFakeClient(i) == false && GetClientName(i, sName, sizeof(sName)))
+		if (IsClientInGame(i) && (g_iClientInfo[i] & IS_VIP) && !IsFakeClient(i) && GetClientName(i, SZF(sName)))
 		{
-			GetTrieValue(g_hFeatures[i], KEY_CID, iClientID);
-			/*if(iClientID == -1)
+			g_hFeatures[i].GetValue(KEY_CID, iClientID);
+			FormatEx(SZF(sUserID), "u%d", UID(i));
+			if (iClientID == -1)
 			{
-				FormatEx(sUserID, sizeof(sUserID), "uid_%i", UID(i));
+			//	FormatEx(SZF(sUserID), "u%d", UID(i)); •
+				Format(SZF(sName), "*%s", sName);
 			}
+			/*
 			else
 			{
-				IntToString(iClientID, sUserID, sizeof(sUserID));
+				I2S(iClientID, SZF(sUserID));
 			}
+			*/
 			
-			hMenu.AddItem(sUserID, sName);*/
-			
-			IntToString(iClientID, sUserID, sizeof(sUserID));
-			hMenu.AddItem(sUserID, sName, iClientID == -1 ? ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
+			hMenu.AddItem(sUserID, sName);
 		}
 	}
-
-	if(sUserID[0] == 0)
+	
+	if (sUserID[0] == 0)
 	{
-		FormatEx(sName, sizeof(sName), "%T", "NO_PLAYERS_AVAILABLE", iClient);
-		hMenu.AddItem("", sName, ITEMDRAW_DISABLED);
+		FormatEx(SZF(sName), "%T", "NO_PLAYERS_AVAILABLE", iClient);
+		hMenu.AddItem(NULL_STRING, sName, ITEMDRAW_DISABLED);
 	}
-
-	SetArrayCell(g_ClientData[iClient], DATA_OFFSET, -1);
 
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iClient, int Item)
+public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
-	switch(action)
+	switch (action)
 	{
-		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_End: delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack) DisplayMenu(g_hVIPAdminMenu, iClient, MENU_TIME_FOREVER);
+			if (Item == MenuCancel_ExitBack) BackToAdminMenu(iClient);
 		}
 		case MenuAction_Select:
 		{
-			decl String:sUserID[12];
-			hMenu.GetItem(Item, sUserID, sizeof(sUserID));
+			char sUserID[16];
+			hMenu.GetItem(Item, SZF(sUserID));
 			
-			if(strcmp(sUserID, "more") == 0)	// Показать еще
-			{
-				ShowVipPlayersFromDBMenu(iClient, GetArrayCell(g_ClientData[iClient], DATA_OFFSET)+20);
-
-				return;
-			}
-			
-			if(strcmp(sUserID, "search") == 0)	// Найти игрока
+			if (!strcmp(sUserID, "search")) // Найти игрока
 			{
 				ShowWaitSearchMenu(iClient);
 
-				return;
+				return 0;
 			}
-			
-			if(strcmp(sUserID, "show_all") == 0)	// Показать всех
+
+			if (!strcmp(sUserID, "show_all")) // Показать всех
 			{
 				ShowVipPlayersFromDBMenu(iClient);
-
-				return;
+				
+				return 0;
 			}
 
-			/*
-			
-			if(strncmp(sUserID, "uid_", 4) == 0)	// Временный VIP-статус
+			if (!strcmp(sUserID, "more")) // Показать еще
 			{
-				UserID = CID(StringToInt(sUserID[4]))
-				if(UserID)
+				int iOffset;
+				g_hClientData[iClient].GetValue(DATA_KEY_Offset, iOffset);
+				ShowVipPlayersFromDBMenu(iOffset, iOffset + LIST_OFFSET);
+
+				return 0;
+			}
+
+			if (sUserID[0] == 'u')
+			{
+				int UserID = S2I(sUserID[1]);
+				int iTarget = CID(UserID);
+				if (iTarget)
 				{
-					ShowTargetTempInfo(iClient, UserID);
+					g_hClientData[iClient].SetValue(DATA_KEY_TargetUID, UserID);
+					g_hFeatures[iTarget].GetValue(KEY_CID, UserID);
+					g_hClientData[iClient].SetValue(DATA_KEY_TargetID, UserID);
+					
+					if(UserID == -1)
+					{
+						ShowTemporaryTargetInfo(iClient);
+						return 0;
+					}
+
+					ShowTargetInfo(iClient);
 				}
 				else
 				{
 					VIP_PrintToChatClient(iClient, "%t", "PLAYER_NO_LONGER_AVAILABLE");
 				}
 				
-				return;
+				return 0;
 				
 			}
-			*/
 
-			new UserID = StringToInt(sUserID);
-			SetArrayCell(g_ClientData[iClient], DATA_TARGET_ID, UserID);
+			g_hClientData[iClient].SetValue(DATA_KEY_TargetID, S2I(sUserID));
 
-			ShowTargetInfoMenu(iClient, UserID);
+			ShowTargetInfo(iClient);
 		}
 	}
+	
+	return 0;
 }
 
-ShowWaitSearchMenu(iClient, const String:sSearch[] = "", bool:bIsValid = false)
+void ShowWaitSearchMenu(int iClient, const char[] sSearch = NULL_STRING)
 {
-	decl String:sBuffer[128];
+	char sBuffer[128];
 	Menu hMenu = new Menu(MenuHandler_SearchPlayersListMenu);
-	hMenu.SetTitle("%T \"%T\"\n \n", "ENTER_AUTH", iClient, "CONFIRM", iClient);
+	hMenu.SetTitle("%T \"%T\"\n ", "ENTER_AUTH", iClient, "CONFIRM", iClient);
 
-
-	FormatEx(sBuffer, sizeof(sBuffer), "%T", "CONFIRM", iClient);
-	if(bIsValid)
+	FormatEx(SZF(sBuffer), "%T", "CONFIRM", iClient);
+	if (sSearch[0])
 	{
-	//	g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_SEARCH;
+		//	g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_SEARCH;
 		hMenu.AddItem(sSearch, sBuffer);
 	}
 	else
 	{
 		g_iClientInfo[iClient] |= IS_WAIT_CHAT_SEARCH;
-		hMenu.AddItem(sSearch, sBuffer, ITEMDRAW_DISABLED);
+		hMenu.AddItem(NULL_STRING, sBuffer, ITEMDRAW_DISABLED);
 	}
-
-	FormatEx(sBuffer, sizeof(sBuffer), "%T", "CANCEL", iClient);
-	hMenu.AddItem("", sBuffer);
+	
+	FormatEx(SZF(sBuffer), "%T", "CANCEL", iClient);
+	hMenu.AddItem(NULL_STRING, sBuffer);
 	
 	ReductionMenu(hMenu, 4);
 	
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
-public MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int iClient, int Item)
+public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
-	switch(action)
+	switch (action)
 	{
-		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_End: delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if(Item != MenuCancel_Interrupted)
+			if (Item != MenuCancel_Interrupted)
 			{
 				g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_SEARCH;
 			}
-
-			if(Item == MenuCancel_ExitBack)
+			
+			if (Item == MenuCancel_ExitBack)
 			{
 				ShowVipPlayersListMenu(iClient);
 			}
@@ -161,34 +167,14 @@ public MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int iCli
 		case MenuAction_Select:
 		{
 			g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_SEARCH;
-			switch(Item)
+			switch (Item)
 			{
 				case 0:
 				{
-					decl String:sQuery[512], String:sAuth[32];
-					hMenu.GetItem(Item, sAuth, sizeof(sAuth));
-					if (GLOBAL_INFO & IS_MySQL)
-					{
-						FormatEx(sQuery, sizeof(sQuery), "SELECT `u`.`id`, \
-																`u`.`name` \
-																FROM `vip_users` AS `u` \
-																LEFT JOIN `vip_overrides` AS `o` \
-																ON `o`.`user_id` = `u`.`id` \
-																WHERE `o`.`server_id` = '%i' \
-																AND (`u`.`auth` LIKE '%%%s%%' OR `u`.`name` LIKE '%%%s%%');",
-																g_CVAR_iServerID, sAuth, sAuth);
-					}
-					else
-					{
-						FormatEx(sQuery, sizeof(sQuery), "SELECT `id`, `name` \
-															FROM `vip_users` \
-															WHERE (`auth` LIKE '%%%s%%' OR `name` LIKE '%%%s%%');",
-															sAuth, sAuth);
-					}
-
-					DebugMessage(sQuery)
-					g_hDatabase.Query(SQL_Callback_SelectVipPlayers, sQuery, UID(iClient));
-					
+					char sSearch[32];
+					hMenu.GetItem(Item, SZF(sSearch));
+					g_hClientData[iClient].SetString(DATA_KEY_Search, sSearch);
+					ShowVipPlayersFromDBMenu(iClient);
 				}
 				case 1:
 				{
@@ -198,313 +184,313 @@ public MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int iCli
 		}
 	}
 }
-/*
-public SQL_Callback_SearchPlayers(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
+
+void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 {
-	if (hQuery == null || sError[0])
-	{
-		LogError("SQL_Callback_SearchPlayers: %s", sError);
-		return;
-	}
-	
-	new iClient = CID(UserID);
-	if (iClient)
-	{
-		decl String:sUserID[12], String:sName[128];
-		Menu hMenu = new Menu(MenuHandler_VipPlayersListMenu);
+	g_hClientData[iClient].SetValue(DATA_KEY_MenuListType, MENU_TYPE_DB_LIST);
+	g_hClientData[iClient].SetValue(DATA_KEY_Offset, iOffset);
 
-		SetGlobalTransTarget(iClient);
+	char sQuery[512], sSearch[64];
+	sSearch[0] = 0;
+	g_hClientData[iClient].GetString(DATA_KEY_Search, SZF(sSearch));
 
-		hMenu.SetTitle("%T:\n \n", "MENU_LIST_VIP", iClient);
-		
-		sUserID[0] = 0;
-		
-		while(SQL_FetchRow(hQuery))
-		{
-			IntToString(SQL_FetchInt(hQuery, 0), sUserID, sizeof(sUserID));
-			SQL_FetchString(hQuery, 1, sName, sizeof(sName));
-			
-			hMenu.AddItem(sUserID, sName);
-		}
-	
-		if(sUserID[0] == 0)
-		{
-			FormatEx(sName, sizeof(sName), "%T", "NO_PLAYERS_AVAILABLE", iClient);
-			hMenu.AddItem("", sName, ITEMDRAW_DISABLED);
-		}
-
-		hMenu.Display(iClient, MENU_TIME_FOREVER);
-
-	}
-}
-*/
-ShowVipPlayersFromDBMenu(iClient, iOffset = 0)
-{
-	// , iRowCount = 20
-	SetArrayCell(g_ClientData[iClient], DATA_OFFSET, iOffset);
-
-	decl String:sQuery[512];
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(sQuery, sizeof(sQuery), "SELECT `u`.`id`, \
+		if(sSearch[0])
+		{
+			FormatEx(SZF(sQuery), "SELECT `u`.`id`, \
+													`u`.`name` \
+													FROM `vip_users` AS `u` \
+													LEFT JOIN `vip_overrides` AS `o` \
+													ON `o`.`user_id` = `u`.`id` \
+													WHERE `o`.`server_id` = %d \
+													AND (`u`.`auth` LIKE '%%%s%%' OR `u`.`name` LIKE '%%%s%%') LIMIT %d, %d;", 
+				g_CVAR_iServerID, sSearch, sSearch, iOffset, LIST_OFFSET);
+		}
+		else
+		{
+			FormatEx(SZF(sQuery), "SELECT `u`.`id`, \
 												`u`.`name` \
 												FROM `vip_users` AS `u` \
 												LEFT JOIN `vip_overrides` AS `o` \
 												ON `o`.`user_id` = `u`.`id` \
-												WHERE `o`.`server_id` = '%i' LIMIT %i, 20;",
-												g_CVAR_iServerID, iOffset);
+												WHERE `o`.`server_id` = %d LIMIT %d, %d;", 
+			g_CVAR_iServerID, iOffset, LIST_OFFSET);
+		}
 	}
 	else
 	{
-		FormatEx(sQuery, sizeof(sQuery), "SELECT `id`, `name` \
-											FROM `vip_users` LIMIT %i, 20;",
-											iOffset);
+		if(sSearch[0])
+		{
+			FormatEx(SZF(sQuery), "SELECT `id`, `name` \
+											FROM `vip_users` \
+											WHERE (`auth` LIKE '%%%s%%' OR `name` LIKE '%%%s%%') LIMIT %d, %d;", 
+			sSearch, sSearch, iOffset, LIST_OFFSET);
+		}
+		else
+		{
+			FormatEx(SZF(sQuery), "SELECT `id`, `name` \
+											FROM `vip_users` LIMIT %d, %d;", 
+			iOffset, LIST_OFFSET);
+		}
 	}
-
+	
 	DebugMessage(sQuery)
 	g_hDatabase.Query(SQL_Callback_SelectVipPlayers, sQuery, UID(iClient));
 }
 
-public SQL_Callback_SelectVipPlayers(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
+public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, const char[] sError, any UserID)
 {
-	if (hQuery == null || sError[0])
+	if (hResult == null || sError[0])
 	{
 		LogError("SQL_Callback_SelectVipPlayers: %s", sError);
 		return;
 	}
-	
-	new iClient = CID(UserID);
+
+	int iClient = CID(UserID);
 	if (iClient)
 	{
-		decl String:sUserID[12], String:sName[128];
+		char sName[128], sSearch[64];
 		Menu hMenu = new Menu(MenuHandler_VipPlayersListMenu);
 		hMenu.ExitBackButton = true;
-
-		SetGlobalTransTarget(iClient);
-
-		hMenu.SetTitle("%T:\n \n", "MENU_LIST_VIP", iClient);
-		
-		sUserID[0] = 0;
-		
-		while(SQL_FetchRow(hQuery))
+		sSearch[0] = 0;
+		g_hClientData[iClient].GetString(DATA_KEY_Search, SZF(sSearch));
+		if(sSearch[0])
 		{
-			IntToString(SQL_FetchInt(hQuery, 0), sUserID, sizeof(sUserID));
-			SQL_FetchString(hQuery, 1, sName, sizeof(sName));
+			hMenu.SetTitle("%T:\n%T:\n ", "MENU_LIST_VIP", iClient, "MENU_SEARCH", iClient, sSearch, hResult.RowCount);
+		}
+		else
+		{
+			hMenu.SetTitle("%T:\n ", "MENU_LIST_VIP", iClient);
+		}
+		
+		if (!hResult.RowCount)
+		{
+			FormatEx(SZF(sName), "%T", "NO_PLAYERS_AVAILABLE", iClient);
+			hMenu.AddItem(NULL_STRING, sName, ITEMDRAW_DISABLED);
+			hMenu.Display(iClient, MENU_TIME_FOREVER);
+			return;
+		}
+
+		char sUserID[16];
+		int iClientID;
+		while (hResult.FetchRow())
+		{
+			iClientID = hResult.FetchInt(0);
+			IntToString(iClientID, SZF(sUserID));
+			hResult.FetchString(1, SZF(sName));
 			
+			if(IsClientOnline(iClientID))
+			{
+				Format(SZF(sName), "• %s", sName);
+			}
 			hMenu.AddItem(sUserID, sName);
 		}
-
-		if(sUserID[0] == 0)
+		
+		if (hResult.RowCount == LIST_OFFSET)
 		{
-			FormatEx(sName, sizeof(sName), "%T", "NO_PLAYERS_AVAILABLE", iClient);
-			hMenu.AddItem("", sName, ITEMDRAW_DISABLED);
-		}
-		else if(GetArrayCell(g_ClientData[iClient], DATA_OFFSET) != -1)
-		{
-			hMenu.AddItem("", "ITEMDRAW_SPACER", ITEMDRAW_SPACER);
+			hMenu.AddItem(NULL_STRING, "ITEMDRAW_SPACER", ITEMDRAW_SPACER);
 			hMenu.AddItem("more", "Показать еще");
 		}
 
 		hMenu.Display(iClient, MENU_TIME_FOREVER);
-
 	}
 }
 
-ShowTargetInfoMenu(iClient, iClientID)
+void ShowTargetInfo(int iClient)
 {
-	decl String:sQuery[512];
+	int iClientID;
+	g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iClientID);
+
+	char sQuery[512];
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(sQuery, sizeof(sQuery), "SELECT `o`.`group`, \
+		FormatEx(SZF(sQuery), "SELECT `o`.`group`, \
 												`o`.`expires`, \
 												`u`.`name`, \
-												`u`.`auth` \
+												`u`.`auth`, \
+												`u`.`id` \
 												FROM `vip_users` AS `u` \
 												LEFT JOIN `vip_overrides` AS `o` \
 												ON `o`.`user_id` = `u`.`id` \
-												WHERE `o`.`server_id` = '%i' \
-												AND `u`.`id` = '%i' LIMIT 1;",
-												g_CVAR_iServerID, iClientID);
+												WHERE `o`.`server_id` = %d \
+												AND `u`.`id` = %d LIMIT 1;", 
+			g_CVAR_iServerID, iClientID);
 	}
 	else
 	{
-		FormatEx(sQuery, sizeof(sQuery), "SELECT `group`, \
+		FormatEx(SZF(sQuery), "SELECT `group`, \
 												`expires`, \
 												`name`, \
-												`auth` \
+												`auth`, \
+												`id` \
 												FROM `vip_users` \
-												WHERE `id` = '%i' LIMIT 1;",
-												iClientID);
+												WHERE `id` = %d LIMIT 1;", 
+			iClientID);
 	}
 
 	DebugMessage(sQuery)
 	g_hDatabase.Query(SQL_Callback_SelectVipClientInfo, sQuery, UID(iClient));
 }
 
-
-public SQL_Callback_SelectVipClientInfo(Handle:hOwner, Handle:hQuery, const String:sError[], any:UserID)
+public void SQL_Callback_SelectVipClientInfo(Database hOwner, DBResultSet hResult, const char[] sError, any UserID)
 {
-	if (hQuery == null || sError[0])
+	if (hResult == null || sError[0])
 	{
 		LogError("SQL_Callback_SelectVipClientInfo: %s", sError);
 		return;
 	}
 	
-	new iClient = CID(UserID);
+	int iClient = CID(UserID);
 	if (iClient)
 	{
-		if (SQL_FetchRow(hQuery))
-		{
-			SetGlobalTransTarget(iClient);
-
-			decl String:sGroup[64], String:sBuffer[64], String:sName[64], String:sAuth[64], iExpires;
-			Menu hMenu = new Menu(MenuHandler_VipClientInfoMenu);
-
-			hMenu.ExitBackButton = true;
-
-			if(SQL_IsFieldNull(hQuery, 1) == false)
-			{
-				SQL_FetchString(hQuery, 1, sGroup, sizeof(sGroup));	// GROUP
-				if(sGroup[0])
-				{
-					SetArrayString(g_ClientData[iClient], DATA_GROUP, sGroup);
-				}
-				else
-				{
-				//	strcopy(sGroup, sizeof(sGroup), "none");
-					SetArrayString(g_ClientData[iClient], DATA_GROUP, "none");
-					FormatEx(sGroup, sizeof(sGroup), "%t", "NONE");
-				}
-			}
-			else
-			{
-			//	strcopy(sGroup, sizeof(sGroup), "none");
-				SetArrayString(g_ClientData[iClient], DATA_GROUP, "none");
-				FormatEx(sGroup, sizeof(sGroup), "%t", "NONE");
-			}
-
-			iExpires = SQL_FetchInt(hQuery, 2);	// Expires
-			SetArrayCell(g_ClientData[iClient], DATA_AUTH_TYPE, iExpires);
-
-			if(iExpires > 0)
-			{
-				new iTime = GetTime();
-				if(iExpires > iTime)
-				{
-					UTIL_GetTimeFromStamp(sBuffer, sizeof(sBuffer), iExpires-iTime, iClient);
-					Format(sBuffer, sizeof(sBuffer), "%t: %s", "EXPIRE", sBuffer);
-				}
-				else
-				{
-					FormatEx(sBuffer, sizeof(sBuffer), "%t", "EXPIRED");
-				}
-			}
-			else
-			{
-				FormatEx(sBuffer, sizeof(sBuffer), "%t", "NEVER");
-			}
-
-			SQL_FetchString(hQuery, 3, sName, sizeof(sName));	// Name
-			SetArrayString(g_ClientData[iClient], DATA_NAME, sName);
-
-			SQL_FetchString(hQuery, 4, sAuth, sizeof(sAuth));	// Auth
-
-			hMenu.SetTitle("%t\n \n", "MENU_INFO_VIP_PLAYER", sName, sGroup, sBuffer, sAuth);
-
-			FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_DEL_VIP");        	//		1. Удалить игрока
-			hMenu.AddItem("", sBuffer);
-			FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_TIME");       //		2. Изменить срок 
-			hMenu.AddItem("", sBuffer);
-			FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_GROUP");     //		4. Изменить группу
-			hMenu.AddItem("", sBuffer);
-			
-			ReductionMenu(hMenu, 2);
-			
-			hMenu.Display(iClient, MENU_TIME_FOREVER);
-		}
-		else
+		if (!hResult.FetchRow())
 		{
 			VIP_PrintToChatClient(iClient, "%t", "FAILED_TO_LOAD_PLAYER");
+			BackToAdminMenu(iClient);
+			return;
 		}
+	
+		char sGroup[64], sName[32], sAuth[32];
+
+		hResult.FetchString(0, SZF(sGroup)); // GROUP
+		g_hClientData[iClient].SetString(DATA_KEY_Group, sGroup);
+
+		int iExpires = hResult.FetchInt(1); // Expires
+		g_hClientData[iClient].SetValue(DATA_KEY_Time, iExpires);
+		DebugMessage("SetValue(%s) = %d", DATA_KEY_Time, iExpires)
+
+		hResult.FetchString(2, SZF(sName)); // Name
+		g_hClientData[iClient].SetString(DATA_KEY_Name, sName);
+
+		hResult.FetchString(3, SZF(sAuth)); // Auth
+		g_hClientData[iClient].SetString(DATA_KEY_Auth, sAuth);
+
+		ShowTargetInfoMenu(iClient);
 	}
 }
-/*
-ShowTargetTempInfo(iClient, UserID)
+
+void ShowTemporaryTargetInfo(int iClient)
 {
-	SetGlobalTransTarget(iClient);
-
-	decl String:sGroup[64], String:sBuffer[64], String:sName[64], String:sAuthType[64], String:sAuth[64], iExpires;
-	Menu hMenu = new Menu(MenuHandler_VipClientInfoMenu);
-
-	hMenu.ExitBackButton = true;
-	
-	if(GetTrieString(g_hFeatures[iClient], KEY_GROUP, sGroup, sizeof(sGroup)) == false)	// GROUP
+	char sGroup[64], sName[32], sAuth[32];
+	int iTarget;
+	g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget);
+	iTarget = CID(iTarget);
+	if(!iTarget)
 	{
-		FormatEx(sGroup, sizeof(sGroup), "%t", "NONE");
+		VIP_PrintToChatClient(iClient, "%t", "PLAYER_NO_LONGER_AVAILABLE");
+		ShowVipPlayersListMenu(iClient);
+		return;
 	}
 
-	GetTrieValue(g_hFeatures[iClient], KEY_EXPIRES, iExpires);
-	if(iExpires > 0)
+	g_hFeatures[iTarget].GetString(KEY_GROUP, SZF(sGroup));
+	g_hClientData[iClient].SetString(DATA_KEY_Group, sGroup);
+
+	int iExpires;
+	g_hFeatures[iTarget].GetValue(KEY_EXPIRES, iExpires);
+	g_hClientData[iClient].SetValue(DATA_KEY_Time, iExpires);
+	GetClientName(iTarget, SZF(sName));
+	GetClientAuthId(iTarget, AuthId_Engine, SZF(sAuth));
+
+	g_hClientData[iClient].SetString(DATA_KEY_Name, sName);
+	g_hClientData[iClient].SetString(DATA_KEY_Auth, sAuth);
+
+	ShowTargetInfoMenu(iClient);
+}
+
+void ShowTargetInfoMenu(int iClient)
+{
+	char sGroup[64], sName[32], sAuth[32], sBuffer[128];
+	g_hClientData[iClient].GetString(DATA_KEY_Group, SZF(sGroup));
+	g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(sName));
+	g_hClientData[iClient].GetString(DATA_KEY_Auth, SZF(sAuth));
+	int iExpires, iClientID;
+	g_hClientData[iClient].GetValue(DATA_KEY_Time, iExpires);
+	DebugMessage("GetValue(%s) = %d", DATA_KEY_Time, iExpires)
+	g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iClientID);
+
+	if (iExpires > 0)
 	{
-		new iTime = GetTime();
-		if(iExpires > iTime)
+		int iTime = GetTime();
+		if (iExpires > iTime)
 		{
-			UTIL_GetTimeFromStamp(sBuffer, sizeof(sBuffer), iExpires-iTime, iClient);
-			Format(sBuffer, sizeof(sBuffer), "%t: %s", "EXPIRE", sBuffer);
+			UTIL_GetTimeFromStamp(SZF(sBuffer), iExpires - iTime, iClient);
+			Format(SZF(sBuffer), "%T: %s", "EXPIRE", iClient, sBuffer);
 		}
 		else
 		{
-			FormatEx(sBuffer, sizeof(sBuffer), "%t", "EXPIRED");
+			FormatEx(SZF(sBuffer), "%T", "EXPIRED", iClient);
 		}
 	}
 	else
 	{
-		FormatEx(sBuffer, sizeof(sBuffer), "%t", "NEVER");
+		FormatEx(SZF(sBuffer), "%T", "NEVER", iClient);
+	}
+	
+	if(iClientID == -1)
+	{
+		Format(SZF(sBuffer), "%s (%T)", sBuffer, "TEMPORARY", iClient);
 	}
 
+	Menu hMenu = new Menu(MenuHandler_VipClientInfoMenu);
 
-	hMenu.SetTitle("%t\n \n", "MENU_INFO_VIP_PLAYER", sName, sGroup, sBuffer, sAuthType, sAuth);
+	hMenu.ExitBackButton = true;
+	hMenu.SetTitle("%T\n ", "MENU_INFO_VIP_PLAYER", iClient, sName, sAuth, sGroup, sBuffer);
 
-	FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_DEL_VIP");        	//		1. Удалить игрока
-	hMenu.AddItem("", sBuffer);
-	FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_TIME");       //		2. Изменить срок 
-	hMenu.AddItem("", sBuffer);
-	FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_PASS");       //		3. Изменить группу 
-	hMenu.AddItem("", sBuffer);
-	FormatEx(sBuffer, sizeof(sBuffer), "%t", "MENU_EDIT_GROUP");     //		4. Изменить пароль
-	hMenu.AddItem("", sBuffer);
-	
+	FormatEx(SZF(sBuffer), "%T", "MENU_DEL_VIP", iClient);			//		1. Удалить игрока
+	hMenu.AddItem(NULL_STRING, sBuffer);
+	FormatEx(SZF(sBuffer), "%T", "MENU_EDIT_TIME", iClient);		//		2. Изменить срок 
+	hMenu.AddItem(NULL_STRING, sBuffer, iClientID == -1 ? ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
+	FormatEx(SZF(sBuffer), "%T", "MENU_EDIT_GROUP", iClient);		//		3. Изменить группу
+	hMenu.AddItem(NULL_STRING, sBuffer);
+
+	ReductionMenu(hMenu, 2);
+
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
-*/
-public MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iClient, int Item)
+
+public int MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iClient, int Item)
 {
-	switch(action)
+	switch (action)
 	{
-		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_End: delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack)
+			if (Item == MenuCancel_ExitBack)
 			{
-				new iOffset = GetArrayCell(g_ClientData[iClient], DATA_OFFSET);
-				if(iOffset == -1)
+				DebugMessage("MenuHandler_VipClientInfoMenu->MenuCancel_ExitBack")
+				int iBuffer;
+				g_hClientData[iClient].GetValue(DATA_KEY_MenuListType, iBuffer);
+				DebugMessage("GetValue(%s) = %d", DATA_KEY_MenuListType, iBuffer)
+				switch(iBuffer)
 				{
-					ShowVipPlayersListMenu(iClient);
-				}
-				else
-				{
-					ShowVipPlayersFromDBMenu(iClient,iOffset);
+					case MENU_TYPE_ONLINE_LIST:
+					{
+						ShowVipPlayersListMenu(iClient);
+					}
+					case MENU_TYPE_DB_LIST:
+					{
+						int iOffset;
+						g_hClientData[iClient].GetValue(DATA_KEY_Offset, iOffset);
+						ShowVipPlayersFromDBMenu(iClient, iOffset);
+					}
 				}
 			}
 		}
 		case MenuAction_Select:
 		{
-			switch(Item)
+			switch (Item)
 			{
 				case 0:	ShowDeleteVipPlayerMenu(iClient);
 				case 1:	ShowEditTimeMenu(iClient);
-				case 2: ShowEditGroupMenu(iClient);	
+				case 2:
+				{
+					g_hClientData[iClient].SetValue(DATA_KEY_MenuType, MENU_TYPE_EDIT);
+					char sGroup[64];
+					g_hClientData[iClient].GetString(DATA_KEY_Group, SZF(sGroup));
+					ShowGroupsMenu(iClient, sGroup);
+				}
 			}
 		}
 	}
-}
+} 
