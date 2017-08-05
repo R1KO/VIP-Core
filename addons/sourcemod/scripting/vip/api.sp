@@ -74,19 +74,19 @@ VIP_ToggleState CreateForward_OnFeatureToggle(int iClient, const char[] sFeature
 
 	switch (aResult)
 	{
-		case Plugin_Continue:
+	case Plugin_Continue:
 		{
 			return NewStatus;
 		}
-		case Plugin_Changed:
+	case Plugin_Changed:
 		{
 			return ResultStatus;
 		}
-		case Plugin_Handled, Plugin_Stop:
+	case Plugin_Handled, Plugin_Stop:
 		{
 			return OldStatus;
 		}
-		default:
+	default:
 		{
 			return ResultStatus;
 		}
@@ -157,7 +157,7 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] sError, int err_m
 	CreateNative("VIP_GetClientFeatureBool",	Native_GetClientFeatureBool);
 	CreateNative("VIP_GetClientFeatureString",	Native_GetClientFeatureString);
 
-//	CreateNative("VIP_GiveClientFeature",	Native_GiveClientFeature);
+	//	CreateNative("VIP_GiveClientFeature",	Native_GiveClientFeature);
 	
 	// Helpers
 	CreateNative("VIP_PrintToChatClient",		Native_PrintToChatClient);
@@ -239,21 +239,21 @@ void Print(int iClient, const char[] sFormat)
 	
 	switch (g_EngineVersion)
 	{
-		case Engine_SourceSDK2006, Engine_Left4Dead, Engine_Left4Dead2:
+	case Engine_SourceSDK2006, Engine_Left4Dead, Engine_Left4Dead2:
 		{
 			ReplaceString(sMessage, sizeof(sMessage), "{LIGHTGREEN}", "\x03");
 			int iColor = ReplaceColors(sMessage, sizeof(sMessage));
 			switch (iColor)
 			{
-				case -1:	SayText2(iClient, 0, sMessage);
-				case 0:		SayText2(iClient, iClient, sMessage);
-				default:
+			case -1:	SayText2(iClient, 0, sMessage);
+			case 0:		SayText2(iClient, iClient, sMessage);
+			default:
 				{
 					SayText2(iClient, FindPlayerByTeam(iColor), sMessage);
 				}
 			}
 		}
-		case Engine_CSS, Engine_TF2, Engine_DODS, Engine_HL2DM:
+	case Engine_CSS, Engine_TF2, Engine_DODS, Engine_HL2DM:
 		{
 			ReplaceString(sMessage, sizeof(sMessage), "#", "\x07");
 			if (ReplaceString(sMessage, sizeof(sMessage), "{TEAM}", "\x03"))
@@ -266,7 +266,7 @@ void Print(int iClient, const char[] sFormat)
 				SayText2(iClient, 0, sMessage);
 			}
 		}
-		case Engine_CSGO:
+	case Engine_CSGO:
 		{
 			static const char sColorName[][] = 
 			{
@@ -309,7 +309,7 @@ void Print(int iClient, const char[] sFormat)
 				SayText2(iClient, 0, sMessage);
 			}
 		}
-		default:
+	default:
 		{
 			ReplaceString(sMessage, sizeof(sMessage), "{TEAM}", "\x03");
 		}
@@ -527,7 +527,7 @@ public int Native_GetVIPClientTrie(Handle hPlugin, int iNumParams)
 		return view_as<int>(g_hFeatures[iClient]);
 	}
 
-	return view_as<int>(null);
+	return 0;
 }
 
 public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
@@ -547,7 +547,7 @@ public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
 			g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
 			return;
 		}
-	
+		
 		int iItem = 0;
 		g_hFeatures[iClient].GetValue(KEY_MENUITEM, iItem);
 
@@ -568,7 +568,7 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 			if (iClientID == -1 && bToDB)
 			{
 				ResetClient(iClient);
-		
+				
 				CreateForward_OnVIPClientRemoved(iClient, "Removed for VIP-status change");
 			}
 			else
@@ -610,7 +610,7 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 					
 					Clients_LoadVIPFeatures(iClient);
 					
-				//	Clients_OnVIPClientLoaded(iClient);
+					//	Clients_OnVIPClientLoaded(iClient);
 					if (g_CVAR_bAutoOpenMenu)
 					{
 						g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
@@ -713,11 +713,11 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 		{
 			switch (FType)
 			{
-				case TOGGLABLE:
+			case TOGGLABLE:
 				{	
 					hArray.Push(RegClientCookie(sFeatureName, sFeatureName, CookieAccess_Private));
 				}
-				case SELECTABLE:
+			case SELECTABLE:
 				{
 					hArray.Push(INVALID_HANDLE);
 				}
@@ -1025,7 +1025,8 @@ public int Native_GetClientFeatureString(Handle hPlugin, int iNumParams)
 			SetNativeString(3, sBuffer, iLen, true);
 			return true;
 		}
-	
+	}
+
 	SetNativeString(3, NULL_STRING, iLen, true);
 	return false;
 }
