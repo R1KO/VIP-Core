@@ -941,12 +941,15 @@ public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 		{
 			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 			{
-				DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
-				hDataPack.Position = ITEM_SELECT;
-				Function Function_Select = hDataPack.ReadFunction();
-				if (Function_Select != INVALID_FUNCTION)
+				if(GetNativeCell(4))
 				{
-					Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Select, iClient, sFeatureName, OldStatus, NewStatus);
+					DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
+					hDataPack.Position = ITEM_SELECT;
+					Function Function_Select = hDataPack.ReadFunction();
+					if (Function_Select != INVALID_FUNCTION)
+					{
+						Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Select, iClient, sFeatureName, OldStatus, NewStatus);
+					}
 				}
 				
 				if (OldStatus != NewStatus)

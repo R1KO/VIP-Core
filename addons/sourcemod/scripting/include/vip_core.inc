@@ -421,10 +421,11 @@ native VIP_ToggleState VIP_GetClientFeatureStatus(int iClient, const char[] sFea
  * @param iClient			Индекс игрока.
  * @param sFeatureName		Уникальное имя ф-и.
  * @param Status			Статус VIP-функции.
+ * @param bCallback			Вызывать ли toggle каллбэк.
  *	-
  * @return true в случае успеха, иначе false.
 */
-native bool VIP_SetClientFeatureStatus(int iClient, const char[] sFeatureName, VIP_ToggleState Status);
+native bool VIP_SetClientFeatureStatus(int iClient, const char[] sFeatureName, VIP_ToggleState Status, bool bCallback = true);
 
 /**
  *	Возвращает статус VIP-функции у игрока.

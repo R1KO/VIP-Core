@@ -6,7 +6,7 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION	"3.0 DEV #7"
+#define VIP_VERSION	"3.0 DEV #8"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
