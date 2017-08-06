@@ -278,9 +278,13 @@ public void SQL_Callback_CheckVIPClient(Database hOwner, DBResultSet hResult, co
 		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sAuth
 		int iExpires = hDataPack.ReadCell();			// iExpires
 		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sGroup
-		
-		DebugMessage("SQL_Callback_CheckVIPClient: id - %d", hResult.FetchInt(0))
+		hDataPack.ReadCell();		// iTime
+		hDataPack.ReadCell();		// iClient
+		hDataPack.ReadCell();		// iTarget
 		int iClientID = hResult.FetchInt(0);
+	
+		DebugMessage("SQL_Callback_CheckVIPClient: id - %d", iClientID)
+		hDataPack.WriteCell(iClientID);
 		SetClientOverrides(hPack, iClientID, iExpires, sGroup);
 	}
 	else
