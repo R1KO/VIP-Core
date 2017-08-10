@@ -123,7 +123,6 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] sError, int err_m
 	CreateNative("VIP_IsValidFeature",			Native_IsValidFeature);
 	CreateNative("VIP_GetFeatureType",			Native_GetFeatureType);
 	CreateNative("VIP_GetFeatureValueType",		Native_GetFeatureValueType);
-	CreateNative("VIP_SetFeatureDefStatus",		Native_SetFeatureDefStatus);
 	CreateNative("VIP_FillArrayByFeatures",		Native_FillArrayByFeatures);
 
 	// Clients
@@ -378,7 +377,7 @@ public int Native_LogMessage(Handle hPlugin, int iNumParams)
 public int Native_GetClientID(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false))
+	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
 	{
 		int iClientID;
 		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID))
@@ -393,7 +392,7 @@ public int Native_GetClientID(Handle hPlugin, int iNumParams)
 public int Native_GetClientVIPGroup(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false))
+	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
 	{
 		char sGroup[64];
 		
@@ -453,7 +452,7 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 public int Native_GetClientAccessTime(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false))
+	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
 	{
 		int iExp;
 		if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp))
@@ -522,7 +521,7 @@ public void SQL_Callback_ChangeClientSettings(Database hOwner, DBResultSet hResu
 public int Native_GetVIPClientTrie(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false))
+	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
 	{
 		return view_as<int>(g_hFeatures[iClient]);
 	}
@@ -728,7 +727,12 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 			hDataPack.WriteFunction(GetNativeCell(5));
 			hDataPack.WriteFunction(GetNativeCell(6));
 			hArray.Push(hDataPack);
-			
+
+			if (iNumParams == 7 && FType == TOGGLABLE)
+			{
+				hArray.Push(GetNativeCell(7));
+			}
+
 			AddFeatureToVIPMenu(sFeatureName);
 		}
 
@@ -736,7 +740,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 		{
 			if (IsClientInGame(iClient) && g_iClientInfo[iClient] & IS_VIP)
 			{
-				Clients_LoadVIPFeatures(iClient);
+				Clients_LoadVIPFeaturesPre(iClient, sFeatureName);
 			}
 		}
 
@@ -861,23 +865,6 @@ public int Native_GetFeatureValueType(Handle hPlugin, int iNumParams)
 	return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", sFeatureName, sFeatureName);
 }
 
-public int Native_SetFeatureDefStatus(Handle hPlugin, int iNumParams)
-{
-	char sFeatureName[FEATURE_NAME_LENGTH];
-	GetNativeString(1, sFeatureName, sizeof(sFeatureName));
-	
-	ArrayList hArray;
-	if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
-	{
-		if(hArray.Get(FEATURES_VALUE_TYPE) == TOGGLABLE)
-		{
-			hArray.Push(view_as<bool>(GetNativeCell(2)));
-		}
-	}
-
-	return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", sFeatureName, sFeatureName);
-}
-
 public int Native_FillArrayByFeatures(Handle hPlugin, int iNumParams)
 {
 	ArrayList hArray = view_as<ArrayList>(GetNativeCell(1));
@@ -899,7 +886,7 @@ public int Native_FillArrayByFeatures(Handle hPlugin, int iNumParams)
 public int Native_IsClientFeatureUse(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false))
+	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
 	{
 		char sFeatureName[FEATURE_NAME_LENGTH];
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
@@ -914,7 +901,7 @@ public int Native_IsClientFeatureUse(Handle hPlugin, int iNumParams)
 public int Native_GetClientFeatureStatus(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false))
+	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
 	{
 		char sFeatureName[FEATURE_NAME_LENGTH];
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
@@ -941,7 +928,7 @@ public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 		{
 			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 			{
-				if(GetNativeCell(4))
+				if(iNumParams == 4 && GetNativeCell(4))
 				{
 					DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
 					hDataPack.Position = ITEM_SELECT;
@@ -967,7 +954,7 @@ public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 public int Native_GetClientFeatureInt(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false))
+	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
 	{
 		char sFeatureName[FEATURE_NAME_LENGTH]; int iValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
@@ -984,7 +971,7 @@ public int Native_GetClientFeatureInt(Handle hPlugin, int iNumParams)
 public int Native_GetClientFeatureFloat(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false))
+	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
 	{
 		char sFeatureName[FEATURE_NAME_LENGTH]; float fValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
@@ -1000,7 +987,7 @@ public int Native_GetClientFeatureFloat(Handle hPlugin, int iNumParams)
 public int Native_GetClientFeatureBool(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false))
+	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
 	{
 		char sFeatureName[FEATURE_NAME_LENGTH]; bool bValue;
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));
@@ -1015,7 +1002,7 @@ public int Native_GetClientFeatureString(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
 	int iLen = GetNativeCell(4);
-	if (CheckValidClient(iClient, false))
+	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
 	{
 		char sFeatureName[64], sBuffer[256];
 		GetNativeString(2, sFeatureName, sizeof(sFeatureName));

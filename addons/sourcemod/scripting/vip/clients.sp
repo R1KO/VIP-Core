@@ -174,15 +174,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 					DisplayClientInfo(iClient, iExpires == 0 ? "connect_info_perm":"connect_info_time");
 				}
 
-				DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
-				if (AreClientCookiesCached(iClient))
-				{
-					Clients_LoadVIPFeatures(iClient);
-				}
-				else
-				{
-					CreateTimer(1.0, Timer_CheckCookies, UID(iClient), TIMER_FLAG_NO_MAPCHANGE);
-				}
+				Clients_LoadVIPFeaturesPre(iClient);
 			}
 			else
 			{
@@ -199,26 +191,6 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 	}
 	
 	delete hDataPack;
-}
-
-public Action Timer_CheckCookies(Handle hTimer, any UserID)
-{
-	int iClient = CID(UserID);
-	DebugMessage("Timer_CheckCookies -> UserID: %d, iClient: %d, IsClientVIP: %b,", UserID, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP))
-	if (iClient && g_iClientInfo[iClient] & IS_VIP)
-	{
-		DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
-		if (AreClientCookiesCached(iClient))
-		{
-			Clients_LoadVIPFeatures(iClient);
-			
-			return Plugin_Stop;
-		}
-		
-		CreateTimer(1.0, Timer_CheckCookies, UserID, TIMER_FLAG_NO_MAPCHANGE);
-	}
-	
-	return Plugin_Stop;
 }
 
 void Clients_OnVIPClientLoaded(int iClient)
@@ -249,10 +221,71 @@ public void OnClientCookiesCached(int iClient)
 }
 #endif
 
+void Clients_LoadVIPFeaturesPre(int iClient, const char[] sFeatureName = NULL_STRING)
+{
+	DebugMessage("Clients_LoadVIPFeaturesPre %N", iClient)
+
+	DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
+
+	if (!AreClientCookiesCached(iClient))
+	{
+		DataPack hDataPack = new DataPack();
+		hDataPack.WriteCell(UID(iClient));
+		if(sFeatureName[0])
+		{
+			hDataPack.WriteCell(true);
+			hDataPack.WriteString(sFeatureName);
+		}
+		else
+		{
+			hDataPack.WriteCell(false);
+		}
+		CreateTimer(0.5, Timer_CheckCookies, hDataPack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
+	}
+
+	if(sFeatureName[0])
+	{
+		Clients_LoadVIPFeature(iClient, sFeatureName);
+		return;
+	}
+	
+	Clients_LoadVIPFeatures(iClient);
+}
+
+public Action Timer_CheckCookies(Handle hTimer, Handle hDP)
+{
+	DataPack hDataPack = view_as<DataPack>(hDP);
+	int iClient = CID(hDataPack.ReadCell());
+	
+	DebugMessage("Timer_CheckCookies -> UserID: %d, iClient: %d, IsClientVIP: %b,", UserID, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP))
+	if (iClient && g_iClientInfo[iClient] & IS_VIP)
+	{
+		char sFeatureName[FEATURE_NAME_LENGTH];
+		if(hDataPack.ReadCell())
+		{
+			hDataPack.ReadString(SZF(sFeatureName));
+		}
+		else
+		{
+			sFeatureName[0] = 0;
+		}
+		Clients_LoadVIPFeaturesPre(iClient, sFeatureName);
+	}
+	
+	return Plugin_Stop;
+}
+
 void Clients_LoadVIPFeatures(int iClient)
 {
 	DebugMessage("LoadVIPFeatures %N", iClient)
+
+	DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
 	
+	if (!AreClientCookiesCached(iClient))
+	{
+		CreateTimer(0.5, Timer_CheckCookies, UID(iClient), TIMER_FLAG_NO_MAPCHANGE);
+	}
+
 	DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
 
 	int iFeatures = g_hFeaturesArray.Length;
@@ -264,50 +297,10 @@ void Clients_LoadVIPFeatures(int iClient)
 		g_hFeatures[iClient].GetString(KEY_GROUP, SZF(sFeatureName));
 		if (UTIL_CheckValidVIPGroup(sFeatureName))
 		{
-			char				sBuffer[4];
-			Handle				hCookie;
-			VIP_ToggleState		Status;
-			ArrayList hArray;
 			for (int i = 0; i < iFeatures; ++i)
 			{
 				g_hFeaturesArray.GetString(i, SZF(sFeatureName));
-				if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
-				{
-					DebugMessage("LoadClientFeature: %d - %s", i, sFeatureName)
-
-					if (GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), sFeatureName))
-					{
-						DebugMessage("GetValue: == true")
-						if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
-						{
-							hCookie = view_as<Handle>(hArray.Get(FEATURES_COOKIE));
-							GetClientCookie(iClient, hCookie, SZF(sBuffer));
-							Status = view_as<VIP_ToggleState>(StringToInt(sBuffer));
-							DebugMessage("GetFeatureCookie: '%s'", sBuffer)
-							if (sBuffer[0] == '\0' || (view_as<int>(Status) > 2 || view_as<int>(Status) < 0))
-							{
-								if(hArray.Length == 6)
-								{
-									Status = hArray.Get(FEATURES_DEF_STATUS) ? ENABLED:DISABLED;
-								}
-								else
-								{
-									Status = g_CVAR_bDefaultStatus ? ENABLED:DISABLED;
-								}
-								IntToString(view_as<int>(Status), SZF(sBuffer));
-								SetClientCookie(iClient, hCookie, sBuffer);
-								//	Features_SaveStatus(iClient, sFeatureName, hCookie, Status);
-							}
-						}
-						else
-						{
-							Status = ENABLED;
-						}
-
-						Features_SetStatus(iClient, sFeatureName, Status);
-						//	Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function:hArray.Get(FEATURES_ITEM_SELECT), iClient, sFeatureName, NO_ACCESS, ENABLED);
-					}
-				}
+				Clients_LoadFeature(iClient, sFeatureName);
 			}
 		}
 	}
@@ -315,6 +308,74 @@ void Clients_LoadVIPFeatures(int iClient)
 	DebugMessage("Clients_OnVIPClientLoaded: %d %N", iClient, iClient)
 
 	Clients_OnVIPClientLoaded(iClient);
+}
+
+void Clients_LoadVIPFeature(int iClient, const char[] sFeatureName)
+{
+	DebugMessage("LoadVIPFeature %N", iClient)
+
+	int iFeatures = g_hFeaturesArray.Length;
+	DebugMessage("FeaturesArraySize: %d", iFeatures)
+	if (iFeatures > 0)
+	{
+		char sGroup[FEATURE_NAME_LENGTH];
+
+		g_hFeatures[iClient].GetString(KEY_GROUP, SZF(sGroup));
+		if (UTIL_CheckValidVIPGroup(sGroup))
+		{
+			Clients_LoadFeature(iClient, sFeatureName);
+		}
+	}
+/*
+	DebugMessage("Clients_OnVIPClientLoaded: %d %N", iClient, iClient)
+
+	Clients_OnVIPClientLoaded(iClient);
+	*/
+}
+
+void Clients_LoadFeature(int iClient, const char[] sFeatureName)
+{
+	static ArrayList hArray;
+	if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
+	{
+		DebugMessage("LoadClientFeature: %d - %s", i, sFeatureName)
+
+		if (GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), sFeatureName))
+		{
+			static VIP_ToggleState	Status;
+			DebugMessage("GetValue: == true")
+			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
+			{
+				static char	 			sBuffer[4];
+				static Handle			hCookie;
+				hCookie = view_as<Handle>(hArray.Get(FEATURES_COOKIE));
+				GetClientCookie(iClient, hCookie, SZF(sBuffer));
+				Status = view_as<VIP_ToggleState>(StringToInt(sBuffer));
+				DebugMessage("GetFeatureCookie: '%s'", sBuffer)
+				if (sBuffer[0] == '\0' || (view_as<int>(Status) > 2 || view_as<int>(Status) < 0))
+				{
+					if(hArray.Length == 6)
+					{
+						Status = hArray.Get(FEATURES_DEF_STATUS) ? ENABLED:DISABLED;
+					}
+					else
+					{
+						Status = g_CVAR_bDefaultStatus ? ENABLED:DISABLED;
+					}
+					IntToString(view_as<int>(Status), SZF(sBuffer));
+					SetClientCookie(iClient, hCookie, sBuffer);
+					//	Features_SaveStatus(iClient, sFeatureName, hCookie, Status);
+				}
+			}
+			else
+			{
+				Status = ENABLED;
+			}
+
+			Features_SetStatus(iClient, sFeatureName, Status);
+			//	Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function:hArray.Get(FEATURES_ITEM_SELECT), iClient, sFeatureName, NO_ACCESS, ENABLED);
+		}
+	}
 }
 
 bool GetValue(int iClient, VIP_ValueType ValueType, const char[] sFeatureName)

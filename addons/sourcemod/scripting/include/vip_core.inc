@@ -340,15 +340,18 @@ native bool VIP_IsVIPLoaded();
  * @param Item_select_callback	Обратный вызов при смене статуса ф-и.
  * @param Item_display_callback	Обратный вызов при отображении пункта ф-и .
  * @param Item_draw_callback	Обратный вызов при отображении стиля пункта ф-и.
+ * @param bDefStatus			Значение по-умолчанию (true - Включена, false - Выключена).
  *	-
  * @noreturn
 */
-native void VIP_RegisterFeature(const char[] sFeatureName,
+
+native void VIP_RegisterFeature(const char[]			sFeatureName,
 								VIP_ValueType			ValType					= VIP_NULL,
 								VIP_FeatureType			FType					= TOGGLABLE,
 								ItemSelectCallback		Item_select_callback	= INVALID_FUNCTION,
 								ItemDisplayCallback		Item_display_callback	= INVALID_FUNCTION,
-								ItemDrawCallback		Item_draw_callback		= INVALID_FUNCTION);
+								ItemDrawCallback		Item_draw_callback		= INVALID_FUNCTION,
+								bool					bDefStatus				= false);
 
 /**
  *	Удаляет VIP-функцию.
@@ -385,16 +388,6 @@ native VIP_FeatureType VIP_GetFeatureType(const char[] sFeatureName);
  * @return	Возвращает элемент списка VIP_ValueType.
 */
 native VIP_ValueType VIP_GetFeatureValueType(const char[] sFeatureName);
-
-/**
- *	Устанаваливает значение функции по-умолчанию.
- *	-
- * @param sFeatureName			Уникальное имя ф-и.
- * @param bStatus				Значение (true - Включена, false - Выключена).
- *	-
- * @noreturn
-*/
-native void VIP_SetFeatureDefStatus(const char[] sFeatureName, bool bStatus);
 
 /**
  *	Заполняет adt массив ф-ями.

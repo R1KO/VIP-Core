@@ -9,7 +9,7 @@ public void OnConfigsExecuted()
 	}
 }
 
-#define CHECK_ACCESS(%0) if (!(GetUserFlagBits(%0) & g_CVAR_iAdminFlag)) \
+#define CHECK_ACCESS(%0) if (%0 && !(GetUserFlagBits(%0) & g_CVAR_iAdminFlag)) \
 						{ \
 							ReplyToCommand(%0, "[VIP] %t", "COMMAND_NO_ACCESS"); \
 							return Plugin_Handled; \

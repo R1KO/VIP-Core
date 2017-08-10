@@ -1,3 +1,65 @@
+# [VIP] Core 3.0 DEV #11
+
+### Изменения:
+- Удален натив `VIP_SetFeatureDefStatus`
+- Добавлен параметр в натив `VIP_RegisterFeature`:
+```
+@param bDefStatus			Значение по-умолчанию (true - Включена, false - Выключена).
+```
+- Исправлена ошибка работы натива `VIP_SetClientFeatureStatus`
+- Исправлена ошибка при отправке rcon команд для работы с вип от имени сервера
+
+# [VIP] Core 3.0 DEV #10
+
+### Изменения:
+- Исправлена ошибка `DataPack operation is out of bounds`
+
+# [VIP] Core 3.0 DEV #9
+
+### Изменения:
+- Исправлены ошибки компиляции
+
+# [VIP] Core 3.0 DEV #8
+
+### Изменения:
+- Добавлен параметр в натив `VIP_SetClientFeatureStatus`:
+```
+@param bCallback			Вызывать ли toggle каллбэк.
+```
+
+# [VIP] Core 3.0 DEV #7
+
+### Изменения:
+- Доработано меню управления VIP-игроками
+- Добавлены форварды:
+```
+forward void VIP_OnFeatureRegistered(const char[] sFeatureName);
+forward void VIP_OnFeatureUnregistered(const char[] sFeatureName);
+```
+- Теперь `VIP_OnVIPClientLoaded` вызывается когда игрок уже полностью был загружен
+- Изменены нативы:
+```
+native void VIP_GetClientID(int iClient);
+// На
+native int VIP_GetClientID(int iClient);
+
+native void VIP_SendClientVIPMenu(int iClient);
+// На
+native void VIP_SendClientVIPMenu(int iClient, bool bSelection = false);
+```
+- Добавлены нативы:
+```
+native VIP_FeatureType VIP_GetFeatureType(const char[] sFeatureName);
+native VIP_ValueType VIP_GetFeatureValueType(const char[] sFeatureName);
+native void VIP_SetFeatureDefStatus(const char[] sFeatureName, bool bStatus);
+native int VIP_FillArrayByFeatures(ArrayList hArray);
+```
+
+# [VIP] Core 3.0 DEV #6
+
+### Изменения:
+- Исправлены ошибки
+
 # [VIP] Core 3.0 DEV #5
 
 ### Изменения:
