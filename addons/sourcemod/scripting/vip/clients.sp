@@ -255,6 +255,7 @@ void Clients_LoadVIPFeaturesPre(int iClient, const char[] sFeatureName = NULL_ST
 public Action Timer_CheckCookies(Handle hTimer, Handle hDP)
 {
 	DataPack hDataPack = view_as<DataPack>(hDP);
+	hDataPack.Reset();
 	int iClient = CID(hDataPack.ReadCell());
 	
 	DebugMessage("Timer_CheckCookies -> UserID: %d, iClient: %d, IsClientVIP: %b,", UserID, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP))
@@ -271,22 +272,13 @@ public Action Timer_CheckCookies(Handle hTimer, Handle hDP)
 		}
 		Clients_LoadVIPFeaturesPre(iClient, sFeatureName);
 	}
-	
+
 	return Plugin_Stop;
 }
 
 void Clients_LoadVIPFeatures(int iClient)
 {
 	DebugMessage("LoadVIPFeatures %N", iClient)
-
-	DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
-	
-	if (!AreClientCookiesCached(iClient))
-	{
-		CreateTimer(0.5, Timer_CheckCookies, UID(iClient), TIMER_FLAG_NO_MAPCHANGE);
-	}
-
-	DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
 
 	int iFeatures = g_hFeaturesArray.Length;
 	DebugMessage("FeaturesArraySize: %d", iFeatures)
