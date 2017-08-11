@@ -1,3 +1,8 @@
+# [VIP] Core 3.0 DEV #12
+
+### Изменения:
+- Исправлена ошибка `Invalid data pack handle 1f4 (error 1)`
+
 # [VIP] Core 3.0 DEV #11
 
 ### Изменения:
