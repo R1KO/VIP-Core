@@ -6,7 +6,7 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION	"3.0 DEV #12"
+#define VIP_VERSION	"3.0 DEV #13"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -40,22 +40,22 @@ void DebugMsg(const char[] sMsg, any ...)
 #define DebugMessage(%0)
 #endif
 
-#include "vip/vars.sp"
-#include "vip/downloads.sp"
-#include "vip/utils.sp"
-#include "vip/features.sp"
-#include "vip/sounds.sp"
-#include "vip/info.sp"
-#include "vip/db.sp"
-#include "vip/initialization.sp"
-#include "vip/cvars.sp"
+#include "vip/Global.sp"
+#include "vip/Downloads.sp"
+#include "vip/UTIL.sp"
+#include "vip/Features.sp"
+#include "vip/Sounds.sp"
+#include "vip/Info.sp"
+#include "vip/Database.sp"
+#include "vip/Configs.sp"
+#include "vip/Cvars.sp"
 #if USE_ADMINMENU 1
-#include "vip/adminmenu.sp"
+#include "vip/AdminMenu.sp"
 #endif
-#include "vip/vipmenu.sp"
-#include "vip/api.sp"
-#include "vip/cmds.sp"
-#include "vip/clients.sp"
+#include "vip/VipMenu.sp"
+#include "vip/API.sp"
+#include "vip/CMD.sp"
+#include "vip/Clients.sp"
 
 public void OnPluginStart()
 {
@@ -73,23 +73,20 @@ public void OnPluginStart()
 
 	ReadConfigs();
 
-	InitVIPMenu();
+	VIPMenu_Setup();
 	#if USE_ADMINMENU 1
-	InitVIPAdminMenu();
+	VIPAdminMenu_Setup();
 	#endif
 
-	CreateCvars();
-	CreateForwards();
+	Cvars_Setup();
+	API_SetupForwards();
 
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_death", Event_PlayerDeath);
 	HookEvent("round_end", Event_RoundEnd, EventHookMode_PostNoCopy);
 	HookEventEx("cs_match_end_restart", Event_MatchEndRestart, EventHookMode_PostNoCopy);
 
-	RegConsoleCmd("sm_refresh_vips",	ReloadVIPPlayers_CMD);
-	RegConsoleCmd("sm_reload_vip_cfg",	ReloadVIPCfg_CMD);
-	RegConsoleCmd("sm_addvip",			AddVIP_CMD);
-	RegConsoleCmd("sm_delvip",			DelVIP_CMD);
+	CMD_Setup();
 
 	g_EngineVersion = GetEngineVersion();
 

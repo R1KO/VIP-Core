@@ -1,5 +1,5 @@
 
-void CreateForwards()
+void API_SetupForwards()
 {
 	// Global Forwards
 	g_hGlobalForward_OnVIPLoaded					= CreateGlobalForward("VIP_OnVIPLoaded", ET_Ignore);
@@ -120,6 +120,7 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] sError, int err_m
 	// Features
 	CreateNative("VIP_RegisterFeature",			Native_RegisterFeature);
 	CreateNative("VIP_UnregisterFeature",		Native_UnregisterFeature);
+	CreateNative("VIP_UnregisterMe",			Native_UnregisterMe);
 	CreateNative("VIP_IsValidFeature",			Native_IsValidFeature);
 	CreateNative("VIP_GetFeatureType",			Native_GetFeatureType);
 	CreateNative("VIP_GetFeatureValueType",		Native_GetFeatureValueType);
@@ -698,19 +699,19 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 		g_hFeaturesArray.PushString(sFeatureName);
 		DebugMessage("PushArrayString -> %i", g_hFeaturesArray.FindString(sFeatureName))
 
-		VIP_FeatureType FType = view_as<VIP_FeatureType>(GetNativeCell(3));
-		DebugMessage("FeatureType -> %i", FType)
+		VIP_FeatureType eType = view_as<VIP_FeatureType>(GetNativeCell(3));
+		DebugMessage("FeatureType -> %i", eType)
 
 		ArrayList hArray = new ArrayList();
 		GLOBAL_TRIE.SetValue(sFeatureName, hArray);
 		
 		hArray.Push(hPlugin);
 		hArray.Push(GetNativeCell(2));
-		hArray.Push(FType);
+		hArray.Push(eType);
 
-		if (FType != HIDE)
+		if (eType != HIDE)
 		{
-			switch (FType)
+			switch (eType)
 			{
 			case TOGGLABLE:
 				{	
@@ -728,9 +729,9 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 			hDataPack.WriteFunction(GetNativeCell(6));
 			hArray.Push(hDataPack);
 
-			if (iNumParams == 7 && FType == TOGGLABLE)
+			if(eType == TOGGLABLE)
 			{
-				hArray.Push(GetNativeCell(7));
+				hArray.Push(iNumParams == 7 ? GetNativeCell(7):NO_ACCESS);
 			}
 
 			AddFeatureToVIPMenu(sFeatureName);
@@ -761,20 +762,18 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 	if (IsValidFeature(sFeatureName))
 	{
 		ArrayList hArray;
-		if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
+		if (GLOBAL_TRIE.GetValue(sFeatureName, hArray) && view_as<Handle>(hArray.Get(FEATURES_PLUGIN)) == hPlugin)
 		{
-			VIP_FeatureType iFeatureType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
-			if (iFeatureType == TOGGLABLE)
+			VIP_FeatureType eType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
+			if (eType == TOGGLABLE)
 			{
 				delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
 			}
 			
-			if (iFeatureType != HIDE)
+			if (eType != HIDE)
 			{
 				DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
 				delete hDataPack;
-				
-				AddFeatureToVIPMenu(sFeatureName);
 			}
 			
 			delete hArray;
@@ -787,9 +786,10 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 				g_hFeaturesArray.Erase(i);
 			}
 			
-			if (iFeatureType != HIDE)
+			if (eType != HIDE)
 			{
-				char sItemInfo[FEATURE_NAME_LENGTH]; int iSize;
+				char sItemInfo[FEATURE_NAME_LENGTH];
+				int iSize;
 				iSize = (g_hVIPMenu).ItemCount;
 				for (i = 0; i < iSize; ++i)
 				{
@@ -801,7 +801,7 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 					}
 				}
 				
-				if ((g_hVIPMenu).ItemCount == 0)
+				if (g_hVIPMenu.ItemCount == 0)
 				{
 					g_hVIPMenu.AddItem("NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
 				}
@@ -826,6 +826,80 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 	else
 	{
 		ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", sFeatureName, sFeatureName);
+	}
+}
+
+public int Native_UnregisterMe(Handle hPlugin, int iNumParams)
+{
+	DebugMessage("FeaturesArraySize: %d", g_hFeaturesArray.Length)
+	if (g_hFeaturesArray.Length > 0)
+	{
+		char sFeatureName[FEATURE_NAME_LENGTH];
+		ArrayList hArray;
+		VIP_FeatureType eType;
+		int i, j;
+
+		for (i = 0; i < g_hFeaturesArray.Length; ++i)
+		{
+			g_hFeaturesArray.GetString(i, SZF(sFeatureName));
+
+			if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
+			{
+				eType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
+				if (eType == TOGGLABLE)
+				{
+					delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
+				}
+				
+				if (eType != HIDE)
+				{
+					delete view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
+				}
+				
+				delete hArray;
+				
+				GLOBAL_TRIE.Remove(sFeatureName);
+				
+				g_hFeaturesArray.Erase(i);
+				--i;
+
+				if (eType != HIDE)
+				{
+					char sItemInfo[FEATURE_NAME_LENGTH];
+					int iSize;
+					iSize = (g_hVIPMenu).ItemCount;
+					for (j = 0; j < iSize; ++j)
+					{
+						g_hVIPMenu.GetItem(j, sItemInfo, sizeof(sItemInfo));
+						if (strcmp(sItemInfo, sFeatureName, true) == 0)
+						{
+							g_hVIPMenu.RemoveItem(j);
+							break;
+						}
+					}
+					
+					if (g_hVIPMenu.ItemCount == 0)
+					{
+						g_hVIPMenu.AddItem("NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
+					}
+				}
+				
+				for (j = 1; j <= MaxClients; ++j)
+				{
+					if (IsClientInGame(j))
+					{
+						if (g_iClientInfo[j] & IS_VIP)
+						{
+							g_hFeatures[j].Remove(sFeatureName);
+							g_hFeatureStatus[j].Remove(sFeatureName);
+						}
+					}
+				}
+			}
+
+			CreateForward_OnFeatureUnregistered(sFeatureName);
+			DebugMessage("Feature \"%s\" unregistered", sFeatureName)
+		}
 	}
 }
 

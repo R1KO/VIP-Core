@@ -1,5 +1,5 @@
 
-void CreateCvars()
+void Cvars_Setup()
 {
 	CreateConVar("sm_vip_core_version", VIP_VERSION, "VIP-CORE VERSION", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_CHEAT|FCVAR_DONTRECORD);
 

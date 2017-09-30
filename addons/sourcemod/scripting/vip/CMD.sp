@@ -1,3 +1,16 @@
+
+void CMD_Setup()
+{
+	RegConsoleCmd("sm_refresh_vips",	ReloadVIPPlayers_CMD);
+	RegConsoleCmd("sm_reload_vip_cfg",	ReloadVIPCfg_CMD);
+	RegConsoleCmd("sm_addvip",			AddVIP_CMD);
+	RegConsoleCmd("sm_delvip",			DelVIP_CMD);
+
+	#if DEBUG_MODE 1
+	RegConsoleCmd("sm_vip_dump_features",	DumpFeatures_CMD);
+	#endif
+}
+
 public void OnConfigsExecuted()
 {
 	static bool bIsRegistered;
@@ -61,7 +74,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 	}
 	
 	char sAuth[64];
-	GetCmdArg(1, sAuth, sizeof(sAuth));
+	GetCmdArg(1, SZF(sAuth));
 
 	int iTarget = FindTarget(iClient, sAuth, true, false);
 	if (iTarget != -1)
@@ -85,7 +98,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 	}
 
 	char sGroup[64];
-	GetCmdArg(3, sGroup, sizeof(sGroup));
+	GetCmdArg(3, SZF(sGroup));
 	int iTime = StringToInt(sGroup);
 	if (iTime < 0)
 	{
@@ -94,7 +107,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 	}
 
 	sGroup[0] = 0;
-	GetCmdArg(2, sGroup, sizeof(sGroup));
+	GetCmdArg(2, SZF(sGroup));
 	if (sGroup[0] && UTIL_CheckValidVIPGroup(sGroup) == false)
 	{
 		ReplyToCommand(iClient, "%t", "VIP_GROUP_DOES_NOT_EXIST");
@@ -168,6 +181,67 @@ public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hQuer
 	}
 }
 
+#if DEBUG_MODE 1
+public Action DumpFeatures_CMD(int iClient, int iArgs)
+{
+	CHECK_ACCESS(iClient)
+	
+	int iFeatures = g_hFeaturesArray.Length;
+	if(iFeatures != 0)
+	{
+		char sBuffer[PLATFORM_MAX_PATH];
+		BuildPath(Path_SM, sBuffer, sizeof(sBuffer), "data/vip/features_dump.txt");
+		File hFile = OpenFile(sBuffer, "w");
+
+		if(hFile != null)
+		{
+			char				sPluginName[64];
+			char				sPluginPath[PLATFORM_MAX_PATH];
+			char				sPluginVersion[32];
+			char				sFeatureName[FEATURE_NAME_LENGTH];
+			char				sFeatureType[32];
+			char				sFeatureValType[32];
+			ArrayList			hArray;
+			Handle				hPlugin;
+
+			for(int i = 0; i < iFeatures; ++i)
+			{
+				g_hFeaturesArray.GetString(i, sFeatureName, sizeof(sFeatureName));
+				if(GLOBAL_TRIE.GetValue(sFeatureName, hArray))
+				{
+					hPlugin = view_as<Handle>(hArray.Get(FEATURES_PLUGIN));
+					GetPluginInfo(hPlugin, PlInfo_Name, SZF(sPluginName));
+					GetPluginInfo(hPlugin, PlInfo_Version, SZF(sPluginVersion));
+					GetPluginFilename(hPlugin, SZF(sPluginPath));
+					
+					switch(view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)))
+					{
+						case TOGGLABLE:		strcopy(SZF(sFeatureType), "TOGGLABLE");
+						case SELECTABLE:	strcopy(SZF(sFeatureType), "SELECTABLE");
+						case HIDE:			strcopy(SZF(sFeatureType), "HIDE");
+					}
+					
+					switch(view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)))
+					{
+						case VIP_NULL:		strcopy(SZF(sFeatureValType), "VIP_NULL");
+						case INT:			strcopy(SZF(sFeatureValType), "INT");
+						case FLOAT:			strcopy(SZF(sFeatureValType), "FLOAT");
+						case BOOL:			strcopy(SZF(sFeatureValType), "BOOL");
+						case STRING:		strcopy(SZF(sFeatureValType), "STRING");
+					}
+					
+					hFile.WriteLine("%d. %-32s %-16s %-16s %-64s %-32s %-256s", i, sFeatureName, sFeatureType, sFeatureValType, sPluginName, sPluginVersion, sPluginPath);
+				}
+			}
+		}
+
+		delete hFile;
+	}
+	
+	return Plugin_Handled;
+}
+#endif
+
 public Action VIPMenu_CMD(int iClient, int iArgs)
 {
 	if (iClient)
@@ -190,4 +264,4 @@ public Action VIPMenu_CMD(int iClient, int iArgs)
 		}
 	}
 	return Plugin_Handled;
-} 
+}
