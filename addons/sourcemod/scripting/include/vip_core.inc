@@ -351,7 +351,7 @@ native void VIP_RegisterFeature(const char[]			sFeatureName,
 								ItemSelectCallback		Item_select_callback	= INVALID_FUNCTION,
 								ItemDisplayCallback		Item_display_callback	= INVALID_FUNCTION,
 								ItemDrawCallback		Item_draw_callback		= INVALID_FUNCTION,
-								VIP_FeatureType			eDefStatus				= NO_ACCESS);
+								VIP_ToggleState			eDefStatus				= NO_ACCESS);
 
 /**
  *	Удаляет VIP-функцию.
