@@ -346,12 +346,12 @@ native bool VIP_IsVIPLoaded();
 */
 
 native void VIP_RegisterFeature(const char[]			sFeatureName,
-								VIP_ValueType			ValType					= VIP_NULL,
-								VIP_FeatureType			FType					= TOGGLABLE,
+								VIP_ValueType			eValType				= VIP_NULL,
+								VIP_FeatureType			eType					= TOGGLABLE,
 								ItemSelectCallback		Item_select_callback	= INVALID_FUNCTION,
 								ItemDisplayCallback		Item_display_callback	= INVALID_FUNCTION,
 								ItemDrawCallback		Item_draw_callback		= INVALID_FUNCTION,
-								bool					bDefStatus				= false);
+								VIP_FeatureType			eDefStatus				= NO_ACCESS);
 
 /**
  *	Удаляет VIP-функцию.
@@ -361,6 +361,15 @@ native void VIP_RegisterFeature(const char[]			sFeatureName,
  * @noreturn
 */
 native void VIP_UnregisterFeature(const char[] sFeatureName);
+
+/**
+ *	Удаляет все VIP-функции зарегистрированные плагином (вызывать в OnPluginEnd()).
+ *	-
+ * @noparams
+ *	-
+ * @noreturn
+*/
+native void VIP_UnregisterMe();
 
 /**
  *	Проверяет существование функции.

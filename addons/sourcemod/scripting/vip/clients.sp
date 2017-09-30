@@ -258,7 +258,7 @@ public Action Timer_CheckCookies(Handle hTimer, Handle hDP)
 	hDataPack.Reset();
 	int iClient = CID(hDataPack.ReadCell());
 	
-	DebugMessage("Timer_CheckCookies -> UserID: %d, iClient: %d, IsClientVIP: %b,", UserID, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP))
+	DebugMessage("Timer_CheckCookies -> iClient: %N (%d), IsClientVIP: %b,", iClient, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP))
 	if (iClient && g_iClientInfo[iClient] & IS_VIP)
 	{
 		char sFeatureName[FEATURE_NAME_LENGTH];
@@ -330,11 +330,11 @@ void Clients_LoadFeature(int iClient, const char[] sFeatureName)
 	static ArrayList hArray;
 	if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
 	{
-		DebugMessage("LoadClientFeature: %d - %s", i, sFeatureName)
+		DebugMessage("LoadClientFeature: %s", sFeatureName)
 
 		if (GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), sFeatureName))
 		{
-			static VIP_ToggleState	Status;
+			static VIP_ToggleState	eStatus;
 			DebugMessage("GetValue: == true")
 			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 			{
@@ -342,29 +342,28 @@ void Clients_LoadFeature(int iClient, const char[] sFeatureName)
 				static Handle			hCookie;
 				hCookie = view_as<Handle>(hArray.Get(FEATURES_COOKIE));
 				GetClientCookie(iClient, hCookie, SZF(sBuffer));
-				Status = view_as<VIP_ToggleState>(StringToInt(sBuffer));
+				eStatus = view_as<VIP_ToggleState>(StringToInt(sBuffer));
 				DebugMessage("GetFeatureCookie: '%s'", sBuffer)
-				if (sBuffer[0] == '\0' || (view_as<int>(Status) > 2 || view_as<int>(Status) < 0))
+				if (sBuffer[0] == '\0' || (view_as<int>(eStatus) > 2 || view_as<int>(eStatus) < 0))
 				{
-					if(hArray.Length == 6)
+					switch(hArray.Get(FEATURES_DEF_STATUS))
 					{
-						Status = hArray.Get(FEATURES_DEF_STATUS) ? ENABLED:DISABLED;
+						case NO_ACCESS:		eStatus = g_CVAR_bDefaultStatus ? ENABLED:DISABLED;
+						case ENABLED:		eStatus = ENABLED;
+						case DISABLED:		eStatus = DISABLED;
 					}
-					else
-					{
-						Status = g_CVAR_bDefaultStatus ? ENABLED:DISABLED;
-					}
-					IntToString(view_as<int>(Status), SZF(sBuffer));
+
+					IntToString(view_as<int>(eStatus), SZF(sBuffer));
 					SetClientCookie(iClient, hCookie, sBuffer);
-					//	Features_SaveStatus(iClient, sFeatureName, hCookie, Status);
+					//	Features_SaveStatus(iClient, sFeatureName, hCookie, eStatus);
 				}
 			}
 			else
 			{
-				Status = ENABLED;
+				eStatus = ENABLED;
 			}
 
-			Features_SetStatus(iClient, sFeatureName, Status);
+			Features_SetStatus(iClient, sFeatureName, eStatus);
 			//	Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function:hArray.Get(FEATURES_ITEM_SELECT), iClient, sFeatureName, NO_ACCESS, ENABLED);
 		}
 	}

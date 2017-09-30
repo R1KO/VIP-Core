@@ -78,7 +78,7 @@ int IsClientOnline(int ID)
 }
 
 // ************************ ADMIN_MENU ************************
-void InitVIPAdminMenu()
+void VIPAdminMenu_Setup()
 {
 	g_hVIPAdminMenu = new Menu(Handler_VIPAdminMenu, MenuAction_Display | MenuAction_Select | MenuAction_DisplayItem);
 
@@ -206,8 +206,8 @@ public void Handler_MenuVIPAdmin(TopMenu hMenu, TopMenuAction action, TopMenuObj
 {
 	switch (action)
 	{
-		case TopMenuAction_DisplayOption:FormatEx(sBuffer, maxlength, "%T", "VIP_ADMIN_MENU_TITLE", iClient);
-		case TopMenuAction_DisplayTitle:FormatEx(sBuffer, maxlength, "%T: \n ", "VIP_ADMIN_MENU_TITLE", iClient);
+		case TopMenuAction_DisplayOption:	FormatEx(sBuffer, maxlength, "%T", "VIP_ADMIN_MENU_TITLE", iClient);
+		case TopMenuAction_DisplayTitle:	FormatEx(sBuffer, maxlength, "%T: \n ", "VIP_ADMIN_MENU_TITLE", iClient);
 	}
 }
 
@@ -216,7 +216,7 @@ public void Handler_MenuVIPAdd(TopMenu hMenu, TopMenuAction action, TopMenuObjec
 {
 	switch (action)
 	{
-		case TopMenuAction_DisplayOption:FormatEx(sBuffer, maxlength, "%T", "MENU_ADD_VIP", iClient);
+		case TopMenuAction_DisplayOption:	FormatEx(sBuffer, maxlength, "%T", "MENU_ADD_VIP", iClient);
 		case TopMenuAction_SelectOption:
 		{
 			InitiateDataMap(iClient);
@@ -233,7 +233,7 @@ public void Handler_MenuVIPList(TopMenu hMenu, TopMenuAction action, TopMenuObje
 {
 	switch (action)
 	{
-		case TopMenuAction_DisplayOption:FormatEx(sBuffer, maxlength, "%T", "MENU_LIST_VIP", iClient);
+		case TopMenuAction_DisplayOption:	FormatEx(sBuffer, maxlength, "%T", "MENU_LIST_VIP", iClient);
 		case TopMenuAction_SelectOption:
 		{
 			InitiateDataMap(iClient);
@@ -248,7 +248,7 @@ public void Handler_MenuVIPReloadPlayers(TopMenu hMenu, TopMenuAction action, To
 {
 	switch (action)
 	{
-		case TopMenuAction_DisplayOption:FormatEx(sBuffer, maxlength, "%T", "ADMIN_MENU_RELOAD_VIP_PLAYES", iClient);
+		case TopMenuAction_DisplayOption:	FormatEx(sBuffer, maxlength, "%T", "ADMIN_MENU_RELOAD_VIP_PLAYES", iClient);
 		case TopMenuAction_SelectOption:
 		{
 			ReloadVIPPlayers_CMD(iClient, 0);
@@ -262,7 +262,7 @@ public void Handler_MenuVIPReloadSettings(TopMenu hMenu, TopMenuAction action, T
 {
 	switch (action)
 	{
-		case TopMenuAction_DisplayOption:FormatEx(sBuffer, maxlength, "%T", "ADMIN_MENU_RELOAD_VIP_CFG", iClient);
+		case TopMenuAction_DisplayOption:	FormatEx(sBuffer, maxlength, "%T", "ADMIN_MENU_RELOAD_VIP_CFG", iClient);
 		case TopMenuAction_SelectOption:
 		{
 			ReloadVIPCfg_CMD(iClient, 0);
@@ -628,7 +628,7 @@ void ReductionMenu(Menu &hMenu, int iNum)
 	}
 }
 
-#include "vip/adminmenu/add_vip.sp"
-#include "vip/adminmenu/list_vip.sp"
-#include "vip/adminmenu/edit_vip.sp"
-#include "vip/adminmenu/del_vip.sp"
+#include "vip/AdminMenu/Add.sp"
+#include "vip/AdminMenu/List.sp"
+#include "vip/AdminMenu/Edit.sp"
+#include "vip/AdminMenu/Del.sp"

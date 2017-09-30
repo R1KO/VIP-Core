@@ -1,3 +1,10 @@
+# [VIP] Core 3.0 DEV #13
+
+### Изменения:
+- Исправлена логическая ошибка в работе `VIP_UnregisterFeature` когда добавлялись лишние пункты в VIP-меню
+- Изменен натив `VIP_RegisterFeature` для устранения конфликта с `sm_vip_features_default_status`
+- Добавлен натив `VIP_UnregisterMe()`
+
 # [VIP] Core 3.0 DEV #12
 
 ### Изменения:

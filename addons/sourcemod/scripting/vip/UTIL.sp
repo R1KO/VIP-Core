@@ -96,7 +96,7 @@ void UTIL_GetTimeFromStamp(char[] sBuffer, int maxlength, int iTimeStamp, int iC
 		}
 		else
 		{
-			FormatEx(sBuffer, maxlength, "%d%T", years, "y.");
+			FormatEx(sBuffer, maxlength, "%d%T", years, "y.", iClient);
 		}
 		return;
 	}

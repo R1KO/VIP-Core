@@ -61,9 +61,9 @@ void ReadConfigs()
 			g_hSortArray = null;
 		}
 	}
-	
+
 	UTIL_CloseHandleEx(g_hGroups);
-	
+
 	g_hGroups = CreateConfig("data/vip/cfg/groups.ini", "VIP_GROUPS");
 	g_hInfo = CreateConfig("data/vip/cfg/info.ini", "VIP_INFO");
 }
