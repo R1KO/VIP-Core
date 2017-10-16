@@ -1,4 +1,15 @@
 
+static Handle g_hGlobalForward_OnVIPLoaded;
+static Handle g_hGlobalForward_OnClientLoaded;
+static Handle g_hGlobalForward_OnVIPClientLoaded;
+static Handle g_hGlobalForward_OnVIPClientAdded;
+static Handle g_hGlobalForward_OnVIPClientRemoved;
+static Handle g_hGlobalForward_OnPlayerSpawn;
+static Handle g_hGlobalForward_OnShowClientInfo;
+static Handle g_hGlobalForward_OnFeatureToggle;
+static Handle g_hGlobalForward_OnFeatureRegistered;
+static Handle g_hGlobalForward_OnFeatureUnregistered;
+
 void API_SetupForwards()
 {
 	// Global Forwards
@@ -6,8 +17,9 @@ void API_SetupForwards()
 	g_hGlobalForward_OnClientLoaded					= CreateGlobalForward("VIP_OnClientLoaded", ET_Ignore, Param_Cell, Param_Cell);
 	g_hGlobalForward_OnVIPClientLoaded				= CreateGlobalForward("VIP_OnVIPClientLoaded", ET_Ignore, Param_Cell);
 	g_hGlobalForward_OnVIPClientAdded				= CreateGlobalForward("VIP_OnVIPClientAdded", ET_Ignore, Param_Cell, Param_Cell);
-	g_hGlobalForward_OnVIPClientRemoved				= CreateGlobalForward("VIP_OnVIPClientRemoved", ET_Ignore, Param_Cell, Param_String);
+	g_hGlobalForward_OnVIPClientRemoved				= CreateGlobalForward("VIP_OnVIPClientRemoved", ET_Ignore, Param_Cell, Param_String, Param_Cell);
 	g_hGlobalForward_OnPlayerSpawn					= CreateGlobalForward("VIP_OnPlayerSpawn", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+	g_hGlobalForward_OnShowClientInfo				= CreateGlobalForward("VIP_OnShowClientInfo", ET_Hook, Param_Cell, Param_String, Param_String, Param_Cell);
 	g_hGlobalForward_OnFeatureToggle				= CreateGlobalForward("VIP_OnFeatureToggle", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
 	g_hGlobalForward_OnFeatureRegistered			= CreateGlobalForward("VIP_OnFeatureRegistered", ET_Ignore, Param_String);
 	g_hGlobalForward_OnFeatureUnregistered			= CreateGlobalForward("VIP_OnFeatureUnregistered", ET_Ignore, Param_String);
@@ -35,19 +47,20 @@ void CreateForward_OnVIPClientLoaded(int iClient)
 	Call_Finish();
 }
 
-void CreateForward_OnVIPClientAdded(int iAdmin, int iClient)
+void CreateForward_OnVIPClientAdded(int iClient, int iAdmin = 0)
 {
 	Call_StartForward(g_hGlobalForward_OnVIPClientAdded);
-	Call_PushCell(iAdmin);
 	Call_PushCell(iClient);
+	Call_PushCell(iAdmin);
 	Call_Finish();
 }
 
-void CreateForward_OnVIPClientRemoved(int iClient, const char[] sReason)
+void CreateForward_OnVIPClientRemoved(int iClient, const char[] sReason, int iAdmin = 0)
 {
 	Call_StartForward(g_hGlobalForward_OnVIPClientRemoved);
 	Call_PushCell(iClient);
 	Call_PushString(sReason);
+	Call_PushCell(iAdmin);
 	Call_Finish();
 }
 
@@ -58,6 +71,19 @@ void CreateForward_OnPlayerSpawn(int iClient, int iTeam)
 	Call_PushCell(iTeam);
 	Call_PushCell(g_iClientInfo[iClient] & IS_VIP);
 	Call_Finish();
+}
+
+bool CreateForward_OnShowClientInfo(int iClient, const char[] szEvent, const char[] szType, KeyValues hKeyValues)
+{
+	bool bResult = true;
+	Call_StartForward(g_hGlobalForward_OnShowClientInfo);
+	Call_PushCell(iClient);
+	Call_PushString(szEvent);
+	Call_PushString(szType);
+	Call_PushCell(hKeyValues);
+	Call_Finish(bResult);
+
+	return bResult;
 }
 
 VIP_ToggleState CreateForward_OnFeatureToggle(int iClient, const char[] sFeatureName, VIP_ToggleState OldStatus, VIP_ToggleState NewStatus)
@@ -560,6 +586,7 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(2);
 	if (CheckValidClient(iClient, false))
 	{
+		int iAdmin = GetNativeCell(1);
 		bool bToDB = GetNativeCell(5);
 		if (g_iClientInfo[iClient] & IS_VIP)
 		{
@@ -569,7 +596,7 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 			{
 				ResetClient(iClient);
 				
-				CreateForward_OnVIPClientRemoved(iClient, "Removed for VIP-status change");
+				CreateForward_OnVIPClientRemoved(iClient, "Removed for VIP-status change", iAdmin);
 			}
 			else
 			{
@@ -586,7 +613,6 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 			{
 				if (bToDB)
 				{
-					int iAdmin = GetNativeCell(1);
 					UTIL_ADD_VIP_PLAYER(iAdmin, iClient, _, iTime, sGroup);
 				}
 				else
@@ -634,13 +660,25 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 	
 	return 0;
 }
-
+/*
 public int Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
 {
-	int iClient = GetNativeCell(1);
+	int index = iNumParams-2;
+	int iClient = GetNativeCell(index);
 	if (CheckValidClient(iClient))
 	{
-		if (view_as<bool>(GetNativeCell(2)) == true)
+		int iAdmin = 0;
+
+		if(iNumParams == 4)
+		{
+			iAdmin = GetNativeCell(1);
+			if (iAdmin && CheckValidClient(iAdmin, false))
+			{
+				return false;
+			}
+		}
+
+		if (GetNativeCell(index+1))
 		{
 			int iClientID;
 			if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
@@ -653,16 +691,52 @@ public int Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
 
 		ResetClient(iClient);
 
-		CreateForward_OnVIPClientRemoved(iClient, "Removed by native");
+		CreateForward_OnVIPClientRemoved(iClient, "Removed by native", iAdmin);
 
-		if (view_as<bool>(GetNativeCell(3)))
+		if (view_as<bool>(GetNativeCell(index+12)))
 		{
 			DisplayClientInfo(iClient, "expired_info");
 		}
-		
+
 		return true;
 	}
-	
+
+	return false;
+}
+*/
+
+public int Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
+{
+	int iClient = GetNativeCell(2);
+	if (CheckValidClient(iClient))
+	{
+		int iAdmin = GetNativeCell(1);
+		if (!iAdmin || CheckValidClient(iAdmin, false))
+		{
+			if (GetNativeCell(3))
+			{
+				int iClientID;
+				if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
+				{
+					char sName[MAX_NAME_LENGTH];
+					GetClientName(iClient, SZF(sName));
+					DB_RemoveClientFromID(0, iClientID, true, sName);
+				}
+			}
+
+			ResetClient(iClient);
+
+			CreateForward_OnVIPClientRemoved(iClient, "Removed by native", iAdmin);
+
+			if (view_as<bool>(GetNativeCell(4)))
+			{
+				DisplayClientInfo(iClient, "expired_info");
+			}
+
+			return true;
+		}
+	}
+
 	return false;
 }
 

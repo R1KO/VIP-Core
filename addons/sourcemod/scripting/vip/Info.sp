@@ -1,7 +1,7 @@
 
-void DisplayClientInfo(int iClient, const char[] sKey)
+void DisplayClientInfo(int iClient, const char[] szEvent)
 {
-	DebugMessage("DisplayClientInfo: Client: %N (%i) -> '%s'", iClient, iClient, sKey)
+	DebugMessage("DisplayClientInfo: Client: %N (%i) -> '%s'", iClient, iClient, szEvent)
 	
 	static char sServLang[4];
 	if (!sServLang[0])
@@ -11,27 +11,42 @@ void DisplayClientInfo(int iClient, const char[] sKey)
 	DebugMessage("sServLang = '%s'", sServLang)
 	
 	g_hInfo.Rewind();
-	if (g_hInfo.JumpToKey(sKey))
+	if (g_hInfo.JumpToKey(szEvent))
 	{
-		DebugMessage("KvJumpToKey: %s", sKey)
+		DebugMessage("KvJumpToKey: %s", szEvent)
 		char sClientLang[4];
 		GetLanguageInfo(GetClientLanguage(iClient), SZF(sClientLang));
 		DebugMessage("sClientLang = '%s'", sClientLang)
 		char sBuffer[1028];
-		DisplayInfo(iClient, sKey, "chat", SZF(sBuffer), sClientLang, sServLang);
-		DisplayInfo(iClient, sKey, "menu", SZF(sBuffer), sClientLang, sServLang);
-		DisplayInfo(iClient, sKey, "url", SZF(sBuffer), sClientLang, sServLang);
+		DisplayInfo(iClient, szEvent, "chat", SZF(sBuffer), sClientLang, sServLang);
+		DisplayInfo(iClient, szEvent, "menu", SZF(sBuffer), sClientLang, sServLang);
+		DisplayInfo(iClient, szEvent, "url", SZF(sBuffer), sClientLang, sServLang);
 	}
 }
 
-void DisplayInfo(int iClient, const char[] sKey, const char[] sKey2, char[] sBuffer, int iBufLen, char[] sClientLang, char[] sServLang)
+void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] sBuffer, int iBufLen, char[] sClientLang, char[] sServLang)
 {
-	DebugMessage("DisplayInfo: Client: %N (%i) -> '%s', '%s', '%s', '%s'", iClient, iClient, sKey, sKey2, sClientLang, sServLang)
+	DebugMessage("DisplayInfo: Client: %N (%i) -> '%s', '%s', '%s', '%s'", iClient, iClient, szEvent, szType, sClientLang, sServLang)
 	g_hInfo.Rewind();
-	if (g_hInfo.JumpToKey(sKey) && g_hInfo.JumpToKey(sKey2))
+	if (g_hInfo.JumpToKey(szEvent) && g_hInfo.JumpToKey(szType))
 	{
-		DebugMessage("KvJumpToKey: %s", sKey2)
-		switch (sKey2[0])
+		KeyValues hKeyValues = new KeyValues(szType);
+		KvCopySubkeys(g_hInfo, hKeyValues);
+		switch(CreateForward_OnShowClientInfo(iClient, szEvent, szType, hKeyValues))
+		{
+			case Plugin_Stop, Plugin_Handled:
+			{
+				return;
+			}
+			case Plugin_Continue:
+			{
+				delete hKeyValues;
+				hKeyValues = g_hInfo;
+			}
+		}
+
+		DebugMessage("KvJumpToKey: %s", szType)
+		switch (szType[0])
 		{
 			case 'c':
 			{
@@ -40,9 +55,9 @@ void DisplayInfo(int iClient, const char[] sKey, const char[] sKey2, char[] sBuf
 				{
 					DebugMessage("KvGetLangString: (%s, %s) = '%s'", sClientLang, sServLang, sBuffer)
 					ReplaceString(sBuffer, iBufLen, "\\n", " \n");
-					if (sKey[0] == 'c')
+					if (szEvent[0] == 'c')
 					{
-						ReplaceValues(iClient, sBuffer, iBufLen, (sKey[13] == 't'));
+						ReplaceValues(iClient, sBuffer, iBufLen, (szEvent[13] == 't'));
 					}
 					VIP_PrintToChatClient(iClient, sBuffer);
 				}
@@ -58,6 +73,10 @@ void DisplayInfo(int iClient, const char[] sKey, const char[] sKey2, char[] sBuf
 					{
 						if (!g_hInfo.GotoFirstSubKey())
 						{
+							if(hKeyValues != g_hInfo)
+							{
+								delete hKeyValues;
+							}
 							return;
 						}
 					}
@@ -80,9 +99,9 @@ void DisplayInfo(int iClient, const char[] sKey, const char[] sKey2, char[] sBuf
 								continue;
 							}
 							
-							if (sKey[0] == 'c')
+							if (szEvent[0] == 'c')
 							{
-								ReplaceValues(iClient, sBuffer, iBufLen, (sKey[13] == 't'));
+								ReplaceValues(iClient, sBuffer, iBufLen, (szEvent[13] == 't'));
 							}
 							hPanel.DrawText(sBuffer);
 						}
@@ -112,6 +131,11 @@ void DisplayInfo(int iClient, const char[] sKey, const char[] sKey2, char[] sBuf
 					ShowMOTDPanel(iClient, "VIP_INFO", sBuffer, MOTDPANEL_TYPE_URL);
 				}
 			}
+		}
+		
+		if(hKeyValues != g_hInfo)
+		{
+			delete hKeyValues;
 		}
 	}
 }

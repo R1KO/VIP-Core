@@ -103,16 +103,6 @@ bool		g_CVAR_bHideNoAccessItems;
 bool		g_CVAR_bDefaultStatus;
 bool		g_CVAR_bLogsEnable;
 
-Handle		g_hGlobalForward_OnVIPLoaded;
-Handle		g_hGlobalForward_OnClientLoaded;
-Handle		g_hGlobalForward_OnVIPClientLoaded;
-Handle		g_hGlobalForward_OnVIPClientAdded;
-Handle		g_hGlobalForward_OnVIPClientRemoved;
-Handle		g_hGlobalForward_OnPlayerSpawn;
-Handle		g_hGlobalForward_OnFeatureToggle;
-Handle		g_hGlobalForward_OnFeatureRegistered;
-Handle		g_hGlobalForward_OnFeatureUnregistered;
-
 EngineVersion	g_EngineVersion;
 
 #if USE_ADMINMENU 1

@@ -398,7 +398,7 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 		if (iTarget)
 		{
 			Clients_CheckVipAccess(iTarget, true);
-			CreateForward_OnVIPClientAdded(iClient, iTarget);
+			CreateForward_OnVIPClientAdded(iTarget, iClient);
 		}
 		
 		if (iClient)

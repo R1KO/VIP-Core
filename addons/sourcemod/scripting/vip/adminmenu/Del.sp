@@ -53,7 +53,7 @@ public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iC
 						if (iTarget)
 						{
 							ResetClient(iTarget);
-							CreateForward_OnVIPClientRemoved(iTarget, "Removed by Admin");
+							CreateForward_OnVIPClientRemoved(iTarget, "Removed by Admin", iClient);
 							DisplayClientInfo(iTarget, "expired_info");
 						}
 					}
