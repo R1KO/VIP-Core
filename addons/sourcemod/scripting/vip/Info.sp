@@ -1,32 +1,40 @@
+#if FIX_CSGO_MOTD 1
+
+#define DOMAIN_1	"kruzefag"
+#define DOMAIN_2	"crazyhackgut"
+
+#define FORMAT_URL	"https://%s.ru/valve/csgo_hiddenmotd/%s"
+
+bool	g_bUsedFirst[MAXPLAYERS+1];
+#endif
 
 void DisplayClientInfo(int iClient, const char[] szEvent)
 {
 	DebugMessage("DisplayClientInfo: Client: %N (%i) -> '%s'", iClient, iClient, szEvent)
 	
-	static char sServLang[4];
-	if (!sServLang[0])
+	static char szServLang[4];
+	if (!szServLang[0])
 	{
-		GetLanguageInfo(GetServerLanguage(), SZF(sServLang));
+		GetLanguageInfo(GetServerLanguage(), SZF(szServLang));
 	}
-	DebugMessage("sServLang = '%s'", sServLang)
+	DebugMessage("szServLang = '%s'", szServLang)
 	
 	g_hInfo.Rewind();
 	if (g_hInfo.JumpToKey(szEvent))
 	{
 		DebugMessage("KvJumpToKey: %s", szEvent)
-		char sClientLang[4];
-		GetLanguageInfo(GetClientLanguage(iClient), SZF(sClientLang));
-		DebugMessage("sClientLang = '%s'", sClientLang)
-		char sBuffer[1028];
-		DisplayInfo(iClient, szEvent, "chat", SZF(sBuffer), sClientLang, sServLang);
-		DisplayInfo(iClient, szEvent, "menu", SZF(sBuffer), sClientLang, sServLang);
-		DisplayInfo(iClient, szEvent, "url", SZF(sBuffer), sClientLang, sServLang);
+		static char szClientLang[4], szBuffer[1028];
+		GetLanguageInfo(GetClientLanguage(iClient), SZF(szClientLang));
+		DebugMessage("szClientLang = '%s'", szClientLang)
+		DisplayInfo(iClient, szEvent, "chat", SZF(szBuffer), szClientLang, szServLang);
+		DisplayInfo(iClient, szEvent, "menu", SZF(szBuffer), szClientLang, szServLang);
+		DisplayInfo(iClient, szEvent, "url", SZF(szBuffer), szClientLang, szServLang);
 	}
 }
 
-void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] sBuffer, int iBufLen, char[] sClientLang, char[] sServLang)
+void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] szBuffer, int iBufLen, char[] szClientLang, char[] szServLang)
 {
-	DebugMessage("DisplayInfo: Client: %N (%i) -> '%s', '%s', '%s', '%s'", iClient, iClient, szEvent, szType, sClientLang, sServLang)
+	DebugMessage("DisplayInfo: Client: %N (%i) -> '%s', '%s', '%s', '%s'", iClient, iClient, szEvent, szType, szClientLang, szServLang)
 	g_hInfo.Rewind();
 	if (g_hInfo.JumpToKey(szEvent) && g_hInfo.JumpToKey(szType))
 	{
@@ -51,15 +59,15 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 			case 'c':
 			{
 				DebugMessage("case 'c'")
-				if (KvGetLangString(sBuffer, iBufLen, sClientLang, sServLang))
+				if (KvGetLangString(szBuffer, iBufLen, szClientLang, szServLang))
 				{
-					DebugMessage("KvGetLangString: (%s, %s) = '%s'", sClientLang, sServLang, sBuffer)
-					ReplaceString(sBuffer, iBufLen, "\\n", " \n");
+					DebugMessage("KvGetLangString: (%s, %s) = '%s'", szClientLang, szServLang, szBuffer)
+					ReplaceString(szBuffer, iBufLen, "\\n", " \n");
 					if (szEvent[0] == 'c')
 					{
-						ReplaceValues(iClient, sBuffer, iBufLen, (szEvent[13] == 't'));
+						ReplaceValues(iClient, szBuffer, iBufLen, (szEvent[13] == 't'));
 					}
-					VIP_PrintToChatClient(iClient, sBuffer);
+					VIP_PrintToChatClient(iClient, szBuffer);
 				}
 			}
 			case 'm':
@@ -67,9 +75,9 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 				DebugMessage("case 'm'")
 				
 				int iTime = g_hInfo.GetNum("time", 0);
-				if (!g_hInfo.JumpToKey(sClientLang))
+				if (!g_hInfo.JumpToKey(szClientLang))
 				{
-					if (!g_hInfo.JumpToKey(sServLang))
+					if (!g_hInfo.JumpToKey(szServLang))
 					{
 						if (!g_hInfo.GotoFirstSubKey())
 						{
@@ -82,18 +90,18 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 					}
 				}
 				
-				DebugMessage("KvJumpToKey: (%s|%s)", sClientLang, sServLang)
+				DebugMessage("KvJumpToKey: (%s|%s)", szClientLang, szServLang)
 				if (g_hInfo.GotoFirstSubKey(false))
 				{
 					DebugMessage("KvGotoFirstSubKey")
 					Panel hPanel = new Panel();
 					do
 					{
-						g_hInfo.GetString(NULL_STRING, sBuffer, 128);
-						DebugMessage("KvGetString = '%s'", sBuffer)
-						if (sBuffer[0])
+						g_hInfo.GetString(NULL_STRING, szBuffer, 128);
+						DebugMessage("KvGetString = '%s'", szBuffer)
+						if (szBuffer[0])
 						{
-							if (strcmp(sBuffer, "SPACER") == 0)
+							if (strcmp(szBuffer, "SPACER") == 0)
 							{
 								hPanel.DrawText(" \n");
 								continue;
@@ -101,9 +109,9 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 							
 							if (szEvent[0] == 'c')
 							{
-								ReplaceValues(iClient, sBuffer, iBufLen, (szEvent[13] == 't'));
+								ReplaceValues(iClient, szBuffer, iBufLen, (szEvent[13] == 't'));
 							}
-							hPanel.DrawText(sBuffer);
+							hPanel.DrawText(szBuffer);
 						}
 					} while (g_hInfo.GotoNextKey(false));
 					
@@ -120,15 +128,32 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 			case 'u':
 			{
 				DebugMessage("case 'u'")
-				if (KvGetLangString(sBuffer, iBufLen, sClientLang, sServLang))
+				if (KvGetLangString(szBuffer, iBufLen, szClientLang, szServLang))
 				{
-					DebugMessage("KvGetLangString: (%s, %s) = '%s'", sClientLang, sServLang, sBuffer)
-					if (strncmp(sBuffer, "http://", 7, true) != 0)
+					DebugMessage("KvGetLangString: (%s, %s) = '%s'", szClientLang, szServLang, szBuffer)
+					if (strncmp(szBuffer, "http://", 7, true) != 0)
 					{
-						Format(sBuffer, 256, "http://%s", sBuffer);
+						Format(szBuffer, 256, "http://%s", szBuffer);
 					}
 					
-					ShowMOTDPanel(iClient, "VIP_INFO", sBuffer, MOTDPANEL_TYPE_URL);
+					ShowMOTDPanel(iClient, "VIP_INFO", szBuffer, MOTDPANEL_TYPE_URL);
+					
+					#if FIX_CSGO_MOTD 1
+					if (g_EngineVersion == Engine_CSGO)
+					{
+						char szPreparedURL[256];
+						EncodeBase64(SZF(szPreparedURL), szBuffer);
+						Format(szBuffer, iBufLen, FORMAT_URL, g_bUsedFirst[iClient] ? DOMAIN_1 : DOMAIN_2, szPreparedURL);
+						g_bUsedFirst[iClient] = !g_bUsedFirst[iClient];
+					}
+					#endif
+					
+					KeyValues hVGUIKv = new KeyValues("data");
+					hVGUIKv.SetString("title", "VIP_INFO");
+					hVGUIKv.SetString("type", "2");
+					hVGUIKv.SetString("msg", szBuffer);
+					ShowVGUIPanel(iClient, "info", hVGUIKv);
+					delete hVGUIKv;
 				}
 			}
 		}
@@ -140,16 +165,16 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 	}
 }
 
-bool KvGetLangString(char[] sBuffer, int iBufLen, char[] sClientLang, char[] sServLang)
+bool KvGetLangString(char[] szBuffer, int iBufLen, char[] szClientLang, char[] szServLang)
 {
-	DebugMessage("KvGetLangString: '%s', '%s'", sClientLang, sServLang)
-	g_hInfo.GetString(sClientLang, sBuffer, iBufLen);
-	DebugMessage("KvGetString (%s) = '%s'", sClientLang, sBuffer)
-	if (!sBuffer[0])
+	DebugMessage("KvGetLangString: '%s', '%s'", szClientLang, szServLang)
+	g_hInfo.GetString(szClientLang, szBuffer, iBufLen);
+	DebugMessage("KvGetString (%s) = '%s'", szClientLang, szBuffer)
+	if (!szBuffer[0])
 	{
-		g_hInfo.GetString(sServLang, sBuffer, iBufLen);
-		DebugMessage("KvGetString (%s) = '%s'", sServLang, sBuffer)
-		if (!sBuffer[0])
+		g_hInfo.GetString(szServLang, szBuffer, iBufLen);
+		DebugMessage("KvGetString (%s) = '%s'", szServLang, szBuffer)
+		if (!szBuffer[0])
 		{
 			return false;
 		}
@@ -157,13 +182,13 @@ bool KvGetLangString(char[] sBuffer, int iBufLen, char[] sClientLang, char[] sSe
 	return true;
 }
 
-void ReplaceValues(int iClient, char[] sBuffer, int iBufLen, bool bExt)
+void ReplaceValues(int iClient, char[] szBuffer, int iBufLen, bool bExt)
 {
 	char sName[MAX_NAME_LENGTH]; char sGroup[64];
 	GetClientName(iClient, SZF(sName));
-	ReplaceString(sBuffer, iBufLen, "{NAME}", sName);
+	ReplaceString(szBuffer, iBufLen, "{NAME}", sName);
 	g_hFeatures[iClient].GetString(KEY_GROUP, SZF(sGroup));
-	ReplaceString(sBuffer, iBufLen, "{GROUP}", sGroup);
+	ReplaceString(szBuffer, iBufLen, "{GROUP}", sGroup);
 	if (bExt)
 	{
 		int iExpires;
@@ -173,9 +198,9 @@ void ReplaceValues(int iClient, char[] sBuffer, int iBufLen, bool bExt)
 		DebugMessage("TIMELEFT = %d", iExpires - GetTime())
 		char sExpires[64];
 		FormatTime(SZF(sExpires), "%d/%m/%Y - %H:%M", iExpires);
-		ReplaceString(sBuffer, iBufLen, "{EXPIRES}", sExpires);
+		ReplaceString(szBuffer, iBufLen, "{EXPIRES}", sExpires);
 		UTIL_GetTimeFromStamp(SZF(sExpires), iExpires - GetTime(), iClient);
-		ReplaceString(sBuffer, iBufLen, "{TIMELEFT}", sExpires);
+		ReplaceString(szBuffer, iBufLen, "{TIMELEFT}", sExpires);
 	}
 	//	{NAME}	- Ник игрока
 	//	{GROUP}	- Группа игрока
@@ -187,3 +212,85 @@ public int SelectInfoPanel(Menu hPanel, MenuAction action, int iClient, int iOpt
 {
 	
 }
+
+#if FIX_CSGO_MOTD 1
+static const char sBase64Table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const int cFillChar = '=';
+
+int EncodeBase64(char[] szResult, int iMaxLen, const char[] szSource, int iSourceLen = 0)
+{
+	int iLength = (iSourceLen > 0) ? iSourceLen:strlen(szSource), iResPos, cCode, iPos;
+
+	for (iPos = 0; iPos < iLength; ++iPos)
+	{
+		cCode = (szSource[iPos] >> 2) & 0x3f;
+
+		iResPos += FormatEx(szResult[iResPos], iMaxLen - iResPos, "%c", sBase64Table[cCode]);
+
+		cCode = (szSource[iPos] << 4) & 0x3f;
+		if(++iPos < iLength)
+		{
+			cCode |= (szSource[iPos] >> 4) & 0x0f;
+		}
+
+		iResPos += FormatEx(szResult[iResPos], iMaxLen - iResPos, "%c", sBase64Table[cCode]);
+
+		if (iPos < iLength)
+		{
+			cCode = (szSource[iPos] << 2) & 0x3f;
+			if(++iPos < iLength)
+			cCode |= (szSource[iPos] >> 6) & 0x03;
+
+			iResPos += FormatEx(szResult[iResPos], iMaxLen - iResPos, "%c", sBase64Table[cCode]);
+		}
+		else
+		{
+			iPos++;
+			iResPos += FormatEx(szResult[iResPos], iMaxLen - iResPos, "%c", cFillChar);
+		}
+
+		if(iPos < iLength)
+		{
+			cCode = szSource[iPos] & 0x3f;
+			iResPos += FormatEx(szResult[iResPos], iMaxLen - iResPos, "%c", sBase64Table[cCode]);
+		}
+		else
+		{
+			iResPos += FormatEx(szResult[iResPos], iMaxLen - iResPos, "%c", cFillChar);
+		}
+	}
+
+	return iResPos;
+}
+#endif
+
+/*
+- Открыть ссылку в MOTD:
+  https://%param1%.ru/valve/csgo_hiddenmotd/%param2%
+  - Параметры:
+    - param1 - один из доменов: kruzefag или crazyhackgut. Для адекватной работы надо чередовать домены.
+    - param2 - загнанная в base64 ссылка
+  Пример использования:
+  https://kruzefag.ru/valve/csgo_hiddemotd/aHR0cDovL2hsbW9kLnJ1Lw==
+  Откроет хлмод в скрытом мотд
+
+- Открыть ссылку в окне игры
+  https://%param1%.ru/valve/csgo_normalmotd/%param2%/%param3%/%param4%/%param5%
+  Параметры:
+    - param1 - один из доменов: kruzefag или crazyhackgut. Для адекватной работы надо чередовать домены.
+    - param2 - загнанная в base64 ссылка
+    - param3 - на весь экран? 1 - да, 0 - нет
+    - param4 - ширина окна, если не на весь экран
+    - param5 - высота окна, если не на весь экран
+  Если Вам нужно просто открыть окно на весь экран, параметры 4 и 5 можно не передавать:
+  https://%param1%.ru/valve/csgo_normalmotd/%param2%/%param3%
+  Если устраивает стандартный размер окна (640х480), то можно так же опустить %param3%:
+  https://%param1%.ru/valve/csgo_normalmotd/%param2%
+
+  Пример использования:
+    - https://kruzefag.ru/valve/csgo_normalmotd/aHR0cDovL2hsbW9kLnJ1Lw==/1
+      Откроет хлмод на весь экран
+    - https://kruzefag.ru/valve/csgo_normalmotd/aHR0cDovL2hsbW9kLnJ1Lw==/0/1024/768
+      Откроет хлмод в небольшом окне размером 1024х768
+*/
+

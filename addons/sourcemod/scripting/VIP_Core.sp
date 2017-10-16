@@ -6,11 +6,13 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION	"3.0 DEV #14"
+#define VIP_VERSION		"3.0 DEV #15"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
 #define USE_ADMINMENU	1	// Включение админ-меню для управления VIP
+
+#define FIX_CSGO_MOTD	1	// Включение фикса MOTD в CS:GO
 
 #if USE_ADMINMENU 1
 #undef REQUIRE_PLUGIN
@@ -21,7 +23,7 @@
 public Plugin myinfo =
 {
 	name = "[VIP] Core",
-	author = "R1KO (skype: vova.andrienko1)",
+	author = "R1KO",
 	version = VIP_VERSION,
 	url = "http://hlmod.ru"
 };
