@@ -136,7 +136,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 						Format(szBuffer, 256, "http://%s", szBuffer);
 					}
 					
-					ShowMOTDPanel(iClient, "VIP_INFO", szBuffer, MOTDPANEL_TYPE_URL);
+				//	ShowMOTDPanel(iClient, "VIP_INFO", szBuffer, MOTDPANEL_TYPE_URL);
 					
 					#if FIX_CSGO_MOTD 1
 					if (g_EngineVersion == Engine_CSGO)
