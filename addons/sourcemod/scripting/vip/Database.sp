@@ -88,6 +88,7 @@ void CreateTables()
 					`id` INT UNSIGNED NOT NULL AUTO_INCREMENT, \
 					`account_id` INT UNSIGNED NOT NULL, \
 					`name` VARCHAR(64) NOT NULL default 'unknown', \
+					`lastvisit` INT UNSIGNED NOT NULL default 0, \
 					PRIMARY KEY (`id`), \
 					UNIQUE KEY `account_id` (`account_id`)) DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;");
 		hTxn.AddQuery("CREATE TABLE IF NOT EXISTS `vip_overrides` (\
@@ -108,6 +109,7 @@ void CreateTables()
 				`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
 				`account_id` INTEGER UNSIGNED UNIQUE NOT NULL, \
 				`name` VARCHAR(64) NOT NULL default 'unknown', \
+				`lastvisit` INTEGER UNSIGNED NOT NULL default 0, \
 				`group` VARCHAR(64) NOT NULL, \
 				`expires` INTEGER UNSIGNED NOT NULL default 0);");
 	}
@@ -159,17 +161,25 @@ public void SQL_Callback_ErrorCheck(Database hDB, DBResultSet hResult, const cha
 	}
 }
 
-void DB_UpdateClientName(int iClient)
+void DB_UpdateClient(int iClient)
 {
-//	SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
-
-	char sQuery[256], sName[MAX_NAME_LENGTH*2+1];
+	char szQuery[256];
 	int iClientID;
 	g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
-	GetClientName(iClient, sQuery, MAX_NAME_LENGTH);
-	g_hDatabase.Escape(sQuery, SZF(sName));
-	FormatEx(SZF(sQuery), "UPDATE `vip_users` SET `name` = '%s' WHERE `id` = %d;", sName, iClientID);
-	g_hDatabase.Query(SQL_Callback_ErrorCheck, sQuery);
+	
+	if (g_CVAR_bUpdateName)
+	{
+		char szName[MNL*2+1];
+		GetClientName(iClient, szQuery, MNL);
+		g_hDatabase.Escape(szQuery, SZF(szName));
+		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `name` = '%s' AND `lastvisit` = %d WHERE `id` = %d;", szName, GetTime(), iClientID);
+	}
+	else
+	{
+		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `lastvisit` = %d WHERE `id` = %d;", GetTime(), iClientID);
+	}
+
+	g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery);
 }
 
 void DB_RemoveClientFromID(int iClient = 0, int iClientID, bool bNotify, const char[] sName = NULL_STRING)

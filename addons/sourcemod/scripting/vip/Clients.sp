@@ -159,10 +159,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 
 				CreateForward_OnClientLoaded(iClient);
 
-				if (g_CVAR_bUpdateName)
-				{
-					DB_UpdateClientName(iClient);
-				}
+				DB_UpdateClient(iClient);
 
 				if (hDataPack.ReadCell())
 				{
