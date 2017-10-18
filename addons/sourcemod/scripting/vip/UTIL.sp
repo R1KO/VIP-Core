@@ -135,13 +135,13 @@ void UTIL_LoadVipCmd(ConVar &hCvar, ConCmd Call_CMD)
 {
 	char sPart[64], sBuffer[128];
 	int reloc_idx, iPos;
-	hCvar.GetString(sBuffer, sizeof(sBuffer));
+	hCvar.GetString(SZF(sBuffer));
 	reloc_idx = 0;
-	while ((iPos = SplitString(sBuffer[reloc_idx], ";", sPart, sizeof(sPart))))
+	while ((iPos = SplitString(sBuffer[reloc_idx], ";", SZF(sPart))))
 	{
 		if (iPos == -1)
 		{
-			strcopy(sPart, sizeof(sPart), sBuffer[reloc_idx]);
+			strcopy(SZF(sPart), sBuffer[reloc_idx]);
 		}
 		else
 		{
@@ -165,7 +165,7 @@ void UTIL_LoadVipCmd(ConVar &hCvar, ConCmd Call_CMD)
 int UTIL_GetConVarAdminFlag(ConVar &hCvar)
 {
 	char sBuffer[32];
-	hCvar.GetString(sBuffer, sizeof(sBuffer));
+	hCvar.GetString(SZF(sBuffer));
 	return ReadFlagString(sBuffer);
 }
 
@@ -186,6 +186,43 @@ stock int UTIL_SearchCharInString(const char[] sBuffer, int c)
 	return iNum;
 }
 
+int UTIL_GetAccountIDFromSteamID(const char[] szSteamID)
+{
+	if (!strncmp(szSteamID, "STEAM_", 6))
+	{
+		return S2I(szSteamID[10]) << 1 | (szSteamID[8] - 48);
+	}
+
+	if (!strncmp(szSteamID, "[U:1:", 5) && szSteamID[strlen(szSteamID)-1] == ']')
+	{
+		char szBuffer[16];
+		strcopy(SZF(szBuffer), szSteamID[5]);
+		szBuffer[strlen(szBuffer)-1] = 0;
+
+		return S2I(szBuffer);
+	}
+
+	return 0;
+}
+
+void UTIL_GetSteamIDFromAccountID(int iAccountID, char[] szSteamID, int iMaxLen)
+{
+	switch(g_EngineVersion)
+	{
+		case Engine_CSS, Engine_TF2, Engine_HL2DM, Engine_SourceSDK2007, Engine_BlackMesa:
+		{
+			FormatEx(szSteamID, iMaxLen, "[U:1:%u]", iAccountID);
+		}
+		default:
+		{
+			int iPart = iAccountID % 2;
+			iAccountID -= iPart;
+			FormatEx(szSteamID, iMaxLen, "STEAM_%d:%d:%d", g_EngineVersion == Engine_CSGO ? 1:0, iPart, iAccountID/2);
+		}
+		
+	}
+}
+
 void UTIL_ReloadVIPPlayers(int iClient, bool bNotify)
 {
 	for (int i = 1; i <= MaxClients; ++i)
@@ -202,10 +239,10 @@ void UTIL_ReloadVIPPlayers(int iClient, bool bNotify)
 	}
 }
 
-void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, const char[] sIdentity = NULL_STRING, int iTime, const char[] sGroup)
+void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int iTime, const char[] sGroup)
 {
-	char sQuery[256], sAuth[32], sName[MAX_NAME_LENGTH * 2 + 1];
-	int iExpires;
+	char sQuery[256], sName[MAX_NAME_LENGTH * 2 + 1];
+	int iExpires, iAccountID;
 
 	if (iTime)
 	{
@@ -218,27 +255,27 @@ void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, const char[] sIdentit
 	
 	if (iTarget)
 	{
-		GetClientName(iTarget, sQuery, sizeof(sQuery));
-		g_hDatabase.Escape(sQuery, sName, sizeof(sName));
+		GetClientName(iTarget, SZF(sQuery));
+		g_hDatabase.Escape(sQuery, SZF(sName));
 	}
 	else
 	{
-		strcopy(sName, sizeof(sName), "unknown");
+		strcopy(SZF(sName), "unknown");
 	}
 
 	if (iTarget)
 	{
-		GetClientAuthId(iTarget, AuthId_Engine, sAuth, sizeof(sAuth));
+		iAccountID  = GetSteamAccountID(iTarget);
 	}
 	else
 	{
-		strcopy(sAuth, sizeof(sAuth), sIdentity);
+		iAccountID = iAccID;
 	}
 
 	DataPack hDataPack = new DataPack();
 
 	hDataPack.WriteString(sName);
-	hDataPack.WriteString(sAuth);
+	hDataPack.WriteCell(iAccountID);
 	hDataPack.WriteCell(iExpires);	
 	hDataPack.WriteString(sGroup);
 	hDataPack.WriteCell(iTime);
@@ -248,13 +285,13 @@ void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, const char[] sIdentit
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(sQuery, sizeof(sQuery), "SELECT `id` FROM `vip_users` WHERE `auth` = '%s' LIMIT 1;", sAuth);
+		FormatEx(SZF(sQuery), "SELECT `id` FROM `vip_users` WHERE `account_id` = %d LIMIT 1;", iAccountID);
 		DebugMessage("sQuery: %s", sQuery)
 		g_hDatabase.Query(SQL_Callback_CheckVIPClient, sQuery, hDataPack);
 		return;
 	}
 
-	FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_users` (`auth`, `name`, `expires`, `group`) VALUES ('%s', '%s', %d, '%s');", sAuth, sName, iExpires, sGroup);
+	FormatEx(SZF(sQuery), "INSERT INTO `vip_users` (`account_id`, `name`, `expires`, `group`) VALUES (%d, '%s', %d, '%s');", iAccountID, sName, iExpires, sGroup);
 	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, sQuery, hDataPack);
 }
 
@@ -274,10 +311,10 @@ public void SQL_Callback_CheckVIPClient(Database hOwner, DBResultSet hResult, co
 	if (hResult.FetchRow())
 	{
 		char sGroup[64];
-		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sName
-		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sAuth
+		hDataPack.ReadString(SZF(sGroup));	// sName
+		hDataPack.ReadCell();							// iAccountID
 		int iExpires = hDataPack.ReadCell();			// iExpires
-		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sGroup
+		hDataPack.ReadString(SZF(sGroup));	// sGroup
 		hDataPack.ReadCell();		// iTime
 		hDataPack.ReadCell();		// iClient
 		hDataPack.ReadCell();		// iTarget
@@ -291,10 +328,10 @@ public void SQL_Callback_CheckVIPClient(Database hOwner, DBResultSet hResult, co
 	{
 		SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
 
-		char sQuery[256], sAuth[32], sName[MAX_NAME_LENGTH * 2 + 1];
-		hDataPack.ReadString(sName, sizeof(sName));
-		hDataPack.ReadString(sAuth, sizeof(sAuth));
-		FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_users` (`auth`, `name`) VALUES ('%s', '%s');", sAuth, sName);
+		char sQuery[256], sName[MAX_NAME_LENGTH * 2 + 1];
+		hDataPack.ReadString(SZF(sName));
+		int iAccountID = hDataPack.ReadCell();
+		FormatEx(SZF(sQuery), "INSERT INTO `vip_users` (`account_id`, `name`) VALUES (%d, '%s');", iAccountID, sName);
 		DebugMessage("sQuery: %s", sQuery)
 		g_hDatabase.Query(SQL_Callback_CreateVIPClient, sQuery, hPack);
 	}
@@ -318,10 +355,10 @@ public void SQL_Callback_CreateVIPClient(Database hOwner, DBResultSet hResult, c
 		hDataPack.Reset();
 
 		char sGroup[64];
-		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sName
-		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sAuth
+		hDataPack.ReadString(SZF(sGroup));	// sName
+		hDataPack.ReadCell();	// iAccountID
 		int iExpires = hDataPack.ReadCell();				// iExpires
-		hDataPack.ReadString(sGroup, sizeof(sGroup));	// sGroup
+		hDataPack.ReadString(SZF(sGroup));	// sGroup
 		hDataPack.ReadCell();		// iTime
 		hDataPack.ReadCell();		// iClient
 		hDataPack.ReadCell();		// iTarget
@@ -337,8 +374,8 @@ public void SQL_Callback_CreateVIPClient(Database hOwner, DBResultSet hResult, c
 void SetClientOverrides(DataPack hPack, int iClientID, int iExpires, const char[] sGroup)
 {
 	char sQuery[512];
-	//	FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_overrides` (`user_id`, `server_id`, `expires`, `group`) VALUES (%d, %d, %d, '%s');", iClientID, g_CVAR_iServerID, iExpires, sGroup);
-	FormatEx(sQuery, sizeof(sQuery), "INSERT INTO `vip_overrides` (`user_id`, `server_id`, `expires`, `group`) VALUES (%d, %d, %d, '%s') \
+	//	FormatEx(SZF(sQuery), "INSERT INTO `vip_overrides` (`user_id`, `server_id`, `expires`, `group`) VALUES (%d, %d, %d, '%s');", iClientID, g_CVAR_iServerID, iExpires, sGroup);
+	FormatEx(SZF(sQuery), "INSERT INTO `vip_overrides` (`user_id`, `server_id`, `expires`, `group`) VALUES (%d, %d, %d, '%s') \
 		ON DUPLICATE KEY UPDATE `expires` = %d, `group` = '%s';", iClientID, g_CVAR_iServerID, iExpires, sGroup, iExpires, sGroup);
 	DebugMessage("sQuery: %s", sQuery)
 	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, sQuery, hPack);
@@ -359,26 +396,26 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 	{
 		hDataPack.Reset();
 	
-		int iClient, iTarget, iTime, iExpires;
-		char sExpires[64], sName[MAX_NAME_LENGTH], sTime[64], sAuth[32], sGroup[64];
-		hDataPack.ReadString(sName, sizeof(sName));
-		hDataPack.ReadString(sAuth, sizeof(sAuth));
+		int iClient, iTarget, iTime, iExpires, iAccountID;
+		char sExpires[64], sName[MAX_NAME_LENGTH], sTime[64], sGroup[64];
+		hDataPack.ReadString(SZF(sName));
+		iAccountID = hDataPack.ReadCell();
 		iExpires = hDataPack.ReadCell();
-		hDataPack.ReadString(sGroup, sizeof(sGroup));
+		hDataPack.ReadString(SZF(sGroup));
 		if (sGroup[0] == '\0')
 		{
-			FormatEx(sGroup, sizeof(sGroup), "%T", "NONE", iClient);
+			FormatEx(SZF(sGroup), "%T", "NONE", iClient);
 		}
 		iTime = hDataPack.ReadCell();
 		if (iTime)
 		{
-			UTIL_GetTimeFromStamp(sExpires, sizeof(sExpires), iTime, iClient);
-			FormatTime(sTime, sizeof(sTime), "%d/%m/%Y - %H:%M", iExpires);
+			UTIL_GetTimeFromStamp(SZF(sExpires), iTime, iClient);
+			FormatTime(SZF(sTime), "%d/%m/%Y - %H:%M", iExpires);
 		}
 		else
 		{
-			FormatEx(sExpires, sizeof(sExpires), "%T", "PERMANENT", iClient);
-			FormatEx(sTime, sizeof(sTime), "%T", "NEVER", iClient);
+			FormatEx(SZF(sExpires), "%T", "PERMANENT", iClient);
+			FormatEx(SZF(sTime), "%T", "NEVER", iClient);
 		}
 		
 		iClient = GET_CID(hDataPack.ReadCell());
@@ -401,18 +438,21 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 			CreateForward_OnVIPClientAdded(iTarget, iClient);
 		}
 		
+		char szAuth[32];
+		I2S(iAccountID, szAuth);
+
 		if (iClient)
 		{
-			VIP_PrintToChatClient(iClient, "%t", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", sName, sAuth, iClientID);
+			VIP_PrintToChatClient(iClient, "%t", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", sName, szAuth, iClientID);
 		}
 		else
 		{
-			PrintToServer("%T", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", LANG_SERVER, sName, sAuth, iClientID);
+			PrintToServer("%T", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", LANG_SERVER, sName, szAuth, iClientID);
 		}
 
 		if (g_CVAR_bLogsEnable)
 		{
-			LogToFile(g_sLogFile, "%T", "LOG_ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY", LANG_SERVER, iClient, sName, sAuth, iClientID, sExpires, sTime, sGroup);
+			LogToFile(g_sLogFile, "%T", "LOG_ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY", LANG_SERVER, iClient, sName, szAuth, iClientID, sExpires, sTime, sGroup);
 		}
 	}
 

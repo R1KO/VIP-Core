@@ -85,16 +85,16 @@ void CreateTables()
 		Transaction hTxn = new Transaction();
 		
 		hTxn.AddQuery("CREATE TABLE IF NOT EXISTS `vip_users` (\
-					`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, \
-					`auth` VARCHAR(64) UNIQUE NOT NULL, \
+					`id` INT UNSIGNED NOT NULL AUTO_INCREMENT, \
+					`account_id` INT UNSIGNED NOT NULL, \
 					`name` VARCHAR(64) NOT NULL default 'unknown', \
 					PRIMARY KEY (`id`), \
-					UNIQUE KEY `auth_id` (`auth`)) DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;");
+					UNIQUE KEY `account_id` (`account_id`)) DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;");
 		hTxn.AddQuery("CREATE TABLE IF NOT EXISTS `vip_overrides` (\
-					`user_id` INT(10) UNSIGNED NOT NULL, \
-					`server_id` INT(10) UNSIGNED NOT NULL, \
+					`user_id` INT UNSIGNED NOT NULL, \
+					`server_id` INT UNSIGNED NOT NULL, \
 					`group` VARCHAR(64) NOT NULL, \
-					`expires` INT(10) UNSIGNED NOT NULL default 0, \
+					`expires` INT UNSIGNED NOT NULL default 0, \
 					PRIMARY KEY (`user_id`, `server_id`), \
 					UNIQUE KEY `user_id` (`user_id`, `server_id`), \
 					CONSTRAINT `vip_overrides_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `vip_users` (`id`)  ON DELETE CASCADE ON UPDATE CASCADE\
@@ -106,10 +106,10 @@ void CreateTables()
 	{
 		g_hDatabase.Query(SQL_Callback_ErrorCheck,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 				`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
-				`auth` VARCHAR(32) UNIQUE NOT NULL, \
+				`account_id` INTEGER UNSIGNED UNIQUE NOT NULL, \
 				`name` VARCHAR(64) NOT NULL default 'unknown', \
 				`group` VARCHAR(64) NOT NULL, \
-				`expires` INTEGER NOT NULL default 0);");
+				`expires` INTEGER UNSIGNED NOT NULL default 0);");
 	}
 
 	UNSET_BIT(GLOBAL_INFO, IS_LOADING);

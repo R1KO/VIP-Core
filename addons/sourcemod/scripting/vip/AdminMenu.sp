@@ -537,7 +537,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 					{
 						g_hClientData[iClient].GetValue(DATA_KEY_Time, iBuffer);
 						g_hClientData[iClient].Clear();
-						UTIL_ADD_VIP_PLAYER(iClient, iTarget, NULL_STRING, iBuffer, sGroup);
+						UTIL_ADD_VIP_PLAYER(iClient, iTarget, _, iBuffer, sGroup);
 					}
 					else
 					{

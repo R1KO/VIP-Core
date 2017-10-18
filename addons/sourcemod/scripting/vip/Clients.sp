@@ -50,9 +50,9 @@ void Clients_CheckVipAccess(int iClient, bool bNotify = false)
 
 void Clients_LoadClient(int iClient, bool bNotify)
 {
-	char sQuery[512], sAuth[32];
+	char sQuery[512];
 	
-	GetClientAuthId(iClient, AuthId_Engine, SZF(sAuth));
+	int iAccountID = GetSteamAccountID(iClient);
 
 	DebugMessage("Clients_LoadClient %N (%d), %b: - > %x, %u", iClient, iClient, g_iClientInfo[iClient], g_hDatabase, g_hDatabase)
 
@@ -66,21 +66,21 @@ void Clients_LoadClient(int iClient, bool bNotify)
 												LEFT JOIN `vip_overrides` AS `o` \
 												ON `o`.`user_id` = `u`.`id` \
 												WHERE `o`.`server_id` = %d \
-												AND `auth` = '%s' LIMIT 1;",
-												g_CVAR_iServerID, sAuth);
+												AND `account_id` = %d LIMIT 1;",
+												g_CVAR_iServerID, iAccountID);
 	}
 	else
 	{
 		FormatEx(sQuery, sizeof(sQuery), "SELECT `id`, `expires`, `group`, `name` \
 											FROM `vip_users` \
-											WHERE `auth` = '%s' LIMIT 1;",
-											sAuth);
+											WHERE `account_id` = %d LIMIT 1;",
+											iAccountID);
 	}
 	
 	DataPack hDataPack = new DataPack();
 	hDataPack.WriteCell(UID(iClient));
 	hDataPack.WriteCell(bNotify);
-	hDataPack.WriteString(sAuth);
+	hDataPack.WriteCell(iAccountID);
 	
 	DebugMessage(sQuery)
 	g_hDatabase.Query(SQL_Callback_OnClientAuthorized, sQuery, hDataPack);
@@ -102,7 +102,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 	DebugMessage("SQL_Callback_OnClientAuthorized: %d", iClient)
 	if (iClient)
 	{
-		if ((hResult).FetchRow())
+		if (hResult.FetchRow())
 		{
 			int iExpires = hResult.FetchInt(1),
 			iClientID = hResult.FetchInt(0);
@@ -179,9 +179,8 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 			else
 			{
 				hDataPack.ReadCell();
-				char sAuth[32];
-				hDataPack.ReadString(sAuth, sizeof(sAuth));
-				LogError("Invalid VIP-Group/Некорректная VIP-группа: %s (Игрок: %s)", sGroup, sAuth);
+				int iAccountID = hDataPack.ReadCell();
+				LogError("Invalid VIP-Group/Некорректная VIP-группа: %s (Игрок: %d)", sGroup, iAccountID);
 			}
 		}
 		else

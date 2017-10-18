@@ -69,52 +69,71 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 
 	if (iArgs != 3)
 	{
-		ReplyToCommand(iClient, "[VIP] %t!\nSyntax: sm_addvip <steam_id|name|#userid> <group> <time>", "INCORRECT_USAGE");
+		ReplyToCommand(iClient, "[VIP] %t!\nSyntax: sm_addvip <#steam_id|#name|#userid> <group> <time>", "INCORRECT_USAGE");
 		return Plugin_Handled;
 	}
 	
-	char sAuth[64];
-	GetCmdArg(1, SZF(sAuth));
+	char szBuffer[64], szTargetName[MAX_TARGET_LENGTH];
+	GetCmdArg(1, SZF(szBuffer));
 
-	int iTarget = FindTarget(iClient, sAuth, true, false);
-	if (iTarget != -1)
+	int[] iTargetList = new int[MaxClients];
+	bool bIsMulti;
+	int iTargets, iAccountID = 0;
+
+	if((iTargets = ProcessTargetString(
+			szBuffer,
+			iClient, 
+			iTargetList, 
+			MaxClients, 
+			COMMAND_FILTER_CONNECTED|COMMAND_FILTER_NO_BOTS,
+			SZF(szTargetName),
+			bIsMulti)) < 1)
 	{
-		if (g_iClientInfo[iTarget] & IS_VIP)
+		iAccountID = UTIL_GetAccountIDFromSteamID(szBuffer);
+		if(!iAccountID)
 		{
-			ReplyToCommand(iClient, "[VIP] %t", "ALREADY_HAS_VIP");
+			ReplyToTargetError(iClient, iTargets);
 			return Plugin_Handled;
 		}
-		sAuth[0] = 0;
-	}
-	else if ((g_EngineVersion == Engine_CSS && strncmp(sAuth, "[U:1:", 5) != 0 && sAuth[strlen(sAuth)-1] != ']') ||
-		strncmp(sAuth, "STEAM_", 6) != 0)
-	{
-		ReplyToCommand(iClient, "[VIP] %t", "No matching client");
-		return Plugin_Handled;
-	}
-	else
-	{
-		iTarget = 0;
 	}
 
-	char sGroup[64];
-	GetCmdArg(3, SZF(sGroup));
-	int iTime = StringToInt(sGroup);
+	char szGroup[64];
+	GetCmdArg(3, SZF(szGroup));
+	int iTime = StringToInt(szGroup);
 	if (iTime < 0)
 	{
 		ReplyToCommand(iClient, "[VIP] %t", "INCORRECT_TIME");
 		return Plugin_Handled;
 	}
 
-	sGroup[0] = 0;
-	GetCmdArg(2, SZF(sGroup));
-	if (sGroup[0] && UTIL_CheckValidVIPGroup(sGroup) == false)
+	szGroup[0] = 0;
+	GetCmdArg(2, SZF(szGroup));
+	if (!szGroup[0] || !UTIL_CheckValidVIPGroup(szGroup))
 	{
 		ReplyToCommand(iClient, "%t", "VIP_GROUP_DOES_NOT_EXIST");
 		return Plugin_Handled;
 	}
 
-	UTIL_ADD_VIP_PLAYER(iClient, iTarget, sAuth, UTIL_TimeToSeconds(iTime), sGroup);
+	if(iTargets > 0)
+	{
+		for(int i = 0; i < iTargets; ++i)
+		{
+			if(IsClientInGame(iTargetList[i]))
+			{
+				if (g_iClientInfo[iTargetList[i]] & IS_VIP)
+				{
+					ReplyToCommand(iClient, "[VIP] %t", "ALREADY_HAS_VIP");
+					continue;
+				}
+				
+				UTIL_ADD_VIP_PLAYER(iClient, iTargetList[i], _, UTIL_TimeToSeconds(iTime), szGroup);
+			}
+		}
+	
+		return Plugin_Handled;
+	}
+	
+	UTIL_ADD_VIP_PLAYER(iClient, _, iAccountID, UTIL_TimeToSeconds(iTime), szGroup);
 
 	return Plugin_Handled;
 }
@@ -129,9 +148,16 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 		return Plugin_Handled;
 	}
 	
-	char sQuery[512], sAuth[MAX_NAME_LENGTH];
-	GetCmdArg(1, sAuth, sizeof(sAuth));
+	char sQuery[512], szAuth[MAX_NAME_LENGTH];
+	GetCmdArg(1, szAuth, sizeof(szAuth));
 	
+	int iAccountID = UTIL_GetAccountIDFromSteamID(szAuth);
+	if(!iAccountID)
+	{
+		ReplyToTargetError(iClient, COMMAND_TARGET_NONE);
+		return Plugin_Handled;
+	}
+
 	if (GLOBAL_INFO & IS_MySQL)
 	{
 		FormatEx(sQuery, sizeof(sQuery), "SELECT `id` \
@@ -139,13 +165,13 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 											LEFT JOIN `vip_users_overrides` AS `o` \
 											ON `o`.`user_id` = `u`.`id` \
 											WHERE `o`.`server_id` = '%i' \
-											AND `u`.`auth` = '%s' LIMIT 1;", g_CVAR_iServerID, sAuth);
+											AND `u`.`account_id` = %d LIMIT 1;", g_CVAR_iServerID, iAccountID);
 	}
 	else
 	{
 		FormatEx(sQuery, sizeof(sQuery), "SELECT `id` \
 											FROM `vip_users` \
-											WHERE `auth` = '%s' LIMIT 1;", sAuth);
+											WHERE `account_id` = %d LIMIT 1;", iAccountID);
 	}
 	
 	DebugMessage(sQuery)

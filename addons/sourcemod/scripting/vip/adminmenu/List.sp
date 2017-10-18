@@ -190,42 +190,43 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 	g_hClientData[iClient].SetValue(DATA_KEY_MenuListType, MENU_TYPE_DB_LIST);
 	g_hClientData[iClient].SetValue(DATA_KEY_Offset, iOffset);
 
-	char sQuery[512], sSearch[64];
+	char sQuery[1024], sSearch[64], szWhere[128];
 	sSearch[0] = 0;
+	szWhere[0] = 0;
 	g_hClientData[iClient].GetString(DATA_KEY_Search, SZF(sSearch));
 
-	if (GLOBAL_INFO & IS_MySQL)
+	if(sSearch[0])
 	{
-		if(sSearch[0])
+		int iAccountID = UTIL_GetAccountIDFromSteamID(sSearch);
+		if(iAccountID)
 		{
-			FormatEx(SZF(sQuery), "SELECT `u`.`id`, \
-													`u`.`name` \
-													FROM `vip_users` AS `u` \
-													LEFT JOIN `vip_overrides` AS `o` \
-													ON `o`.`user_id` = `u`.`id` \
-													WHERE `o`.`server_id` = %d \
-													AND (`u`.`auth` LIKE '%%%s%%' OR `u`.`name` LIKE '%%%s%%') LIMIT %d, %d;", 
-				g_CVAR_iServerID, sSearch, sSearch, iOffset, LIST_OFFSET);
+			FormatEx(SZF(szWhere), " AND `u`.`account_id` = %d", iAccountID);
 		}
 		else
 		{
-			FormatEx(SZF(sQuery), "SELECT `u`.`id`, \
+			FormatEx(SZF(szWhere), " AND `u`.`name` LIKE '%%%s%%')", sSearch);
+		}
+	}
+
+	if (GLOBAL_INFO & IS_MySQL)
+	{
+		FormatEx(SZF(sQuery), "SELECT `u`.`id`, \
 												`u`.`name` \
 												FROM `vip_users` AS `u` \
 												LEFT JOIN `vip_overrides` AS `o` \
 												ON `o`.`user_id` = `u`.`id` \
-												WHERE `o`.`server_id` = %d LIMIT %d, %d;", 
-			g_CVAR_iServerID, iOffset, LIST_OFFSET);
-		}
+												WHERE `o`.`server_id` = %d%s\ 
+												LIMIT %d, %d;", 
+			g_CVAR_iServerID, szWhere, iOffset, LIST_OFFSET);
 	}
 	else
 	{
-		if(sSearch[0])
+		if(szWhere[0])
 		{
 			FormatEx(SZF(sQuery), "SELECT `id`, `name` \
 											FROM `vip_users` \
-											WHERE (`auth` LIKE '%%%s%%' OR `name` LIKE '%%%s%%') LIMIT %d, %d;", 
-			sSearch, sSearch, iOffset, LIST_OFFSET);
+											WHERE %s LIMIT %d, %d;", 
+			szWhere[5], iOffset, LIST_OFFSET);
 		}
 		else
 		{
@@ -308,7 +309,7 @@ void ShowTargetInfo(int iClient)
 		FormatEx(SZF(sQuery), "SELECT `o`.`group`, \
 												`o`.`expires`, \
 												`u`.`name`, \
-												`u`.`auth`, \
+												`u`.`account_id`, \
 												`u`.`id` \
 												FROM `vip_users` AS `u` \
 												LEFT JOIN `vip_overrides` AS `o` \
@@ -322,7 +323,7 @@ void ShowTargetInfo(int iClient)
 		FormatEx(SZF(sQuery), "SELECT `group`, \
 												`expires`, \
 												`name`, \
-												`auth`, \
+												`account_id`, \
 												`id` \
 												FROM `vip_users` \
 												WHERE `id` = %d LIMIT 1;", 
@@ -351,7 +352,7 @@ public void SQL_Callback_SelectVipClientInfo(Database hOwner, DBResultSet hResul
 			return;
 		}
 	
-		char sGroup[64], sName[32], sAuth[32];
+		char sGroup[64], sName[32];
 
 		hResult.FetchString(0, SZF(sGroup)); // GROUP
 		g_hClientData[iClient].SetString(DATA_KEY_Group, sGroup);
@@ -363,8 +364,8 @@ public void SQL_Callback_SelectVipClientInfo(Database hOwner, DBResultSet hResul
 		hResult.FetchString(2, SZF(sName)); // Name
 		g_hClientData[iClient].SetString(DATA_KEY_Name, sName);
 
-		hResult.FetchString(3, SZF(sAuth)); // Auth
-		g_hClientData[iClient].SetString(DATA_KEY_Auth, sAuth);
+		int iAccountID = hResult.FetchInt(3); // Auth
+		g_hClientData[iClient].SetValue(DATA_KEY_Auth, iAccountID);
 
 		ShowTargetInfoMenu(iClient);
 	}
@@ -372,7 +373,7 @@ public void SQL_Callback_SelectVipClientInfo(Database hOwner, DBResultSet hResul
 
 void ShowTemporaryTargetInfo(int iClient)
 {
-	char sGroup[64], sName[32], sAuth[32];
+	char sGroup[64], sName[32];
 	int iTarget;
 	g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget);
 	iTarget = CID(iTarget);
@@ -386,14 +387,14 @@ void ShowTemporaryTargetInfo(int iClient)
 	g_hFeatures[iTarget].GetString(KEY_GROUP, SZF(sGroup));
 	g_hClientData[iClient].SetString(DATA_KEY_Group, sGroup);
 
-	int iExpires;
+	int iExpires, iAccountID;
 	g_hFeatures[iTarget].GetValue(KEY_EXPIRES, iExpires);
 	g_hClientData[iClient].SetValue(DATA_KEY_Time, iExpires);
 	GetClientName(iTarget, SZF(sName));
-	GetClientAuthId(iTarget, AuthId_Engine, SZF(sAuth));
+	iAccountID = GetSteamAccountID(iClient);
 
 	g_hClientData[iClient].SetString(DATA_KEY_Name, sName);
-	g_hClientData[iClient].SetString(DATA_KEY_Auth, sAuth);
+	g_hClientData[iClient].SetValue(DATA_KEY_Auth, iAccountID);
 
 	ShowTargetInfoMenu(iClient);
 }
@@ -403,11 +404,12 @@ void ShowTargetInfoMenu(int iClient)
 	char sGroup[64], sName[32], sAuth[32], sBuffer[128];
 	g_hClientData[iClient].GetString(DATA_KEY_Group, SZF(sGroup));
 	g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(sName));
-	g_hClientData[iClient].GetString(DATA_KEY_Auth, SZF(sAuth));
-	int iExpires, iClientID;
+	int iExpires, iClientID, iAccountID;
 	g_hClientData[iClient].GetValue(DATA_KEY_Time, iExpires);
 	DebugMessage("GetValue(%s) = %d", DATA_KEY_Time, iExpires)
 	g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iClientID);
+	g_hClientData[iClient].GetValue(DATA_KEY_Auth, iAccountID);
+	UTIL_GetSteamIDFromAccountID(iAccountID, SZF(sAuth));
 
 	if (iExpires > 0)
 	{
