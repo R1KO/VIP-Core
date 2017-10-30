@@ -6,7 +6,7 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION		"3.0 DEV #18"
+#define VIP_VERSION		"3.0 DEV #19"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -54,6 +54,7 @@ public void OnPluginStart()
 	LoadTranslations("vip_core.phrases");
 	LoadTranslations("vip_modules.phrases");
 	LoadTranslations("common.phrases");
+	LoadTranslations("core.phrases");
 
 	g_iMaxPageItems		= GetMaxPageItems(GetMenuStyleHandle(MenuStyle_Default));
 	g_hFeaturesArray	= new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));

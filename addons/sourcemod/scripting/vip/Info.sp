@@ -119,7 +119,8 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 					
 					hPanel.CurrentKey = g_iMaxPageItems;
 					
-					hPanel.DrawItem("Выход", ITEMDRAW_CONTROL);
+					FormatEx(szBuffer, 128, "%T", "Exit", iClient);
+					hPanel.DrawItem(szBuffer, ITEMDRAW_CONTROL);
 
 					hPanel.Send(iClient, SelectInfoPanel, iTime);
 					delete hPanel;
