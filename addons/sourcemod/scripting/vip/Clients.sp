@@ -50,7 +50,7 @@ void Clients_CheckVipAccess(int iClient, bool bNotify = false)
 
 void Clients_LoadClient(int iClient, bool bNotify)
 {
-	char sQuery[512];
+	char szQuery[512];
 	
 	int iAccountID = GetSteamAccountID(iClient);
 
@@ -58,7 +58,7 @@ void Clients_LoadClient(int iClient, bool bNotify)
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(sQuery, sizeof(sQuery), "SELECT `u`.`id`, \
+		FormatEx(SZF(szQuery), "SELECT `u`.`id`, \
 												`o`.`expires`, \
 												`o`.`group`, \
 												`u`.`name` \
@@ -71,7 +71,7 @@ void Clients_LoadClient(int iClient, bool bNotify)
 	}
 	else
 	{
-		FormatEx(sQuery, sizeof(sQuery), "SELECT `id`, `expires`, `group`, `name` \
+		FormatEx(SZF(szQuery), "SELECT `id`, `expires`, `group`, `name` \
 											FROM `vip_users` \
 											WHERE `account_id` = %d LIMIT 1;",
 											iAccountID);
@@ -82,16 +82,16 @@ void Clients_LoadClient(int iClient, bool bNotify)
 	hDataPack.WriteCell(bNotify);
 	hDataPack.WriteCell(iAccountID);
 	
-	DebugMessage(sQuery)
-	g_hDatabase.Query(SQL_Callback_OnClientAuthorized, sQuery, hDataPack);
+	DebugMessage(szQuery)
+	g_hDatabase.Query(SQL_Callback_OnClientAuthorized, szQuery, hDataPack);
 }
 
-public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult, const char[] sError, any hPack)
+public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult, const char[] szError, any hPack)
 {
 	DataPack hDataPack = view_as<DataPack>(hPack);
-	if (hResult == null || sError[0])
+	if (hResult == null || szError[0])
 	{
-		LogError("SQL_Callback_OnClientAuthorized: %s", sError);
+		LogError("SQL_Callback_OnClientAuthorized: %s", szError);
 		delete hDataPack;
 		return;
 	}
@@ -121,14 +121,14 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 					{
 						if (g_CVAR_bLogsEnable)
 						{
-							LogToFile(g_sLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
+							LogToFile(g_szLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
 						}
 						
 						DebugMessage("Clients_LoadClient %N (%d):\tDelete", iClient, iClient)
 						
-						char sName[MAX_NAME_LENGTH*2+1];
-						hResult.FetchString(3, SZF(sName));
-						DB_RemoveClientFromID(0, iClientID, false, sName);
+						char szName[MAX_NAME_LENGTH*2+1];
+						hResult.FetchString(3, SZF(szName));
+						DB_RemoveClientFromID(0, iClientID, false, szName);
 					}
 
 					CreateForward_OnVIPClientRemoved(iClient, "Expired");
@@ -143,16 +143,16 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 				Clients_CreateExpiredTimer(iClient, iExpires, iTime);
 			}
 
-			char sGroup[64];
-			hResult.FetchString(2, SZF(sGroup));
-			DebugMessage("Clients_LoadClient %N (%d):\tvip_group: %s", iClient, iClient, sGroup)
-			if (sGroup[0] && UTIL_CheckValidVIPGroup(sGroup))
+			char szGroup[64];
+			hResult.FetchString(2, SZF(szGroup));
+			DebugMessage("Clients_LoadClient %N (%d):\tvip_group: %s", iClient, iClient, szGroup)
+			if (szGroup[0] && UTIL_CheckValidVIPGroup(szGroup))
 			{
 				Clients_CreateClientVIPSettings(iClient, iExpires);
 
 				g_hFeatures[iClient].SetValue(KEY_CID, iClientID);
 
-				g_hFeatures[iClient].SetString(KEY_GROUP, sGroup);
+				g_hFeatures[iClient].SetString(KEY_GROUP, szGroup);
 				
 				g_iClientInfo[iClient] |= IS_VIP;
 				g_iClientInfo[iClient] |= IS_LOADED;
@@ -177,7 +177,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 			{
 				hDataPack.ReadCell();
 				int iAccountID = hDataPack.ReadCell();
-				LogError("Invalid VIP-Group/Некорректная VIP-группа: %s (Игрок: %d)", sGroup, iAccountID);
+				LogError("Invalid VIP-Group/Некорректная VIP-группа: %s (Игрок: %d)", szGroup, iAccountID);
 			}
 		}
 		else
@@ -217,7 +217,7 @@ public void OnClientCookiesCached(int iClient)
 }
 #endif
 
-void Clients_LoadVIPFeaturesPre(int iClient, const char[] sFeatureName = NULL_STRING)
+void Clients_LoadVIPFeaturesPre(int iClient, const char[] szFeature = NULL_STRING)
 {
 	DebugMessage("Clients_LoadVIPFeaturesPre %N", iClient)
 
@@ -227,10 +227,10 @@ void Clients_LoadVIPFeaturesPre(int iClient, const char[] sFeatureName = NULL_ST
 	{
 		DataPack hDataPack = new DataPack();
 		hDataPack.WriteCell(UID(iClient));
-		if(sFeatureName[0])
+		if(szFeature[0])
 		{
 			hDataPack.WriteCell(true);
-			hDataPack.WriteString(sFeatureName);
+			hDataPack.WriteString(szFeature);
 		}
 		else
 		{
@@ -239,9 +239,9 @@ void Clients_LoadVIPFeaturesPre(int iClient, const char[] sFeatureName = NULL_ST
 		CreateTimer(0.5, Timer_CheckCookies, hDataPack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
 	}
 
-	if(sFeatureName[0])
+	if(szFeature[0])
 	{
-		Clients_LoadVIPFeature(iClient, sFeatureName);
+		Clients_LoadVIPFeature(iClient, szFeature);
 		return;
 	}
 	
@@ -257,16 +257,16 @@ public Action Timer_CheckCookies(Handle hTimer, Handle hDP)
 	DebugMessage("Timer_CheckCookies -> iClient: %N (%d), IsClientVIP: %b,", iClient, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP))
 	if (iClient && g_iClientInfo[iClient] & IS_VIP)
 	{
-		char sFeatureName[FEATURE_NAME_LENGTH];
+		char szFeature[FEATURE_NAME_LENGTH];
 		if(hDataPack.ReadCell())
 		{
-			hDataPack.ReadString(SZF(sFeatureName));
+			hDataPack.ReadString(SZF(szFeature));
 		}
 		else
 		{
-			sFeatureName[0] = 0;
+			szFeature[0] = 0;
 		}
-		Clients_LoadVIPFeaturesPre(iClient, sFeatureName);
+		Clients_LoadVIPFeaturesPre(iClient, szFeature);
 	}
 
 	return Plugin_Stop;
@@ -280,15 +280,15 @@ void Clients_LoadVIPFeatures(int iClient)
 	DebugMessage("FeaturesArraySize: %d", iFeatures)
 	if (iFeatures > 0)
 	{
-		char sFeatureName[FEATURE_NAME_LENGTH];
+		char szFeature[FEATURE_NAME_LENGTH];
 
-		g_hFeatures[iClient].GetString(KEY_GROUP, SZF(sFeatureName));
-		if (UTIL_CheckValidVIPGroup(sFeatureName))
+		g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szFeature));
+		if (UTIL_CheckValidVIPGroup(szFeature))
 		{
 			for (int i = 0; i < iFeatures; ++i)
 			{
-				g_hFeaturesArray.GetString(i, SZF(sFeatureName));
-				Clients_LoadFeature(iClient, sFeatureName);
+				g_hFeaturesArray.GetString(i, SZF(szFeature));
+				Clients_LoadFeature(iClient, szFeature);
 			}
 		}
 	}
@@ -298,7 +298,7 @@ void Clients_LoadVIPFeatures(int iClient)
 	Clients_OnVIPClientLoaded(iClient);
 }
 
-void Clients_LoadVIPFeature(int iClient, const char[] sFeatureName)
+void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
 {
 	DebugMessage("LoadVIPFeature %N", iClient)
 
@@ -306,12 +306,12 @@ void Clients_LoadVIPFeature(int iClient, const char[] sFeatureName)
 	DebugMessage("FeaturesArraySize: %d", iFeatures)
 	if (iFeatures > 0)
 	{
-		char sGroup[FEATURE_NAME_LENGTH];
+		char szGroup[FEATURE_NAME_LENGTH];
 
-		g_hFeatures[iClient].GetString(KEY_GROUP, SZF(sGroup));
-		if (UTIL_CheckValidVIPGroup(sGroup))
+		g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szGroup));
+		if (UTIL_CheckValidVIPGroup(szGroup))
 		{
-			Clients_LoadFeature(iClient, sFeatureName);
+			Clients_LoadFeature(iClient, szFeature);
 		}
 	}
 /*
@@ -321,26 +321,26 @@ void Clients_LoadVIPFeature(int iClient, const char[] sFeatureName)
 	*/
 }
 
-void Clients_LoadFeature(int iClient, const char[] sFeatureName)
+void Clients_LoadFeature(int iClient, const char[] szFeature)
 {
 	static ArrayList hArray;
-	if (GLOBAL_TRIE.GetValue(sFeatureName, hArray))
+	if (GLOBAL_TRIE.GetValue(szFeature, hArray))
 	{
-		DebugMessage("LoadClientFeature: %s", sFeatureName)
+		DebugMessage("LoadClientFeature: %s", szFeature)
 
-		if (GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), sFeatureName))
+		if (GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), szFeature))
 		{
 			static VIP_ToggleState	eStatus;
 			DebugMessage("GetValue: == true")
 			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 			{
-				static char	 			sBuffer[4];
+				static char	 			szBuffer[4];
 				static Handle			hCookie;
 				hCookie = view_as<Handle>(hArray.Get(FEATURES_COOKIE));
-				GetClientCookie(iClient, hCookie, SZF(sBuffer));
-				eStatus = view_as<VIP_ToggleState>(StringToInt(sBuffer));
-				DebugMessage("GetFeatureCookie: '%s'", sBuffer)
-				if (sBuffer[0] == '\0' || (view_as<int>(eStatus) > 2 || view_as<int>(eStatus) < 0))
+				GetClientCookie(iClient, hCookie, SZF(szBuffer));
+				eStatus = view_as<VIP_ToggleState>(StringToInt(szBuffer));
+				DebugMessage("GetFeatureCookie: '%s'", szBuffer)
+				if (szBuffer[0] == '\0' || (view_as<int>(eStatus) > 2 || view_as<int>(eStatus) < 0))
 				{
 					switch(hArray.Get(FEATURES_DEF_STATUS))
 					{
@@ -349,9 +349,9 @@ void Clients_LoadFeature(int iClient, const char[] sFeatureName)
 						case DISABLED:		eStatus = DISABLED;
 					}
 
-					IntToString(view_as<int>(eStatus), SZF(sBuffer));
-					SetClientCookie(iClient, hCookie, sBuffer);
-					//	Features_SaveStatus(iClient, sFeatureName, hCookie, eStatus);
+					IntToString(view_as<int>(eStatus), SZF(szBuffer));
+					SetClientCookie(iClient, hCookie, szBuffer);
+					//	Features_SaveStatus(iClient, szFeature, hCookie, eStatus);
 				}
 			}
 			else
@@ -359,15 +359,15 @@ void Clients_LoadFeature(int iClient, const char[] sFeatureName)
 				eStatus = ENABLED;
 			}
 
-			Features_SetStatus(iClient, sFeatureName, eStatus);
-			//	Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function:hArray.Get(FEATURES_ITEM_SELECT), iClient, sFeatureName, NO_ACCESS, ENABLED);
+			Features_SetStatus(iClient, szFeature, eStatus);
+			//	Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function:hArray.Get(FEATURES_ITEM_SELECT), iClient, szFeature, NO_ACCESS, ENABLED);
 		}
 	}
 }
 
-bool GetValue(int iClient, VIP_ValueType ValueType, const char[] sFeatureName)
+bool GetValue(int iClient, VIP_ValueType ValueType, const char[] szFeature)
 {
-	DebugMessage("GetValue: %d - %s", ValueType, sFeatureName)
+	DebugMessage("GetValue: %d - %s", ValueType, szFeature)
 	switch (ValueType)
 	{
 		case VIP_NULL:
@@ -376,44 +376,44 @@ bool GetValue(int iClient, VIP_ValueType ValueType, const char[] sFeatureName)
 		}
 		case BOOL:
 		{
-			if (g_hGroups.GetNum(sFeatureName))
+			if (g_hGroups.GetNum(szFeature))
 			{
 				DebugMessage("value: 1")
-				return g_hFeatures[iClient].SetValue(sFeatureName, true);
+				return g_hFeatures[iClient].SetValue(szFeature, true);
 			}
 			return false;
 		}
 		case INT:
 		{
 			int iValue;
-			iValue = g_hGroups.GetNum(sFeatureName);
+			iValue = g_hGroups.GetNum(szFeature);
 			if (iValue != 0)
 			{
 				DebugMessage("value: %d", iValue)
-				return g_hFeatures[iClient].SetValue(sFeatureName, iValue);
+				return g_hFeatures[iClient].SetValue(szFeature, iValue);
 			}
 			return false;
 		}
 		case FLOAT:
 		{
 			float fValue;
-			fValue = g_hGroups.GetFloat(sFeatureName);
+			fValue = g_hGroups.GetFloat(szFeature);
 			if (fValue != 0.0)
 			{
 				DebugMessage("value: %f", fValue)
-				return g_hFeatures[iClient].SetValue(sFeatureName, fValue);
+				return g_hFeatures[iClient].SetValue(szFeature, fValue);
 			}
 			
 			return false;
 		}
 		case STRING:
 		{
-			char sBuffer[256];
-			g_hGroups.GetString(sFeatureName, SZF(sBuffer));
-			if (sBuffer[0])
+			char szBuffer[256];
+			g_hGroups.GetString(szFeature, SZF(szBuffer));
+			if (szBuffer[0])
 			{
-				DebugMessage("value: %s", sBuffer)
-				return g_hFeatures[iClient].SetString(sFeatureName, sBuffer);
+				DebugMessage("value: %s", szBuffer)
+				return g_hFeatures[iClient].SetString(szFeature, szBuffer);
 			}
 			return false;
 		}
@@ -543,7 +543,7 @@ void Clients_ExpiredClient(int iClient)
 		{
 			if (g_CVAR_bLogsEnable)
 			{
-				LogToFile(g_sLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
+				LogToFile(g_szLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
 			}
 			
 			DB_RemoveClientFromID(0, iClientID, false);

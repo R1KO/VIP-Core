@@ -148,8 +148,8 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 		return Plugin_Handled;
 	}
 	
-	char sQuery[512], szAuth[MAX_NAME_LENGTH];
-	GetCmdArg(1, szAuth, sizeof(szAuth));
+	char szQuery[512], szAuth[MAX_NAME_LENGTH];
+	GetCmdArg(1, SZF(szAuth));
 	
 	int iAccountID = UTIL_GetAccountIDFromSteamID(szAuth);
 	if(!iAccountID)
@@ -160,7 +160,7 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(sQuery, sizeof(sQuery), "SELECT `id` \
+		FormatEx(SZF(szQuery), "SELECT `id` \
 											FROM `vip_users` AS `u` \
 											LEFT JOIN `vip_users_overrides` AS `o` \
 											ON `o`.`user_id` = `u`.`id` \
@@ -169,27 +169,27 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 	}
 	else
 	{
-		FormatEx(sQuery, sizeof(sQuery), "SELECT `id` \
+		FormatEx(SZF(szQuery), "SELECT `id` \
 											FROM `vip_users` \
 											WHERE `account_id` = %d LIMIT 1;", iAccountID);
 	}
 	
-	DebugMessage(sQuery)
+	DebugMessage(szQuery)
 	if (iClient)
 	{
 		iClient = UID(iClient);
 	}
 
-	g_hDatabase.Query(SQL_Callback_OnSelectRemoveClient, sQuery, iClient);
+	g_hDatabase.Query(SQL_Callback_OnSelectRemoveClient, szQuery, iClient);
 
 	return Plugin_Handled;
 }
 
-public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hQuery, const char[] sError, any iClient)
+public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hQuery, const char[] szError, any iClient)
 {
-	if (hQuery == null || sError[0])
+	if (hQuery == null || szError[0])
 	{
-		LogError("SQL_Callback_OnSelectRemoveClient: %s", sError);
+		LogError("SQL_Callback_OnSelectRemoveClient: %s", szError);
 	}
 	
 	if (iClient)
@@ -215,48 +215,48 @@ public Action DumpFeatures_CMD(int iClient, int iArgs)
 	int iFeatures = g_hFeaturesArray.Length;
 	if(iFeatures != 0)
 	{
-		char sBuffer[PLATFORM_MAX_PATH];
-		BuildPath(Path_SM, sBuffer, sizeof(sBuffer), "data/vip/features_dump.txt");
-		File hFile = OpenFile(sBuffer, "w");
+		char szBuffer[PLATFORM_MAX_PATH];
+		BuildPath(Path_SM, SZF(szBuffer), "data/vip/features_dump.txt");
+		File hFile = OpenFile(szBuffer, "w");
 
 		if(hFile != null)
 		{
-			char				sPluginName[64];
-			char				sPluginPath[PLATFORM_MAX_PATH];
-			char				sPluginVersion[32];
-			char				sFeatureName[FEATURE_NAME_LENGTH];
-			char				sFeatureType[32];
-			char				sFeatureValType[32];
+			char				szPluginName[64];
+			char				szPluginPath[PLATFORM_MAX_PATH];
+			char				szPluginVersion[32];
+			char				szFeature[FEATURE_NAME_LENGTH];
+			char				szFeatureType[32];
+			char				szFeatureValType[32];
 			ArrayList			hArray;
 			Handle				hPlugin;
 
 			for(int i = 0; i < iFeatures; ++i)
 			{
-				g_hFeaturesArray.GetString(i, sFeatureName, sizeof(sFeatureName));
-				if(GLOBAL_TRIE.GetValue(sFeatureName, hArray))
+				g_hFeaturesArray.GetString(i, SZF(szFeature));
+				if(GLOBAL_TRIE.GetValue(szFeature, hArray))
 				{
 					hPlugin = view_as<Handle>(hArray.Get(FEATURES_PLUGIN));
-					GetPluginInfo(hPlugin, PlInfo_Name, SZF(sPluginName));
-					GetPluginInfo(hPlugin, PlInfo_Version, SZF(sPluginVersion));
-					GetPluginFilename(hPlugin, SZF(sPluginPath));
+					GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
+					GetPluginInfo(hPlugin, PlInfo_Version, SZF(szPluginVersion));
+					GetPluginFilename(hPlugin, SZF(szPluginPath));
 					
 					switch(view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)))
 					{
-						case TOGGLABLE:		strcopy(SZF(sFeatureType), "TOGGLABLE");
-						case SELECTABLE:	strcopy(SZF(sFeatureType), "SELECTABLE");
-						case HIDE:			strcopy(SZF(sFeatureType), "HIDE");
+						case TOGGLABLE:		strcopy(SZF(szFeatureType), "TOGGLABLE");
+						case SELECTABLE:	strcopy(SZF(szFeatureType), "SELECTABLE");
+						case HIDE:			strcopy(SZF(szFeatureType), "HIDE");
 					}
 					
 					switch(view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)))
 					{
-						case VIP_NULL:		strcopy(SZF(sFeatureValType), "VIP_NULL");
-						case INT:			strcopy(SZF(sFeatureValType), "INT");
-						case FLOAT:			strcopy(SZF(sFeatureValType), "FLOAT");
-						case BOOL:			strcopy(SZF(sFeatureValType), "BOOL");
-						case STRING:		strcopy(SZF(sFeatureValType), "STRING");
+						case VIP_NULL:		strcopy(SZF(szFeatureValType), "VIP_NULL");
+						case INT:			strcopy(SZF(szFeatureValType), "INT");
+						case FLOAT:			strcopy(SZF(szFeatureValType), "FLOAT");
+						case BOOL:			strcopy(SZF(szFeatureValType), "BOOL");
+						case STRING:		strcopy(SZF(szFeatureValType), "STRING");
 					}
 					
-					hFile.WriteLine("%d. %-32s %-16s %-16s %-64s %-32s %-256s", i, sFeatureName, sFeatureType, sFeatureValType, sPluginName, sPluginVersion, sPluginPath);
+					hFile.WriteLine("%d. %-32s %-16s %-16s %-64s %-32s %-256s", i, szFeature, szFeatureType, szFeatureValType, szPluginName, szPluginVersion, szPluginPath);
 				}
 			}
 		}

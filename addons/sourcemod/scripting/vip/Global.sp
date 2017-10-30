@@ -58,7 +58,7 @@ enum
 	TIME_MODE_DAYS
 }
 
-char g_sToggleStatus[][] =
+char g_szToggleStatus[][] =
 {
 	"DISABLED",
 	"ENABLED",
@@ -67,7 +67,7 @@ char g_sToggleStatus[][] =
 
 #define FEATURE_NAME_LENGTH 64
 
-char		g_sLogFile[] = "addons/sourcemod/logs/VIP_Logs.log";
+char		g_szLogFile[] = "addons/sourcemod/logs/VIP_Logs.log";
 
 KeyValues	g_hGroups;
 KeyValues	g_hInfo;
@@ -116,4 +116,18 @@ EngineVersion	g_EngineVersion;
 
 #if USE_ADMINMENU 1
 TopMenuObject	VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
+#endif
+
+#if DEBUG_MODE 1
+char g_szDebugLogFile[PLATFORM_MAX_PATH];
+
+void DebugMsg(const char[] sMsg, any ...)
+{
+	static char szBuffer[512];
+	VFormat(SZF(szBuffer), sMsg, 2);
+	LogToFile(g_szDebugLogFile, szBuffer);
+}
+#define DebugMessage(%0) DebugMsg(%0);
+#else
+#define DebugMessage(%0)
 #endif

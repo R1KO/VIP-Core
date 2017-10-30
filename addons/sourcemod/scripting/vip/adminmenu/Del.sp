@@ -1,16 +1,16 @@
 void ShowDeleteVipPlayerMenu(int iClient)
 {
-	char sBuffer[128];
+	char szBuffer[128];
 
 	Menu hMenu = new Menu(MenuHandler_DeleteVipPlayerMenu);
 
-	g_hClientData[iClient].GetString(DATA_KEY_Name, sBuffer, MAX_NAME_LENGTH);
-	hMenu.SetTitle("%T\n%s ?:\n \n", "MENU_DEL_VIP", iClient, sBuffer);
+	g_hClientData[iClient].GetString(DATA_KEY_Name, szBuffer, MAX_NAME_LENGTH);
+	hMenu.SetTitle("%T\n%s ?:\n \n", "MENU_DEL_VIP", iClient, szBuffer);
 	
-	FormatEx(SZF(sBuffer), "%T", "CONFIRM", iClient);
-	hMenu.AddItem(NULL_STRING, sBuffer);
-	FormatEx(SZF(sBuffer), "%T", "CANCEL", iClient);
-	hMenu.AddItem(NULL_STRING, sBuffer);
+	FormatEx(SZF(szBuffer), "%T", "CONFIRM", iClient);
+	hMenu.AddItem(NULL_STRING, szBuffer);
+	FormatEx(SZF(szBuffer), "%T", "CANCEL", iClient);
+	hMenu.AddItem(NULL_STRING, szBuffer);
 	
 	ReductionMenu(hMenu, 4);
 	
@@ -32,13 +32,13 @@ public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iC
 			{
 				case 0:
 				{
-					char sName[MAX_NAME_LENGTH];
-					g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(sName));
+					char szName[MAX_NAME_LENGTH];
+					g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));
 					int iTargetID;
 					g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTargetID);
 					if(iTargetID != -1)
 					{
-						DB_RemoveClientFromID(iClient, iTargetID, true, sName);
+						DB_RemoveClientFromID(iClient, iTargetID, true, szName);
 					}
 
 					int iTarget = 0;

@@ -120,7 +120,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 					hPanel.CurrentKey = g_iMaxPageItems;
 					
 					hPanel.DrawItem("Выход", ITEMDRAW_CONTROL);
-					
+
 					hPanel.Send(iClient, SelectInfoPanel, iTime);
 					delete hPanel;
 				}
@@ -184,11 +184,11 @@ bool KvGetLangString(char[] szBuffer, int iBufLen, char[] szClientLang, char[] s
 
 void ReplaceValues(int iClient, char[] szBuffer, int iBufLen, bool bExt)
 {
-	char sName[MAX_NAME_LENGTH]; char sGroup[64];
-	GetClientName(iClient, SZF(sName));
-	ReplaceString(szBuffer, iBufLen, "{NAME}", sName);
-	g_hFeatures[iClient].GetString(KEY_GROUP, SZF(sGroup));
-	ReplaceString(szBuffer, iBufLen, "{GROUP}", sGroup);
+	char szName[MAX_NAME_LENGTH]; char szGroup[64];
+	GetClientName(iClient, SZF(szName));
+	ReplaceString(szBuffer, iBufLen, "{NAME}", szName);
+	g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szGroup));
+	ReplaceString(szBuffer, iBufLen, "{GROUP}", szGroup);
 	if (bExt)
 	{
 		int iExpires;
@@ -196,11 +196,11 @@ void ReplaceValues(int iClient, char[] szBuffer, int iBufLen, bool bExt)
 		DebugMessage("GetValue(%s) = %d", KEY_EXPIRES, iExpires)
 		DebugMessage("GetTime() = %d", GetTime())
 		DebugMessage("TIMELEFT = %d", iExpires - GetTime())
-		char sExpires[64];
-		FormatTime(SZF(sExpires), "%d/%m/%Y - %H:%M", iExpires);
-		ReplaceString(szBuffer, iBufLen, "{EXPIRES}", sExpires);
-		UTIL_GetTimeFromStamp(SZF(sExpires), iExpires - GetTime(), iClient);
-		ReplaceString(szBuffer, iBufLen, "{TIMELEFT}", sExpires);
+		char szExpires[64];
+		FormatTime(SZF(szExpires), "%d/%m/%Y - %H:%M", iExpires);
+		ReplaceString(szBuffer, iBufLen, "{EXPIRES}", szExpires);
+		UTIL_GetTimeFromStamp(SZF(szExpires), iExpires - GetTime(), iClient);
+		ReplaceString(szBuffer, iBufLen, "{TIMELEFT}", szExpires);
 	}
 	//	{NAME}	- Ник игрока
 	//	{GROUP}	- Группа игрока

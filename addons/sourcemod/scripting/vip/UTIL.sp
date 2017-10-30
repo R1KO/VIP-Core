@@ -23,14 +23,14 @@ void UTIL_CloseHandleEx(Handle &hValue)
 	}
 }
 
-stock int UTIL_ReplaceChars(char[] sBuffer, int InChar, int OutChar)
+stock int UTIL_ReplaceChars(char[] szBuffer, int InChar, int OutChar)
 {
 	int iNum = 0;
-	for (int i = 0, iLen = strlen(sBuffer); i < iLen; ++i)
+	for (int i = 0, iLen = strlen(szBuffer); i < iLen; ++i)
 	{
-		if (sBuffer[i] == InChar)
+		if (szBuffer[i] == InChar)
 		{
-			sBuffer[i] = OutChar;
+			szBuffer[i] = OutChar;
 			iNum++;
 		}
 	}
@@ -38,18 +38,16 @@ stock int UTIL_ReplaceChars(char[] sBuffer, int InChar, int OutChar)
 	return iNum;
 }
 
-bool UTIL_StrCmpEx(const char[] sString1, const char[] sString2)
+bool UTIL_StrCmpEx(const char[] szString1, const char[] szString2)
 {
-	int MaxLen, i;
-	
-	int iLen1 = strlen(sString1), 
-	iLen2 = strlen(sString2);
-	
-	MaxLen = (iLen1 > iLen2) ? iLen1:iLen2;
-	
+	int iLen1 = strlen(szString1), 
+	iLen2 = strlen(szString2);
+
+	int MaxLen = (iLen1 > iLen2) ? iLen1:iLen2, i;
+
 	for (i = 0; i < MaxLen; i++)
 	{
-		if (sString1[i] != sString2[i])
+		if (szString1[i] != szString2[i])
 		{
 			return false;
 		}
@@ -84,7 +82,7 @@ int UTIL_SecondsToTime(int iTime)
 	return -1;
 }
 
-void UTIL_GetTimeFromStamp(char[] sBuffer, int maxlength, int iTimeStamp, int iClient = LANG_SERVER)
+void UTIL_GetTimeFromStamp(char[] szBuffer, int iMaxLen, int iTimeStamp, int iClient = LANG_SERVER)
 {
 	if (iTimeStamp > 31536000)
 	{
@@ -92,11 +90,11 @@ void UTIL_GetTimeFromStamp(char[] sBuffer, int maxlength, int iTimeStamp, int iC
 		int days = iTimeStamp / 86400 % 365;
 		if (days > 0)
 		{
-			FormatEx(sBuffer, maxlength, "%d%T %d%T", years, "y.", iClient, days, "d.", iClient);
+			FormatEx(szBuffer, iMaxLen, "%d%T %d%T", years, "y.", iClient, days, "d.", iClient);
 		}
 		else
 		{
-			FormatEx(sBuffer, maxlength, "%d%T", years, "y.", iClient);
+			FormatEx(szBuffer, iMaxLen, "%d%T", years, "y.", iClient);
 		}
 		return;
 	}
@@ -106,11 +104,11 @@ void UTIL_GetTimeFromStamp(char[] sBuffer, int maxlength, int iTimeStamp, int iC
 		int hours = (iTimeStamp / 3600) % 24;
 		if (hours > 0)
 		{
-			FormatEx(sBuffer, maxlength, "%d%T %d%T", days, "d.", iClient, hours, "h.", iClient);
+			FormatEx(szBuffer, iMaxLen, "%d%T %d%T", days, "d.", iClient, hours, "h.", iClient);
 		}
 		else
 		{
-			FormatEx(sBuffer, maxlength, "%d%T", days, "d.", iClient);
+			FormatEx(szBuffer, iMaxLen, "%d%T", days, "d.", iClient);
 		}
 		return;
 	}
@@ -122,37 +120,37 @@ void UTIL_GetTimeFromStamp(char[] sBuffer, int maxlength, int iTimeStamp, int iC
 		
 		if (Hours > 0)
 		{
-			FormatEx(sBuffer, maxlength, "%02d:%02d:%02d", Hours, Mins, Secs);
+			FormatEx(szBuffer, iMaxLen, "%02d:%02d:%02d", Hours, Mins, Secs);
 		}
 		else
 		{
-			FormatEx(sBuffer, maxlength, "%02d:%02d", Mins, Secs);
+			FormatEx(szBuffer, iMaxLen, "%02d:%02d", Mins, Secs);
 		}
 	}
 }
 
 void UTIL_LoadVipCmd(ConVar &hCvar, ConCmd Call_CMD)
 {
-	char sPart[64], sBuffer[128];
+	char szPart[64], szBuffer[128];
 	int reloc_idx, iPos;
-	hCvar.GetString(SZF(sBuffer));
+	hCvar.GetString(SZF(szBuffer));
 	reloc_idx = 0;
-	while ((iPos = SplitString(sBuffer[reloc_idx], ";", SZF(sPart))))
+	while ((iPos = SplitString(szBuffer[reloc_idx], ";", SZF(szPart))))
 	{
 		if (iPos == -1)
 		{
-			strcopy(SZF(sPart), sBuffer[reloc_idx]);
+			strcopy(SZF(szPart), szBuffer[reloc_idx]);
 		}
 		else
 		{
 			reloc_idx += iPos;
 		}
 		
-		TrimString(sPart);
+		TrimString(szPart);
 		
-		if (sPart[0])
+		if (szPart[0])
 		{
-			RegConsoleCmd(sPart, Call_CMD);
+			RegConsoleCmd(szPart, Call_CMD);
 			
 			if (iPos == -1)
 			{
@@ -164,24 +162,24 @@ void UTIL_LoadVipCmd(ConVar &hCvar, ConCmd Call_CMD)
 
 int UTIL_GetConVarAdminFlag(ConVar &hCvar)
 {
-	char sBuffer[32];
-	hCvar.GetString(SZF(sBuffer));
-	return ReadFlagString(sBuffer);
+	char szBuffer[32];
+	hCvar.GetString(SZF(szBuffer));
+	return ReadFlagString(szBuffer);
 }
 
-bool UTIL_CheckValidVIPGroup(const char[] sGroup)
+bool UTIL_CheckValidVIPGroup(const char[] szGroup)
 {
 	g_hGroups.Rewind();
-	return g_hGroups.JumpToKey(sGroup, false);
+	return g_hGroups.JumpToKey(szGroup, false);
 }
 
-stock int UTIL_SearchCharInString(const char[] sBuffer, int c)
+stock int UTIL_SearchCharInString(const char[] szBuffer, int c)
 {
 	int iNum, i, iLen;
 	iNum = 0;
-	iLen = strlen(sBuffer);
+	iLen = strlen(szBuffer);
 	for (i = 0; i < iLen; ++i)
-	if (sBuffer[i] == c)iNum++;
+	if (szBuffer[i] == c)iNum++;
 	
 	return iNum;
 }
@@ -239,9 +237,9 @@ void UTIL_ReloadVIPPlayers(int iClient, bool bNotify)
 	}
 }
 
-void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int iTime, const char[] sGroup)
+void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int iTime, const char[] szGroup)
 {
-	char sQuery[256], sName[MAX_NAME_LENGTH * 2 + 1];
+	char szQuery[256], szName[MAX_NAME_LENGTH * 2 + 1];
 	int iExpires, iAccountID;
 
 	if (iTime)
@@ -255,12 +253,12 @@ void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int i
 	
 	if (iTarget)
 	{
-		GetClientName(iTarget, SZF(sQuery));
-		g_hDatabase.Escape(sQuery, SZF(sName));
+		GetClientName(iTarget, SZF(szQuery));
+		g_hDatabase.Escape(szQuery, SZF(szName));
 	}
 	else
 	{
-		strcopy(SZF(sName), "unknown");
+		strcopy(SZF(szName), "unknown");
 	}
 
 	if (iTarget)
@@ -274,10 +272,10 @@ void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int i
 
 	DataPack hDataPack = new DataPack();
 
-	hDataPack.WriteString(sName);
+	hDataPack.WriteString(szName);
 	hDataPack.WriteCell(iAccountID);
 	hDataPack.WriteCell(iExpires);	
-	hDataPack.WriteString(sGroup);
+	hDataPack.WriteString(szGroup);
 	hDataPack.WriteCell(iTime);
 
 	hDataPack.WriteCell(GET_UID(iClient));
@@ -285,24 +283,24 @@ void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int i
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(SZF(sQuery), "SELECT `id` FROM `vip_users` WHERE `account_id` = %d LIMIT 1;", iAccountID);
-		DebugMessage("sQuery: %s", sQuery)
-		g_hDatabase.Query(SQL_Callback_CheckVIPClient, sQuery, hDataPack);
+		FormatEx(SZF(szQuery), "SELECT `id` FROM `vip_users` WHERE `account_id` = %d LIMIT 1;", iAccountID);
+		DebugMessage("szQuery: %s", szQuery)
+		g_hDatabase.Query(SQL_Callback_CheckVIPClient, szQuery, hDataPack);
 		return;
 	}
 
-	FormatEx(SZF(sQuery), "INSERT INTO `vip_users` (`account_id`, `name`, `expires`, `group`) VALUES (%d, '%s', %d, '%s');", iAccountID, sName, iExpires, sGroup);
-	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, sQuery, hDataPack);
+	FormatEx(SZF(szQuery), "INSERT INTO `vip_users` (`account_id`, `name`, `expires`, `group`) VALUES (%d, '%s', %d, '%s');", iAccountID, szName, iExpires, szGroup);
+	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hDataPack);
 }
 
-public void SQL_Callback_CheckVIPClient(Database hOwner, DBResultSet hResult, const char[] sError, any hPack)
+public void SQL_Callback_CheckVIPClient(Database hOwner, DBResultSet hResult, const char[] szError, any hPack)
 {
 	DataPack hDataPack = view_as<DataPack>(hPack);
 
-	if (hResult == null || sError[0])
+	if (hResult == null || szError[0])
 	{
 		delete hDataPack;
-		LogError("SQL_Callback_CheckVIPClient: %s", sError);
+		LogError("SQL_Callback_CheckVIPClient: %s", szError);
 		return;
 	}
 
@@ -310,11 +308,11 @@ public void SQL_Callback_CheckVIPClient(Database hOwner, DBResultSet hResult, co
 
 	if (hResult.FetchRow())
 	{
-		char sGroup[64];
-		hDataPack.ReadString(SZF(sGroup));	// sName
+		char szGroup[64];
+		hDataPack.ReadString(SZF(szGroup));	// szName
 		hDataPack.ReadCell();							// iAccountID
 		int iExpires = hDataPack.ReadCell();			// iExpires
-		hDataPack.ReadString(SZF(sGroup));	// sGroup
+		hDataPack.ReadString(SZF(szGroup));	// szGroup
 		hDataPack.ReadCell();		// iTime
 		hDataPack.ReadCell();		// iClient
 		hDataPack.ReadCell();		// iTarget
@@ -322,29 +320,29 @@ public void SQL_Callback_CheckVIPClient(Database hOwner, DBResultSet hResult, co
 	
 		DebugMessage("SQL_Callback_CheckVIPClient: id - %d", iClientID)
 		hDataPack.WriteCell(iClientID);
-		SetClientOverrides(hPack, iClientID, iExpires, sGroup);
+		SetClientOverrides(hPack, iClientID, iExpires, szGroup);
 	}
 	else
 	{
 		SQL_FastQuery(g_hDatabase, "SET NAMES 'utf8'");
 
-		char sQuery[256], sName[MAX_NAME_LENGTH * 2 + 1];
-		hDataPack.ReadString(SZF(sName));
+		char szQuery[256], szName[MAX_NAME_LENGTH * 2 + 1];
+		hDataPack.ReadString(SZF(szName));
 		int iAccountID = hDataPack.ReadCell();
-		FormatEx(SZF(sQuery), "INSERT INTO `vip_users` (`account_id`, `name`) VALUES (%d, '%s');", iAccountID, sName);
-		DebugMessage("sQuery: %s", sQuery)
-		g_hDatabase.Query(SQL_Callback_CreateVIPClient, sQuery, hPack);
+		FormatEx(SZF(szQuery), "INSERT INTO `vip_users` (`account_id`, `name`) VALUES (%d, '%s');", iAccountID, szName);
+		DebugMessage("szQuery: %s", szQuery)
+		g_hDatabase.Query(SQL_Callback_CreateVIPClient, szQuery, hPack);
 	}
 }
 
-public void SQL_Callback_CreateVIPClient(Database hOwner, DBResultSet hResult, const char[] sError, any hPack)
+public void SQL_Callback_CreateVIPClient(Database hOwner, DBResultSet hResult, const char[] szError, any hPack)
 {
 	DataPack hDataPack = view_as<DataPack>(hPack);
 
-	if (hResult == null || sError[0])
+	if (hResult == null || szError[0])
 	{
 		delete hDataPack;
-		LogError("SQL_Callback_CreateVIPClient: %s", sError);
+		LogError("SQL_Callback_CreateVIPClient: %s", szError);
 		return;
 	}
 	
@@ -354,41 +352,41 @@ public void SQL_Callback_CreateVIPClient(Database hOwner, DBResultSet hResult, c
 		DebugMessage("SQL_Callback_CreateVIPClient: %d", iClientID)
 		hDataPack.Reset();
 
-		char sGroup[64];
-		hDataPack.ReadString(SZF(sGroup));	// sName
+		char szGroup[64];
+		hDataPack.ReadString(SZF(szGroup));	// szName
 		hDataPack.ReadCell();	// iAccountID
 		int iExpires = hDataPack.ReadCell();				// iExpires
-		hDataPack.ReadString(SZF(sGroup));	// sGroup
+		hDataPack.ReadString(SZF(szGroup));	// szGroup
 		hDataPack.ReadCell();		// iTime
 		hDataPack.ReadCell();		// iClient
 		hDataPack.ReadCell();		// iTarget
 		hDataPack.WriteCell(iClientID);
 
-		SetClientOverrides(hPack, iClientID, iExpires, sGroup);
+		SetClientOverrides(hPack, iClientID, iExpires, szGroup);
 		return;
 	}
 
 	delete hDataPack;
 }
 
-void SetClientOverrides(DataPack hPack, int iClientID, int iExpires, const char[] sGroup)
+void SetClientOverrides(DataPack hPack, int iClientID, int iExpires, const char[] szGroup)
 {
-	char sQuery[512];
-	//	FormatEx(SZF(sQuery), "INSERT INTO `vip_overrides` (`user_id`, `server_id`, `expires`, `group`) VALUES (%d, %d, %d, '%s');", iClientID, g_CVAR_iServerID, iExpires, sGroup);
-	FormatEx(SZF(sQuery), "INSERT INTO `vip_overrides` (`user_id`, `server_id`, `expires`, `group`) VALUES (%d, %d, %d, '%s') \
-		ON DUPLICATE KEY UPDATE `expires` = %d, `group` = '%s';", iClientID, g_CVAR_iServerID, iExpires, sGroup, iExpires, sGroup);
-	DebugMessage("sQuery: %s", sQuery)
-	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, sQuery, hPack);
+	char szQuery[512];
+	//	FormatEx(SZF(szQuery), "INSERT INTO `vip_overrides` (`user_id`, `server_id`, `expires`, `group`) VALUES (%d, %d, %d, '%s');", iClientID, g_CVAR_iServerID, iExpires, szGroup);
+	FormatEx(SZF(szQuery), "INSERT INTO `vip_overrides` (`user_id`, `server_id`, `expires`, `group`) VALUES (%d, %d, %d, '%s') \
+		ON DUPLICATE KEY UPDATE `expires` = %d, `group` = '%s';", iClientID, g_CVAR_iServerID, iExpires, szGroup, iExpires, szGroup);
+	DebugMessage("szQuery: %s", szQuery)
+	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hPack);
 }
 
-public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, const char[] sError, any hPack)
+public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, const char[] szError, any hPack)
 {
 	DataPack hDataPack = view_as<DataPack>(hPack);
 
-	if (hResult == null || sError[0])
+	if (hResult == null || szError[0])
 	{
 		delete hDataPack;
-		LogError("SQL_Callback_OnVIPClientAdded: %s", sError);
+		LogError("SQL_Callback_OnVIPClientAdded: %s", szError);
 		return;
 	}
 	
@@ -397,24 +395,24 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 		hDataPack.Reset();
 	
 		int iClient, iTarget, iTime, iExpires, iAccountID;
-		char sExpires[64], sName[MAX_NAME_LENGTH], sTime[64], sGroup[64];
-		hDataPack.ReadString(SZF(sName));
+		char szExpires[64], szName[MAX_NAME_LENGTH], sTime[64], szGroup[64];
+		hDataPack.ReadString(SZF(szName));
 		iAccountID = hDataPack.ReadCell();
 		iExpires = hDataPack.ReadCell();
-		hDataPack.ReadString(SZF(sGroup));
-		if (sGroup[0] == '\0')
+		hDataPack.ReadString(SZF(szGroup));
+		if (szGroup[0] == '\0')
 		{
-			FormatEx(SZF(sGroup), "%T", "NONE", iClient);
+			FormatEx(SZF(szGroup), "%T", "NONE", iClient);
 		}
 		iTime = hDataPack.ReadCell();
 		if (iTime)
 		{
-			UTIL_GetTimeFromStamp(SZF(sExpires), iTime, iClient);
+			UTIL_GetTimeFromStamp(SZF(szExpires), iTime, iClient);
 			FormatTime(SZF(sTime), "%d/%m/%Y - %H:%M", iExpires);
 		}
 		else
 		{
-			FormatEx(SZF(sExpires), "%T", "PERMANENT", iClient);
+			FormatEx(SZF(szExpires), "%T", "PERMANENT", iClient);
 			FormatEx(SZF(sTime), "%T", "NEVER", iClient);
 		}
 		
@@ -443,16 +441,16 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 
 		if (iClient)
 		{
-			VIP_PrintToChatClient(iClient, "%t", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", sName, szAuth, iClientID);
+			VIP_PrintToChatClient(iClient, "%t", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", szName, szAuth, iClientID);
 		}
 		else
 		{
-			PrintToServer("%T", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", LANG_SERVER, sName, szAuth, iClientID);
+			PrintToServer("%T", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", LANG_SERVER, szName, szAuth, iClientID);
 		}
 
 		if (g_CVAR_bLogsEnable)
 		{
-			LogToFile(g_sLogFile, "%T", "LOG_ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY", LANG_SERVER, iClient, sName, szAuth, iClientID, sExpires, sTime, sGroup);
+			LogToFile(g_szLogFile, "%T", "LOG_ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY", LANG_SERVER, iClient, szName, szAuth, iClientID, szExpires, sTime, szGroup);
 		}
 	}
 

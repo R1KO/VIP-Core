@@ -1,15 +1,15 @@
 void ShowAddVIPMenu(int iClient)
 {
-	char sUserId[12], sName[64];
+	char szUserID[12], szName[64];
 	Menu hMenu = new Menu(MenuHandler_AddVip_PlayerList);
 	hMenu.SetTitle("%T:\n ", "MENU_ADD_VIP", iClient);
 	hMenu.ExitBackButton = true;
 
-	sUserId[0] = 0;
+	szUserID[0] = 0;
 
 	for (int i = 1, iClientID; i <= MaxClients; ++i)
 	{
-		if (IsClientInGame(i) && IsFakeClient(i) == false && GetClientName(i, SZF(sName)))
+		if (IsClientInGame(i) && IsFakeClient(i) == false && GetClientName(i, SZF(szName)))
 		{
 			if (g_iClientInfo[i] & IS_VIP)
 			{
@@ -19,18 +19,18 @@ void ShowAddVIPMenu(int iClient)
 					continue;
 				}
 
-				Format(SZF(sName), "* %s", sName);
+				Format(SZF(szName), "* %s", szName);
 			}
 
-			IntToString(UID(i), SZF(sUserId));
-			hMenu.AddItem(sUserId, sName);
+			IntToString(UID(i), SZF(szUserID));
+			hMenu.AddItem(szUserID, szName);
 		}
 	}
 	
-	if (sUserId[0] == 0)
+	if (szUserID[0] == 0)
 	{
-		FormatEx(SZF(sName), "%T", "NO_PLAYERS_AVAILABLE", iClient);
-		hMenu.AddItem(NULL_STRING, sName, ITEMDRAW_DISABLED);
+		FormatEx(SZF(szName), "%T", "NO_PLAYERS_AVAILABLE", iClient);
+		hMenu.AddItem(NULL_STRING, szName, ITEMDRAW_DISABLED);
 	}
 
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
@@ -47,10 +47,9 @@ public int MenuHandler_AddVip_PlayerList(Menu hMenu, MenuAction action, int iCli
 		}
 		case MenuAction_Select:
 		{
-			char sUserID[16];
-			int UserID;
-			hMenu.GetItem(Item, SZF(sUserID));
-			UserID = StringToInt(sUserID);
+			char szUserID[16];
+			hMenu.GetItem(Item, SZF(szUserID));
+			int UserID = StringToInt(szUserID);
 			if (CID(UserID))
 			{
 				g_hClientData[iClient].SetValue(DATA_KEY_TargetUID, UserID);

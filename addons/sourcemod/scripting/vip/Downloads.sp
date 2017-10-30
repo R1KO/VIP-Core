@@ -2,30 +2,30 @@
 
 void ReadDownloads()
 {
-	char sBuffer[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, sBuffer, sizeof(sBuffer), "data/vip/modules/downloadlist.txt");
-	File hFile = OpenFile(sBuffer, "r");
+	char szBuffer[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, SZF(szBuffer), "data/vip/modules/downloadlist.txt");
+	File hFile = OpenFile(szBuffer, "r");
 
 	if(hFile != null)
 	{
 		int iEndPos;
-		while (!hFile.EndOfFile() && hFile.ReadLine(SZF(sBuffer)))
+		while (!hFile.EndOfFile() && hFile.ReadLine(SZF(szBuffer)))
 		{
-			if(sBuffer[0])
+			if(szBuffer[0])
 			{
-				iEndPos = StrContains(sBuffer, "//");
+				iEndPos = StrContains(szBuffer, "//");
 				if(iEndPos != -1)
 				{
-					sBuffer[iEndPos] = 0;
+					szBuffer[iEndPos] = 0;
 				}
 
-				if(sBuffer[0] && IsCharAlpha(sBuffer[0]))
+				if(szBuffer[0] && IsCharAlpha(szBuffer[0]))
 				{
-					DebugMessage("ReadFileLine: '%s'", sBuffer)
+					DebugMessage("ReadFileLine: '%s'", szBuffer)
 					
-					TrimString(sBuffer);
+					TrimString(szBuffer);
 
-					File_AddToDownloadsTable(sBuffer);
+					File_AddToDownloadsTable(szBuffer);
 				}
 			}
 		}
@@ -34,39 +34,39 @@ void ReadDownloads()
 	}
 }
 
-bool File_AddToDownloadsTable(const char[] sPath)
+bool File_AddToDownloadsTable(const char[] szPath)
 {
-	DebugMessage("File_AddToDownloadsTable: '%s'", sPath)
+	DebugMessage("File_AddToDownloadsTable: '%s'", szPath)
 	
-	if(FileExists(sPath))
+	if(FileExists(szPath))
 	{
-		DebugMessage("File '%s' Loaded", sPath)
+		DebugMessage("File '%s' Loaded", szPath)
 		
-		AddFileToDownloadsTable(sPath);
+		AddFileToDownloadsTable(szPath);
 	}
-	else if(DirExists(sPath))
+	else if(DirExists(szPath))
 	{
-		Dir_AddToDownloadsTable(sPath);
+		Dir_AddToDownloadsTable(szPath);
 	}
 }
 
-bool Dir_AddToDownloadsTable(const char[] sPath)
+bool Dir_AddToDownloadsTable(const char[] szPath)
 {
-	DebugMessage("Dir_AddToDownloadsTable: '%s'", sPath)
+	DebugMessage("Dir_AddToDownloadsTable: '%s'", szPath)
 	
-	if(DirExists(sPath))
+	if(DirExists(szPath))
 	{
-		DirectoryListing hDir = OpenDirectory(sPath);
+		DirectoryListing hDir = OpenDirectory(szPath);
 		if(hDir != null)
 		{
-			char sDirEntry[PLATFORM_MAX_PATH];
-			while (hDir.GetNext(SZF(sDirEntry)))
+			char szDirEntry[PLATFORM_MAX_PATH];
+			while (hDir.GetNext(SZF(szDirEntry)))
 			{
-				if ((UTIL_StrCmpEx(sDirEntry, ".") || UTIL_StrCmpEx(sDirEntry, "..")) == false)
+				if ((UTIL_StrCmpEx(szDirEntry, ".") || UTIL_StrCmpEx(szDirEntry, "..")) == false)
 				{
-					Format(sDirEntry, sizeof(sDirEntry), "%s/%s", sPath, sDirEntry);
+					Format(SZF(szDirEntry), "%s/%s", szPath, szDirEntry);
 
-					File_AddToDownloadsTable(sDirEntry);
+					File_AddToDownloadsTable(szDirEntry);
 				}
 			}
 			delete hDir;

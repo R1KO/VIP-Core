@@ -1,17 +1,17 @@
 void ShowEditTimeMenu(int iClient)
 {
-	char sBuffer[128];
+	char szBuffer[128];
 	Menu hMenu = new Menu(MenuHandler_EditTimeMenu);
 
 	hMenu.SetTitle("%T:\n ", "MENU_EDIT_TIME", iClient);
 	hMenu.ExitBackButton = true;
 
-	FormatEx(SZF(sBuffer), "%T", "MENU_TIME_SET", iClient);
-	hMenu.AddItem(NULL_STRING, sBuffer);
-	FormatEx(SZF(sBuffer), "%T", "MENU_TIME_ADD", iClient);
-	hMenu.AddItem(NULL_STRING, sBuffer);
-	FormatEx(SZF(sBuffer), "%T", "MENU_TIME_TAKE", iClient);
-	hMenu.AddItem(NULL_STRING, sBuffer);
+	FormatEx(SZF(szBuffer), "%T", "MENU_TIME_SET", iClient);
+	hMenu.AddItem(NULL_STRING, szBuffer);
+	FormatEx(SZF(szBuffer), "%T", "MENU_TIME_ADD", iClient);
+	hMenu.AddItem(NULL_STRING, szBuffer);
+	FormatEx(SZF(szBuffer), "%T", "MENU_TIME_TAKE", iClient);
+	hMenu.AddItem(NULL_STRING, szBuffer);
 	
 	ReductionMenu(hMenu, 3);
 
@@ -49,30 +49,30 @@ void ShowEditGroupMenu(int iClient)
 	g_hGroups.Rewind();
 	if(g_hGroups.GotoFirstSubKey())
 	{
-		char sTagetGroup[64], sGroup[64];
+		char sTagetGroup[64], szGroup[64];
 		g_hClientData[iClient].GetString(DATA_KEY_Group, SZF(sTagetGroup));
 
 		do
 		{
-			if (g_hGroups.GetSectionName(SZF(sGroup)))
+			if (g_hGroups.GetSectionName(SZF(szGroup)))
 			{
-				if(!strcmp(sTagetGroup, sGroup, true))
+				if(!strcmp(sTagetGroup, szGroup, true))
 				{	
-					Format(SZF(sGroup), "%s [X]", sGroup);
-					hMenu.AddItem(sGroup, sGroup, ITEMDRAW_DISABLED);
+					Format(SZF(szGroup), "%s [X]", szGroup);
+					hMenu.AddItem(szGroup, szGroup, ITEMDRAW_DISABLED);
 					continue;
 				}
 				
-				hMenu.AddItem(sGroup, sGroup);
+				hMenu.AddItem(szGroup, szGroup);
 			}
 		} while (g_hGroups.GotoNextKey());
 	}
 
 	if(!hMenu.ItemCount)
 	{
-		char sBuffer[128];
-		FormatEx(SZF(sBuffer), "%T", "NO_GROUPS_AVAILABLE", iClient);
-		hMenu.AddItem(NULL_STRING, sBuffer, ITEMDRAW_DISABLED);
+		char szBuffer[128];
+		FormatEx(SZF(szBuffer), "%T", "NO_GROUPS_AVAILABLE", iClient);
+		hMenu.AddItem(NULL_STRING, szBuffer, ITEMDRAW_DISABLED);
 	}
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
@@ -91,23 +91,23 @@ public int MenuHandler_EditVip_GroupsList(Menu hMenu, MenuAction action, int iCl
 		}
 		case MenuAction_Select:
 		{
-			char sQuery[256], sName[MAX_NAME_LENGTH], sGroup[MAX_NAME_LENGTH];
-			hMenu.GetItem(Item, SZF(sGroup));
-			g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(sName));
+			char szQuery[256], szName[MAX_NAME_LENGTH], szGroup[MAX_NAME_LENGTH];
+			hMenu.GetItem(Item, SZF(szGroup));
+			g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));
 
 			int iTarget;
 			g_hFeatures[iClient].GetValue(DATA_KEY_TargetID, iTarget);
 
 			if (GLOBAL_INFO & IS_MySQL)
 			{
-				FormatEx(SZF(sQuery), "UPDATE `vip_overrides` SET `group` = '%s' WHERE `user_id` = '%i' AND `server_id` = '%i';", sGroup, iTarget, g_CVAR_iServerID);
+				FormatEx(SZF(szQuery), "UPDATE `vip_overrides` SET `group` = '%s' WHERE `user_id` = '%i' AND `server_id` = '%i';", szGroup, iTarget, g_CVAR_iServerID);
 			}
 			else
 			{
-				FormatEx(SZF(sQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `id` = '%i';", sGroup, iTarget);
+				FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `id` = '%i';", szGroup, iTarget);
 			}
 			
-			g_hDatabase.Query(SQL_Callback_ErrorCheck, sQuery);
+			g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery);
 			
 			ShowTargetInfo(iClient);
 			
@@ -118,8 +118,8 @@ public int MenuHandler_EditVip_GroupsList(Menu hMenu, MenuAction action, int iCl
 				Clients_CheckVipAccess(iTarget, false);
 			}
 
-			VIP_PrintToChatClient(iClient, "%t", "ADMIN_SET_GROUP", sName, sGroup);
-			if(g_CVAR_bLogsEnable) LogToFile(g_sLogFile, "%T", "LOG_ADMIN_SET_GROUP", LANG_SERVER, iClient, sName, sGroup);
+			VIP_PrintToChatClient(iClient, "%t", "ADMIN_SET_GROUP", szName, szGroup);
+			if(g_CVAR_bLogsEnable) LogToFile(g_szLogFile, "%T", "LOG_ADMIN_SET_GROUP", LANG_SERVER, iClient, szName, szGroup);
 		}
 	}
 

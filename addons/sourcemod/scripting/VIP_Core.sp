@@ -6,7 +6,7 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION		"3.0 DEV #17"
+#define VIP_VERSION		"3.0 DEV #18"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -27,20 +27,6 @@ public Plugin myinfo =
 	version = VIP_VERSION,
 	url = "http://hlmod.ru"
 };
-
-#if DEBUG_MODE 1
-char g_sDebugLogFile[PLATFORM_MAX_PATH];
-
-void DebugMsg(const char[] sMsg, any ...)
-{
-	static char sBuffer[512];
-	VFormat(sBuffer, sizeof(sBuffer), sMsg, 2);
-	LogToFile(g_sDebugLogFile, sBuffer);
-}
-#define DebugMessage(%0) DebugMsg(%0);
-#else
-#define DebugMessage(%0)
-#endif
 
 #include "vip/Global.sp"
 #include "vip/Downloads.sp"
@@ -69,7 +55,7 @@ public void OnPluginStart()
 	LoadTranslations("vip_modules.phrases");
 	LoadTranslations("common.phrases");
 
-	g_iMaxPageItems = GetMaxPageItems(GetMenuStyleHandle(MenuStyle_Default));
+	g_iMaxPageItems		= GetMaxPageItems(GetMenuStyleHandle(MenuStyle_Default));
 	g_hFeaturesArray	= new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
 	GLOBAL_TRIE			= new StringMap();
 
@@ -83,17 +69,17 @@ public void OnPluginStart()
 	Cvars_Setup();
 	API_SetupForwards();
 
-	HookEvent("player_spawn", Event_PlayerSpawn);
-	HookEvent("player_death", Event_PlayerDeath);
-	HookEvent("round_end", Event_RoundEnd, EventHookMode_PostNoCopy);
-	HookEventEx("cs_match_end_restart", Event_MatchEndRestart, EventHookMode_PostNoCopy);
+	HookEvent("player_spawn",			Event_PlayerSpawn);
+	HookEvent("player_death",			Event_PlayerDeath);
+	HookEvent("round_end",				Event_RoundEnd,			EventHookMode_PostNoCopy);
+	HookEventEx("cs_match_end_restart",	Event_MatchEndRestart,	EventHookMode_PostNoCopy);
 
 	CMD_Setup();
 
 	g_EngineVersion = GetEngineVersion();
 
 	#if USE_ADMINMENU 1
-	RegConsoleCmd("sm_vipadmin",		VIPAdmin_CMD);
+	RegConsoleCmd("sm_vipadmin", VIPAdmin_CMD);
 
 	if(LibraryExists("adminmenu"))
 	{
@@ -112,15 +98,15 @@ public void OnAllPluginsLoaded()
 }
 
 #if USE_ADMINMENU 1
-public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[] sArgs)
+public Action OnClientSayCommand(int iClient, const char[] szCommand, const char[] szArgs)
 {
-	if(iClient > 0 && iClient <= MaxClients && sArgs[0])
+	if(iClient > 0 && iClient <= MaxClients && szArgs[0])
 	{
 		if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 		{
 			if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 			{
-				ShowWaitSearchMenu(iClient, sArgs);
+				ShowWaitSearchMenu(iClient, szArgs);
 			}
 
 			return Plugin_Handled;

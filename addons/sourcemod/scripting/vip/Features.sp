@@ -5,26 +5,26 @@ void Features_TurnOffAll(int iClient)
 	int iFeatures = g_hFeaturesArray.Length;
 	if(iFeatures != 0)
 	{
-		char				sFeatureName[FEATURE_NAME_LENGTH];
-		VIP_ToggleState		OldStatus;
+		char				szFeature[FEATURE_NAME_LENGTH];
+		VIP_ToggleState		eOldStatus;
 		Function			Function_Toggle;
 		ArrayList			hArray;
 		DataPack			hDataPack;
 
 		for(int i = 0; i < iFeatures; ++i)
 		{
-			g_hFeaturesArray.GetString(i, sFeatureName, sizeof(sFeatureName));
-			if(GLOBAL_TRIE.GetValue(sFeatureName, hArray))
+			g_hFeaturesArray.GetString(i, SZF(szFeature));
+			if(GLOBAL_TRIE.GetValue(szFeature, hArray))
 			{
 				if(view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 				{
-					OldStatus = Features_GetStatus(iClient, sFeatureName);
+					eOldStatus = Features_GetStatus(iClient, szFeature);
 					hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
 					hDataPack.Position = ITEM_SELECT;
 					Function_Toggle = hDataPack.ReadFunction();
 					if(Function_Toggle != INVALID_FUNCTION)
 					{
-						Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Toggle, iClient, sFeatureName, OldStatus, NO_ACCESS);
+						Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Toggle, iClient, szFeature, eOldStatus, NO_ACCESS);
 					}
 				}
 			}
@@ -39,16 +39,16 @@ void Features_TurnOnAll(int iClient)
 	int iFeatures = g_hFeaturesArray.Length;
 	if(iFeatures != 0)
 	{
-		char				sFeatureName[FEATURE_NAME_LENGTH];
-		VIP_ToggleState		NewStatus;
+		char				szFeature[FEATURE_NAME_LENGTH];
+		VIP_ToggleState		eNewStatus;
 		Function			Function_Toggle;
 		ArrayList			hArray;
 		DataPack			hDataPack;
 
 		for(int i = 0; i < iFeatures; ++i)
 		{
-			GetArrayString(g_hFeaturesArray, i, sFeatureName, sizeof(sFeatureName));
-			if(GetTrieValue(GLOBAL_TRIE, sFeatureName, hArray))
+			GetArrayString(g_hFeaturesArray, i, SZF(szFeature));
+			if(GetTrieValue(GLOBAL_TRIE, szFeature, hArray))
 			{
 				if(view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 				{
@@ -57,10 +57,10 @@ void Features_TurnOnAll(int iClient)
 					Function_Toggle = hDataPack.ReadFunction();
 					if(Function_Toggle != INVALID_FUNCTION)
 					{
-						NewStatus = Features_GetStatus(iClient, sFeatureName);
-						if(NewStatus != NO_ACCESS)
+						eNewStatus = Features_GetStatus(iClient, szFeature);
+						if(eNewStatus != NO_ACCESS)
 						{
-							Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Toggle, iClient, sFeatureName, NO_ACCESS, NewStatus);
+							Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Toggle, iClient, szFeature, NO_ACCESS, eNewStatus);
 						}
 					}
 				}
@@ -69,22 +69,22 @@ void Features_TurnOnAll(int iClient)
 	}
 }
 
-void Features_SetStatus(int iClient, const char[] sFeatureName, VIP_ToggleState Status)
+void Features_SetStatus(int iClient, const char[] szFeature, VIP_ToggleState eStatus)
 {
-	DebugMessage("Features_SetStatus: %N (%i) -> Feature: %s, Status: %i", iClient, iClient, sFeatureName, Status)
-	SetTrieValue(g_hFeatureStatus[iClient], sFeatureName, Status);
+	DebugMessage("Features_SetStatus: %N (%i) -> Feature: %s, eStatus: %i", iClient, iClient, szFeature, eStatus)
+	SetTrieValue(g_hFeatureStatus[iClient], szFeature, eStatus);
 }
 
-VIP_ToggleState Features_GetStatus(const int &iClient, const char[] sFeatureName)
+VIP_ToggleState Features_GetStatus(const int &iClient, const char[] szFeature)
 {
-	static VIP_ToggleState Status;
-	if(g_hFeatureStatus[iClient].GetValue(sFeatureName, Status))
+	static VIP_ToggleState eStatus;
+	if(g_hFeatureStatus[iClient].GetValue(szFeature, eStatus))
 	{
-		DebugMessage("Features_GetStatus: %N (%i) -> Feature: %s, Status: %i", iClient, iClient, sFeatureName, Status)
-		return Status;
+		DebugMessage("Features_GetStatus: %N (%i) -> Feature: %s, eStatus: %i", iClient, iClient, szFeature, eStatus)
+		return eStatus;
 	}
 	
-	DebugMessage("Features_GetStatus: %N (%i) -> Feature: %s, Status: %i", iClient, iClient, sFeatureName, NO_ACCESS)
+	DebugMessage("Features_GetStatus: %N (%i) -> Feature: %s, eStatus: %i", iClient, iClient, szFeature, NO_ACCESS)
 
 	return NO_ACCESS;
 }

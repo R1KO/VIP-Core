@@ -56,7 +56,7 @@ void Cvars_Setup()
 	AutoExecConfig(true, "VIP_Core", "vip");
 }
 
-public void OnAdminFlagChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
+public void OnAdminFlagChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_iAdminFlag = UTIL_GetConVarAdminFlag(hCvar);
 
@@ -79,7 +79,7 @@ public void OnAdminFlagChange(ConVar hCvar, const char[] oldValue, const char[] 
 }
 /*
 #if USE_ADMINMENU 1
-public void OnAddItemToAdminMenuChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
+public void OnAddItemToAdminMenuChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_bAddItemToAdminMenu = hCvar.BoolValue;
 
@@ -103,39 +103,39 @@ public void OnAddItemToAdminMenuChange(ConVar hCvar, const char[] oldValue, cons
 
 #endif
 */
-public void OnServerIDChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
+public void OnServerIDChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_iServerID = hCvar.IntValue;
 }
-public void OnAutoOpenMenuChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
+public void OnAutoOpenMenuChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_bAutoOpenMenu = hCvar.BoolValue;
 }
-public void OnTimeModeChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
+public void OnTimeModeChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_iTimeMode = hCvar.IntValue;
 }
-public void OnDeleteExpiredChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
+public void OnDeleteExpiredChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_iDeleteExpired = hCvar.IntValue;
 }
-public void OnUpdateNameChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
+public void OnUpdateNameChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_bUpdateName = hCvar.BoolValue;
 }
-public void OnSpawnDelayChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
+public void OnSpawnDelayChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_fSpawnDelay = hCvar.FloatValue;
 }
-public void OnHideNoAccessItemsChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
+public void OnHideNoAccessItemsChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_bHideNoAccessItems = hCvar.BoolValue;
 }
-public void OnDefaultStatusChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
+public void OnDefaultStatusChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_bDefaultStatus = hCvar.BoolValue;
 }
-public void OnLogsEnableChange(ConVar hCvar, const char[] oldValue, const char[] newValue)
+public void OnLogsEnableChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_bLogsEnable = hCvar.BoolValue;
 }

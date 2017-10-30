@@ -33,21 +33,21 @@ void ReadConfigs()
 		g_hSortArray = null;
 	}
 	
-	char sFeatureName[255];
-	BuildPath(Path_SM, sFeatureName, sizeof(sFeatureName), "data/vip/cfg/sort_menu.ini");
-	File hFile = OpenFile(sFeatureName, "r");
+	char szFeature[255];
+	BuildPath(Path_SM, SZF(szFeature), "data/vip/cfg/sort_menu.ini");
+	File hFile = OpenFile(szFeature, "r");
 	if (hFile != null)
 	{
 		g_hSortArray = new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
 		
-		while (!hFile.EndOfFile() && hFile.ReadLine(sFeatureName, FEATURE_NAME_LENGTH))
+		while (!hFile.EndOfFile() && hFile.ReadLine(szFeature, FEATURE_NAME_LENGTH))
 		{
-			DebugMessage("ReadFileLine: %s", sFeatureName)
-			TrimString(sFeatureName);
-			if (sFeatureName[0])
+			DebugMessage("ReadFileLine: %s", szFeature)
+			TrimString(szFeature);
+			if (szFeature[0])
 			{
-				g_hSortArray.PushString(sFeatureName);
-				DebugMessage("PushArrayString: %s (%i)", sFeatureName, g_hSortArray.FindString(sFeatureName))
+				g_hSortArray.PushString(szFeature);
+				DebugMessage("PushArrayString: %s (%i)", szFeature, g_hSortArray.FindString(szFeature))
 			}
 		}
 		
@@ -68,15 +68,15 @@ void ReadConfigs()
 	g_hInfo = CreateConfig("data/vip/cfg/info.ini", "VIP_INFO");
 }
 
-KeyValues CreateConfig(const char[] sFile, const char[] sKvName)
+KeyValues CreateConfig(const char[] szFile, const char[] szKvName)
 {
-	char sPath[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, sPath, sizeof(sPath), sFile);
+	char szPath[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, SZF(szPath), szFile);
 	
-	KeyValues hKeyValues = new KeyValues(sKvName);
-	if (hKeyValues.ImportFromFile(sPath) == false)
+	KeyValues hKeyValues = new KeyValues(szKvName);
+	if (hKeyValues.ImportFromFile(szPath) == false)
 	{
-		hKeyValues.ExportToFile(sPath);
+		hKeyValues.ExportToFile(szPath);
 	}
 	
 	hKeyValues.Rewind();
