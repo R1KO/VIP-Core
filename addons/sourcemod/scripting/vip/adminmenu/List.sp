@@ -204,7 +204,7 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 		}
 		else
 		{
-			FormatEx(SZF(szWhere), " AND `u`.`name` LIKE '%%%s%%')", szSearch);
+			FormatEx(SZF(szWhere), " AND `u`.`name` LIKE '%%%s%%'", szSearch);
 		}
 	}
 
