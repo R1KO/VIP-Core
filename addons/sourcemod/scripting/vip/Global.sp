@@ -67,7 +67,7 @@ char g_szToggleStatus[][] =
 
 #define FEATURE_NAME_LENGTH 64
 
-char		g_szLogFile[] = "addons/sourcemod/logs/VIP_Logs.log";
+char		g_szLogFile[PMP];
 
 KeyValues	g_hGroups;
 KeyValues	g_hInfo;

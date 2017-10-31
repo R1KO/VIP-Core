@@ -172,13 +172,14 @@ void DB_UpdateClient(int iClient)
 		char szName[MNL*2+1];
 		GetClientName(iClient, szQuery, MNL);
 		g_hDatabase.Escape(szQuery, SZF(szName));
-		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `name` = '%s' AND `lastvisit` = %d WHERE `id` = %d;", szName, GetTime(), iClientID);
+		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `name` = '%s', `lastvisit` = %d WHERE `id` = %d;", szName, GetTime(), iClientID);
 	}
 	else
 	{
 		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `lastvisit` = %d WHERE `id` = %d;", GetTime(), iClientID);
 	}
 
+	DebugMessage(szQuery)
 	g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery);
 }
 

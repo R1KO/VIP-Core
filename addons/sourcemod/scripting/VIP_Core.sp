@@ -6,7 +6,7 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION		"3.0 DEV #19"
+#define VIP_VERSION		"3.0 DEV #20"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -48,8 +48,10 @@ public Plugin myinfo =
 public void OnPluginStart()
 {
 	#if DEBUG_MODE 1
-	BuildPath(Path_SM, SZF(g_sDebugLogFile), "logs/VIP_Debug.log");
+	BuildPath(Path_SM, SZF(g_szDebugLogFile), "logs/VIP_Debug.log");
 	#endif
+
+	BuildPath(Path_SM, SZF(g_szLogFile), "logs/VIP_Logs.log");
 
 	LoadTranslations("vip_core.phrases");
 	LoadTranslations("vip_modules.phrases");
