@@ -86,7 +86,7 @@ void CreateTables()
 		
 		hTxn.AddQuery("CREATE TABLE IF NOT EXISTS `vip_users` (\
 					`id` INT UNSIGNED NOT NULL AUTO_INCREMENT, \
-					`account_id` INT UNSIGNED NOT NULL, \
+					`account_id` INT NOT NULL, \
 					`name` VARCHAR(64) NOT NULL default 'unknown', \
 					`lastvisit` INT UNSIGNED NOT NULL default 0, \
 					PRIMARY KEY (`id`), \
@@ -107,7 +107,7 @@ void CreateTables()
 	{
 		g_hDatabase.Query(SQL_Callback_ErrorCheck,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 				`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
-				`account_id` INTEGER UNSIGNED UNIQUE NOT NULL, \
+				`account_id` INTEGER UNIQUE NOT NULL, \
 				`name` VARCHAR(64) NOT NULL default 'unknown', \
 				`lastvisit` INTEGER UNSIGNED NOT NULL default 0, \
 				`group` VARCHAR(64) NOT NULL, \

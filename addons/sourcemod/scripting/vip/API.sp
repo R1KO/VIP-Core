@@ -723,6 +723,11 @@ public int Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
 					DB_RemoveClientFromID(0, iClientID, true, szName);
 				}
 			}
+			
+			if(g_iClientInfo[iClient] & IS_MENU_OPEN)
+			{
+				CancelClientMenu(iClient);
+			}
 
 			ResetClient(iClient);
 

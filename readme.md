@@ -1,3 +1,29 @@
+# [VIP] Core 3.0 DEV #22
+
+### Изменения:
+- Попытка исправления ошибки `Invalid Handle 0 (error 4)`.
+- Исправлена ошибка когда у no-steam игроков значение `account_id` в базе данных становилось равным 0.
+
+# [VIP] Core 3.0 DEV #21
+
+### Изменения:
+- Исправлена ошибка `SQL_Callback_SelectVipPlayers: near ")": syntax error`.
+
+# [VIP] Core 3.0 DEV #20
+
+### Изменения:
+- Исправлена ошибка когда значение `name` в базе данных становилось равным 0.
+
+# [VIP] Core 3.0 DEV #19
+
+### Изменения:
+- Добавлена мультиязычность кнопки `"Выход"` в инфо-меню.
+
+# [VIP] Core 3.0 DEV #18
+
+### Изменения:
+- Исправлена ошибка `SQL_Callback_SelectVipPlayers: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '0, 60' at line 1`.
+
 # [VIP] Core 3.0 DEV #17
 
 ### Изменения:

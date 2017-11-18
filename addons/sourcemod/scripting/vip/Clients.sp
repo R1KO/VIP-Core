@@ -549,6 +549,11 @@ void Clients_ExpiredClient(int iClient)
 			DB_RemoveClientFromID(0, iClientID, false);
 		}
 	}
+	
+	if(g_iClientInfo[iClient] & IS_MENU_OPEN)
+	{
+		CancelClientMenu(iClient);
+	}
 
 	ResetClient(iClient);
 	

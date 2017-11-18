@@ -123,7 +123,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 		case MenuAction_Display:
 		{
 			SET_BIT(g_iClientInfo[iClient], IS_MENU_OPEN);
-			
+
 			g_hFeatures[iClient].Remove(KEY_MENUITEM);
 
 			DebugMessage("MenuAction_Display: Client: %i", iClient)
@@ -141,7 +141,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 				else
 				{
 					//	FakeClientCommand(iClient, "menuselect 0");
-					DisplayClientInfo(iClient, "expired_info");
+				//	DisplayClientInfo(iClient, "expired_info");
 					Clients_ExpiredClient(iClient);
 					return 0;
 				}
