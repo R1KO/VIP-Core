@@ -1,3 +1,14 @@
+# [VIP] Core 3.0 DEV #24
+
+### Изменения:
+- Исправлена ошибка `SQL_Callback_SelectVipClientInfo`
+- Исправлена ошибка `SQL_Callback_ChangeTime: Unknown column 'user_id' in 'where clause'`
+
+# [VIP] Core 3.0 DEV #23
+
+### Изменения:
+- Удален столбец `id` из базы данных.
+
 # [VIP] Core 3.0 DEV #22
 
 ### Изменения:

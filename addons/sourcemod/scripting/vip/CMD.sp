@@ -160,16 +160,12 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(SZF(szQuery), "SELECT `id` \
-											FROM `vip_users` AS `u` \
-											LEFT JOIN `vip_users_overrides` AS `o` \
-											ON `o`.`user_id` = `u`.`id` \
-											WHERE `o`.`server_id` = '%i' \
-											AND `u`.`account_id` = %d LIMIT 1;", g_CVAR_iServerID, iAccountID);
+		FormatEx(SZF(szQuery), "SELECT `uid`, (SELECT `name` FROM `vip_users` WHERE `account_id` = %d LIMIT 1) as `name`, `expires`  \
+											FROM `vip_users_overrides` WHERE `sid` = %d AND `uid` = %d LIMIT 1;", iAccountID, g_CVAR_iServerID, iAccountID);
 	}
 	else
 	{
-		FormatEx(SZF(szQuery), "SELECT `id` \
+		FormatEx(SZF(szQuery), "SELECT `account_id`, `name` \
 											FROM `vip_users` \
 											WHERE `account_id` = %d LIMIT 1;", iAccountID);
 	}
@@ -185,9 +181,9 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 	return Plugin_Handled;
 }
 
-public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hQuery, const char[] szError, any iClient)
+public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, any iClient)
 {
-	if (hQuery == null || szError[0])
+	if (hResult == null || szError[0])
 	{
 		LogError("SQL_Callback_OnSelectRemoveClient: %s", szError);
 	}
@@ -197,9 +193,12 @@ public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hQuer
 		iClient = CID(iClient);
 	}
 	
-	if ((hQuery).FetchRow())
+	if (hResult.FetchRow())
 	{
-		DB_RemoveClientFromID(iClient, hQuery.FetchInt(0), true);
+		int iAccountID = hResult.FetchInt(0);
+		char szName[MNL];
+		hResult.FetchString(1, SZF(szName));
+		DB_RemoveClientFromID(iClient, iAccountID, true, szName);
 	}
 	else
 	{

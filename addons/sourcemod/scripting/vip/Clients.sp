@@ -58,20 +58,13 @@ void Clients_LoadClient(int iClient, bool bNotify)
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(SZF(szQuery), "SELECT `u`.`id`, \
-												`o`.`expires`, \
-												`o`.`group`, \
-												`u`.`name` \
-												FROM `vip_users` AS `u` \
-												LEFT JOIN `vip_overrides` AS `o` \
-												ON `o`.`user_id` = `u`.`id` \
-												WHERE `o`.`server_id` = %d \
-												AND `account_id` = %d LIMIT 1;",
-												g_CVAR_iServerID, iAccountID);
+		FormatEx(SZF(szQuery), "SELECT `expires`, `group`, (SELECT `name` FROM `vip_users` WHERE `account_id` = %d LIMIT 1) as `name` \
+		FROM `vip_overrides` WHERE `uid` = %d AND `sid` = %d LIMIT 1;",
+												iAccountID, iAccountID, g_CVAR_iServerID);
 	}
 	else
 	{
-		FormatEx(SZF(szQuery), "SELECT `id`, `expires`, `group`, `name` \
+		FormatEx(SZF(szQuery), "SELECT `expires`, `group`, `name` \
 											FROM `vip_users` \
 											WHERE `account_id` = %d LIMIT 1;",
 											iAccountID);
@@ -79,8 +72,8 @@ void Clients_LoadClient(int iClient, bool bNotify)
 	
 	DataPack hDataPack = new DataPack();
 	hDataPack.WriteCell(UID(iClient));
-	hDataPack.WriteCell(bNotify);
 	hDataPack.WriteCell(iAccountID);
+	hDataPack.WriteCell(bNotify);
 	
 	DebugMessage(szQuery)
 	g_hDatabase.Query(SQL_Callback_OnClientAuthorized, szQuery, hDataPack);
@@ -102,10 +95,10 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 	DebugMessage("SQL_Callback_OnClientAuthorized: %d", iClient)
 	if (iClient)
 	{
+		int iAccountID = hDataPack.ReadCell();
 		if (hResult.FetchRow())
 		{
-			int iExpires = hResult.FetchInt(1),
-			iClientID = hResult.FetchInt(0);
+			int iExpires = hResult.FetchInt(0);
 			DebugMessage("Clients_LoadClient %N (%d):\texpires: %d", iClient, iClient, iExpires)
 			if (iExpires > 0)
 			{
@@ -127,8 +120,8 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 						DebugMessage("Clients_LoadClient %N (%d):\tDelete", iClient, iClient)
 						
 						char szName[MAX_NAME_LENGTH*2+1];
-						hResult.FetchString(3, SZF(szName));
-						DB_RemoveClientFromID(0, iClientID, false, szName);
+						hResult.FetchString(2, SZF(szName));
+						DB_RemoveClientFromID(0, iAccountID, false, szName);
 					}
 
 					CreateForward_OnVIPClientRemoved(iClient, "Expired");
@@ -144,13 +137,13 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 			}
 
 			char szGroup[64];
-			hResult.FetchString(2, SZF(szGroup));
+			hResult.FetchString(1, SZF(szGroup));
 			DebugMessage("Clients_LoadClient %N (%d):\tvip_group: %s", iClient, iClient, szGroup)
 			if (szGroup[0] && UTIL_CheckValidVIPGroup(szGroup))
 			{
 				Clients_CreateClientVIPSettings(iClient, iExpires);
 
-				g_hFeatures[iClient].SetValue(KEY_CID, iClientID);
+				g_hFeatures[iClient].SetValue(KEY_CID, iAccountID);
 
 				g_hFeatures[iClient].SetString(KEY_GROUP, szGroup);
 				
@@ -175,8 +168,6 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 			}
 			else
 			{
-				hDataPack.ReadCell();
-				int iAccountID = hDataPack.ReadCell();
 				LogError("Invalid VIP-Group/Некорректная VIP-группа: %s (Игрок: %d)", szGroup, iAccountID);
 			}
 		}
@@ -185,7 +176,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 			CreateForward_OnClientLoaded(iClient);
 		}
 	}
-	
+
 	delete hDataPack;
 }
 

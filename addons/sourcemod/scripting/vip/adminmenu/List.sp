@@ -210,28 +210,28 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(SZF(szQuery), "SELECT `u`.`id`, \
+		FormatEx(SZF(szQuery), "SELECT `u`.`account_id`, \
 												`u`.`name` \
 												FROM `vip_users` AS `u` \
 												LEFT JOIN `vip_overrides` AS `o` \
-												ON `o`.`user_id` = `u`.`id` \
-												WHERE `o`.`server_id` = %d%s \ 
-												LIMIT %d, %d;", 
+												ON `o`.`uid` = `u`.`account_id` \
+												WHERE `o`.`sid` = %d%s \ 
+												LIMIT %d, %d;",
 			g_CVAR_iServerID, szWhere, iOffset, LIST_OFFSET);
 	}
 	else
 	{
 		if(szWhere[0])
 		{
-			FormatEx(SZF(szQuery), "SELECT `id`, `name` \
-											FROM `vip_users` \
-											WHERE %s LIMIT %d, %d;", 
+			FormatEx(SZF(szQuery), "SELECT `account_id`, `name` \
+									FROM `vip_users` \
+									WHERE %s LIMIT %d, %d;", 
 			szWhere[5], iOffset, LIST_OFFSET);
 		}
 		else
 		{
-			FormatEx(SZF(szQuery), "SELECT `id`, `name` \
-											FROM `vip_users` LIMIT %d, %d;", 
+			FormatEx(SZF(szQuery), "SELECT `account_id`, `name` \
+									FROM `vip_users` LIMIT %d, %d;", 
 			iOffset, LIST_OFFSET);
 		}
 	}
@@ -309,13 +309,12 @@ void ShowTargetInfo(int iClient)
 		FormatEx(SZF(szQuery), "SELECT `o`.`group`, \
 												`o`.`expires`, \
 												`u`.`name`, \
-												`u`.`account_id`, \
-												`u`.`id` \
+												`u`.`account_id` \
 												FROM `vip_users` AS `u` \
 												LEFT JOIN `vip_overrides` AS `o` \
-												ON `o`.`user_id` = `u`.`id` \
-												WHERE `o`.`server_id` = %d \
-												AND `u`.`id` = %d LIMIT 1;", 
+												ON `o`.`uid` = `u`.`account_id` \
+												WHERE `o`.`sid` = %d \
+												AND `u`.`account_id` = %d LIMIT 1;", 
 			g_CVAR_iServerID, iClientID);
 	}
 	else
@@ -324,9 +323,8 @@ void ShowTargetInfo(int iClient)
 												`expires`, \
 												`name`, \
 												`account_id`, \
-												`id` \
 												FROM `vip_users` \
-												WHERE `id` = %d LIMIT 1;", 
+												WHERE `account_id` = %d LIMIT 1;", 
 			iClientID);
 	}
 

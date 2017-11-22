@@ -85,20 +85,18 @@ void CreateTables()
 		Transaction hTxn = new Transaction();
 		
 		hTxn.AddQuery("CREATE TABLE IF NOT EXISTS `vip_users` (\
-					`id` INT UNSIGNED NOT NULL AUTO_INCREMENT, \
 					`account_id` INT NOT NULL, \
 					`name` VARCHAR(64) NOT NULL default 'unknown', \
 					`lastvisit` INT UNSIGNED NOT NULL default 0, \
-					PRIMARY KEY (`id`), \
-					UNIQUE KEY `account_id` (`account_id`)) DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;");
+					PRIMARY KEY (`account_id`) \
+					) DEFAULT CHARSET=utf8;");
+
 		hTxn.AddQuery("CREATE TABLE IF NOT EXISTS `vip_overrides` (\
-					`user_id` INT UNSIGNED NOT NULL, \
-					`server_id` INT UNSIGNED NOT NULL, \
+					`uid` INT NOT NULL, \
+					`sid` INT UNSIGNED NOT NULL, \
 					`group` VARCHAR(64) NOT NULL, \
 					`expires` INT UNSIGNED NOT NULL default 0, \
-					PRIMARY KEY (`user_id`, `server_id`), \
-					UNIQUE KEY `user_id` (`user_id`, `server_id`), \
-					CONSTRAINT `vip_overrides_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `vip_users` (`id`)  ON DELETE CASCADE ON UPDATE CASCADE\
+					PRIMARY KEY (`uid`, `sid`) \
 					) DEFAULT CHARSET=utf8;");
 
 		g_hDatabase.Execute(hTxn, SQL_OnTxnSuccess, SQL_OnTxnFailure);
@@ -106,8 +104,7 @@ void CreateTables()
 	else
 	{
 		g_hDatabase.Query(SQL_Callback_ErrorCheck,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
-				`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
-				`account_id` INTEGER UNIQUE NOT NULL, \
+				`account_id` INTEGER PRIMARY KEY NOT NULL, \
 				`name` VARCHAR(64) NOT NULL default 'unknown', \
 				`lastvisit` INTEGER UNSIGNED NOT NULL default 0, \
 				`group` VARCHAR(64) NOT NULL, \
@@ -172,11 +169,11 @@ void DB_UpdateClient(int iClient)
 		char szName[MNL*2+1];
 		GetClientName(iClient, szQuery, MNL);
 		g_hDatabase.Escape(szQuery, SZF(szName));
-		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `name` = '%s', `lastvisit` = %d WHERE `id` = %d;", szName, GetTime(), iClientID);
+		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `name` = '%s', `lastvisit` = %d WHERE `account_id` = %d LIMIT 1;", szName, GetTime(), iClientID);
 	}
 	else
 	{
-		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `lastvisit` = %d WHERE `id` = %d;", GetTime(), iClientID);
+		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `lastvisit` = %d WHERE `account_id` = %d LIMIT 1;", GetTime(), iClientID);
 	}
 
 	DebugMessage(szQuery)
@@ -197,11 +194,11 @@ void DB_RemoveClientFromID(int iClient = 0, int iClientID, bool bNotify, const c
 		
 		if (GLOBAL_INFO & IS_MySQL)
 		{
-			FormatEx(SZF(szQuery), "DELETE FROM `vip_overrides` WHERE `user_id` = %d AND `server_id` = %d;", iClientID, g_CVAR_iServerID);
+			FormatEx(SZF(szQuery), "DELETE FROM `vip_overrides` WHERE `uid` = %d AND `sid` = %d;", iClientID, g_CVAR_iServerID);
 		}
 		else
 		{
-			FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `id` = %d;", iClientID);
+			FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d;", iClientID);
 		}
 		
 		DebugMessage(szQuery)
@@ -209,7 +206,7 @@ void DB_RemoveClientFromID(int iClient = 0, int iClientID, bool bNotify, const c
 		return;
 	}
 
-	FormatEx(SZF(szQuery), "SELECT `name` FROM `vip_users` WHERE `id` = %d;", iClientID);
+	FormatEx(SZF(szQuery), "SELECT `name` FROM `vip_users` WHERE `account_id` = %d;", iClientID);
 	DebugMessage(szQuery)
 	g_hDatabase.Query(SQL_Callback_SelectRemoveClient, szQuery, hDataPack);
 }
@@ -264,7 +261,7 @@ public void SQL_Callback_RemoveClient(Database hDB, DBResultSet hResult, const c
 		if (GLOBAL_INFO & IS_MySQL)
 		{
 			char szQuery[256];
-			FormatEx(SZF(szQuery), "SELECT COUNT(*) AS vip_count FROM `vip_overrides` WHERE `user_id` = %d;", iClientID);
+			FormatEx(SZF(szQuery), "SELECT COUNT(*) AS vip_count FROM `vip_overrides` WHERE `uid` = %d;", iClientID);
 			g_hDatabase.Query(SQL_Callback_RemoveClient2, szQuery, iClientID);
 		}
 		
@@ -291,7 +288,7 @@ public void SQL_Callback_RemoveClient2(Database hDB, DBResultSet hResult, const 
 	if (hResult.FetchRow() && hResult.FetchInt(0) == 0)
 	{
 		char szQuery[256];
-		FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `id` = %d;", iClientID);
+		FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d;", iClientID);
 
 		g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery, iClientID);
 	}
@@ -303,15 +300,12 @@ void RemoveExpiredPlayers()
 	
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(SZF(szQuery), "SELECT `user_id`, \
-												`expires` \
-												FROM `vip_overrides` \
-												WHERE `server_id` = %d;", 
+		FormatEx(SZF(szQuery), "SELECT `uid`, `expires` FROM `vip_overrides` WHERE `sid` = %d;", 
 			g_CVAR_iServerID);
 	}
 	else
 	{
-		FormatEx(SZF(szQuery), "SELECT `id`, `expires`, `group` FROM `vip_users`;");
+		FormatEx(SZF(szQuery), "SELECT `account_id`, `expires`, `group` FROM `vip_users`;");
 	}
 	
 	DebugMessage(szQuery)

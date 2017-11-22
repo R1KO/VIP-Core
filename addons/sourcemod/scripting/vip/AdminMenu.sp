@@ -446,11 +446,11 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 			char szQuery[512];
 			if (GLOBAL_INFO & IS_MySQL)
 			{
-				FormatEx(SZF(szQuery), "UPDATE `vip_overrides` SET `expires` = '%d' WHERE `user_id` = '%d' AND `server_id` = '%d';", iExpires, iTarget, g_CVAR_iServerID);
+				FormatEx(SZF(szQuery), "UPDATE `vip_overrides` SET `expires` = '%d' WHERE `uid` = '%d' AND `sid` = '%d';", iExpires, iTarget, g_CVAR_iServerID);
 			}
 			else
 			{
-				FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = '%d' WHERE `id` = '%d';", iExpires, iTarget);
+				FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = '%d' WHERE `account_id` = '%d';", iExpires, iTarget);
 			}
 
 			g_hDatabase.Query(SQL_Callback_ChangeTime, szQuery, UID(iClient));
@@ -556,11 +556,11 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 
 					if (GLOBAL_INFO & IS_MySQL)
 					{
-						FormatEx(SZF(szQuery), "UPDATE `vip_overrides` SET `group` = '%s' WHERE `user_id` = %d AND `server_id` = %d;", szGroup, iTargetID, g_CVAR_iServerID);
+						FormatEx(SZF(szQuery), "UPDATE `vip_overrides` SET `group` = '%s' WHERE `uid` = %d AND `sid` = %d;", szGroup, iTargetID, g_CVAR_iServerID);
 					}
 					else
 					{
-						FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `id` = %d;", szGroup, iTargetID);
+						FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d;", szGroup, iTargetID);
 					}
 
 					g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery);

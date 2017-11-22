@@ -302,17 +302,32 @@ void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int i
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(SZF(szQuery), "SELECT `id` FROM `vip_users` WHERE `account_id` = %d LIMIT 1;", iAccountID);
+		int iLastVisit = iTarget ? GetTime():0;
+		FormatEx(SZF(szQuery), "INSERT INTO `vip_users` (`account_id`, `name`, `lastvisit`) VALUES (%d, '%s', %d) \
+		ON DUPLICATE KEY UPDATE `name` = '%s', `lastvisit` = %d;", iAccountID, szName, iLastVisit, szName, iLastVisit);
 		DebugMessage("szQuery: %s", szQuery)
-		g_hDatabase.Query(SQL_Callback_CheckVIPClient, szQuery, hDataPack);
+		g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery, hDataPack);
+		
+		FormatEx(SZF(szQuery), "INSERT INTO `vip_overrides` (`uid`, `sid`, `expires`, `group`) VALUES (%d, %d, %d, '%s') \
+		ON DUPLICATE KEY UPDATE `expires` = %d, `group` = '%s';", iAccountID, g_CVAR_iServerID, iExpires, szGroup, iExpires, szGroup);
+		DebugMessage("szQuery: %s", szQuery)
+		g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hDataPack);
+
 		return;
 	}
 
-	FormatEx(SZF(szQuery), "INSERT INTO `vip_users` (`account_id`, `name`, `expires`, `group`) VALUES (%d, '%s', %d, '%s');", iAccountID, szName, iExpires, szGroup);
+	FormatEx(SZF(szQuery), "INSERT OR REPLACE INTO `vip_users` (`account_id`, `name`, `expires`, `group`) VALUES (%d, '%s', %d, '%s');", iAccountID, szName, iExpires, szGroup);
 	DebugMessage("szQuery: %s", szQuery)
 	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hDataPack);
 }
+/*
+INSERT INTO t1 (a,b,c) VALUES (1,2,3)
+  ON DUPLICATE KEY UPDATE c=3;
 
+INSERT INTO t1 (a,b,c) VALUES (4,5,6)
+  ON DUPLICATE KEY UPDATE c=9;
+  */
+/*
 public void SQL_Callback_CheckVIPClient(Database hOwner, DBResultSet hResult, const char[] szError, any hPack)
 {
 	DataPack hDataPack = view_as<DataPack>(hPack);
@@ -397,7 +412,7 @@ void SetClientOverrides(DataPack hPack, int iClientID, int iExpires, const char[
 		ON DUPLICATE KEY UPDATE `expires` = %d, `group` = '%s';", iClientID, g_CVAR_iServerID, iExpires, szGroup, iExpires, szGroup);
 	DebugMessage("szQuery: %s", szQuery)
 	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hPack);
-}
+}*/
 
 public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, const char[] szError, any hPack)
 {
@@ -413,6 +428,15 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 	if (hResult.AffectedRows)
 	{
 		hDataPack.Reset();
+		/*
+		hDataPack.WriteString(szName);
+	hDataPack.WriteCell(iAccountID);
+	hDataPack.WriteCell(iExpires);	
+	hDataPack.WriteString(szGroup);
+	hDataPack.WriteCell(iTime);
+
+	hDataPack.WriteCell(GET_UID(iClient));
+	hDataPack.WriteCell(GET_UID(iTarget));*/
 	
 		int iClient, iTarget, iTime, iExpires, iAccountID;
 		char szExpires[64], szName[MAX_NAME_LENGTH], sTime[64], szGroup[64];
@@ -439,17 +463,6 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 		iClient = GET_CID(hDataPack.ReadCell());
 		iTarget = GET_CID(hDataPack.ReadCell());
 
-		int iClientID;
-		if (GLOBAL_INFO & IS_MySQL)
-		{
-			iClientID = hDataPack.ReadCell();
-		}
-		else
-		{
-		//	hDataPack.Position = view_as<DataPackPos>(9);
-			iClientID = hResult.InsertId;
-		}
-
 		if (iTarget)
 		{
 			Clients_CheckVipAccess(iTarget, true);
@@ -461,16 +474,16 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 
 		if (iClient)
 		{
-			VIP_PrintToChatClient(iClient, "%t", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", szName, szAuth, iClientID);
+			VIP_PrintToChatClient(iClient, "%t", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", szName, szAuth, iAccountID);
 		}
 		else
 		{
-			PrintToServer("%T", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", LANG_SERVER, szName, szAuth, iClientID);
+			PrintToServer("%T", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", LANG_SERVER, szName, szAuth, iAccountID);
 		}
 
 		if (g_CVAR_bLogsEnable)
 		{
-			LogToFile(g_szLogFile, "%T", "LOG_ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY", LANG_SERVER, iClient, szName, szAuth, iClientID, szExpires, sTime, szGroup);
+			LogToFile(g_szLogFile, "%T", "LOG_ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY", LANG_SERVER, iClient, szName, szAuth, iAccountID, szExpires, sTime, szGroup);
 		}
 	}
 
