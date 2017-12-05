@@ -206,6 +206,8 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 	return APLRes_Success;
 }
 
+#define VIP_CLIENT(%0)	(g_hFeatures[%0] && (g_iClientInfo[%0] & IS_VIP))
+
 public int Native_CheckClient(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
@@ -404,7 +406,7 @@ public int Native_LogMessage(Handle hPlugin, int iNumParams)
 public int Native_GetClientID(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
+	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
 		int iClientID;
 		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID))
@@ -419,7 +421,7 @@ public int Native_GetClientID(Handle hPlugin, int iNumParams)
 public int Native_GetClientVIPGroup(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
+	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
 		char szGroup[64];
 		
@@ -479,7 +481,7 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 public int Native_GetClientAccessTime(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
+	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
 		int iExp;
 		if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp))
@@ -548,7 +550,7 @@ public void SQL_Callback_ChangeClientSettings(Database hOwner, DBResultSet hResu
 public int Native_GetVIPClientTrie(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
+	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
 		return view_as<int>(g_hFeatures[iClient]);
 	}
@@ -1039,7 +1041,7 @@ public int Native_FillArrayByFeatures(Handle hPlugin, int iNumParams)
 public int Native_IsClientFeatureUse(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
+	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
 		char szFeature[FEATURE_NAME_LENGTH];
 		GetNativeString(2, SZF(szFeature));
@@ -1054,7 +1056,7 @@ public int Native_IsClientFeatureUse(Handle hPlugin, int iNumParams)
 public int Native_GetClientFeatureStatus(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
+	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
 		char szFeature[FEATURE_NAME_LENGTH];
 		GetNativeString(2, SZF(szFeature));
@@ -1107,7 +1109,7 @@ public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 public int Native_GetClientFeatureInt(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
+	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
 		char szFeature[FEATURE_NAME_LENGTH]; int iValue;
 		GetNativeString(2, SZF(szFeature));
@@ -1124,7 +1126,7 @@ public int Native_GetClientFeatureInt(Handle hPlugin, int iNumParams)
 public int Native_GetClientFeatureFloat(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
+	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
 		char szFeature[FEATURE_NAME_LENGTH]; float fValue;
 		GetNativeString(2, SZF(szFeature));
@@ -1140,7 +1142,7 @@ public int Native_GetClientFeatureFloat(Handle hPlugin, int iNumParams)
 public int Native_GetClientFeatureBool(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
+	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
 		char szFeature[FEATURE_NAME_LENGTH]; bool bValue;
 		GetNativeString(2, SZF(szFeature));
@@ -1155,7 +1157,7 @@ public int Native_GetClientFeatureString(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
 	int iLen = GetNativeCell(4);
-	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
+	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
 		char szFeature[64], szBuffer[256];
 		GetNativeString(2, SZF(szFeature));

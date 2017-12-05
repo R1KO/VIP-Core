@@ -1,7 +1,8 @@
 
 void ResetClient(int iClient)
 {
-	g_iClientInfo[iClient] &= ~IS_VIP;
+	g_iClientInfo[iClient] = 0;
+	g_iClientInfo[iClient] |= IS_LOADED;
 	
 	UTIL_CloseHandleEx(g_hFeatures[iClient]);
 	UTIL_CloseHandleEx(g_hFeatureStatus[iClient]);

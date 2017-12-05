@@ -26,4 +26,3 @@ void DebugMsg(const char[] sMsg, any ...)
 #else
 #define DebugMessage(%0)
 #endif
-

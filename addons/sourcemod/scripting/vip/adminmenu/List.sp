@@ -195,21 +195,20 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 	szWhere[0] = 0;
 	g_hClientData[iClient].GetString(DATA_KEY_Search, SZF(szSearch));
 
-	if(szSearch[0])
-	{
-		int iAccountID = UTIL_GetAccountIDFromSteamID(szSearch);
-		if(iAccountID)
-		{
-			FormatEx(SZF(szWhere), " AND `u`.`account_id` = %d", iAccountID);
-		}
-		else
-		{
-			FormatEx(SZF(szWhere), " AND `u`.`name` LIKE '%%%s%%'", szSearch);
-		}
-	}
-
 	if (GLOBAL_INFO & IS_MySQL)
 	{
+		if(szSearch[0])
+		{
+			int iAccountID = UTIL_GetAccountIDFromSteamID(szSearch);
+			if(iAccountID)
+			{
+				FormatEx(SZF(szWhere), " AND `u`.`account_id` = %d", iAccountID);
+			}
+			else
+			{
+				FormatEx(SZF(szWhere), " AND `u`.`name` LIKE '%%%s%%'", szSearch);
+			}
+		}
 		FormatEx(SZF(szQuery), "SELECT `u`.`account_id`, \
 												`u`.`name` \
 												FROM `vip_users` AS `u` \
@@ -221,12 +220,22 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 	}
 	else
 	{
-		if(szWhere[0])
+		if(szSearch[0])
 		{
+			int iAccountID = UTIL_GetAccountIDFromSteamID(szSearch);
+			if(iAccountID)
+			{
+				FormatEx(SZF(szWhere), "`account_id` = %d", iAccountID);
+			}
+			else
+			{
+				FormatEx(SZF(szWhere), "`name` LIKE '%%%s%%'", szSearch);
+			}
+			
 			FormatEx(SZF(szQuery), "SELECT `account_id`, `name` \
 									FROM `vip_users` \
 									WHERE %s LIMIT %d, %d;", 
-			szWhere[5], iOffset, LIST_OFFSET);
+			szWhere, iOffset, LIST_OFFSET);
 		}
 		else
 		{
@@ -322,7 +331,7 @@ void ShowTargetInfo(int iClient)
 		FormatEx(SZF(szQuery), "SELECT `group`, \
 												`expires`, \
 												`name`, \
-												`account_id`, \
+												`account_id` \
 												FROM `vip_users` \
 												WHERE `account_id` = %d LIMIT 1;", 
 			iClientID);

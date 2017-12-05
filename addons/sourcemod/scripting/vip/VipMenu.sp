@@ -96,6 +96,16 @@ stock void PrintArray(ArrayList &hArray)
 
 public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOption)
 {
+	if(action == MenuAction_Display ||
+		action == MenuAction_DisplayItem ||
+		action == MenuAction_DrawItem ||
+		action == MenuAction_Select)
+	{
+		if(!(g_iClientInfo[iClient] & IS_VIP) || !g_hFeatures[iClient])
+		{
+			return 0;
+		}
+	}
 	static char szItemInfo[FEATURE_NAME_LENGTH];
 	ArrayList hBuffer;
 	Function fCallback;
