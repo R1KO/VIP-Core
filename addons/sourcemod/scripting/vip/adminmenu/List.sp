@@ -245,12 +245,14 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 		}
 	}
 	
-	DebugMessage(szQuery)
+	DBG_SQL_Query(szQuery)
+
 	g_hDatabase.Query(SQL_Callback_SelectVipPlayers, szQuery, UID(iClient));
 }
 
 public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, const char[] szError, any UserID)
 {
+	DBG_SQL_Response("SQL_Callback_SelectVipPlayers")
 	if (hResult == null || szError[0])
 	{
 		LogError("SQL_Callback_SelectVipPlayers: %s", szError);
@@ -273,6 +275,8 @@ public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, 
 		{
 			hMenu.SetTitle("%T:\n ", "MENU_LIST_VIP", iClient);
 		}
+
+		DBG_SQL_Response("hResult.RowCount = %d", hResult.RowCount)
 		
 		if (!hResult.RowCount)
 		{
@@ -286,9 +290,12 @@ public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, 
 		int iClientID;
 		while (hResult.FetchRow())
 		{
+			DBG_SQL_Response("hResult.FetchRow()")
 			iClientID = hResult.FetchInt(0);
 			IntToString(iClientID, SZF(szUserID));
 			hResult.FetchString(1, SZF(szName));
+			DBG_SQL_Response("hResult.FetchInt(0) = %d", iClientID)
+			DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
 			
 			if(IsClientOnline(iClientID))
 			{
@@ -337,12 +344,13 @@ void ShowTargetInfo(int iClient)
 			iClientID);
 	}
 
-	DebugMessage(szQuery)
+	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_SelectVipClientInfo, szQuery, UID(iClient));
 }
 
 public void SQL_Callback_SelectVipClientInfo(Database hOwner, DBResultSet hResult, const char[] szError, any UserID)
 {
+	DBG_SQL_Response("SQL_Callback_SelectVipClientInfo")
 	if (hResult == null || szError[0])
 	{
 		LogError("SQL_Callback_SelectVipClientInfo: %s", szError);
@@ -358,21 +366,26 @@ public void SQL_Callback_SelectVipClientInfo(Database hOwner, DBResultSet hResul
 			BackToAdminMenu(iClient);
 			return;
 		}
+
+		DBG_SQL_Response("hResult.FetchRow()")
 	
 		char szGroup[64], szName[32];
 
 		hResult.FetchString(0, SZF(szGroup)); // GROUP
 		g_hClientData[iClient].SetString(DATA_KEY_Group, szGroup);
+		DBG_SQL_Response("hResult.FetchString(0) = '%s", szGroup)
 
 		int iExpires = hResult.FetchInt(1); // Expires
 		g_hClientData[iClient].SetValue(DATA_KEY_Time, iExpires);
-		DebugMessage("SetValue(%s) = %d", DATA_KEY_Time, iExpires)
+		DBG_SQL_Response("hResult.FetchInt(1) = %d", iExpires)
 
 		hResult.FetchString(2, SZF(szName)); // Name
 		g_hClientData[iClient].SetString(DATA_KEY_Name, szName);
+		DBG_SQL_Response("hResult.FetchString(2) = '%s", szName)
 
 		int iAccountID = hResult.FetchInt(3); // Auth
 		g_hClientData[iClient].SetValue(DATA_KEY_Auth, iAccountID);
+		DBG_SQL_Response("hResult.FetchInt(3) = %d", iAccountID)
 
 		ShowTargetInfoMenu(iClient);
 	}

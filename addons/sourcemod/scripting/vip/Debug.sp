@@ -11,18 +11,31 @@ void DebugMsg(const char[] sMsg, any ...)
 #define DebugMessage(%0) DebugMsg(%0);
 
 // Детальность логов
-#define LOG_QUERIES              // SQL Запросы
-#define LOG_API                  // API
-#define LOG_FEATURES             // API
-#define LOG_CLIENTS              // API
-#define LOG_DB                   // API
-
-/*
-#if defined LOG_QUERIES
-...
-#endif
-*/
+#define LOG_QUERIES				// SQL Запросы
+#define LOG_RESPONSE			// Ответы SQL запросов
+#define LOG_API					// API
+#define LOG_FEATURES			// API
+#define LOG_CLIENTS				// API
+#define LOG_DB					// API
 
 #else
 #define DebugMessage(%0)
+#endif
+
+#if defined LOG_QUERIES
+#define DBG_SQL_Query(%0) DebugMsg("SQL_Query: " ... %0);
+#else
+#define DBG_SQL_Query(%0)
+#endif
+
+#if defined LOG_RESPONSE
+#define DBG_SQL_Response(%0) DebugMsg("SQL_Response: " ... %0);
+#else
+#define DBG_SQL_Response(%0)
+#endif
+
+#if defined LOG_API
+#define DBG_API(%0) DebugMsg("API: " ... %0);
+#else
+#define DBG_API(%0)
 #endif

@@ -235,15 +235,31 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 				
 				if (view_as<VIP_FeatureType>(hBuffer.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 				{
+					if(CanTestFeatures() && GetFeatureStatus(FeatureType_Native, "TranslationPhraseExists") == FeatureStatus_Available)
+					{
+						if(!TranslationPhraseExists(szItemInfo))
+						{
+							FormatEx(SZF(szDisplay), "%s [%T]", szItemInfo, g_szToggleStatus[view_as<int>(Features_GetStatus(iClient, szItemInfo))], iClient);
+							return RedrawMenuItem(szDisplay);
+						}
+					}
 					FormatEx(SZF(szDisplay), "%T [%T]", szItemInfo, iClient, g_szToggleStatus[view_as<int>(Features_GetStatus(iClient, szItemInfo))], iClient);
 					return RedrawMenuItem(szDisplay);
 				}
 				
+				if(CanTestFeatures() && GetFeatureStatus(FeatureType_Native, "TranslationPhraseExists") == FeatureStatus_Available)
+				{
+					if(!TranslationPhraseExists(szItemInfo))
+					{
+						strcopy(SZF(szDisplay), szItemInfo);
+						return RedrawMenuItem(szDisplay);
+					}
+				}
 				FormatEx(SZF(szDisplay), "%T", szItemInfo, iClient);
-				
+
 				return RedrawMenuItem(szDisplay);
 			}
-			else if (strcmp(szItemInfo, "NO_FEATURES") == 0)
+			if (strcmp(szItemInfo, "NO_FEATURES") == 0)
 			{
 				FormatEx(SZF(szItemInfo), "%T", "NO_FEATURES", iClient);
 			}

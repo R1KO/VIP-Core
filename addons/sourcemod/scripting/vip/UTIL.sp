@@ -305,19 +305,19 @@ void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int i
 		int iLastVisit = iTarget ? GetTime():0;
 		FormatEx(SZF(szQuery), "INSERT INTO `vip_users` (`account_id`, `name`, `lastvisit`) VALUES (%d, '%s', %d) \
 		ON DUPLICATE KEY UPDATE `name` = '%s', `lastvisit` = %d;", iAccountID, szName, iLastVisit, szName, iLastVisit);
-		DebugMessage("szQuery: %s", szQuery)
+		DBG_SQL_Query(szQuery)
 		g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery, hDataPack);
 		
 		FormatEx(SZF(szQuery), "INSERT INTO `vip_overrides` (`uid`, `sid`, `expires`, `group`) VALUES (%d, %d, %d, '%s') \
 		ON DUPLICATE KEY UPDATE `expires` = %d, `group` = '%s';", iAccountID, g_CVAR_iServerID, iExpires, szGroup, iExpires, szGroup);
-		DebugMessage("szQuery: %s", szQuery)
+		DBG_SQL_Query(szQuery)
 		g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hDataPack);
 
 		return;
 	}
 
 	FormatEx(SZF(szQuery), "INSERT OR REPLACE INTO `vip_users` (`account_id`, `name`, `expires`, `group`) VALUES (%d, '%s', %d, '%s');", iAccountID, szName, iExpires, szGroup);
-	DebugMessage("szQuery: %s", szQuery)
+	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hDataPack);
 }
 /*
@@ -416,6 +416,7 @@ void SetClientOverrides(DataPack hPack, int iClientID, int iExpires, const char[
 
 public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, const char[] szError, any hPack)
 {
+	DBG_SQL_Response("SQL_Callback_OnVIPClientAdded")
 	DataPack hDataPack = view_as<DataPack>(hPack);
 
 	if (hResult == null || szError[0])
@@ -425,6 +426,8 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 		return;
 	}
 	
+	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows)
+
 	if (hResult.AffectedRows)
 	{
 		hDataPack.Reset();

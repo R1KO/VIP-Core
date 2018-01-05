@@ -33,6 +33,10 @@ void Cvars_Setup()
 	hCvar.AddChangeHook(OnDeleteExpiredChange);
 	g_CVAR_iDeleteExpired = hCvar.IntValue;
 
+	hCvar = CreateConVar("sm_vip_delete_outdated", "1", "Удалять VIP-игроков которые не заходили на сервер X дней (-1 - Не удалять, > 0 - Количество дней, по истечению которых удалять (минимум 3 суток))", _, true, -1.0);
+	hCvar.AddChangeHook(OnDeleteOutdatedChange);
+	g_CVAR_iOutdatedExpired = hCvar.IntValue;
+
 	hCvar = CreateConVar("sm_vip_update_name", "1", "Обновлять имена VIP-игроков в базе данных при входе(0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnUpdateNameChange);
 	g_CVAR_bUpdateName = hCvar.BoolValue;
@@ -118,6 +122,10 @@ public void OnTimeModeChange(ConVar hCvar, const char[] szOldValue, const char[]
 public void OnDeleteExpiredChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_iDeleteExpired = hCvar.IntValue;
+}
+public void OnDeleteOutdatedChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
+{
+	g_CVAR_iOutdatedExpired = hCvar.IntValue;
 }
 public void OnUpdateNameChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {

@@ -76,12 +76,13 @@ void Clients_LoadClient(int iClient, bool bNotify)
 	hDataPack.WriteCell(iAccountID);
 	hDataPack.WriteCell(bNotify);
 	
-	DebugMessage(szQuery)
+	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_OnClientAuthorized, szQuery, hDataPack);
 }
 
 public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult, const char[] szError, any hPack)
 {
+	DBG_SQL_Response("SQL_Callback_OnClientAuthorized")
 	DataPack hDataPack = view_as<DataPack>(hPack);
 	if (hResult == null || szError[0])
 	{
@@ -99,18 +100,18 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 		int iAccountID = hDataPack.ReadCell();
 		if (hResult.FetchRow())
 		{
+			DBG_SQL_Response("hResult.FetchRow()")
+
 			int iExpires = hResult.FetchInt(0);
-			DebugMessage("Clients_LoadClient %N (%d):\texpires: %d", iClient, iClient, iExpires)
+			DBG_SQL_Response("hResult.FetchInt(0) = %d", iExpires)
 			if (iExpires > 0)
 			{
 				int iTime = GetTime();
-				DebugMessage("Clients_LoadClient %N (%d):\tTime: %d", iClient, iClient, iTime)
 				
 				if (iTime > iExpires)
 				{
 					delete hDataPack;
-					DebugMessage("Clients_LoadClient %N (%d):\tTime: %d", iClient, iClient, iTime)
-					
+
 					if (g_CVAR_iDeleteExpired == 0 || iTime >= ((g_CVAR_iDeleteExpired * 86400) + iExpires))
 					{
 						if (g_CVAR_bLogsEnable)
@@ -139,7 +140,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 
 			char szGroup[64];
 			hResult.FetchString(1, SZF(szGroup));
-			DebugMessage("Clients_LoadClient %N (%d):\tvip_group: %s", iClient, iClient, szGroup)
+			DBG_SQL_Response("hResult.FetchString(1) = '%s", szGroup)
 			if (szGroup[0] && UTIL_CheckValidVIPGroup(szGroup))
 			{
 				Clients_CreateClientVIPSettings(iClient, iExpires);

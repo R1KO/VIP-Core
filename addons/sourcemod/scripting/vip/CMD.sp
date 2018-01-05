@@ -176,6 +176,7 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 		iClient = UID(iClient);
 	}
 
+	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_OnSelectRemoveClient, szQuery, iClient);
 
 	return Plugin_Handled;
@@ -183,6 +184,8 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 
 public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, any iClient)
 {
+	DBG_SQL_Response("SQL_Callback_OnSelectRemoveClient")
+
 	if (hResult == null || szError[0])
 	{
 		LogError("SQL_Callback_OnSelectRemoveClient: %s", szError);
@@ -195,9 +198,12 @@ public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hResu
 	
 	if (hResult.FetchRow())
 	{
+		DBG_SQL_Response("hResult.FetchRow()")
 		int iAccountID = hResult.FetchInt(0);
+		DBG_SQL_Response("hResult.FetchInt(0) = %d", iAccountID)
 		char szName[MNL];
 		hResult.FetchString(1, SZF(szName));
+		DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
 		DB_RemoveClientFromID(iClient, iAccountID, true, szName);
 	}
 	else

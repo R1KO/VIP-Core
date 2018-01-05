@@ -453,6 +453,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 				FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = '%d' WHERE `account_id` = '%d';", iExpires, iTarget);
 			}
 
+			DBG_SQL_Query(szQuery)
 			g_hDatabase.Query(SQL_Callback_ChangeTime, szQuery, UID(iClient));
 
 			ShowTargetInfoMenu(iClient);
@@ -563,6 +564,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 						FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d;", szGroup, iTargetID);
 					}
 
+					DBG_SQL_Query(szQuery)
 					g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery);
 
 					int iTarget = 0;
@@ -592,12 +594,15 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 
 public void SQL_Callback_ChangeTime(Database hOwner, DBResultSet hResult, const char[] szError, any UserID)
 {
+	DBG_SQL_Response("SQL_Callback_ChangeTime")
 	if (szError[0])
 	{
 		LogError("SQL_Callback_ChangeTime: %s", szError);
 		return;
 	}
-	
+
+	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows)
+
 	if (hResult.AffectedRows)
 	{
 		int iClient = CID(UserID);

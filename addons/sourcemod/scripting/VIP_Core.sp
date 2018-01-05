@@ -6,7 +6,7 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION		"3.0 DEV #24"
+#define VIP_VERSION		"3.0 DEV #25"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -28,9 +28,7 @@ public Plugin myinfo =
 	url = "http://hlmod.ru"
 };
 
-/*
 #include "vip/Debug.sp"
-*/
 #include "vip/Global.sp"
 #include "vip/Downloads.sp"
 #include "vip/UTIL.sp"
