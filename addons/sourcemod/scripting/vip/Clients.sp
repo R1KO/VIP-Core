@@ -59,9 +59,11 @@ void Clients_LoadClient(int iClient, bool bNotify)
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(SZF(szQuery), "SELECT `expires`, `group`, (SELECT `name` FROM `vip_users` WHERE `account_id` = %d LIMIT 1) as `name` \
-		FROM `vip_overrides` WHERE `uid` = %d AND `sid` = %d LIMIT 1;",
-												iAccountID, iAccountID, g_CVAR_iServerID);
+		FormatEx(SZF(szQuery), "SELECT `expires`, `group`, `name` \
+											FROM `vip_users` \
+											WHERE `account_id` = %d \
+											AND `sid` = %d LIMIT 1;",
+											iAccountID, iAccountID, g_CVAR_iServerID);
 	}
 	else
 	{
@@ -438,9 +440,9 @@ void Clients_CreateExpiredTimer(int iClient, int iExp, int iTime)
 
 public void Event_MatchEndRestart(Event hEvent, const char[] sEvName, bool bDontBroadcast)
 {
-	if (g_CVAR_iDeleteExpired != -1)
+	if (g_CVAR_iDeleteExpired != -1 || g_CVAR_iOutdatedExpired != -1)
 	{
-		RemoveExpiredPlayers();
+		RemoveExpAndOutPlayers();
 	}
 }
 

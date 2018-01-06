@@ -557,7 +557,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 
 					if (GLOBAL_INFO & IS_MySQL)
 					{
-						FormatEx(SZF(szQuery), "UPDATE `vip_overrides` SET `group` = '%s' WHERE `uid` = %d AND `sid` = %d;", szGroup, iTargetID, g_CVAR_iServerID);
+						FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d AND `sid` = %d;", szGroup, iTargetID, g_CVAR_iServerID);
 					}
 					else
 					{

@@ -489,7 +489,7 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 						char szQuery[256];
 						if (GLOBAL_INFO & IS_MySQL)
 						{
-							FormatEx(SZF(szQuery), "UPDATE `vip_overrides` SET `group` = '%s' WHERE `uid` = '%d' AND `sid` = '%d';", szGroup, iClientID, g_CVAR_iServerID);
+							FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = '%d' AND `sid` = '%d';", szGroup, iClientID, g_CVAR_iServerID);
 						}
 						else
 						{
@@ -549,11 +549,11 @@ public int Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
 					char szQuery[256];
 					if (GLOBAL_INFO & IS_MySQL)
 					{
-						FormatEx(SZF(szQuery), "UPDATE `vip_overrides` SET `expires` = '%d' WHERE `uid` = '%d' AND `sid` = '%d';", iTime, iClientID, g_CVAR_iServerID);
+						FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = %d WHERE `uid` = %d AND `sid` = %d;", iTime, iClientID, g_CVAR_iServerID);
 					}
 					else
 					{
-						FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = '%d' WHERE `account_id` = '%d';", iTime, iClientID);
+						FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = %d WHERE `account_id` = %d;", iTime, iClientID);
 					}
 
 					DBG_SQL_Query(szQuery)

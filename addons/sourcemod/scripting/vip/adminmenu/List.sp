@@ -209,11 +209,9 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 				FormatEx(SZF(szWhere), " AND `u`.`name` LIKE '%%%s%%'", szSearch);
 			}
 		}
-		FormatEx(SZF(szQuery), "SELECT `u`.`account_id`, \
-												`u`.`name` \
-												FROM `vip_users` AS `u` \
-												LEFT JOIN `vip_overrides` AS `o` \
-												ON `o`.`uid` = `u`.`account_id` \
+		FormatEx(SZF(szQuery), "SELECT `account_id`, \
+												`name` \
+												FROM `vip_users` \
 												WHERE `o`.`sid` = %d%s \ 
 												LIMIT %d, %d;",
 			g_CVAR_iServerID, szWhere, iOffset, LIST_OFFSET);
@@ -322,26 +320,24 @@ void ShowTargetInfo(int iClient)
 	char szQuery[512];
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(SZF(szQuery), "SELECT `o`.`group`, \
-												`o`.`expires`, \
-												`u`.`name`, \
-												`u`.`account_id` \
-												FROM `vip_users` AS `u` \
-												LEFT JOIN `vip_overrides` AS `o` \
-												ON `o`.`uid` = `u`.`account_id` \
-												WHERE `o`.`sid` = %d \
-												AND `u`.`account_id` = %d LIMIT 1;", 
-			g_CVAR_iServerID, iClientID);
+			FormatEx(SZF(szQuery), "SELECT `group`, \
+										`expires`, \
+										`name`, \
+										`account_id` \
+										FROM `vip_users` \
+										WHERE `sid` = %d \
+										AND `account_id` = %d LIMIT 1;", 
+										g_CVAR_iServerID, iClientID);
 	}
 	else
 	{
 		FormatEx(SZF(szQuery), "SELECT `group`, \
-												`expires`, \
-												`name`, \
-												`account_id` \
-												FROM `vip_users` \
-												WHERE `account_id` = %d LIMIT 1;", 
-			iClientID);
+										`expires`, \
+										`name`, \
+										`account_id` \
+										FROM `vip_users` \
+										WHERE `account_id` = %d LIMIT 1;", 
+										iClientID);
 	}
 
 	DBG_SQL_Query(szQuery)
