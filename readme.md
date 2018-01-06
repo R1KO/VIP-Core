@@ -1,35 +1,42 @@
+# [VIP] Core 3.0 DEV #28
+
+### Изменения:
+- Исправлена ошибка из-за которой плагин не запускался `Fatal error creating dynamic native!/unexpected error 23 in AskPluginLoad callback`.
+- Изменено имя базы данных с `"vip"` на `"vip_core"` (еще в версии 3.0 DEV #25, просто забыл упомянуть).
+- Исправлена попытка установки кодировки для SQLite базы.
+
 # [VIP] Core 3.0 DEV #27
 
 ### Изменения:
-- Активирована работа квара `sm_vip_delete_outdated`
-- Полный переход на новую структуру базы данных
+- Активирована работа квара `sm_vip_delete_outdated`.
+- Полный переход на новую структуру базы данных.
 
 # [VIP] Core 3.0 DEV #26
 
 ### Изменения:
 - Вернул прежний вид натива VIP_SetClientVIP и пометил как устаревший.
-- Добавлен новый натив VIP_GiveClientVIP, как замена устаревшему VIP_SetClientVIP
-- Добавлена обратная совместимость натива VIP_RemoveClientVIP
-- Изменента структура таблиц (MySQL)
+- Добавлен новый натив VIP_GiveClientVIP, как замена устаревшему VIP_SetClientVIP.
+- Добавлена обратная совместимость натива VIP_RemoveClientVIP.
+- Изменента структура таблиц (MySQL).
 
 # [VIP] Core 3.0 DEV #25
 
 ### Изменения:
-- Добавлено использование `TranslationPhraseExists` для предовтращения ошибок (При отсутствии фразы модуля в переводе)
-- Начал переводить отладку более расширенный и гибкий вид
-- Добавлен квар `sm_vip_delete_outdated` (пока не функционирует)
+- Добавлено использование `TranslationPhraseExists` для предовтращения ошибок (При отсутствии фразы модуля в переводе).
+- Начал переводить отладку более расширенный и гибкий вид.
+- Добавлен квар `sm_vip_delete_outdated` (пока не функционирует).
 
 # [VIP] Core 3.0 DEV #24
 
 ### Изменения:
-- Исправлены SQL ошибки
+- Исправлены SQL ошибки.
 
 # [VIP] Core 3.0 DEV #23
 
 ### Изменения:
 - Удален столбец `id` из базы данных.
-- Исправлена ошибка `SQL_Callback_SelectVipClientInfo` 
-- Исправлена ошибка `SQL_Callback_ChangeTime: Unknown column 'user_id' in 'where clause'`
+- Исправлена ошибка `SQL_Callback_SelectVipClientInfo` .
+- Исправлена ошибка `SQL_Callback_ChangeTime: Unknown column 'user_id' in 'where clause'`.
 
 # [VIP] Core 3.0 DEV #22
 

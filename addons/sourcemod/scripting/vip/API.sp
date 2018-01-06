@@ -148,7 +148,7 @@ void CreateForward_OnFeatureUnregistered(const char[] szFeature)
 }
 
 
-#define RegNative(%0)	CreateNative("VIP_%0", Native_%0)
+#define RegNative(%0)	CreateNative("VIP_" ... #%0, Native_%0)
 
 public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_max) 
 {

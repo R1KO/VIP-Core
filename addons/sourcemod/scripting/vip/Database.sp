@@ -113,10 +113,13 @@ public void SQL_Callback_TableCreate(Database hOwner, DBResultSet hResult, const
 		return;
 	}
 
-	g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET NAMES 'utf8'");
-	g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET CHARSET 'utf8'");
+	if (GLOBAL_INFO & IS_MySQL)
+	{
+		g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET NAMES 'utf8'");
+		g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET CHARSET 'utf8'");
 
-	g_hDatabase.SetCharset("utf8");
+		g_hDatabase.SetCharset("utf8");
+	}
 
 	UNSET_BIT(GLOBAL_INFO, IS_LOADING);
 
