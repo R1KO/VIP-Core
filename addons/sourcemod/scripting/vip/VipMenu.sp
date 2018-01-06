@@ -47,10 +47,10 @@ void ResortFeaturesArray()
 	int i, x, iSize, index;
 	iSize = g_hSortArray.Length;
 	
-	#if DEBUG_MODE 1
+	/*#if DEBUG_MODE 1
 	PrintArray(g_hSortArray);
 	PrintArray(g_hFeaturesArray);
-	#endif
+	#endif*/
 	
 	x = 0;
 	char szItemInfo[128];
@@ -66,16 +66,16 @@ void ResortFeaturesArray()
 			{
 				DebugMessage("SwapArrayItems")
 				g_hFeaturesArray.SwapAt(index, x);
-				#if DEBUG_MODE 1
+				/*#if DEBUG_MODE 1
 				PrintArray(g_hFeaturesArray);
-				#endif
+				#endif*/
 			}
 			
 			++x;
 		}
 	}
 }
-
+/*
 #if DEBUG_MODE 1
 stock void PrintArray(ArrayList &hArray)
 {
@@ -93,7 +93,7 @@ stock void PrintArray(ArrayList &hArray)
 	}
 }
 #endif
-
+*/
 public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOption)
 {
 	if(action == MenuAction_Display ||

@@ -8,12 +8,15 @@ void ReadDownloads()
 
 	if(hFile != null)
 	{
+		DBG_Download("OpenFile('%s')", szBuffer)
 		int iEndPos;
 		while (!hFile.EndOfFile() && hFile.ReadLine(SZF(szBuffer)))
 		{
+			DBG_Download("ReadLine = '%s'", szBuffer)
 			if(szBuffer[0])
 			{
 				iEndPos = StrContains(szBuffer, "//");
+				DBG_Download("iEndPos = %d", iEndPos)
 				if(iEndPos != -1)
 				{
 					szBuffer[iEndPos] = 0;
@@ -21,7 +24,7 @@ void ReadDownloads()
 
 				if(szBuffer[0] && IsCharAlpha(szBuffer[0]))
 				{
-					DebugMessage("ReadFileLine: '%s'", szBuffer)
+					DBG_Download("ReadFileLine: '%s'", szBuffer)
 					
 					TrimString(szBuffer);
 
@@ -36,11 +39,11 @@ void ReadDownloads()
 
 bool File_AddToDownloadsTable(const char[] szPath)
 {
-	DebugMessage("File_AddToDownloadsTable: '%s'", szPath)
+	DBG_Download("File_AddToDownloadsTable: '%s'", szPath)
 	
 	if(FileExists(szPath))
 	{
-		DebugMessage("File '%s' Loaded", szPath)
+		DBG_Download("File '%s' Loaded", szPath)
 		
 		AddFileToDownloadsTable(szPath);
 	}
@@ -52,7 +55,7 @@ bool File_AddToDownloadsTable(const char[] szPath)
 
 bool Dir_AddToDownloadsTable(const char[] szPath)
 {
-	DebugMessage("Dir_AddToDownloadsTable: '%s'", szPath)
+	DBG_Download("Dir_AddToDownloadsTable: '%s'", szPath)
 	
 	if(DirExists(szPath))
 	{

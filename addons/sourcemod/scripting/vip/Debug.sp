@@ -11,6 +11,7 @@ void DebugMsg(const char[] sMsg, any ...)
 #define DebugMessage(%0) DebugMsg(%0);
 
 // Детальность логов
+#define LOG_DOWNLOADS				// SQL Запросы
 #define LOG_QUERIES				// SQL Запросы
 //	#define LOG_RESPONSE			// Ответы SQL запросов
 //	#define LOG_API					// API
@@ -20,6 +21,12 @@ void DebugMsg(const char[] sMsg, any ...)
 
 #else
 #define DebugMessage(%0)
+#endif
+
+#if defined LOG_DOWNLOADS
+#define DBG_Download(%0) DebugMsg("Download: " ... %0);
+#else
+#define DBG_Download(%0)
 #endif
 
 #if defined LOG_QUERIES

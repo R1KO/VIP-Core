@@ -1,4 +1,4 @@
-#define LIST_OFFSET		60
+static const int LIST_OFFSET = 60;
 
 void ShowVipPlayersListMenu(int iClient)
 {
@@ -71,6 +71,7 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 
 			if (!strcmp(szUserID, "show_all")) // Показать всех
 			{
+				g_hClientData[iClient].Remove(DATA_KEY_Search);
 				ShowVipPlayersFromDBMenu(iClient);
 				
 				return 0;
@@ -187,6 +188,7 @@ public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int 
 
 void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 {
+	LogMessage("ShowVipPlayersFromDBMenu");
 	g_hClientData[iClient].SetValue(DATA_KEY_MenuListType, MENU_TYPE_DB_LIST);
 	g_hClientData[iClient].SetValue(DATA_KEY_Offset, iOffset);
 
@@ -211,7 +213,7 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 		FormatEx(SZF(szQuery), "SELECT `account_id`, \
 										`name` \
 										FROM `vip_users` \
-										WHERE %s \ 
+										WHERE %s%s \ 
 										LIMIT %d, %d;",
 			g_szSID[5], szWhere, iOffset, LIST_OFFSET);
 	}
@@ -231,7 +233,7 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 			iOffset, LIST_OFFSET);
 		}
 	}
-	
+
 	DBG_SQL_Query(szQuery)
 
 	g_hDatabase.Query(SQL_Callback_SelectVipPlayers, szQuery, UID(iClient));
