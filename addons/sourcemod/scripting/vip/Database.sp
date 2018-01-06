@@ -82,61 +82,36 @@ void CreateTables()
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		Transaction hTxn = new Transaction();
-		
-		hTxn.AddQuery("CREATE TABLE IF NOT EXISTS `vip_users` (\
+		g_hDatabase.Query(SQL_Callback_TableCreate,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 					`account_id` INT NOT NULL, \
 					`name` VARCHAR(64) NOT NULL default 'unknown', \
 					`lastvisit` INT UNSIGNED NOT NULL default 0, \
-					PRIMARY KEY (`account_id`) \
-					) DEFAULT CHARSET=utf8;");
-
-		hTxn.AddQuery("CREATE TABLE IF NOT EXISTS `vip_overrides` (\
-					`uid` INT NOT NULL, \
 					`sid` INT UNSIGNED NOT NULL, \
 					`group` VARCHAR(64) NOT NULL, \
 					`expires` INT UNSIGNED NOT NULL default 0, \
-					PRIMARY KEY (`uid`, `sid`), \
-					CONSTRAINT `vip_overrides_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `vip_users` (`account_id`)  ON DELETE CASCADE ON UPDATE CASCADE\
+					CONSTRAINT pk_PlayerID PRIMARY KEY (`account_id`, `sid`) \
 					) DEFAULT CHARSET=utf8;");
-
-		g_hDatabase.Execute(hTxn, SQL_OnTxnSuccess, SQL_OnTxnFailure);
 	}
 	else
 	{
-		g_hDatabase.Query(SQL_Callback_ErrorCheck,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
+		g_hDatabase.Query(SQL_Callback_TableCreate,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 				`account_id` INTEGER PRIMARY KEY NOT NULL, \
 				`name` VARCHAR(64) NOT NULL default 'unknown', \
 				`lastvisit` INTEGER UNSIGNED NOT NULL default 0, \
 				`group` VARCHAR(64) NOT NULL, \
 				`expires` INTEGER UNSIGNED NOT NULL default 0);");
 	}
-
-	UNSET_BIT(GLOBAL_INFO, IS_LOADING);
-
-	OnReadyToStart();
-	
-	UTIL_ReloadVIPPlayers(0, false);
-	
-	if (g_CVAR_iDeleteExpired != -1)
-	{
-		RemoveExpiredPlayers();
-	}
 }
 
-public void SQL_OnTxnFailure(Database hDb, any data, int numQueries, const char[] szError, int failIndex, any[] queryData)
+public void SQL_Callback_TableCreate(Database hOwner, DBResultSet hResult, const char[] szError, any data)
 {
-	DBG_SQL_Response("SQL_OnTxnFailure")
+	DBG_SQL_Response("SQL_Callback_TableCreate")
 
 	if (szError[0])
 	{
-		LogError("SQL_OnTxnFailure: %s", szError);
+		SetFailState("SQL_Callback_TableCreate: %s", szError);
+		return;
 	}
-}
-
-public void SQL_OnTxnSuccess(Database hDb, any data, int numQueries, DBResultSet[] results, any[] queryData)
-{
-	DBG_SQL_Response("SQL_OnTxnSuccess")
 
 	g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET NAMES 'utf8'");
 	g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET CHARSET 'utf8'");
@@ -321,8 +296,7 @@ void RemoveExpiredPlayers()
 	
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(SZF(szQuery), "SELECT `uid`, `expires`, `lastvisit` FROM `vip_overrides` WHERE `sid` = %d;", 
-			g_CVAR_iServerID);
+		FormatEx(SZF(szQuery), "SELECT `account_id`, `expires`, `group`, `lastvisit` FROM `vip_users` WHERE `sid` = %d;", g_CVAR_iServerID);
 	}
 	else
 	{
@@ -353,16 +327,19 @@ public void SQL_Callback_RemoveExpiredPlayers(Database hOwner, DBResultSet hResu
 		while (hResult.FetchRow())
 		{
 			DBG_SQL_Response("hResult.FetchRow()")
-			iExpires = hResult.FetchInt(1);
-			DBG_SQL_Response("hResult.FetchInt(1) = %d", iExpires)
-			if (iExpires && iTime > iExpires)
+			iClientID = hResult.FetchInt(0);
+			DBG_SQL_Response("hResult.FetchInt(0) = %d", iClientID)
+			if (g_CVAR_iDeleteExpired != -1)
 			{
-				if (g_CVAR_iDeleteExpired == 0 || iTime >= ((g_CVAR_iDeleteExpired * 86400) + iExpires))
+				iExpires = hResult.FetchInt(1);
+				DBG_SQL_Response("hResult.FetchInt(1) = %d", iExpires)
+				if (iExpires && iTime > iExpires)
 				{
-					iClientID = hResult.FetchInt(0);
-					DBG_SQL_Response("hResult.FetchInt(0) = %d", iClientID)
-					
-					DB_RemoveClientFromID(0, iClientID, false);
+					if (g_CVAR_iDeleteExpired == 0 || iTime >= ((g_CVAR_iDeleteExpired * 86400) + iExpires))
+					{
+						
+						DB_RemoveClientFromID(0, iClientID, false);
+					}
 				}
 			}
 		}

@@ -168,6 +168,7 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 	RegNative(FillArrayByFeatures);
 
 	// Clients
+	RegNative(GiveClientVIP);
 	RegNative(SetClientVIP);
 	RegNative(RemoveClientVIP);
 
@@ -619,7 +620,97 @@ public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
 	}
 }
 
+public int Native_GiveClientVIP(Handle hPlugin, int iNumParams)
+{
+	int iAdmin = GetNativeCell(1);
+	int iClient = GetNativeCell(2);
+	int iTime = GetNativeCell(3);
+	bool bAddToDB = GetNativeCell(5);
+
+	char szGroup[64];
+	GetNativeString(4, SZF(szGroup));
+
+	return API_GiveClientVIP(iAdmin, iClient, iTime, szGroup, bAddToDB);
+}
+
 public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
+{
+	int iClient = GetNativeCell(1);
+	int iTime = GetNativeCell(2);
+	bool bAddToDB = GetNativeCell(5);
+
+	char szGroup[64];
+	GetNativeString(4, SZF(szGroup));
+
+	return API_GiveClientVIP(0, iClient, iTime, szGroup, bAddToDB);
+}
+
+int API_GiveClientVIP(int iAdmin, int iClient, int iTime, const char[] szGroup, bool bAddToDB)
+{
+	if (CheckValidClient(iClient, false) && (!iAdmin || CheckValidClient(iAdmin, false)))
+	{
+		if (g_iClientInfo[iClient] & IS_VIP)
+		{
+			int iClientID;
+			g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
+			if (iClientID == -1 && bAddToDB)
+			{
+				ResetClient(iClient);
+
+				CreateForward_OnVIPClientRemoved(iClient, "Removed for VIP-status change", iAdmin);
+			}
+			else
+			{
+				return ThrowNativeError(SP_ERROR_NATIVE, "The player %L is already a VIP/Игрок %L уже является VIP-игроком", iClient, iClient);
+			}
+		}
+
+		if (!UTIL_CheckValidVIPGroup(szGroup))
+		{
+			return ThrowNativeError(SP_ERROR_NATIVE, "Invalid VIP-group/Некорректная VIP-группа (%s)", szGroup);
+		}
+		if (iTime < 0)
+		{
+			return ThrowNativeError(SP_ERROR_NATIVE, "Invalid time/Некорректное время (%d)", iTime);
+		}
+		
+		if (bAddToDB)
+		{
+			UTIL_ADD_VIP_PLAYER(iAdmin, iClient, _, iTime, szGroup);
+			return 0;
+		}
+		if (iTime == 0)
+		{
+			Clients_CreateClientVIPSettings(iClient, iTime);
+		}
+		else
+		{
+			int iCurrentTime = GetTime();
+
+			Clients_CreateClientVIPSettings(iClient, iTime+iCurrentTime);
+			Clients_CreateExpiredTimer(iClient, iTime+iCurrentTime, iCurrentTime);
+		}
+
+		g_hFeatures[iClient].SetString(KEY_GROUP, szGroup);
+		g_hFeatures[iClient].SetValue(KEY_CID, -1);
+		g_iClientInfo[iClient] |= IS_VIP;
+		g_iClientInfo[iClient] |= IS_LOADED;
+
+		Clients_LoadVIPFeatures(iClient);
+
+		DisplayClientInfo(iClient, iTime == 0 ? "connect_info_perm":"connect_info_time");
+
+		//	Clients_OnVIPClientLoaded(iClient);
+		if (g_CVAR_bAutoOpenMenu)
+		{
+			g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
+		}
+	}
+	
+	return 0;
+}
+/*
+public int Native_GivetClientVIP(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(2);
 	if (CheckValidClient(iClient, false))
@@ -698,6 +789,7 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 	
 	return 0;
 }
+*/
 /*
 public int Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
 {
@@ -745,13 +837,32 @@ public int Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
 
 public int Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
 {
-	int iClient = GetNativeCell(2);
+	int iClient, iAdmin;
+	bool bInDB, bNotify;
+	if(iNumParams == 3)
+	{
+		iAdmin = 0;
+		iClient = GetNativeCell(1);
+		bInDB = GetNativeCell(2);
+		bNotify = GetNativeCell(3);
+	}
+	else if(iNumParams == 4)
+	{
+		iAdmin = GetNativeCell(1);
+		iClient = GetNativeCell(2);
+		bInDB = GetNativeCell(3);
+		bNotify = GetNativeCell(4);
+	}
+	else
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid number of arguments/Некорректное количество аргументов");
+	}
+
 	if (CheckValidClient(iClient))
 	{
-		int iAdmin = GetNativeCell(1);
 		if (!iAdmin || CheckValidClient(iAdmin, false))
 		{
-			if (GetNativeCell(3))
+			if (bInDB)
 			{
 				int iClientID;
 				if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
@@ -771,16 +882,16 @@ public int Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
 
 			CreateForward_OnVIPClientRemoved(iClient, "Removed by native", iAdmin);
 
-			if (view_as<bool>(GetNativeCell(4)))
+			if (bNotify)
 			{
 				DisplayClientInfo(iClient, "expired_info");
 			}
 
-			return true;
+			return 1;
 		}
 	}
 
-	return false;
+	return 0;
 }
 
 public int Native_IsValidVIPGroup(Handle hPlugin, int iNumParams)

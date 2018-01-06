@@ -344,7 +344,10 @@ native void VIP_SendClientVIPMenu(int iClient, bool bSelection = false);
  *	-
  * @noreturn
 */
-native void VIP_SetClientVIP(int iAdmin = 0, int iClient, int iTime, const char[] szGroup, bool bAddToDB = true);
+native void VIP_GiveClientVIP(int iAdmin = 0, int iClient, int iTime, const char[] szGroup, bool bAddToDB = true);
+
+#pragma deprecated Use VIP_GiveClientVIP() instead
+native bool VIP_SetClientVIP(int iClient, int iTime, any AuthType, const char[] szGroup, bool bAddToDB = true);
 
 /**
  *	Отнимает у игрока VIP-права.

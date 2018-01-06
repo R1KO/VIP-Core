@@ -446,7 +446,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 			char szQuery[512];
 			if (GLOBAL_INFO & IS_MySQL)
 			{
-				FormatEx(SZF(szQuery), "UPDATE `vip_overrides` SET `expires` = '%d' WHERE `uid` = '%d' AND `sid` = '%d';", iExpires, iTarget, g_CVAR_iServerID);
+				FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = '%d' WHERE `account_id` = '%d' AND `sid` = '%d';", iExpires, iTarget, g_CVAR_iServerID);
 			}
 			else
 			{
