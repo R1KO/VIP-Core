@@ -115,20 +115,8 @@ bool		g_CVAR_bLogsEnable;
 
 EngineVersion	g_EngineVersion;
 
+char		g_szSID[64];
+
 #if USE_ADMINMENU 1
 TopMenuObject	VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
-#endif
-
-#if DEBUG_MODE 1
-char g_szDebugLogFile[PLATFORM_MAX_PATH];
-
-void DebugMsg(const char[] sMsg, any ...)
-{
-	static char szBuffer[512];
-	VFormat(SZF(szBuffer), sMsg, 2);
-	LogToFile(g_szDebugLogFile, szBuffer);
-}
-#define DebugMessage(%0) DebugMsg(%0);
-#else
-#define DebugMessage(%0)
 #endif

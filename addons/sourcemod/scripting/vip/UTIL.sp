@@ -258,7 +258,7 @@ void UTIL_REM_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int i
 */
 void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int iTime, const char[] szGroup)
 {
-	char szQuery[512], szName[MNL * 2 + 1];
+	char szQuery[PMP*2], szName[MNL * 2 + 1];
 	int iExpires, iAccountID;
 
 	if (iTime)

@@ -57,22 +57,11 @@ void Clients_LoadClient(int iClient, bool bNotify)
 
 	DebugMessage("Clients_LoadClient %N (%d), %b: - > %x, %u", iClient, iClient, g_iClientInfo[iClient], g_hDatabase, g_hDatabase)
 
-	if (GLOBAL_INFO & IS_MySQL)
-	{
-		FormatEx(SZF(szQuery), "SELECT `expires`, `group`, `name` \
-											FROM `vip_users` \
-											WHERE `account_id` = %d \
-											AND `sid` = %d LIMIT 1;",
-											iAccountID, iAccountID, g_CVAR_iServerID);
-	}
-	else
-	{
-		FormatEx(SZF(szQuery), "SELECT `expires`, `group`, `name` \
-											FROM `vip_users` \
-											WHERE `account_id` = %d LIMIT 1;",
-											iAccountID);
-	}
-	
+	FormatEx(SZF(szQuery), "SELECT `expires`, `group`, `name` \
+										FROM `vip_users` \
+										WHERE `account_id` = %d%s LIMIT 1;",
+										iAccountID, g_szSID);
+
 	DataPack hDataPack = new DataPack();
 	hDataPack.WriteCell(UID(iClient));
 	hDataPack.WriteCell(iAccountID);

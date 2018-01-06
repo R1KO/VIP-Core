@@ -12,18 +12,18 @@ void DebugMsg(const char[] sMsg, any ...)
 
 // Детальность логов
 #define LOG_QUERIES				// SQL Запросы
-#define LOG_RESPONSE			// Ответы SQL запросов
-#define LOG_API					// API
-#define LOG_FEATURES			// API
-#define LOG_CLIENTS				// API
-#define LOG_DB					// API
+//	#define LOG_RESPONSE			// Ответы SQL запросов
+//	#define LOG_API					// API
+//	#define LOG_FEATURES			// API
+//	#define LOG_CLIENTS				// API
+//	#define LOG_DB					// API
 
 #else
 #define DebugMessage(%0)
 #endif
 
 #if defined LOG_QUERIES
-#define DBG_SQL_Query(%0) DebugMsg("SQL_Query: " ... %0);
+#define DBG_SQL_Query(%0) DebugMsg("SQL_Query: %s", %0);
 #else
 #define DBG_SQL_Query(%0)
 #endif

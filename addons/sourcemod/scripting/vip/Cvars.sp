@@ -20,6 +20,14 @@ void Cvars_Setup()
 	hCvar = CreateConVar("sm_vip_server_id", "0", "ID сервера при приспользовании MySQL базы данных", _, true, 0.0);
 	hCvar.AddChangeHook(OnServerIDChange);
 	g_CVAR_iServerID = hCvar.IntValue;
+	if (GLOBAL_INFO & IS_MySQL)
+	{
+		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
+	}
+	else
+	{
+		g_szSID[0] = 0;
+	}
 
 	hCvar = CreateConVar("sm_vip_auto_open_menu", "0", "Автоматически открывать VIP-меню при входе (0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnAutoOpenMenuChange);
@@ -110,6 +118,14 @@ public void OnAddItemToAdminMenuChange(ConVar hCvar, const char[] szOldValue, co
 public void OnServerIDChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_iServerID = hCvar.IntValue;
+	if (GLOBAL_INFO & IS_MySQL)
+	{
+		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
+	}
+	else
+	{
+		g_szSID[0] = 0;
+	}
 }
 public void OnAutoOpenMenuChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {

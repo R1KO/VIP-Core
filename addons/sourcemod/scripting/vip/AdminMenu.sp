@@ -444,15 +444,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 			g_hClientData[iClient].SetValue(DATA_KEY_Time, iExpires);
 
 			char szQuery[512];
-			if (GLOBAL_INFO & IS_MySQL)
-			{
-				FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = '%d' WHERE `account_id` = '%d' AND `sid` = '%d';", iExpires, iTarget, g_CVAR_iServerID);
-			}
-			else
-			{
-				FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = '%d' WHERE `account_id` = '%d';", iExpires, iTarget);
-			}
-
+			FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = '%d' WHERE `account_id` = '%d'%s;", iExpires, iTarget, g_szSID);
 			DBG_SQL_Query(szQuery)
 			g_hDatabase.Query(SQL_Callback_ChangeTime, szQuery, UID(iClient));
 
@@ -555,14 +547,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 					g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTargetID);
 					g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));
 
-					if (GLOBAL_INFO & IS_MySQL)
-					{
-						FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d AND `sid` = %d;", szGroup, iTargetID, g_CVAR_iServerID);
-					}
-					else
-					{
-						FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d;", szGroup, iTargetID);
-					}
+					FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iTargetID, g_szSID);
 
 					DBG_SQL_Query(szQuery)
 					g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery);

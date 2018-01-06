@@ -193,47 +193,36 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 	char szQuery[1024], szSearch[64], szWhere[128];
 	szSearch[0] = 0;
 	szWhere[0] = 0;
-	g_hClientData[iClient].GetString(DATA_KEY_Search, SZF(szSearch));
+	if(g_hClientData[iClient].GetString(DATA_KEY_Search, SZF(szSearch)) && szSearch[0])
+	{
+		int iAccountID = UTIL_GetAccountIDFromSteamID(szSearch);
+		if(iAccountID)
+		{
+			FormatEx(SZF(szWhere), " AND `account_id` = %d", iAccountID);
+		}
+		else
+		{
+			FormatEx(SZF(szWhere), " AND `name` LIKE '%%%s%%'", szSearch);
+		}
+	}
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		if(szSearch[0])
-		{
-			int iAccountID = UTIL_GetAccountIDFromSteamID(szSearch);
-			if(iAccountID)
-			{
-				FormatEx(SZF(szWhere), " AND `u`.`account_id` = %d", iAccountID);
-			}
-			else
-			{
-				FormatEx(SZF(szWhere), " AND `u`.`name` LIKE '%%%s%%'", szSearch);
-			}
-		}
 		FormatEx(SZF(szQuery), "SELECT `account_id`, \
-												`name` \
-												FROM `vip_users` \
-												WHERE `o`.`sid` = %d%s \ 
-												LIMIT %d, %d;",
-			g_CVAR_iServerID, szWhere, iOffset, LIST_OFFSET);
+										`name` \
+										FROM `vip_users` \
+										WHERE %s \ 
+										LIMIT %d, %d;",
+			g_szSID[5], szWhere, iOffset, LIST_OFFSET);
 	}
 	else
 	{
-		if(szSearch[0])
+		if(szWhere[0])
 		{
-			int iAccountID = UTIL_GetAccountIDFromSteamID(szSearch);
-			if(iAccountID)
-			{
-				FormatEx(SZF(szWhere), "`account_id` = %d", iAccountID);
-			}
-			else
-			{
-				FormatEx(SZF(szWhere), "`name` LIKE '%%%s%%'", szSearch);
-			}
-			
 			FormatEx(SZF(szQuery), "SELECT `account_id`, `name` \
 									FROM `vip_users` \
 									WHERE %s LIMIT %d, %d;", 
-			szWhere, iOffset, LIST_OFFSET);
+			szWhere[5], iOffset, LIST_OFFSET);
 		}
 		else
 		{
@@ -318,27 +307,13 @@ void ShowTargetInfo(int iClient)
 	g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iClientID);
 
 	char szQuery[512];
-	if (GLOBAL_INFO & IS_MySQL)
-	{
-			FormatEx(SZF(szQuery), "SELECT `group`, \
-										`expires`, \
-										`name`, \
-										`account_id` \
-										FROM `vip_users` \
-										WHERE `sid` = %d \
-										AND `account_id` = %d LIMIT 1;", 
-										g_CVAR_iServerID, iClientID);
-	}
-	else
-	{
-		FormatEx(SZF(szQuery), "SELECT `group`, \
-										`expires`, \
-										`name`, \
-										`account_id` \
-										FROM `vip_users` \
-										WHERE `account_id` = %d LIMIT 1;", 
-										iClientID);
-	}
+	FormatEx(SZF(szQuery), "SELECT `group`, \
+									`expires`, \
+									`name`, \
+									`account_id` \
+									FROM `vip_users` \
+									WHERE `account_id` = %d%s LIMIT 1;", 
+									iClientID, g_szSID);
 
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_SelectVipClientInfo, szQuery, UID(iClient));

@@ -82,6 +82,7 @@ void CreateTables()
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
+		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
 		g_hDatabase.Query(SQL_Callback_TableCreate,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 					`account_id` INT NOT NULL, \
 					`name` VARCHAR(64) NOT NULL default 'unknown', \
@@ -94,6 +95,7 @@ void CreateTables()
 	}
 	else
 	{
+		g_szSID[0] = 0;
 		g_hDatabase.Query(SQL_Callback_TableCreate,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 				`account_id` INTEGER PRIMARY KEY NOT NULL, \
 				`name` VARCHAR(64) NOT NULL default 'unknown', \
@@ -154,11 +156,11 @@ void DB_UpdateClient(int iClient)
 		char szName[MNL*2+1];
 		GetClientName(iClient, szQuery, MNL);
 		g_hDatabase.Escape(szQuery, SZF(szName));
-		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `name` = '%s', `lastvisit` = %d WHERE `account_id` = %d LIMIT 1;", szName, GetTime(), iClientID);
+		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `name` = '%s', `lastvisit` = %d WHERE `account_id` = %d%s;", szName, GetTime(), iClientID, g_szSID);
 	}
 	else
 	{
-		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `lastvisit` = %d WHERE `account_id` = %d LIMIT 1;", GetTime(), iClientID);
+		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `lastvisit` = %d WHERE `account_id` = %d%s;", GetTime(), iClientID, g_szSID);
 	}
 
 	DBG_SQL_Query(szQuery)
@@ -177,28 +179,14 @@ void DB_RemoveClientFromID(int iClient = 0, int iClientID, bool bNotify, const c
 	{
 		hDataPack.WriteString(szName);
 		
-		if (GLOBAL_INFO & IS_MySQL)
-		{
-			FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d AND `sid` = %d;", iClientID, g_CVAR_iServerID);
-		}
-		else
-		{
-			FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d;", iClientID);
-		}
-		
+		FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
+
 		DBG_SQL_Query(szQuery)
 		g_hDatabase.Query(SQL_Callback_RemoveClient, szQuery, hDataPack);
 		return;
 	}
 
-	if (GLOBAL_INFO & IS_MySQL)
-	{
-		FormatEx(SZF(szQuery), "SELECT `name` FROM `vip_users` WHERE `account_id` = %d AND `sid` = %d;", iClientID, g_CVAR_iServerID);
-	}
-	else
-	{
-		FormatEx(SZF(szQuery), "SELECT `name` FROM `vip_users` WHERE `account_id` = %d;", iClientID);
-	}
+	FormatEx(SZF(szQuery), "SELECT `name` FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
 
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_SelectRemoveClient, szQuery, hDataPack);

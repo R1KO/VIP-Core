@@ -158,18 +158,10 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 		return Plugin_Handled;
 	}
 
-	if (GLOBAL_INFO & IS_MySQL)
-	{
-		FormatEx(SZF(szQuery), "SELECT `uid`, (SELECT `name` FROM `vip_users` WHERE `account_id` = %d LIMIT 1) as `name`, `expires`  \
-											FROM `vip_users_overrides` WHERE `sid` = %d AND `uid` = %d LIMIT 1;", iAccountID, g_CVAR_iServerID, iAccountID);
-	}
-	else
-	{
-		FormatEx(SZF(szQuery), "SELECT `account_id`, `name` \
-											FROM `vip_users` \
-											WHERE `account_id` = %d LIMIT 1;", iAccountID);
-	}
-	
+	FormatEx(SZF(szQuery), "SELECT `account_id`, `name` \
+									FROM `vip_users` \
+									WHERE `account_id` = %d%s LIMIT 1;", iAccountID, g_szSID);
+
 	DebugMessage(szQuery)
 	if (iClient)
 	{
