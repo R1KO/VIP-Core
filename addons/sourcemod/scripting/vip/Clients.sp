@@ -1,8 +1,7 @@
 
 void ResetClient(int iClient)
 {
-	g_iClientInfo[iClient] = 0;
-	g_iClientInfo[iClient] |= IS_LOADED;
+	g_iClientInfo[iClient] = IS_LOADED;
 	
 	UTIL_CloseHandleEx(g_hFeatures[iClient]);
 	UTIL_CloseHandleEx(g_hFeatureStatus[iClient]);
@@ -15,7 +14,7 @@ public void OnClientPutInServer(int iClient)
 	
 	if(!IsFakeClient(iClient) && !IsClientSourceTV(iClient))
 	{
-		Clients_CheckVipAccess(iClient, true);
+		Clients_CheckVipAccess(iClient, true, true);
 	}
 }
 
@@ -31,8 +30,13 @@ public void OnClientDisconnect(int iClient)
 	g_iClientInfo[iClient] = 0;
 }
 
-void Clients_CheckVipAccess(int iClient, bool bNotify = false)
+void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = false)
 {
+	if(bForward && !CreateForward_OnClientPreLoad(iClient))
+	{
+		return;
+	}
+
 	g_iClientInfo[iClient] &= ~IS_LOADED;
 	
 	ResetClient(iClient);
@@ -85,92 +89,91 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 	hDataPack.Reset();
 	
 	int iClient = CID(hDataPack.ReadCell());
+	int iAccountID = hDataPack.ReadCell();
+	bool bNotify = view_as<bool>(hDataPack.ReadCell());
+	delete hDataPack;
+
 	DebugMessage("SQL_Callback_OnClientAuthorized: %d", iClient)
-	if (iClient)
+	if (!iClient || !IsClientInGame(iClient))
 	{
-		int iAccountID = hDataPack.ReadCell();
-		if (hResult.FetchRow())
+		return;
+	}
+
+	if (hResult.FetchRow())
+	{
+		DBG_SQL_Response("hResult.FetchRow()")
+
+		int iExpires = hResult.FetchInt(0);
+		DBG_SQL_Response("hResult.FetchInt(0) = %d", iExpires)
+		if (iExpires > 0)
 		{
-			DBG_SQL_Response("hResult.FetchRow()")
-
-			int iExpires = hResult.FetchInt(0);
-			DBG_SQL_Response("hResult.FetchInt(0) = %d", iExpires)
-			if (iExpires > 0)
+			int iTime = GetTime();
+			
+			if (iTime > iExpires)
 			{
-				int iTime = GetTime();
-				
-				if (iTime > iExpires)
+				if (g_CVAR_iDeleteExpired == 0 || iTime >= ((g_CVAR_iDeleteExpired * 86400) + iExpires))
 				{
-					delete hDataPack;
-
-					if (g_CVAR_iDeleteExpired == 0 || iTime >= ((g_CVAR_iDeleteExpired * 86400) + iExpires))
+					if (g_CVAR_bLogsEnable)
 					{
-						if (g_CVAR_bLogsEnable)
-						{
-							LogToFile(g_szLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
-						}
-						
-						DebugMessage("Clients_LoadClient %N (%d):\tDelete", iClient, iClient)
-						
-						char szName[MAX_NAME_LENGTH*2+1];
-						hResult.FetchString(2, SZF(szName));
-						DB_RemoveClientFromID(0, iAccountID, false, szName);
+						LogToFile(g_szLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
 					}
 
-					CreateForward_OnVIPClientRemoved(iClient, "Expired");
-					
-					DisplayClientInfo(iClient, "expired_info");
-					
-					g_iClientInfo[iClient] |= IS_LOADED;
-					CreateForward_OnClientLoaded(iClient);
-					return;
+					DebugMessage("Clients_LoadClient %N (%d):\tDelete", iClient, iClient)
+
+					char szName[MAX_NAME_LENGTH*2+1];
+					hResult.FetchString(2, SZF(szName));
+					DB_RemoveClientFromID(REASON_EXPIRED, iAccountID, false, szName);
 				}
+
+				CreateForward_OnVIPClientRemoved(iClient, "Expired");
 				
-				Clients_CreateExpiredTimer(iClient, iExpires, iTime);
-			}
-
-			char szGroup[64];
-			hResult.FetchString(1, SZF(szGroup));
-			DBG_SQL_Response("hResult.FetchString(1) = '%s", szGroup)
-			if (szGroup[0] && UTIL_CheckValidVIPGroup(szGroup))
-			{
-				Clients_CreateClientVIPSettings(iClient, iExpires);
-
-				g_hFeatures[iClient].SetValue(KEY_CID, iAccountID);
-
-				g_hFeatures[iClient].SetString(KEY_GROUP, szGroup);
+				DisplayClientInfo(iClient, "expired_info");
 				
-				g_iClientInfo[iClient] |= IS_VIP;
 				g_iClientInfo[iClient] |= IS_LOADED;
-
 				CreateForward_OnClientLoaded(iClient);
+				return;
+			}
+			
+			Clients_CreateExpiredTimer(iClient, iExpires, iTime);
+		}
 
-				DB_UpdateClient(iClient);
+		char szGroup[64];
+		hResult.FetchString(1, SZF(szGroup));
+		DBG_SQL_Response("hResult.FetchString(1) = '%s", szGroup)
+		if (szGroup[0] && UTIL_CheckValidVIPGroup(szGroup))
+		{
+			Clients_CreateClientVIPSettings(iClient, iExpires);
 
-				if (hDataPack.ReadCell())
+			g_hFeatures[iClient].SetValue(KEY_CID, iAccountID);
+
+			g_hFeatures[iClient].SetString(KEY_GROUP, szGroup);
+			
+			g_iClientInfo[iClient] |= IS_VIP|IS_LOADED;
+
+			CreateForward_OnClientLoaded(iClient);
+
+			DB_UpdateClient(iClient);
+
+			if (bNotify)
+			{
+				if (g_CVAR_bAutoOpenMenu)
 				{
-					if (g_CVAR_bAutoOpenMenu)
-					{
-						g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
-					}
-
-					DisplayClientInfo(iClient, iExpires == 0 ? "connect_info_perm":"connect_info_time");
+					g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
 				}
 
-				Clients_LoadVIPFeaturesPre(iClient);
+				DisplayClientInfo(iClient, iExpires == 0 ? "connect_info_perm":"connect_info_time");
 			}
-			else
-			{
-				LogError("Invalid VIP-Group/Некорректная VIP-группа: %s (Игрок: %d)", szGroup, iAccountID);
-			}
+
+			Clients_LoadVIPFeaturesPre(iClient);
 		}
 		else
 		{
-			CreateForward_OnClientLoaded(iClient);
+			LogError("Invalid VIP-Group/Некорректная VIP-группа: %s (Игрок: %d)", szGroup, iAccountID);
 		}
+		return;
 	}
 
-	delete hDataPack;
+	CreateForward_OnClientLoaded(iClient);
 }
 
 void Clients_OnVIPClientLoaded(int iClient)

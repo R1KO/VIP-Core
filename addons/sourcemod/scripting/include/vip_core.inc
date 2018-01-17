@@ -155,6 +155,18 @@ forward void VIP_OnFeatureRegistered(const char[] szFeature);
 forward void VIP_OnFeatureUnregistered(const char[] szFeature);
 
 /**
+ *	Вызывается перед проверкой игрока на наличие VIP-статуса.
+ *	-
+ * @param iClient			Индекс игрока.
+ * @param bIsVIP			Имеет ли игрок VIP-статус.
+ *	-
+
+ * @return					true - продолжить.
+ * 							false - не выполнять проверку.
+*/
+forward bool VIP_OnClientPreLoad(int iClient);
+
+/**
  *	Вызывается когда игрок был загружен.
  *	-
  * @param iClient			Индекс игрока.
@@ -202,10 +214,11 @@ forward void VIP_OnVIPClientRemoved(int iClient, const char[] szReason, int iAdm
  *	-
  * @param iClient			Индекс игрока.
  * @param bNotify			Известить ли игрока о результате проверки.
+ * @param bForward			Вызывать ли форврад VIP_OnClientPreLoad перед проверкой.
  *	-
  * @noreturn
 */
-native void VIP_CheckClient(int iClient, bool bNotify = false);
+native void VIP_CheckClient(int iClient, bool bNotify = false, bool bForward = true);
 
 /**
  *	Получает наличие VIP прав у игрока.
@@ -529,16 +542,27 @@ native bool VIP_GetClientFeatureBool(int iClient, const char[] szFeature);
 native void VIP_GetClientFeatureString(int iClient, const char[] szFeature, char[] szBuffer, int iMaxLength);
 
 /**
- *	Выдает игроку VIP-функцию и устанавливает её значение.
+ *	Выдает игроку VIP-функцию и устанавливает её значение (на время сессии).
  *	-
  * @param iClient			Индекс игрока.
  * @param szFeature			Уникальное имя ф-и.
- * @param sFeatureValue		Значение.
+ * @param szValue			Значение (автоматически будет приведено к типу ф-и).
  *	-
  * @return					true - Успешно.
  * 							false - Не удалось выполнить.
 */
-native bool VIP_GiveClientFeature(int iClient, const char[] szFeature, const char[] sFeatureValue);
+native bool VIP_GiveClientFeature(int iClient, const char[] szFeature, const char[] szValue);
+
+/**
+ *	Отнимает у VIP-игрока VIP-функцию (на время сессии).
+ *	-
+ * @param iClient			Индекс игрока.
+ * @param szFeature			Уникальное имя ф-и.
+ *	-
+ * @return					true - Успешно.
+ * 							false - Не удалось выполнить.
+*/
+native bool VIP_RemoveClientFeature(int iClient, const char[] szFeature);
 
 /**
  *	Получает Handle базы данных. После работы необходимо закрыть с помощью CloseHandle() или delete

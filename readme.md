@@ -1,3 +1,13 @@
+# [VIP] Core 3.0 DEV #31
+
+### Изменения:
+- Добавлен форвард `VIP_OnClientPreLoad`.
+- Исправлен и включен натив `VIP_GiveClientFeature`.
+- Добавлен натив `VIP_RemoveClientFeature`.
+- Изменен натив `VIP_CheckClient`.
+- Значение по-умолчанию для `sm_vip_delete_outdated` изменено на `-1`.
+- Исправлено удаление истекших и не активных игроков.
+
 # [VIP] Core 3.0 DEV #30
 
 ### Изменения:
@@ -27,8 +37,8 @@
 
 ### Изменения:
 - Вернул прежний вид натива VIP_SetClientVIP и пометил как устаревший.
-- Добавлен новый натив VIP_GiveClientVIP, как замена устаревшему VIP_SetClientVIP.
-- Добавлена обратная совместимость натива VIP_RemoveClientVIP.
+- Добавлен новый натив `VIP_GiveClientVIP`, как замена устаревшему `VIP_SetClientVIP`.
+- Добавлена обратная совместимость натива `VIP_RemoveClientVIP`.
 - Изменента структура таблиц (MySQL).
 
 # [VIP] Core 3.0 DEV #25

@@ -1,5 +1,6 @@
 
 static Handle g_hGlobalForward_OnVIPLoaded;
+static Handle g_hGlobalForward_OnClientPreLoad;
 static Handle g_hGlobalForward_OnClientLoaded;
 static Handle g_hGlobalForward_OnVIPClientLoaded;
 static Handle g_hGlobalForward_OnVIPClientAdded;
@@ -13,6 +14,7 @@ static Handle g_hGlobalForward_OnFeatureUnregistered;
 void API_SetupForwards()
 {
 	// Global Forwards
+	g_hGlobalForward_OnClientPreLoad				= CreateGlobalForward("VIP_OnClientPreLoad", ET_Hook, Param_Cell);
 	g_hGlobalForward_OnVIPLoaded					= CreateGlobalForward("VIP_OnVIPLoaded", ET_Ignore);
 	g_hGlobalForward_OnClientLoaded					= CreateGlobalForward("VIP_OnClientLoaded", ET_Ignore, Param_Cell, Param_Cell);
 	g_hGlobalForward_OnVIPClientLoaded				= CreateGlobalForward("VIP_OnVIPClientLoaded", ET_Ignore, Param_Cell);
@@ -31,6 +33,18 @@ void CreateForward_OnVIPLoaded()
 	DBG_API("CreateForward_OnVIPLoaded()")
 	Call_StartForward(g_hGlobalForward_OnVIPLoaded);
 	Call_Finish();
+}
+
+bool CreateForward_OnClientPreLoad(int iClient)
+{
+	DBG_API("g_hGlobalForward_OnClientPreLoad(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP)
+	bool bResult = true;
+	Call_StartForward(g_hGlobalForward_OnClientPreLoad);
+	Call_PushCell(iClient);
+	Call_Finish(bResult);
+	DBG_API("g_hGlobalForward_OnClientPreLoad = %b", bResult)
+
+	return bResult;
 }
 
 void CreateForward_OnClientLoaded(int iClient)
@@ -199,7 +213,8 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 	RegNative(GetClientFeatureBool);
 	RegNative(GetClientFeatureString);
 
-	//	RegNative(GiveClientFeature);
+	RegNative(GiveClientFeature);
+	RegNative(RemoveClientFeature);
 
 	// Helpers
 	RegNative(PrintToChatClient);
@@ -234,7 +249,7 @@ public int Native_CheckClient(Handle hPlugin, int iNumParams)
 	DBG_API("iClient = %d", iClient)
 	if (CheckValidClient(iClient, false))
 	{
-		Clients_CheckVipAccess(iClient, view_as<bool>(GetNativeCell(2)));
+		Clients_CheckVipAccess(iClient, view_as<bool>(GetNativeCell(2)), view_as<bool>(GetNativeCell(3)));
 	}
 }
 
@@ -1305,75 +1320,113 @@ public int Native_GetClientFeatureString(Handle hPlugin, int iNumParams)
 	return false;
 }
 
-/*
 public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
+{
+	int iClient = GetNativeCell(1);
+	if (CheckValidClient(iClient, false))
+	{
+		char szFeature[64];
+		GetNativeString(1, SZF(szFeature));
+		ArrayList hArray;
+		if (!IsValidFeature(szFeature) || !GLOBAL_TRIE.GetValue(szFeature, hArray))
+		{
+			ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", szFeature, szFeature);
+			return 0;
+		}
+
+		char szValue[256];
+		GetNativeString(3, SZF(szValue));
+		
+		if (!(g_iClientInfo[iClient] & IS_VIP))
+		{
+			Clients_CreateClientVIPSettings(iClient, 0);
+			g_hFeatures[iClient].SetValue(KEY_CID, -1);
+			g_iClientInfo[iClient] |= IS_VIP|IS_LOADED;
+		}
+
+		switch (view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)))
+		{
+			case BOOL:
+			{
+				g_hFeatures[iClient].SetValue(szFeature, view_as<bool>(StringToInt(szFeature)));
+			}
+			case INT:
+			{
+				g_hFeatures[iClient].SetValue(szFeature, StringToInt(szFeature));
+			}
+			case FLOAT:
+			{
+				g_hFeatures[iClient].SetValue(szFeature, StringToFloat(szFeature));
+			}
+			case STRING:
+			{
+				g_hFeatures[iClient].SetString(szFeature, szFeature);
+			}
+		}
+
+		Features_SetStatus(iClient, szFeature, ENABLED);
+
+		if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
+		{
+			DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
+			hDataPack.Position = ITEM_SELECT;
+			Function fCallback = hDataPack.ReadFunction();
+
+			if (fCallback != INVALID_FUNCTION)
+			{
+				Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), fCallback, iClient, szFeature, NO_ACCESS, ENABLED);
+			}
+			CreateForward_OnFeatureToggle(iClient, szFeature, NO_ACCESS, ENABLED);
+		}
+
+		return 1;
+	}
+
+	return 0;
+}
+
+public int Native_RemoveClientFeature(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient))
 	{
-		char szFeature[64]; ArrayList hArray; char sFeatureValue[256];
-		if (GLOBAL_TRIE.GetValue(szFeature, hArray))
+		char szFeature[64];
+		GetNativeString(1, SZF(szFeature));
+		ArrayList hArray;
+		if (!IsValidFeature(szFeature) || !GLOBAL_TRIE.GetValue(szFeature, hArray))
 		{
-			char sFeatureValue[256];
-			GetNativeString(3, SZF(sFeatureValue));
-			
-			if (!(g_iClientInfo[iClient] & IS_VIP))
-			{
-				Clients_CreateClientVIPSettings(iClient, 0);
-				g_hFeatures[iClient].SetValue(KEY_CID, -1);
-				g_iClientInfo[iClient] |= IS_VIP;
-				g_iClientInfo[iClient] |= IS_LOADED;
-				g_iClientInfo[iClient] |= IS_AUTHORIZED;
-			}
-
-			switch (view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)))
-			{
-				case BOOL:
-				{
-					g_hFeatures[iClient].SetValue(szFeature, view_as<bool>(StringToInt(sFeatureValue)));
-				}
-				case INT:
-				{
-					g_hFeatures[iClient].SetValue(szFeature, StringToInt(sFeatureValue));
-				}
-				case FLOAT:
-				{
-					g_hFeatures[iClient].SetValue(szFeature, StringToFloat(sFeatureValue));
-				}
-				case STRING:
-				{
-					g_hFeatures[iClient].SetString(szFeature, sFeatureValue);
-				}
-				default:
-				{
-					ResetClient(iClient);
-					ThrowNativeError(SP_ERROR_NATIVE, "Invalid feature value (%s). The feature is of type VIP_NULL", sFeatureValue);
-					return false;
-				}
-			}
-
-			Features_SetStatus(iClient, szFeature, ENABLED);
-			
-			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
-			{
-				Function Function_Select = view_as<Function>(hArray.Get(FEATURES_ITEM_SELECT));
-				
-				if (Function_Select != INVALID_FUNCTION)
-				{
-					eNewStatus = Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Select, iClient, szFeature, NO_ACCESS, ENABLED);
-				}
-			}
-
-			return true;
+			ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", szFeature, szFeature);
+			return 0;
 		}
 
-		ThrowNativeError(SP_ERROR_NATIVE, "Invalid feature (%s)", szFeature);
+		VIP_ToggleState eToggleState = Features_GetStatus(iClient, szFeature);
+
+		g_hFeatures[iClient].Remove(szFeature);
+		g_hFeatureStatus[iClient].Remove(szFeature);
+
+		if (!g_hFeatures[iClient].Size)
+		{
+			ResetClient(iClient);
+		}
+
+		if (eToggleState != NO_ACCESS && view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
+		{
+			DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
+			hDataPack.Position = ITEM_SELECT;
+			Function fCallback = hDataPack.ReadFunction();
+
+			if (fCallback != INVALID_FUNCTION)
+			{
+				Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), fCallback, iClient, szFeature, eToggleState, NO_ACCESS);
+			}
+			CreateForward_OnFeatureToggle(iClient, szFeature, eToggleState, NO_ACCESS);
+		}
+
+		return 1;
 	}
 
-	
-	return false;
+	return 0;
 }
-*/
 
 public int Native_GetDatabase(Handle hPlugin, int iNumParams)
 {
@@ -1417,22 +1470,22 @@ public int Native_AddStringToggleStatus(Handle hPlugin, int iNumParams)
 {
 	char szFeature[FEATURE_NAME_LENGTH];
 	GetNativeString(4, SZF(szFeature));
-	if (IsValidFeature(szFeature))
+	if (!IsValidFeature(szFeature))
 	{
-		int iClient = GetNativeCell(5);
-		if (CheckValidClient(iClient))
-		{
-			int iSize = GetNativeCell(3);
-			char[] szBuffer = new char[iSize]; // char szBuffer[iSize];
-			GetNativeString(1, szBuffer, iSize);
-			Format(szBuffer, iSize, "%s [%T]", szBuffer, g_szToggleStatus[view_as<int>(Features_GetStatus(iClient, szFeature))], iClient);
-			SetNativeString(2, szBuffer, iSize, true);
-		}
+		return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", szFeature, szFeature);
 	}
-	else
+
+	int iClient = GetNativeCell(5);
+	if (CheckValidClient(iClient))
 	{
-		ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", szFeature, szFeature);
+		int iSize = GetNativeCell(3);
+		char[] szBuffer = new char[iSize]; // char szBuffer[iSize];
+		GetNativeString(1, szBuffer, iSize);
+		Format(szBuffer, iSize, "%s [%T]", szBuffer, g_szToggleStatus[view_as<int>(Features_GetStatus(iClient, szFeature))], iClient);
+		SetNativeString(2, szBuffer, iSize, true);
 	}
+
+	return 0;
 }
 
 bool CheckValidClient(const int &iClient, bool bCheckVIP = true)

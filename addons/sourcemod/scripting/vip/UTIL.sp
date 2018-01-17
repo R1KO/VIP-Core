@@ -227,7 +227,7 @@ void UTIL_ReloadVIPPlayers(int iClient, bool bNotify)
 	{
 		if (IsClientInGame(i))
 		{
-			Clients_CheckVipAccess(i, false);
+			Clients_CheckVipAccess(i, false, true);
 		}
 	}
 	
