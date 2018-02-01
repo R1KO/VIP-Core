@@ -158,7 +158,6 @@ forward void VIP_OnFeatureUnregistered(const char[] szFeature);
  *	Вызывается перед проверкой игрока на наличие VIP-статуса.
  *	-
  * @param iClient			Индекс игрока.
- * @param bIsVIP			Имеет ли игрок VIP-статус.
  *	-
 
  * @return					true - продолжить.

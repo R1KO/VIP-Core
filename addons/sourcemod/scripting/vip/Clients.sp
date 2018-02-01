@@ -152,7 +152,9 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 
 			CreateForward_OnClientLoaded(iClient);
 
-			DB_UpdateClient(iClient);
+			char szName[MAX_NAME_LENGTH*2+1];
+			hResult.FetchString(2, SZF(szName));
+			DB_UpdateClient(iClient, szName);
 
 			if (bNotify)
 			{
@@ -178,9 +180,9 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 
 void Clients_OnVIPClientLoaded(int iClient)
 {
-	CreateForward_OnVIPClientLoaded(iClient);
-
 	Features_TurnOnAll(iClient);
+
+	CreateForward_OnVIPClientLoaded(iClient);
 }
 
 void Clients_CreateClientVIPSettings(int iClient, int iExp)

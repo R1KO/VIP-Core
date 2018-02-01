@@ -6,7 +6,7 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION		"3.0 DEV #31"
+#define VIP_VERSION		"3.0 DEV #32"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -62,6 +62,14 @@ public void OnPluginStart()
 	g_iMaxPageItems		= GetMaxPageItems(GetMenuStyleHandle(MenuStyle_Default));
 	g_hFeaturesArray	= new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
 	GLOBAL_TRIE			= new StringMap();
+
+	// Fix DataPack positions in sm 1.10
+	DataPack hDataPack = new DataPack();
+	hDataPack.WriteCell(0);
+	ITEM_DISPLAY = hDataPack.Position;
+	hDataPack.WriteCell(0);
+	ITEM_DRAW = hDataPack.Position;
+	delete hDataPack;
 
 	ReadConfigs();
 

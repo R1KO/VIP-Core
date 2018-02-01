@@ -49,9 +49,9 @@ enum
 	FEATURES_DEF_STATUS
 }
 
-DataPackPos ITEM_SELECT		= view_as<DataPackPos>(0);
-DataPackPos ITEM_DISPLAY	= view_as<DataPackPos>(9);
-DataPackPos ITEM_DRAW		= view_as<DataPackPos>(18);
+DataPackPos ITEM_SELECT = view_as<DataPackPos>(0);
+DataPackPos ITEM_DISPLAY;
+DataPackPos ITEM_DRAW;
 
 enum
 {

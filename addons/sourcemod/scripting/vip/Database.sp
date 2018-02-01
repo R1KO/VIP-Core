@@ -149,7 +149,7 @@ void RemoveExpAndOutPlayers()
 	if (g_CVAR_iOutdatedExpired > 0)
 	{
 		char szQuery[256];
-		FormatEx(SZF(szQuery), "SELECT `account_id`, `name` FROM `vip_users` WHERE `lastvisit` > 0 AND `lastvisit` < (UNIX_TIMESTAMP() - %d)%s;", g_CVAR_iOutdatedExpired*86400, g_szSID);
+		FormatEx(SZF(szQuery), "SELECT `account_id`, `name` FROM `vip_users` WHERE `lastvisit` > 0 AND `lastvisit` < (iTime - %d)%s;", GetTime(), g_CVAR_iOutdatedExpired*86400, g_szSID);
 
 		DBG_SQL_Query(szQuery)
 		g_hDatabase.Query(SQL_Callback_SelectExpiredAndOutdated, szQuery, REASON_OUTDATED);
@@ -166,13 +166,13 @@ public void SQL_Callback_ErrorCheck(Database hOwner, DBResultSet hResult, const 
 	}
 }
 
-void DB_UpdateClient(int iClient)
+void DB_UpdateClient(int iClient, const char[] szDbName = NULL_STRING)
 {
 	int iClientID;
 	g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
 
 	char szQuery[256];
-	if (g_CVAR_bUpdateName)
+	if (g_CVAR_bUpdateName || !strcmp(szDbName, "unknown"))
 	{
 		char szName[MNL*2+1];
 		GetClientName(iClient, szQuery, MNL);
@@ -195,7 +195,7 @@ void DB_RemoveClientFromID(int iClient = 0, int iClientID, bool bNotify, const c
 	DataPack hDataPack = new DataPack();
 	hDataPack.WriteCell(iClientID);
 	hDataPack.WriteCell(bNotify);
-	hDataPack.WriteCell(GET_UID(iClient));
+	hDataPack.WriteCell(iClient >= 0 ? GET_UID(iClient):iClient);
 	if(szName[0])
 	{
 		hDataPack.WriteString(szName);
@@ -232,7 +232,11 @@ public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult
 		hDataPack.Reset();
 		int iClientID = hDataPack.ReadCell();
 		bool bNotify = view_as<bool>(hDataPack.ReadCell());
-		int iClient = GET_CID(hDataPack.ReadCell());
+		int iClient = hDataPack.ReadCell();
+		if(iClient >= 0)
+		{
+			iClient = GET_CID(iClient);
+		}
 		char szName[MAX_NAME_LENGTH*2+1];
 		hResult.FetchString(0, SZF(szName));
 		DBG_SQL_Response("hResult.FetchString(0) = '%s", szName)
@@ -264,9 +268,19 @@ public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, cons
 		
 		int iClientID = hDataPack.ReadCell();
 		bool bNotify = view_as<bool>(hDataPack.ReadCell());
-		int iClient = GET_CID(hDataPack.ReadCell());
+		int iClient = hDataPack.ReadCell();
+		if(iClient >= 0)
+		{
+			iClient = GET_CID(iClient);
+		}
 		char szName[MAX_NAME_LENGTH*2+1];
 		hDataPack.ReadString(SZF(szName));
+		
+		delete hDataPack;
+		if(iClient < 0)
+		{
+			return;
+		}
 
 		if (g_CVAR_bLogsEnable)
 		{
