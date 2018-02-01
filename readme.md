@@ -5,6 +5,7 @@
 - Исправлен натив `VIP_GiveClientFeature`.
 - Исправлена ошибка `SQL_Callback_SelectExpiredAndOutdated: no such function: UNIX_TIMESTAMP` на SQLite.
 - Исправлено обновление ников игроков.
+- Исправлена работа DataPack на sm 1.10.
 
 # [VIP] Core 3.0 DEV #31
 
