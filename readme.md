@@ -1,3 +1,11 @@
+# [VIP] Core 3.0 DEV #32 (спасибо DarklSide за обнаруженные ошибки)
+
+### Изменения:
+- Исправлено описание форварда `VIP_OnClientPreLoad`.
+- Исправлен натив `VIP_GiveClientFeature`.
+- Исправлена ошибка `SQL_Callback_SelectExpiredAndOutdated: no such function: UNIX_TIMESTAMP` на SQLite.
+- Исправлено обновление ников игроков.
+
 # [VIP] Core 3.0 DEV #31
 
 ### Изменения:
