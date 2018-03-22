@@ -1,14 +1,19 @@
 
+
 int GET_UID(int iClient)
 {
-	return iClient ? UID(iClient):0;
+	return iClient > 0 ? UID(iClient):iClient;
 }
 
 int GET_CID(int iClient)
 {
-	if (iClient)
+	if (iClient > 0)
 	{
 		iClient = CID(iClient);
+		if(!iClient)
+		{
+			return -1;
+		}
 	}
 
 	return iClient;
@@ -221,6 +226,16 @@ void UTIL_GetSteamIDFromAccountID(int iAccountID, char[] szSteamID, int iMaxLen)
 	}
 }
 
+void UTIL_GetClientInfo(int iClient, char[] szBuffer, int iMaxLen)
+{
+	char szName[MNL], szAuth[32], szIP[24];
+	GetClientName(iClient, SZF(szName));
+	GetClientAuthId(iClient, AuthId_Steam2, SZF(szAuth));
+	GetClientIP(iClient, SZF(szIP));
+	
+	FormatEx(szBuffer, iMaxLen, "%s (%s, %s)", szName, szAuth, szIP);
+}
+
 void UTIL_ReloadVIPPlayers(int iClient, bool bNotify)
 {
 	for (int i = 1; i <= MaxClients; ++i)
@@ -233,7 +248,7 @@ void UTIL_ReloadVIPPlayers(int iClient, bool bNotify)
 	
 	if (bNotify)
 	{
-		ReplyToCommand(iClient, "%t", "VIP_CACHE_REFRESHED");
+		UTIL_Reply(iClient, "%t", "VIP_CACHE_REFRESHED");
 	}
 }
 /*
@@ -256,18 +271,45 @@ void UTIL_REM_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int i
 	DisplayClientInfo(iTarget, "expired_info");
 }
 */
-void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int iTime, const char[] szGroup)
-{
-	char szQuery[PMP*2], szName[MNL * 2 + 1];
-	int iExpires, iAccountID;
 
-	if (iTime)
+void UTIL_Reply(int iClient, const char[] szMsg, any ...)
+{
+	if(iClient < 0)
 	{
-		iExpires = iTime + GetTime();
+		return;
+	}
+
+	char szMessage[1024];
+	SetGlobalTransTarget(iClient);
+	VFormat(SZF(szMessage), szMsg, 3);
+	if (iClient)
+	{
+		VIP_PrintToChatClient(iClient, szMessage);
 	}
 	else
 	{
-		iExpires = iTime;
+		Colors_RemoveColors(szMessage);
+		PrintToServer(szMessage);
+	}
+}
+
+void UTIL_ADD_VIP_PLAYER(int iAdmin = 0,
+						int iTarget = 0,
+						int iAccID = 0,
+						int iDuration,
+						const char[] szGroup,
+						const char[] szByWho = NULL_STRING)
+{
+	char szQuery[PMP*2], szName[MNL*2+1];
+	int iExpires, iAccountID;
+
+	if (iDuration)
+	{
+		iExpires = iDuration + GetTime();
+	}
+	else
+	{
+		iExpires = iDuration;
 	}
 	
 	if (iTarget)
@@ -291,18 +333,44 @@ void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int i
 
 	DataPack hDataPack = new DataPack();
 
-	hDataPack.WriteString(szName);
+	// Admin
+
+	char szAdmin[PMP];
+	switch(iAdmin)
+	{
+		case REASON_PLUGIN:
+		{
+			FormatEx(SZF(szAdmin), "%T %s", "BY_PLUGIN", LANG_SERVER, szByWho);
+		}
+		case 0:
+		{
+			FormatEx(SZF(szAdmin), "%T", "BY_SERVER", LANG_SERVER);
+		}
+		default:
+		{
+			char szAdminInfo[128];
+			UTIL_GetClientInfo(iAdmin, SZF(szAdminInfo));
+			FormatEx(SZF(szAdmin), "%T %s", "BY_ADMIN", LANG_SERVER, szAdminInfo);
+			iAdmin = UID(iAdmin);
+		}
+	}
+	hDataPack.WriteCell(iAdmin);
+	hDataPack.WriteString(szAdmin);
+
+	// Target
+	hDataPack.WriteCell(UID(iTarget));
 	hDataPack.WriteCell(iAccountID);
+	hDataPack.WriteString(szName);
+
+	// Data
+	hDataPack.WriteCell(iDuration);
 	hDataPack.WriteCell(iExpires);	
 	hDataPack.WriteString(szGroup);
-	hDataPack.WriteCell(iTime);
 
-	hDataPack.WriteCell(GET_UID(iClient));
-	hDataPack.WriteCell(GET_UID(iTarget));
-
+	int iLastVisit = iTarget ? GetTime():0;
+	
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		int iLastVisit = iTarget ? GetTime():0;
 		FormatEx(SZF(szQuery), "INSERT INTO `vip_users` (`account_id`, `sid`, `expires`, `group`, `name`, `lastvisit`) VALUES (%d, %d, %d, '%s', '%s', %d) \
 		ON DUPLICATE KEY UPDATE `expires` = %d, `group` = '%s';", iAccountID, g_CVAR_iServerID, iExpires, szGroup, szName, iLastVisit, iExpires, szGroup);
 		DBG_SQL_Query(szQuery)
@@ -311,7 +379,7 @@ void UTIL_ADD_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int i
 		return;
 	}
 
-	FormatEx(SZF(szQuery), "INSERT OR REPLACE INTO `vip_users` (`account_id`, `name`, `expires`, `group`) VALUES (%d, '%s', %d, '%s');", iAccountID, szName, iExpires, szGroup);
+	FormatEx(SZF(szQuery), "INSERT OR REPLACE INTO `vip_users` (`account_id`, `name`, `expires`, `group`, `lastvisit`) VALUES (%d, '%s', %d, '%s', %d);", iAccountID, szName, iExpires, szGroup, iLastVisit);
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hDataPack);
 }
@@ -320,68 +388,89 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 {
 	DBG_SQL_Response("SQL_Callback_OnVIPClientAdded")
 	DataPack hDataPack = view_as<DataPack>(hPack);
+	hDataPack.Reset();
+
+	// Admin
+	int iAdmin = GET_CID(hDataPack.ReadCell());
 
 	if (hResult == null || szError[0])
 	{
 		delete hDataPack;
+
+		if (iAdmin >= 0)
+		{
+			UTIL_Reply(iAdmin, "%t", "ADMIN_VIP_ADD_FAILED");
+		}
+
 		LogError("SQL_Callback_OnVIPClientAdded: %s", szError);
 		return;
 	}
 	
 	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows)
 
-	if (hResult.AffectedRows)
+	if (!hResult.AffectedRows)
 	{
-		hDataPack.Reset();
+		delete hDataPack;
 
-		int iClient, iTarget, iTime, iExpires, iAccountID;
-		char szExpires[64], szName[MAX_NAME_LENGTH], sTime[64], szGroup[64];
-		hDataPack.ReadString(SZF(szName));
-		iAccountID = hDataPack.ReadCell();
-		iExpires = hDataPack.ReadCell();
-		hDataPack.ReadString(SZF(szGroup));
-		if (szGroup[0] == '\0')
+		if (iAdmin >= 0)
 		{
-			FormatEx(SZF(szGroup), "%T", "NONE", iClient);
+			UTIL_Reply(iAdmin, "%t", "ADMIN_VIP_ADD_FAILED");
 		}
-		iTime = hDataPack.ReadCell();
-		if (iTime)
-		{
-			UTIL_GetTimeFromStamp(SZF(szExpires), iTime, iClient);
-			FormatTime(SZF(sTime), "%d/%m/%Y - %H:%M", iExpires);
-		}
-		else
-		{
-			FormatEx(SZF(szExpires), "%T", "PERMANENT", iClient);
-			FormatEx(SZF(sTime), "%T", "NEVER", iClient);
-		}
-		
-		iClient = GET_CID(hDataPack.ReadCell());
-		iTarget = GET_CID(hDataPack.ReadCell());
-
-		if (iTarget)
-		{
-			Clients_CheckVipAccess(iTarget, true);
-			CreateForward_OnVIPClientAdded(iTarget, iClient);
-		}
-		
-		char szAuth[32];
-		I2S(iAccountID, szAuth);
-
-		if (iClient)
-		{
-			VIP_PrintToChatClient(iClient, "%t", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", szName, szAuth, iAccountID);
-		}
-		else
-		{
-			PrintToServer("%T", "ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY", LANG_SERVER, szName, szAuth, iAccountID);
-		}
-
-		if (g_CVAR_bLogsEnable)
-		{
-			LogToFile(g_szLogFile, "%T", "LOG_ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY", LANG_SERVER, iClient, szName, szAuth, iAccountID, szExpires, sTime, szGroup);
-		}
+		return;
 	}
 
+	int iTarget, iDuration, iExpires, iAccountID;
+	char szAdmin[PMP], szExpires[64], szName[MNL], szDuration[64], szGroup[64];
+	
+	hDataPack.ReadString(SZF(szAdmin));
+	
+	// Target
+	iTarget = CID(hDataPack.ReadCell());
+	iAccountID = hDataPack.ReadCell();
+	hDataPack.ReadString(SZF(szName));
+
+	// Data
+	iDuration = hDataPack.ReadCell();
+	iExpires = hDataPack.ReadCell();
+	hDataPack.ReadString(SZF(szGroup));
+
 	delete hDataPack;
-} 
+
+	if (iTarget)
+	{
+		Clients_CheckVipAccess(iTarget, true);
+		CreateForward_OnVIPClientAdded(iTarget, iAdmin);
+	}
+	
+	char szAuth[32];
+	I2S(iAccountID, szAuth);
+
+	if (iAdmin >= 0)
+	{
+		if (iDuration)
+		{
+			UTIL_GetTimeFromStamp(SZF(szDuration), iDuration, iAdmin);
+			FormatTime(SZF(szExpires), "%d/%m/%Y - %H:%M", iExpires);
+		}
+		else
+		{
+			FormatEx(SZF(szDuration), "%T", "PERMANENT", iAdmin);
+			FormatEx(SZF(szExpires), "%T", "NEVER", iAdmin);
+		}
+		UTIL_Reply(iAdmin, "%t", "ADMIN_VIP_ADD_SUCCESS", szName, iAccountID);
+	}
+
+	if (g_CVAR_bLogsEnable)
+	{
+		if (iDuration)
+		{
+			UTIL_GetTimeFromStamp(SZF(szExpires), iDuration, LANG_SERVER);
+		}
+		else
+		{
+			FormatEx(SZF(szExpires), "%T", "PERMANENT", LANG_SERVER);
+			FormatEx(SZF(szExpires), "%T", "NEVER", LANG_SERVER);
+		}
+		LogToFile(g_szLogFile, "%T", "LOG_VIP_ADDED", LANG_SERVER, szName, iAccountID, szDuration, szExpires, szGroup, szAdmin);
+	}
+}

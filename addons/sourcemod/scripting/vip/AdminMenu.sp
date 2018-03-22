@@ -541,11 +541,12 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 				}
 				case MENU_TYPE_EDIT:
 				{
-					char szQuery[256], szName[MAX_NAME_LENGTH];
+					char szQuery[256], szName[MNL], szOldGroup[64];
 					hMenu.GetItem(Item, SZF(szGroup));
 					int iTargetID;
 					g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTargetID);
 					g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));
+					g_hClientData[iClient].GetString(DATA_KEY_Group, SZF(szOldGroup));
 
 					FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iTargetID, g_szSID);
 
@@ -566,11 +567,17 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 						CreateForward_OnVIPClientRemoved(iTarget, "VIP-Group Changed", iClient);
 						Clients_CheckVipAccess(iTarget, false);
 					}
-
-					ShowTargetInfo(iClient);
 	
 					VIP_PrintToChatClient(iClient, "%t", "ADMIN_SET_GROUP", szName, szGroup);
-					if (g_CVAR_bLogsEnable) LogToFile(g_szLogFile, "%T", "LOG_ADMIN_SET_GROUP", iClient, iClient, szName, szGroup);
+					if (g_CVAR_bLogsEnable)
+					{
+						char szAdmin[256], szAdminInfo[128];
+						UTIL_GetClientInfo(iClient, SZF(szAdminInfo));
+						FormatEx(SZF(szAdmin), "%T %s", "BY_ADMIN", LANG_SERVER, szAdminInfo);
+						LogToFile(g_szLogFile, "%T", "LOG_CHANGE_GROUP", LANG_SERVER, szName, iTargetID, szOldGroup, szGroup, szAdmin);
+					}
+
+					ShowTargetInfo(iClient);
 				}
 			}
 		}

@@ -348,7 +348,7 @@ native void VIP_SendClientVIPMenu(int iClient, bool bSelection = false);
 /**
  *	Выдает игроку VIP-права.
  *	-
- * @param iAdmin			Индекс админа (0 - сервер).
+ * @param iAdmin			Индекс админа (0 - сервер, -1 - плагин).
  * @param iClient			Индекс игрока.
  * @param iTime				Время в секундах.
  * @param szGroup			Имя VIP-группы.
@@ -362,6 +362,18 @@ native void VIP_GiveClientVIP(int iAdmin = 0, int iClient, int iTime, const char
 native bool VIP_SetClientVIP(int iClient, int iTime, any AuthType, const char[] szGroup, bool bAddToDB = true);
 
 /**
+ *	Отнимает у игрока VIP-права (Устарела и будет удалена в будущем).
+ *	-
+ * @param iClient			Индекс игрока.
+ * @param bInDB				Удалять ли тз базы данных.
+ * @param bNotify			Уведомление игрока (true - уведомить/false - не уведомлять).
+ *	-
+ * @return					true - Успешно.
+ * 							false - Не удалось выполнить.
+*/
+#pragma deprecated Use VIP_RemoveClientVIP2() instead
+native bool VIP_RemoveClientVIP(int iClient, bool bInDB, bool bNotify);
+/**
  *	Отнимает у игрока VIP-права.
  *	-
  * @param iAdmin			Индекс админа (0 - сервер).
@@ -372,7 +384,7 @@ native bool VIP_SetClientVIP(int iClient, int iTime, any AuthType, const char[] 
  * @return					true - Успешно.
  * 							false - Не удалось выполнить.
 */
-native bool VIP_RemoveClientVIP(int iAdmin = 0, int iClient, bool bInDB, bool bNotify);
+native bool VIP_RemoveClientVIP2(int iAdmin = 0, int iClient, bool bInDB, bool bNotify);
 
 /**
  *	Проверка что ядро загружено и готово к регистрации функций.
@@ -481,11 +493,12 @@ native VIP_ToggleState VIP_GetClientFeatureStatus(int iClient, const char[] szFe
  * @param szFeature			Уникальное имя ф-и.
  * @param eStatus			Статус VIP-функции.
  * @param bCallback			Вызывать ли toggle каллбэк.
+ * @param bSave				Сохранить ли в куки.
  *	-
  * @return					true - Успешно.
  * 							false - Не удалось выполнить.
 */
-native bool VIP_SetClientFeatureStatus(int iClient, const char[] szFeature, VIP_ToggleState eStatus, bool bCallback = true);
+native bool VIP_SetClientFeatureStatus(int iClient, const char[] szFeature, VIP_ToggleState eStatus, bool bCallback = true, bool bSave = false);
 
 /**
  *	Возвращает статус VIP-функции у игрока.

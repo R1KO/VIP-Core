@@ -58,7 +58,7 @@ public Action ReloadVIPCfg_CMD(int iClient, int iArgs)
 	
 	ReadConfigs();
 	UTIL_ReloadVIPPlayers(iClient, false);
-	ReplyToCommand(iClient, "[VIP] %t", "VIP_CFG_REFRESHED");
+	UTIL_Reply(iClient, "[VIP] %t", "VIP_CFG_REFRESHED");
 	
 	return Plugin_Handled;
 }
@@ -158,7 +158,7 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 		return Plugin_Handled;
 	}
 
-	FormatEx(SZF(szQuery), "SELECT `account_id`, `name` \
+	FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` \
 									FROM `vip_users` \
 									WHERE `account_id` = %d%s LIMIT 1;", iAccountID, g_szSID);
 
@@ -193,10 +193,11 @@ public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hResu
 		DBG_SQL_Response("hResult.FetchRow()")
 		int iAccountID = hResult.FetchInt(0);
 		DBG_SQL_Response("hResult.FetchInt(0) = %d", iAccountID)
-		char szName[MNL];
+		char szName[MNL], szGroup[64];
 		hResult.FetchString(1, SZF(szName));
+		hResult.FetchString(2, SZF(szGroup));
 		DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
-		DB_RemoveClientFromID(iClient, iAccountID, true, szName);
+		DB_RemoveClientFromID(iClient, _, iAccountID, true, szName, szGroup);
 	}
 	else
 	{

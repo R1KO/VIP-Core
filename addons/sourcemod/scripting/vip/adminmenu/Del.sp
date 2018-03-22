@@ -32,30 +32,35 @@ public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iC
 			{
 				case 0:
 				{
-					char szName[MAX_NAME_LENGTH];
-					g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));
 					int iTargetID;
 					g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTargetID);
-					if(iTargetID != -1)
-					{
-						DB_RemoveClientFromID(iClient, iTargetID, true, szName);
-					}
 
 					int iTarget = 0;
 					if(g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget))
 					{
 						iTarget = CID(iTarget);
-						if (!iTarget)
+						if (!iTarget && iTargetID != -1)
 						{
 							iTarget = IsClientOnline(iTargetID);
 						}
 
 						if (iTarget)
 						{
+							DB_RemoveClientFromID(iClient, iTarget, _, true);
 							ResetClient(iTarget);
 							CreateForward_OnVIPClientRemoved(iTarget, "Removed by Admin", iClient);
 							DisplayClientInfo(iTarget, "expired_info");
+							BackToAdminMenu(iClient);
+							return 0;
 						}
+					}
+
+					if(iTargetID != -1)
+					{
+						char szGroup[64], szName[MAX_NAME_LENGTH];
+						g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));
+						g_hClientData[iClient].GetString(DATA_KEY_Group, SZF(szGroup));
+						DB_RemoveClientFromID(iClient, _, iTargetID, true, szName, szGroup);
 					}
 
 					BackToAdminMenu(iClient);
@@ -67,4 +72,6 @@ public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iC
 			}
 		}
 	}
+	
+	return 0;
 }

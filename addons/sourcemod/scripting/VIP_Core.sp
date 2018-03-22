@@ -6,11 +6,13 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION		"3.0 DEV #32"
+#define VIP_VERSION		"3.0 DEV #33"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
 #define USE_ADMINMENU	1	// Включение админ-меню для управления VIP
+
+#define USE_MORE_SERVERS	1	// Включить/Отключить режим при котором если ID сервера у игрока 0 - то VIP будет работать на всех серверах
 
 #define FIX_CSGO_MOTD	1	// Включение фикса MOTD в CS:GO
 
@@ -31,6 +33,7 @@ public Plugin myinfo =
 #include "vip/Global.sp"
 #include "vip/Debug.sp"
 #include "vip/Downloads.sp"
+#include "vip/Colors.sp"
 #include "vip/UTIL.sp"
 #include "vip/Features.sp"
 #include "vip/Sounds.sp"

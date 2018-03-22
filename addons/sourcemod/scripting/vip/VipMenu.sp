@@ -319,51 +319,6 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 	return 0;
 }
 
-VIP_ToggleState Function_OnItemToggle(Handle hPlugin, Function FuncToggle, int iClient, const char[] szFeature, const VIP_ToggleState eOldStatus, const VIP_ToggleState eNewStatus)
-{
-	VIP_ToggleState eResultStatus = eNewStatus;
-	Action aResult;
-	Call_StartFunction(hPlugin, FuncToggle);
-	Call_PushCell(iClient);
-	Call_PushString(szFeature);
-	Call_PushCell(eOldStatus);
-	Call_PushCellRef(eResultStatus);
-	Call_Finish(aResult);
-	
-	switch (aResult)
-	{
-		case Plugin_Continue:
-		{
-			return eNewStatus;
-		}
-		case Plugin_Changed:
-		{
-			return eResultStatus;
-		}
-		case Plugin_Handled, Plugin_Stop:
-		{
-			return eOldStatus;
-		}
-		default:
-		{
-			return eResultStatus;
-		}
-	}
-	
-	return eResultStatus;
-}
-
-bool Function_OnItemSelect(Handle hPlugin, Function FuncSelect, int iClient, const char[] szFeature)
-{
-	bool bResult;
-	Call_StartFunction(hPlugin, FuncSelect);
-	Call_PushCell(iClient);
-	Call_PushString(szFeature);
-	Call_Finish(bResult);
-	
-	return bResult;
-}
-
 bool IsValidFeature(const char[] szFeature)
 {
 	DebugMessage("IsValidFeature:: FindStringInArray -> %i", g_hFeaturesArray.FindString(szFeature))

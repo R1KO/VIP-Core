@@ -1,4 +1,11 @@
-# [VIP] Core 3.0 DEV #32 (спасибо DarklSide за обнаруженные ошибки)
+# [VIP] Core 3.0 DEV #33
+
+### Изменения:
+- Изменени натив `VIP_SetClientFeatureStatus`.
+- Исправлена ошибка `SQL_Callback_SelectExpiredAndOutdated: Unknown column 'iTime' in 'where clause'`
+- Переработана система логов.
+
+# [VIP] Core 3.0 DEV #32 (спасибо DarklSide за обнаруженные ошибок)
 
 ### Изменения:
 - Исправлено описание форварда `VIP_OnClientPreLoad`.

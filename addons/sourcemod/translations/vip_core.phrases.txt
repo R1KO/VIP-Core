@@ -82,25 +82,6 @@
 		"ru"		"Нет VIP-игроков онлайн"
 		"ua"		"Немає VIP-гравців онлайн"
 	}
-	"VIP_SUCCESSFULLY_ADDED"
-	{
-		"en"		"VIP-player has been successfully added!"
-		"fi"		"VIP-pelaaja on onnistuneesti lisätty!"
-		"de"		"VIP-Spieler erfolgreich hinzugefügt!"
-		"pt_p"		"VIP adicionado com sucesso!"
-		"ru"		"VIP-Игрок успешно добавлен!"
-		"ua"		"VIP-гравець був успішно доданий!"
-	}
-	"VIP_PLAYER_CONNECTED"
-	{
-		"#format"	"{1:L}"
-		"en"		"VIP-player joined: {1}"
-		"fi"		"VIP-pelaaja on liittynyt: {1}"
-		"de"		"VIP-Spieler beigetreten: {1}"
-		"pt_p"		"VIP Conectado: {1}"
-		"ru"		"Вошел VIP-игрок: {1}"
-		"ua"		"VIP-гравець приєднався: {1}"
-	}
 	"REMOVING_PLAYER"
 	{
 		"#format"	"{1:L}"
@@ -138,31 +119,34 @@
 		"ru"		"Игрок больше не доступен"
 		"ua"		"Гравець більше недоступний"
 	}
-	"ADMIN_ADD_VIP_PLAYER_SUCCESSFULLY"
+	"ADMIN_VIP_ADD_SUCCESS"
 	{
-		"#format"	"{1:s},{2:s},{3:i}"
+		"#format"	"{1:s},{2:d}"
 		"en"		"VIP-player {1} ({2}, ID: {3}) successfully added!"
 		"fi"		"VIP-Pelaaja {1} ({2}, ID: {3}) onnistuneesti lisätty!"
 		"de"		"VIP-Spieler {1} ({2}, ID: {3}) erfolgreich hinzugefügt!"
 		"pt_p"		"VIP adicionado {1} ({2}, ID: {3}) com sucesso!"
-		"ru"		"{DEFAULT}VIP-Игрок {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}, ID: {GREEN}{3}{DEFAULT}) успешно добавлен!"
-		"ua"		"{DEFAULT}VIP-Гравець {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}, ID: {GREEN}{3}{DEFAULT}) успішно доданий!"
+		"ru"		"{DEFAULT}VIP-Игрок {GREEN}{1} {DEFAULT}(ID: {GREEN}{2}{DEFAULT}) успешно добавлен!"
+		"ua"		"{DEFAULT}VIP-Гравець {GREEN}{1} {DEFAULT}(ID: {GREEN}{2}{DEFAULT}) успішно доданий!"
 	}
-	"LOG_ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY"
+
+	"LOG_VIP_ADDED"
 	{
-		"#format"	"{1:L},{2:s},{3:s},{4:i},{5:s},{6:s},{7:s}"
-		"en"		"Admin {1} added the VIP identifier {2} ({3}, ID: {4} Deadline: {5}, Expires: {6}, Group: {7})"
-		"ru"		"Админ {1} добавил VIP-идентификатор {2} ({3}, ID: {4} Срок: {5}, Истекает: {6}, Группа: {7})"
+		"#format"	"{1:s},{2:d},{3:s},{4:s},{5:s},{6:s}"
+		"en"		"VIP-Player {1} (ID: {2}, Duration: {3}, Expires: {4}, Group: {5}) added {6}"
+		"ru"		"VIP-Игрок {1} (ID: {2}, Длительность: {3}, Истекает: {4}, Группа: {5}) добавлен {6}"
 	}
-	"ADMIN_ADD_VIP_IDENTITY_FAILED"
+
+	"ADMIN_VIP_ADD_FAILED"
 	{
 		"en"		"Failed to add VIP-ID!"
 		"fi"		"Virhe lisättäessä VIP-tunnusta!"
 		"de"		"Fehler beim Hinzufügen der VIP-ID!"
 		"pt_p"		"Falha do adicionar VIP-ID!"
-		"ru"		"Ошибка добавления VIP-идентификатора!"
-		"ua"		"Помилка створення VIP-ідентифікатора!"
+		"ru"		"Ошибка добавления VIP-игрока!"
+		"ua"		"Помилка створення VIP-гравця!"
 	}
+
 	"MENU_EDIT_VIP"
 	{
 		"en"		"Edit VIP-player"
@@ -313,15 +297,11 @@
 		"ru"		"Группа VIP-игроку {1} изменена на {2}"
 		"ua"		"Група VIP-гравцю {1} змінена на {2}"
 	}
-	"LOG_ADMIN_SET_GROUP"
+	"LOG_CHANGE_GROUP"
 	{
-		"#format"	"{1:L},{2:s},{3:s}"
-		"en"		"Admin {1} has set a group for VIP-player: {2} (Group: {3})"
-		"fi"		"Admin {1} Asetti ryhmän VIP-pelaajalle {2} (Ryhmä: {3})"
-		"de"		"Admin {1} hat die Gruppe für VIP-Spieler hinzufügt: {2} (Gruppe: {3})"
-		"pt_p"		"O Admin {1} definiu um grupo para o VIP: {2} (Group: {3})"
-		"ru"		"Админ {1} установил группу VIP-игроку {2} (Группа: {3})"
-		"ua"		"Адмін {1} встановив групу для VIP-гравця: {2} (Група: {3})"
+		"#format"	"{1:s},{2:d},{3:s},{4:s},{5:s}"
+		"en"		"VIP-Player {1} (ID: {2}, Group: {3}) changed the group to {4} {5}"
+		"ru"		"VIP-Игроку {1} (ID: {2}, Группа: {3}) изменена группа на {4} {5}"
 	}
 	"MENU_DEL_VIP"
 	{
@@ -342,15 +322,12 @@
 		"ru"		"VIP-игрок {1} (ID: {2}) успешно удален"
 		"ua"		"VIP-гравець {1} (ID: {2}) успішно видалений"
 	}
-	"LOG_ADMIN_VIP_IDENTITY_DELETED"
+
+	"LOG_VIP_DELETED"
 	{
-		"#format"	"{1:L},{2:s},{3:i}"
-		"en"		"Admin {1} has successfully removed VIP-ID {2} (ID: {3})"
-		"fi"		"Admin {1} Poisti VIP-tunnuksen {2} (ID: {3})"
-		"de"		"Admin {1} hat VIP-ID {2} (ID: {3}) erfolgreich gelöscht"
-		"pt_p"		"O Admin {1} removeu com sucesso o VIP-ID {2} (ID: {3})"
-		"ru"		"Админ {1} удалил VIP-идентификатор {2} (ID: {3})"
-		"ua"		"Адмін {1} видалив VIP-ідентифікатор {2} (ID: {3})"
+		"#format"	"{1:s},{2:d},{3:s},{4:s}"
+		"en"		"VIP-Player {1} (ID: {2}, Group: {3}) removed {4}"
+		"ru"		"VIP-Игрок {1} (ID: {2}, Группа: {3}) удален {4}"
 	}
 	"MENU_LIST_VIP"
 	{
@@ -492,6 +469,36 @@
 		"pt_p"		"As definições VIP foram actualizadas"
 		"ru"		"Настройки VIP перезагружены!"
 		"ua"		"Налаштування VIP були перезавантажені!"
+	}
+
+	"BY_ADMIN"
+	{
+		"en"		"by admin"
+		"ru"		"админом"
+	}
+
+	"BY_SERVER"
+	{
+		"en"		"by server"
+		"ru"		"сервером"
+	}
+
+	"BY_PLUGIN"
+	{
+		"en"		"by plugin"
+		"ru"		"плагином"
+	}
+
+	"REASON_EXPIRED"
+	{
+		"en"		"Expired"
+		"ru"		"Истек срок"
+	}
+
+	"REASON_INACTIVITY"
+	{
+		"en"		"For inactivity"
+		"ru"		"По неактивности"
 	}
 	"GROUP"
 	{

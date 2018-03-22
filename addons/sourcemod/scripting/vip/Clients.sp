@@ -61,10 +61,20 @@ void Clients_LoadClient(int iClient, bool bNotify)
 
 	DebugMessage("Clients_LoadClient %N (%d), %b: - > %x, %u", iClient, iClient, g_iClientInfo[iClient], g_hDatabase, g_hDatabase)
 
+	char szWhere[64];
+	if(g_szSID[0])
+	{
+		#if USE_MORE_SERVERS 1
+		FormatEx(SZF(szWhere), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
+		#else
+		strcopy(SZF(szWhere), g_szSID);
+		#endif
+	}
+
 	FormatEx(SZF(szQuery), "SELECT `expires`, `group`, `name` \
 										FROM `vip_users` \
 										WHERE `account_id` = %d%s LIMIT 1;",
-										iAccountID, g_szSID);
+										iAccountID, szWhere);
 
 	DataPack hDataPack = new DataPack();
 	hDataPack.WriteCell(UID(iClient));
@@ -120,9 +130,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 
 					DebugMessage("Clients_LoadClient %N (%d):\tDelete", iClient, iClient)
 
-					char szName[MAX_NAME_LENGTH*2+1];
-					hResult.FetchString(2, SZF(szName));
-					DB_RemoveClientFromID(REASON_EXPIRED, iAccountID, false, szName);
+					DB_RemoveClientFromID(REASON_EXPIRED, iClient, _, false);
 				}
 
 				CreateForward_OnVIPClientRemoved(iClient, "Expired");
@@ -535,7 +543,7 @@ void Clients_ExpiredClient(int iClient)
 				LogToFile(g_szLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
 			}
 			
-			DB_RemoveClientFromID(0, iClientID, false);
+			DB_RemoveClientFromID(REASON_EXPIRED, iClient, _, false);
 		}
 	}
 	

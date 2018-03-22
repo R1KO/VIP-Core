@@ -140,7 +140,7 @@ void RemoveExpAndOutPlayers()
 	if (g_CVAR_iDeleteExpired > 0)
 	{
 		char szQuery[256];
-		FormatEx(SZF(szQuery), "SELECT `account_id`, `name` FROM `vip_users` WHERE `expires` > 0 AND `expires` < %d%s;", g_CVAR_iDeleteExpired*86400, g_szSID);
+		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `expires` > 0 AND `expires` < %d%s;", g_CVAR_iDeleteExpired*86400, g_szSID);
 
 		DBG_SQL_Query(szQuery)
 		g_hDatabase.Query(SQL_Callback_SelectExpiredAndOutdated, szQuery, REASON_EXPIRED);
@@ -149,7 +149,7 @@ void RemoveExpAndOutPlayers()
 	if (g_CVAR_iOutdatedExpired > 0)
 	{
 		char szQuery[256];
-		FormatEx(SZF(szQuery), "SELECT `account_id`, `name` FROM `vip_users` WHERE `lastvisit` > 0 AND `lastvisit` < (iTime - %d)%s;", GetTime(), g_CVAR_iOutdatedExpired*86400, g_szSID);
+		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `lastvisit` > 0 AND `lastvisit` < (%d - %d)%s;", GetTime(), g_CVAR_iOutdatedExpired*86400, g_szSID);
 
 		DBG_SQL_Query(szQuery)
 		g_hDatabase.Query(SQL_Callback_SelectExpiredAndOutdated, szQuery, REASON_OUTDATED);
@@ -188,26 +188,85 @@ void DB_UpdateClient(int iClient, const char[] szDbName = NULL_STRING)
 	g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery);
 }
 
-void DB_RemoveClientFromID(int iClient = 0, int iClientID, bool bNotify, const char[] szName = NULL_STRING)
+void DB_RemoveClientFromID(int iAdmin = 0,
+							int iClient = 0,
+							int iClientID = 0,
+							bool bNotify,
+							const char[] szSourceName = NULL_STRING,
+							const char[] szSourceGroup = NULL_STRING,
+							const char[] szByWho = NULL_STRING)
 {
 	DebugMessage("DB_RemoveClientFromID %N (%d): - > iClientID: %d, : bNotify: %b", iClient, iClient, iClientID, bNotify)
-	char szQuery[256];
+	char szQuery[256], szName[MNL], szGroup[64];
 	DataPack hDataPack = new DataPack();
+
+	if(iClient)
+	{
+		if(szSourceName[0])
+		{
+			strcopy(SZF(szName), szSourceName);
+		}
+		else
+		{
+			GetClientName(iClient, SZF(szName));
+		}
+
+		if(szGroup[0])
+		{
+			strcopy(SZF(szGroup), szSourceGroup);
+		}
+		else
+		{
+			g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szGroup));
+		}
+
+		if(!iClientID)
+		{
+			g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
+		}
+	}
 	hDataPack.WriteCell(iClientID);
+	hDataPack.WriteCell(GET_UID(iAdmin));
 	hDataPack.WriteCell(bNotify);
-	hDataPack.WriteCell(iClient >= 0 ? GET_UID(iClient):iClient);
-	if(szName[0])
+
+	char szAdmin[PMP];
+	switch(iAdmin)
+	{
+		case REASON_EXPIRED:
+		{
+			FormatEx(SZF(szAdmin), "%T", "REASON_EXPIRED", LANG_SERVER);
+		}
+		case REASON_OUTDATED:
+		{
+			FormatEx(SZF(szAdmin), "%T", "REASON_INACTIVITY", LANG_SERVER);
+		}
+		case REASON_PLUGIN:
+		{
+			FormatEx(SZF(szAdmin), "%T %s", "BY_PLUGIN", LANG_SERVER, szByWho);
+		}
+		case 0:
+		{
+			FormatEx(SZF(szAdmin), "%T", "BY_SERVER", LANG_SERVER);
+		}
+		default:
+		{
+			char szAdminInfo[128];
+			UTIL_GetClientInfo(iAdmin, SZF(szAdminInfo));
+			FormatEx(SZF(szAdmin), "%T %s", "BY_ADMIN", LANG_SERVER, szAdminInfo);
+		}
+	}
+
+	hDataPack.WriteString(szAdmin);
+
+	if(szName[0] && szGroup[0])
 	{
 		hDataPack.WriteString(szName);
-		
-		FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
-
-		DBG_SQL_Query(szQuery)
-		g_hDatabase.Query(SQL_Callback_RemoveClient, szQuery, hDataPack);
+		hDataPack.WriteString(szGroup);
+		DB_RemoveClient(hDataPack, iClientID);
 		return;
 	}
 
-	FormatEx(SZF(szQuery), "SELECT `name` FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
+	FormatEx(SZF(szQuery), "SELECT `name`, `group` FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
 
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_SelectRemoveClient, szQuery, hDataPack);
@@ -231,20 +290,28 @@ public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult
 		DBG_SQL_Response("hResult.FetchRow()")
 		hDataPack.Reset();
 		int iClientID = hDataPack.ReadCell();
-		bool bNotify = view_as<bool>(hDataPack.ReadCell());
-		int iClient = hDataPack.ReadCell();
-		if(iClient >= 0)
-		{
-			iClient = GET_CID(iClient);
-		}
+		hDataPack.ReadCell();
+		hDataPack.ReadCell();
 		char szName[MAX_NAME_LENGTH*2+1];
+		hDataPack.ReadString(SZF(szName));
 		hResult.FetchString(0, SZF(szName));
 		DBG_SQL_Response("hResult.FetchString(0) = '%s", szName)
+		hDataPack.WriteString(szName);
+		hResult.FetchString(1, SZF(szName));
+		DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
+		hDataPack.WriteString(szName);
 
-		DB_RemoveClientFromID(iClient, iClientID, bNotify, szName);
+		DB_RemoveClient(hDataPack, iClientID);
 	}
+}
 
-	delete hDataPack;
+void DB_RemoveClient(DataPack hDataPack, int iClientID)
+{
+	char szQuery[256];
+	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
+
+	DBG_SQL_Query(szQuery)
+	g_hDatabase.Query(SQL_Callback_RemoveClient, szQuery, hDataPack);
 }
 
 public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, any hPack)
@@ -267,34 +334,33 @@ public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, cons
 		hDataPack.Reset();
 		
 		int iClientID = hDataPack.ReadCell();
+		int iAdmin = GET_CID(hDataPack.ReadCell());
 		bool bNotify = view_as<bool>(hDataPack.ReadCell());
-		int iClient = hDataPack.ReadCell();
-		if(iClient >= 0)
-		{
-			iClient = GET_CID(iClient);
-		}
-		char szName[MAX_NAME_LENGTH*2+1];
+		char szAdmin[128], szName[MNL], szGroup[64];
+		hDataPack.ReadString(SZF(szAdmin));
 		hDataPack.ReadString(SZF(szName));
+		hDataPack.ReadString(SZF(szGroup));
 		
 		delete hDataPack;
-		if(iClient < 0)
+
+		if(iAdmin == -1)
 		{
 			return;
 		}
 
 		if (g_CVAR_bLogsEnable)
 		{
-			LogToFile(g_szLogFile, "%T", "LOG_ADMIN_VIP_IDENTITY_DELETED", LANG_SERVER, iClient, szName, iClientID);
+			LogToFile(g_szLogFile, "%T", "LOG_VIP_DELETED", LANG_SERVER, szName, iClientID, szGroup, szAdmin);
 		}
 
-		if (bNotify)
+		if (bNotify && iAdmin > 0)
 		{
-			ReplyToCommand(iClient, "%t", "ADMIN_VIP_PLAYER_DELETED", szName, iClientID);
+			ReplyToCommand(iAdmin, "%t", "ADMIN_VIP_PLAYER_DELETED", szName, iClientID);
 		}
 	}
 }
 
-public void SQL_Callback_SelectExpiredAndOutdated(Database hOwner, DBResultSet hResult, const char[] szError, any iData)
+public void SQL_Callback_SelectExpiredAndOutdated(Database hOwner, DBResultSet hResult, const char[] szError, any iReason)
 {
 	DBG_SQL_Response("SQL_Callback_SelectExpiredAndOutdated")
 
@@ -309,7 +375,7 @@ public void SQL_Callback_SelectExpiredAndOutdated(Database hOwner, DBResultSet h
 	if (hResult.RowCount)
 	{
 		int iClientID;
-		char szName[MNL*2];
+		char szName[MNL*2], szGroup[64];
 		while (hResult.FetchRow())
 		{
 			DBG_SQL_Response("hResult.FetchRow()")
@@ -317,7 +383,9 @@ public void SQL_Callback_SelectExpiredAndOutdated(Database hOwner, DBResultSet h
 			DBG_SQL_Response("hResult.FetchInt(0) = %d", iClientID)
 			hResult.FetchString(1, SZF(szName));
 			DBG_SQL_Response("hResult.FetchString(1) = '%s'", szName)
-			DB_RemoveClientFromID(iData, iClientID, false, szName);
+			hResult.FetchString(2, SZF(szGroup));
+			DBG_SQL_Response("hResult.FetchString(2) = '%s'", szGroup)
+			DB_RemoveClientFromID(iReason, _, iClientID, false, szName, szGroup);
 		}
 	}
 }
