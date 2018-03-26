@@ -301,6 +301,7 @@ void UTIL_ADD_VIP_PLAYER(int iAdmin = 0,
 						const char[] szByWho = NULL_STRING)
 {
 	char szQuery[PMP*2], szName[MNL*2+1];
+	char szAdmin[PMP], szTargetInfo[PMP];
 	int iExpires, iAccountID;
 
 	if (iDuration)
@@ -316,26 +317,21 @@ void UTIL_ADD_VIP_PLAYER(int iAdmin = 0,
 	{
 		GetClientName(iTarget, SZF(szQuery));
 		g_hDatabase.Escape(szQuery, SZF(szName));
+		iAccountID  = GetSteamAccountID(iTarget);
+		UTIL_GetClientInfo(iTarget, SZF(szTargetInfo));
 	}
 	else
 	{
 		strcopy(SZF(szName), "unknown");
-	}
-
-	if (iTarget)
-	{
-		iAccountID  = GetSteamAccountID(iTarget);
-	}
-	else
-	{
 		iAccountID = iAccID;
+		UTIL_GetSteamIDFromAccountID(iAccountID, SZF(szQuery));
+		FormatEx(SZF(szTargetInfo), "unknown (%s, unknown)", szQuery);
 	}
 
 	DataPack hDataPack = new DataPack();
 
 	// Admin
 
-	char szAdmin[PMP];
 	switch(iAdmin)
 	{
 		case REASON_PLUGIN:
@@ -358,9 +354,9 @@ void UTIL_ADD_VIP_PLAYER(int iAdmin = 0,
 	hDataPack.WriteString(szAdmin);
 
 	// Target
-	hDataPack.WriteCell(UID(iTarget));
+	hDataPack.WriteCell(GET_UID(iTarget));
 	hDataPack.WriteCell(iAccountID);
-	hDataPack.WriteString(szName);
+	hDataPack.WriteString(szTargetInfo);
 
 	// Data
 	hDataPack.WriteCell(iDuration);
@@ -420,14 +416,14 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 	}
 
 	int iTarget, iDuration, iExpires, iAccountID;
-	char szAdmin[PMP], szExpires[64], szName[MNL], szDuration[64], szGroup[64];
+	char szAdmin[PMP], szTargetInfo[PMP], szExpires[64], szDuration[64], szGroup[64];
 	
 	hDataPack.ReadString(SZF(szAdmin));
 	
 	// Target
-	iTarget = CID(hDataPack.ReadCell());
+	iTarget = GET_CID(hDataPack.ReadCell());
 	iAccountID = hDataPack.ReadCell();
-	hDataPack.ReadString(SZF(szName));
+	hDataPack.ReadString(SZF(szTargetInfo));
 
 	// Data
 	iDuration = hDataPack.ReadCell();
@@ -457,7 +453,7 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 			FormatEx(SZF(szDuration), "%T", "PERMANENT", iAdmin);
 			FormatEx(SZF(szExpires), "%T", "NEVER", iAdmin);
 		}
-		UTIL_Reply(iAdmin, "%t", "ADMIN_VIP_ADD_SUCCESS", szName, iAccountID);
+		UTIL_Reply(iAdmin, "%t", "ADMIN_VIP_ADD_SUCCESS", szTargetInfo, iAccountID);
 	}
 
 	if (g_CVAR_bLogsEnable)
@@ -471,6 +467,6 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 			FormatEx(SZF(szExpires), "%T", "PERMANENT", LANG_SERVER);
 			FormatEx(SZF(szExpires), "%T", "NEVER", LANG_SERVER);
 		}
-		LogToFile(g_szLogFile, "%T", "LOG_VIP_ADDED", LANG_SERVER, szName, iAccountID, szDuration, szExpires, szGroup, szAdmin);
+		LogToFile(g_szLogFile, "%T", "LOG_VIP_ADDED", LANG_SERVER, szTargetInfo, iAccountID, szDuration, szExpires, szGroup, szAdmin);
 	}
 }

@@ -230,6 +230,7 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 	RegNative(GiveClientVIP);
 	RegNative(SetClientVIP);
 	RegNative(RemoveClientVIP);
+	RegNative(RemoveClientVIP2);
 
 	RegNative(CheckClient);
 	RegNative(IsClientVIP);
@@ -562,12 +563,17 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 	char szGroup[64];
 	GetNativeString(4, SZF(szGroup));
 
-	return API_GiveClientVIP(hPlugin, -1, iClient, iTime, szGroup, bAddToDB);
+	return API_GiveClientVIP(hPlugin, REASON_PLUGIN, iClient, iTime, szGroup, bAddToDB);
 }
 
-int API_GiveClientVIP(Handle hPlugin, int iAdmin, int iClient, int iTime, const char[] szGroup, bool bAddToDB)
+int API_GiveClientVIP(Handle hPlugin,
+							int iAdmin,
+							int iClient,
+							int iTime,
+							const char[] szGroup,
+							bool bAddToDB)
 {
-	if (CheckValidClient(iClient, false) && (!iAdmin || iAdmin == -1 || CheckValidClient(iAdmin, false)))
+	if (CheckValidClient(iClient, false) && (iAdmin < 1 || CheckValidClient(iAdmin, false)))
 	{
 		if (g_iClientInfo[iClient] & IS_VIP)
 		{
@@ -634,38 +640,40 @@ int API_GiveClientVIP(Handle hPlugin, int iAdmin, int iClient, int iTime, const 
 
 public int Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
 {
-	int iClient, iAdmin;
-	bool bInDB, bNotify;
-	if(iNumParams == 3)
-	{
-		iAdmin = 0;
-		iClient = GetNativeCell(1);
-		bInDB = GetNativeCell(2);
-		bNotify = GetNativeCell(3);
-	}
-	else if(iNumParams == 4)
-	{
-		iAdmin = GetNativeCell(1);
-		iClient = GetNativeCell(2);
-		bInDB = GetNativeCell(3);
-		bNotify = GetNativeCell(4);
-	}
-	else
-	{
-		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid number of arguments/Некорректное количество аргументов");
-	}
+	int iClient = GetNativeCell(1);
+	bool bInDB = GetNativeCell(2);
+	bool bNotify = GetNativeCell(3);
 
+	return API_RemoveClientVIP(hPlugin, 0, iClient, bInDB, bNotify);
+}
+
+public int Native_RemoveClientVIP2(Handle hPlugin, int iNumParams)
+{
+	int iAdmin = GetNativeCell(1);
+	int iClient = GetNativeCell(2);
+	bool bInDB = GetNativeCell(3);
+	bool bNotify = GetNativeCell(4);
+
+	return API_RemoveClientVIP(hPlugin, iAdmin, iClient, bInDB, bNotify);
+}
+
+int API_RemoveClientVIP(Handle hPlugin,
+							int iAdmin,
+							int iClient,
+							bool bInDB,
+							bool bNotify)
+{
 	if (CheckValidClient(iClient))
 	{
-		if (!iAdmin || CheckValidClient(iAdmin, false))
+		if (iAdmin < 1 || CheckValidClient(iAdmin, false))
 		{
+			char szPluginName[128];
+			GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
 			if (bInDB)
 			{
 				int iClientID;
 				if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 				{
-					char szPluginName[128];
-					GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
 					DB_RemoveClientFromID(REASON_PLUGIN, iClient, _, true, _, _, szPluginName);
 				}
 			}
@@ -677,7 +685,9 @@ public int Native_RemoveClientVIP(Handle hPlugin, int iNumParams)
 
 			ResetClient(iClient);
 
-			CreateForward_OnVIPClientRemoved(iClient, "Removed by native", iAdmin);
+			char szBuffer[PMP];
+			FormatEx(SZF(szBuffer), "Removed by %s", szPluginName);
+			CreateForward_OnVIPClientRemoved(iClient, szBuffer, iAdmin);
 
 			if (bNotify)
 			{

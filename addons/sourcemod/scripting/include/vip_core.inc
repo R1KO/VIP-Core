@@ -362,18 +362,6 @@ native void VIP_GiveClientVIP(int iAdmin = 0, int iClient, int iTime, const char
 native bool VIP_SetClientVIP(int iClient, int iTime, any AuthType, const char[] szGroup, bool bAddToDB = true);
 
 /**
- *	Отнимает у игрока VIP-права (Устарела и будет удалена в будущем).
- *	-
- * @param iClient			Индекс игрока.
- * @param bInDB				Удалять ли тз базы данных.
- * @param bNotify			Уведомление игрока (true - уведомить/false - не уведомлять).
- *	-
- * @return					true - Успешно.
- * 							false - Не удалось выполнить.
-*/
-#pragma deprecated Use VIP_RemoveClientVIP2() instead
-native bool VIP_RemoveClientVIP(int iClient, bool bInDB, bool bNotify);
-/**
  *	Отнимает у игрока VIP-права.
  *	-
  * @param iAdmin			Индекс админа (0 - сервер).
@@ -385,6 +373,9 @@ native bool VIP_RemoveClientVIP(int iClient, bool bInDB, bool bNotify);
  * 							false - Не удалось выполнить.
 */
 native bool VIP_RemoveClientVIP2(int iAdmin = 0, int iClient, bool bInDB, bool bNotify);
+
+#pragma deprecated Use VIP_RemoveClientVIP2() instead
+native bool VIP_RemoveClientVIP(int iClient, bool bInDB, bool bNotify);
 
 /**
  *	Проверка что ядро загружено и готово к регистрации функций.

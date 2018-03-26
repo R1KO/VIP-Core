@@ -1,8 +1,15 @@
+# [VIP] Core 3.0 DEV #34
+
+### Изменения:
+- Изменени натив `VIP_SetClientFeatureStatus`.
+- Исправлена ошибка `Client index 0 is invalid` при добавлении VIP-игрока через `sm_addvip`.
+- Переработана система логов.
+
 # [VIP] Core 3.0 DEV #33
 
 ### Изменения:
 - Изменени натив `VIP_SetClientFeatureStatus`.
-- Исправлена ошибка `SQL_Callback_SelectExpiredAndOutdated: Unknown column 'iTime' in 'where clause'`
+- Исправлена ошибка `SQL_Callback_SelectExpiredAndOutdated: Unknown column 'iTime' in 'where clause'`.
 - Переработана система логов.
 
 # [VIP] Core 3.0 DEV #32 (спасибо DarklSide за обнаруженные ошибок)
