@@ -211,11 +211,11 @@ void DB_RemoveClientFromID(int iAdmin = 0,
 			GetClientName(iClient, SZF(szName));
 		}
 
-		if(szGroup[0])
+		if(szSourceGroup[0])
 		{
 			strcopy(SZF(szGroup), szSourceGroup);
 		}
-		else
+		else if(g_hFeatures[iClient])
 		{
 			g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szGroup));
 		}

@@ -1,9 +1,14 @@
+# [VIP] Core 3.0 DEV #35
+
+### Изменения:
+- Исправлена ошибка `Invalid Handle 0 (error 4)` (`DB_RemoveClientFromID`).
+
 # [VIP] Core 3.0 DEV #34
 
 ### Изменения:
-- Изменени натив `VIP_SetClientFeatureStatus`.
+- Натив `VIP_RemoveClientVIP` помечен как устаревший и будет удален в будущем.
+- Добавлен новый натив `VIP_RemoveClientVIP2`.
 - Исправлена ошибка `Client index 0 is invalid` при добавлении VIP-игрока через `sm_addvip`.
-- Переработана система логов.
 
 # [VIP] Core 3.0 DEV #33
 
