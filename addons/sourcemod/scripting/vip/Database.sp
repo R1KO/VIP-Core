@@ -218,11 +218,11 @@ void DB_RemoveClientFromID(int iAdmin = 0,
 		else if(g_hFeatures[iClient])
 		{
 			g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szGroup));
-		}
 
-		if(!iClientID)
-		{
-			g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
+			if(!iClientID)
+			{
+				g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
+			}
 		}
 	}
 	hDataPack.WriteCell(iClientID);

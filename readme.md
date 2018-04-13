@@ -1,3 +1,8 @@
+# [VIP] Core 3.0 DEV #36
+
+### Изменения:
+- Теперь точно исправлена ошибка `Invalid Handle 0 (error 4)` (`DB_RemoveClientFromID`).
+
 # [VIP] Core 3.0 DEV #35
 
 ### Изменения:
