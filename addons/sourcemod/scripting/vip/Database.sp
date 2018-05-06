@@ -177,11 +177,11 @@ void DB_UpdateClient(int iClient, const char[] szDbName = NULL_STRING)
 		char szName[MNL*2+1];
 		GetClientName(iClient, szQuery, MNL);
 		g_hDatabase.Escape(szQuery, SZF(szName));
-		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `name` = '%s', `lastvisit` = %d WHERE `account_id` = %d%s;", szName, GetTime(), iClientID, g_szSID);
+		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `name` = '%s', `lastvisit` = %d WHERE (`account_id` = %d%s) OR (`account_id` = %d AND `sid` = 0);", szName, GetTime(), iClientID, g_szSID, iClientID);
 	}
 	else
 	{
-		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `lastvisit` = %d WHERE `account_id` = %d%s;", GetTime(), iClientID, g_szSID);
+		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `lastvisit` = %d WHERE (`account_id` = %d%s) OR (`account_id` = %d AND `sid` = 0);", GetTime(), iClientID, g_szSID, iClientID);
 	}
 
 	DBG_SQL_Query(szQuery)
@@ -284,7 +284,7 @@ public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult
 		LogError("SQL_Callback_SelectRemoveClient: %s", szError);
 		return;
 	}
-	
+
 	if (hResult.FetchRow())
 	{
 		DBG_SQL_Response("hResult.FetchRow()")
@@ -308,7 +308,7 @@ public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult
 void DB_RemoveClient(DataPack hDataPack, int iClientID)
 {
 	char szQuery[256];
-	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
+	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE (`account_id` = %d%s) OR (`account_id` = %d AND `sid` = 0);", iClientID, g_szSID, iClientID);
 
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_RemoveClient, szQuery, hDataPack);

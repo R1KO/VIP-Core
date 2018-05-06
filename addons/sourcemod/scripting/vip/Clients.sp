@@ -133,7 +133,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 					char szGroup[64];
 					hResult.FetchString(1, SZF(szGroup));
 
-					DB_RemoveClientFromID(REASON_EXPIRED, iClient, _, false, _, szGroup);
+					DB_RemoveClientFromID(REASON_EXPIRED, iClient, iAccountID, false, _, szGroup);
 				}
 
 				CreateForward_OnVIPClientRemoved(iClient, "Expired");
