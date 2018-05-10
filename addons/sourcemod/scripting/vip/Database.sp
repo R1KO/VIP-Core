@@ -171,17 +171,30 @@ void DB_UpdateClient(int iClient, const char[] szDbName = NULL_STRING)
 	int iClientID;
 	g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
 
-	char szQuery[256];
+	char szQuery[256], szWhere[128];
+	if(g_szSID[0])
+	{
+		#if USE_MORE_SERVERS 1
+		FormatEx(SZF(szWhere), "`account_id` = %d AND (`sid` = %d OR `sid` = 0)", iClientID, g_CVAR_iServerID);
+		#else
+		FormatEx(SZF(szWhere), "`account_id` = %d%s", iClientID, g_szSID);
+		#endif
+	}
+	else
+	{
+		FormatEx(SZF(szWhere), "`account_id` = %d", iClientID);
+	}
+
 	if (g_CVAR_bUpdateName || !strcmp(szDbName, "unknown"))
 	{
 		char szName[MNL*2+1];
 		GetClientName(iClient, szQuery, MNL);
 		g_hDatabase.Escape(szQuery, SZF(szName));
-		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `name` = '%s', `lastvisit` = %d WHERE (`account_id` = %d%s) OR (`account_id` = %d AND `sid` = 0);", szName, GetTime(), iClientID, g_szSID, iClientID);
+		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `name` = '%s', `lastvisit` = %d WHERE %s;", szName, GetTime(), szWhere);
 	}
 	else
 	{
-		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `lastvisit` = %d WHERE (`account_id` = %d%s) OR (`account_id` = %d AND `sid` = 0);", GetTime(), iClientID, g_szSID, iClientID);
+		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `lastvisit` = %d WHERE %s;", GetTime(), szWhere);
 	}
 
 	DBG_SQL_Query(szQuery)
