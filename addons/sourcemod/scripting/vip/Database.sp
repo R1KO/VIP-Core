@@ -320,8 +320,21 @@ public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult
 
 void DB_RemoveClient(DataPack hDataPack, int iClientID)
 {
-	char szQuery[256];
-	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE (`account_id` = %d%s) OR (`account_id` = %d AND `sid` = 0);", iClientID, g_szSID, iClientID);
+	char szQuery[256], szWhere[128];
+	if(g_szSID[0])
+	{
+		#if USE_MORE_SERVERS 1
+		FormatEx(SZF(szWhere), "`account_id` = %d AND (`sid` = %d OR `sid` = 0)", iClientID, g_CVAR_iServerID);
+		#else
+		FormatEx(SZF(szWhere), "`account_id` = %d%s", iClientID, g_szSID);
+		#endif
+	}
+	else
+	{
+		FormatEx(SZF(szWhere), "`account_id` = %d", iClientID);
+	}
+
+	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE %s;", szWhere);
 
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_RemoveClient, szQuery, hDataPack);

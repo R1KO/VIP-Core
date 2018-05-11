@@ -1,3 +1,8 @@
+# [VIP] Core 3.0 DEV #39
+
+### Изменения:
+- Исправлена ошибка на SQLite `SQL_Callback_RemoveClient: no such column: sid`.
+
 # [VIP] Core 3.0 DEV #38
 
 ### Изменения:
