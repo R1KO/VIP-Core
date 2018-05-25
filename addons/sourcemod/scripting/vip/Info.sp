@@ -97,11 +97,17 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 					Panel hPanel = new Panel();
 					do
 					{
+						g_hInfo.GetSectionName(szBuffer, 32);
+						if (strcmp(szBuffer, "item"))
+						{
+							continue;
+						}
+
 						g_hInfo.GetString(NULL_STRING, szBuffer, 128);
 						DebugMessage("KvGetString = '%s'", szBuffer)
 						if (szBuffer[0])
 						{
-							if (strcmp(szBuffer, "SPACER") == 0)
+							if (!strcmp(szBuffer, "SPACER"))
 							{
 								hPanel.DrawText(" \n");
 								continue;
@@ -115,9 +121,11 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 						}
 					} while (g_hInfo.GotoNextKey(false));
 					
+					g_hInfo.GoBack();
+					
 					hPanel.DrawText(" \n");
 					
-					hPanel.CurrentKey = g_iMaxPageItems;
+					hPanel.CurrentKey = g_hInfo.GetNum("exit_button", g_iMaxPageItems);
 					
 					FormatEx(szBuffer, 128, "%T", "Exit", iClient);
 					hPanel.DrawItem(szBuffer, ITEMDRAW_CONTROL);

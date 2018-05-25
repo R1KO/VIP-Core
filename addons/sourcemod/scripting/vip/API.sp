@@ -746,17 +746,13 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 
 		if (eType != HIDE)
 		{
-			switch (eType)
+			Handle hCookie = null;
+			if (eType == TOGGLABLE || (eType == SELECTABLE && iNumParams > 7 && GetNativeCell(8)))
 			{
-			case TOGGLABLE:
-				{	
-					hArray.Push(RegClientCookie(szFeature, szFeature, CookieAccess_Private));
-				}
-			case SELECTABLE:
-				{
-					hArray.Push(INVALID_HANDLE);
-				}
+				hCookie = RegClientCookie(szFeature, szFeature, CookieAccess_Private);
 			}
+
+			hArray.Push(hCookie);
 
 			DataPack hDataPack = new DataPack();
 			hDataPack.WriteFunction(GetNativeCell(4));
@@ -766,7 +762,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 
 			if(eType == TOGGLABLE)
 			{
-				hArray.Push(iNumParams == 7 ? GetNativeCell(7):NO_ACCESS);
+				hArray.Push(iNumParams > 6 ? GetNativeCell(7):NO_ACCESS);
 			}
 
 			AddFeatureToVIPMenu(szFeature);

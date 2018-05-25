@@ -400,6 +400,7 @@ native bool VIP_IsVIPLoaded();
  * 									ENABLED - Включена
  * 									DISABLED - Отключена
  * 									NO_ACCESS - Не использовать (будет зависеть от sm_vip_features_default_status)
+ * @param bCookie				Регистрировать ли куки для ф-и (действительно только для типа SELECTABLE).
  *	-
  * @noreturn
 */
@@ -410,7 +411,8 @@ native void VIP_RegisterFeature(const char[]			szFeature,
 								ItemSelectCallback		Item_select_callback	= INVALID_FUNCTION,
 								ItemDisplayCallback		Item_display_callback	= INVALID_FUNCTION,
 								ItemDrawCallback		Item_draw_callback		= INVALID_FUNCTION,
-								VIP_ToggleState			eDefStatus				= NO_ACCESS);
+								VIP_ToggleState			eDefStatus				= NO_ACCESS,
+								bool					bCookie					= false);
 
 /**
  *	Удаляет VIP-функцию.
