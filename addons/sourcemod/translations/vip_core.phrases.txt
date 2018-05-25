@@ -82,45 +82,6 @@
 		"ru"		"Нет VIP-игроков онлайн"
 		"ua"		"Немає VIP-гравців онлайн"
 	}
-	"VIP_SUCCESSFULLY_ADDED"
-	{
-		"en"		"VIP-player has been successfully added!"
-		"fi"		"VIP-pelaaja on onnistuneesti lisätty!"
-		"de"		"VIP-Spieler erfolgreich hinzugefügt!"
-		"pt_p"		"VIP adicionado com sucesso!"
-		"ru"		"VIP-Игрок успешно добавлен!"
-		"ua"		"VIP-гравець був успішно доданий!"
-	}
-	"WELCOME_MSG_TIME"
-	{
-		"#format"	"{1:N},{2:s}"
-		"en"		"Hello, {1}! You have VIP features for {2}"
-		"fi"		"Hei, {1}! Olet VIP-pelaaja. Sinun VIP status päättyy {2}"
-		"de"		"Hallo, {1}! Ihren VIP-Zugang endet am {2}"
-		"pt_p"		"Olá {1}! Tens acesso aos recursos VIP por {2}"
-		"ru"		"Здравствуйте, {1}! Вы являетесь VIP-игроком. Ваш VIP статус истекает {2}"
-		"ua"		"Привіт, {1}! Ви маєте VIP-статус до {2}"
-	}
-	"WELCOME_MSG_PERM"
-	{
-		"#format"	"{1:N}"
-		"en"		"Hello, {1}! You have  VIP features."
-		"fi"		"Hei, {1}! Olet VIP-pelaaja."
-		"de"		"Hallo, {1}! Sie haben  VIP-zugriff."
-		"pt_p"		"Olá  {1}! Tens acesso aos recursos VIP."
-		"ru"		"Здравствуйте, {1}! Вы являетесь VIP-игроком."
-		"ua"		"Привіт, {1}! Ти маєш VIP функції."
-	}
-	"VIP_PLAYER_CONNECTED"
-	{
-		"#format"	"{1:L}"
-		"en"		"VIP-player joined: {1}"
-		"fi"		"VIP-pelaaja on liittynyt: {1}"
-		"de"		"VIP-Spieler beigetreten: {1}"
-		"pt_p"		"VIP Conectado: {1}"
-		"ru"		"Вошел VIP-игрок: {1}"
-		"ua"		"VIP-гравець приєднався: {1}"
-	}
 	"REMOVING_PLAYER"
 	{
 		"#format"	"{1:L}"
@@ -130,34 +91,6 @@
 		"pt_p"		"{1} o teu VIP expirou, a remover jogador.."
 		"ru"		"Права VIP-игрока {1} истекли, удаление игрока..."
 		"ua"		"Термін дії VIP гравця {1} закінчився, видалення гравця..."
-	}
-	"FAILED_AUTHORIZE"
-	{
-		"#format"	"{1:L}"
-		"en"		"VIP-player failed to authorize: {1}"
-		"fi"		"VIP-pelaaja Epäonnistui kirjautua {1}"
-		"de"		"Fehler beim Anmeldung: {1}"
-		"pt_p"		"Jogador VIP não autorizado: {1}"
-		"ru"		"Неудачная попытка авторизации VIP-игрока {1}"
-		"ua"		"Невдала спроба авторизації VIP-гравця {1}"
-	}
-	"INVALID_PASSWORD"
-	{
-		"ua"		"Цей аккаунт захищений паролем\nВведіть в консоль: setinfo \"логін\" \"пароль\""
-		"pt_p"		"Esta conta é protegida por password\nEscreve na consola: setinfo \"login\" \"password\""
-		"fi"		"Tämä tili on suojattu salasanalla\nKirjoita consoleen: setinfo \"käyttäjä\" \"salasana\""
-		"de"		"Dieses Konto ist kennwortgeschützt\nGeben Sie in die Konsole: setinfo \"login\" \"kennwort\""
-		"en"		"This account is password-protected\nType to console: setinfo \"login\" \"password\""
-		"ru"		"Этот аккаунт защищен паролем\nВведите в консоль: setinfo \"логин\" \"пароль\""
-	}
-	"WAIT_PASSWORD"
-	{
-		"pt_p"		"Para receberes acesso ao teu VIP, escreve na consola:\nsetinfo \"login\" \"password\""
-		"ua"		"Для того, щоб отримати доступ до вашого VIP, введіть це в консоль:\nsetinfo \"логін\" \"пароль\""
-		"fi"		"Jotta aktivoisit VIP, kirjoita consolee:\nsetinfo \"käyttäjä\" \"salasana\""
-		"de"		"Um Ihren VIP zu nutzen, geben Sie das in die Konsole:\nsetinfo \"login\" \"kennwort\""
-		"en"		"To gain access to your VIP, type this to console:\nsetinfo \"login\" \"password\""
-		"ru"		"Чтобы активировать VIP, пропишите в консоль:\nsetinfo \"логин\" \"пароль\""
 	}
 	"VIP_ADMIN_MENU_TITLE"
 	{
@@ -186,34 +119,34 @@
 		"ru"		"Игрок больше не доступен"
 		"ua"		"Гравець більше недоступний"
 	}
-	"ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY"
+	"ADMIN_VIP_ADD_SUCCESS"
 	{
-		"en"		"VIP-player successfully added!"
-		"fi"		"VIP-Pelaaja onnistuneesti lisätty!"
-		"de"		"VIP-Spieler erfolgreich hinzugefügt!"
-		"pt_p"		"VIP adicionado com sucesso!"
-		"ru"		"VIP-Игрок успешно добавлен!"
-		"ua"		"VIP-Гравець успішно доданий!"
+		"#format"	"{1:s},{2:d}"
+		"en"		"VIP-player {1} ({2}, ID: {3}) successfully added!"
+		"fi"		"VIP-Pelaaja {1} ({2}, ID: {3}) onnistuneesti lisätty!"
+		"de"		"VIP-Spieler {1} ({2}, ID: {3}) erfolgreich hinzugefügt!"
+		"pt_p"		"VIP adicionado {1} ({2}, ID: {3}) com sucesso!"
+		"ru"		"{DEFAULT}VIP-Игрок {GREEN}{1} {DEFAULT}(ID: {GREEN}{2}{DEFAULT}) успешно добавлен!"
+		"ua"		"{DEFAULT}VIP-Гравець {GREEN}{1} {DEFAULT}(ID: {GREEN}{2}{DEFAULT}) успішно доданий!"
 	}
-	"LOG_ADMIN_ADD_VIP_IDENTITY_SUCCESSFULLY"
+
+	"LOG_VIP_ADDED"
 	{
-		"#format"	"{1:L},{2:s},{3:s},{4:s},{5:s}"
-		"en"		"Admin {1} added VIP-ID {2} (Time: {3}, Expires: {4}, Group: {5})"
-		"fi"		"Admin {1} lisätään VIP-Tunnus {2} (Kesto: {3}, Erääntyy: {4}, Ryhmä: {5})"
-		"de"		"Admin {1} hat VIP-ID {2} hinzugefügt (Zeit: {3}, Läuft ab: {4}, Gruppe: {5})"
-		"pt_p"		"Admin {1} adicionou VIP-ID {2} (Tempo: {3}, Expira: {4}, Grupo: {5})"
-		"ru"		"Админ {1} добавил VIP-идентификатор {2} (Срок: {3}, Истекает: {4}, Группа: {5})"
-		"ua"		"Адмін {1} додав VIP-ідентифікатор {2} (Термін: {3}, Закінчується: {4}, Група: {5})"
+		"#format"	"{1:s},{2:d},{3:s},{4:s},{5:s},{6:s}"
+		"en"		"VIP-Player {1} (ID: {2}, Duration: {3}, Expires: {4}, Group: {5}) added {6}"
+		"ru"		"VIP-Игрок {1} (ID: {2}, Длительность: {3}, Истекает: {4}, Группа: {5}) добавлен {6}"
 	}
-	"ADMIN_ADD_VIP_IDENTITY_FAILED"
+
+	"ADMIN_VIP_ADD_FAILED"
 	{
 		"en"		"Failed to add VIP-ID!"
 		"fi"		"Virhe lisättäessä VIP-tunnusta!"
 		"de"		"Fehler beim Hinzufügen der VIP-ID!"
 		"pt_p"		"Falha do adicionar VIP-ID!"
-		"ru"		"Ошибка добавления VIP-идентификатора!"
-		"ua"		"Помилка створення VIP-ідентифікатора!"
+		"ru"		"Ошибка добавления VIP-игрока!"
+		"ua"		"Помилка створення VIP-гравця!"
 	}
+
 	"MENU_EDIT_VIP"
 	{
 		"en"		"Edit VIP-player"
@@ -336,71 +269,6 @@
 		"ru"		"Админ {1} сократил срок VIP-игроку {2} на {3}"
 		"ua"		"Адмін {1} зменшив термін дії VIP гравцю {2} до {3}"
 	}
-	"MENU_EDIT_PASS"
-	{
-		"en"		"Edit password"
-		"fi"		"Muuta salasana"
-		"de"		"Kennwort ändern"
-		"pt_p"		"Editar password"
-		"ru"		"Изменить пароль"
-		"ua"		"Редагувати пароль"
-	}
-	"MENU_DEL_PASS"
-	{
-		"en"		"Remove paswrod"
-		"fi"		"Poista salasana"
-		"de"		"Kennwort entfernen"
-		"pt_p"		"Remover password"
-		"ru"		"Удалить пароль"
-		"ua"		"Видалити пароль"
-	}
-	"ADMIN_PASSWORD_REMOVED"
-	{
-		"en"		"Password has been successfully removed"
-		"fi"		"Salasana on onnistuneesti poistettu!"
-		"de"		"Kennwort ist erfolgreich gelöscht"
-		"pt_p"		"A password foi removida com sucesso"
-		"ru"		"Пароль успешно удален!"
-		"ua"		"Пароль успішно видалено!"
-	}
-	"LOG_ADMIN_PASSWORD_REMOVED"
-	{
-		"#format"	"{1:L},{2:s}"
-		"en"		"Admin {1} removed {2} VIP-password"
-		"fi"		"Admin {1} Poisti VIP-pelaajalle {2} VIP-salasanan"
-		"de"		"Admin {1} hat VIP-Kennwort von {2} entfernt"
-		"pt_p"		"O Admin {1} removeu {2} VIP-password"
-		"ru"		"Админ {1} удалил пароль VIP-игроку {2}"
-		"ua"		"Адмін {1} видалив {2} VIP-пароль"
-	}
-	"MENU_ADD_PASS"
-	{
-		"en"		"Add a password"
-		"fi"		"Lisää salasana"
-		"de"		"Kennwort hinzufügen"
-		"pt_p"		"Adicionar password"
-		"ru"		"Добавить пароль"
-		"ua"		"Додати пароль"
-	}
-	"ADMIN_SET_PASSWORD"
-	{
-		"en"		"Password has been set!"
-		"fi"		"Salasana on asetettu!"
-		"de"		"Kennwort erfolgreich hinzugefügt!"
-		"pt_p"		"Foi definida a password!"
-		"ru"		"Пароль успешно установлен!"
-		"ua"		"Пароль успішно встановлено!"
-	}
-	"LOG_ADMIN_SET_PASSWORD"
-	{
-		"#format"	"{1:L},{2:s},{3:s}"
-		"en"		"Admin {1} has set password for VIP-player: {2} (Password: {3})"
-		"fi"		"Admin {1} on asettanut salasanan VIP-pelaajalle: {2} (Salasana: {3})"
-		"de"		"Admin {1} hat Kennwort für VIP-Spieler hinzufügt: {2} (Kennwort: {3})"
-		"pt_p"		"O Admin {1} definiu uma password para o VIP: {2} (Password: {3})"
-		"ru"		"Админ {1} установил пароль VIP-игроку {2} (Пароль: {3})"
-		"ua"		"Адмін {1} встановив пароль для VIP-гравця: {2} (Пароль: {3})"
-	}
 	"MENU_EDIT_GROUP"
 	{
 		"en"		"Edit VIP-group"
@@ -429,15 +297,11 @@
 		"ru"		"Группа VIP-игроку {1} изменена на {2}"
 		"ua"		"Група VIP-гравцю {1} змінена на {2}"
 	}
-	"LOG_ADMIN_SET_GROUP"
+	"LOG_CHANGE_GROUP"
 	{
-		"#format"	"{1:L},{2:s},{3:s}"
-		"en"		"Admin {1} has set a group for VIP-player: {2} (Group: {3})"
-		"fi"		"Admin {1} Asetti ryhmän VIP-pelaajalle {2} (Ryhmä: {3})"
-		"de"		"Admin {1} hat die Gruppe für VIP-Spieler hinzufügt: {2} (Gruppe: {3})"
-		"pt_p"		"O Admin {1} definiu um grupo para o VIP: {2} (Group: {3})"
-		"ru"		"Админ {1} установил группу VIP-игроку {2} (Группа: {3})"
-		"ua"		"Адмін {1} встановив групу для VIP-гравця: {2} (Група: {3})"
+		"#format"	"{1:s},{2:d},{3:s},{4:s},{5:s}"
+		"en"		"VIP-Player {1} (ID: {2}, Group: {3}) changed the group to {4} {5}"
+		"ru"		"VIP-Игроку {1} (ID: {2}, Группа: {3}) изменена группа на {4} {5}"
 	}
 	"MENU_DEL_VIP"
 	{
@@ -450,33 +314,20 @@
 	}
 	"ADMIN_VIP_PLAYER_DELETED"
 	{
-		"#format"	"{1:i}"
-		"en"		"VIP-player (ID: {1}) was successfully removed"
-		"fi"		"VIP-Pelaaja (ID: {1}) on onnistuneesti poistettu"
-		"de"		"VIP-Spieler (ID: {1}) war erfolgreich gelöscht"
-		"pt_p"		"O VIP do jogador (ID: {1}) foi removido com sucesso"
-		"ru"		"VIP-игрок (ID: {1}) успешно удален"
-		"ua"		"VIP-гравець (ID: {1}) успішно видалений"
+		"#format"	"{1:s},{2:i}"
+		"en"		"VIP-player {1} (ID: {2}) was successfully removed"
+		"fi"		"VIP-Pelaaja {1} (ID: {2}) on onnistuneesti poistettu"
+		"de"		"VIP-Spieler {1} (ID: {2}) war erfolgreich gelöscht"
+		"pt_p"		"O VIP do jogador {1} (ID: {2}) foi removido com sucesso"
+		"ru"		"VIP-игрок {1} (ID: {2}) успешно удален"
+		"ua"		"VIP-гравець {1} (ID: {2}) успішно видалений"
 	}
-	"ADMIN_VIP_IDENTITY_DELETED"
+
+	"LOG_VIP_DELETED"
 	{
-		"#format"	"{1:s}"
-		"en"		"VIP-ID {1} was successfully removed"
-		"fi"		"VIP-tunnus {1} on onnistuneesti poistettu"
-		"de"		"VIP-ID {1} war erfolgreich gelöscht"
-		"pt_p"		"O VIP-ID {1} foi removido com sucesso"
-		"ru"		"VIP-идентификатор {1} успешно удален"
-		"ua"		"VIP-ідентифікатор {1} успішно видалено"
-	}
-	"LOG_ADMIN_VIP_IDENTITY_DELETED"
-	{
-		"#format"	"{1:L},{2:s}"
-		"en"		"Admin {1} has successfully removed VIP-ID {2}"
-		"fi"		"Admin {1} Poisti VIP-tunnuksen {2}"
-		"de"		"Admin {1} hat VIP-ID {2} erfolgreich gelöscht"
-		"pt_p"		"O Admin {1} removeu com sucesso o VIP-ID {2}"
-		"ru"		"Админ {1} удалил VIP-идентификатор {2}"
-		"ua"		"Адмін {1} видалив VIP-ідентифікатор {2}"
+		"#format"	"{1:s},{2:d},{3:s},{4:s}"
+		"en"		"VIP-Player {1} (ID: {2}, Group: {3}) removed {4}"
+		"ru"		"VIP-Игрок {1} (ID: {2}, Группа: {3}) удален {4}"
 	}
 	"MENU_LIST_VIP"
 	{
@@ -487,15 +338,28 @@
 		"ru"		"Список VIP-игроков"
 		"ua"		"Список VIP-гравців"
 	}
+	"MENU_SEARCH"
+	{
+		"#format"	"{1:s},{2:d}"
+		"en"		"On request: {1}\nFound: {2} players"
+		"ru"		"По запросу: {1}\nНайдено: {2} игроков"
+		"ua"		"За запитом: {1}\nЗнайдено: {2} гравців"
+	}
 	"MENU_INFO_VIP_PLAYER"
 	{
-		"#format"	"{1:s},{2:s},{3:s},{4:s},{5:s}"
-		"en"		"Information:\n \nName:\n{1}\nGroup:\n{2}\nExpires:\n{3}\nType of authorization:\n{4}\nIdentifier:\n{5}"
-		"fi"		"Tiedotus:\n \nNimi:\n{1}\nRyhmä:\n{2}\nErääntyy:\n{3}\nKirjautumis tyyppi:\n{4}\nTunnus:\n{5}"
-		"de"		"Accountinformationen:\n \nDer Name:\n{1}\nDie Gruppe:\n{2}\nLäuft ab:\n{3}\nAutorisationstyp:\n{4}\n Identifiziert durch:\n{5}"
-		"pt_p"		"Informação:\n \nNome:\n{1}\nGrupo:\n{2}\nExpira:\n{3}\nTipo de autenticação:\n{4}\nIdentificação:\n{5}"
-		"ru"		"Информация:\n \nИмя:\n{1}\nГруппа:\n{2}\nИстекает:\n{3}\nТип авторизации:\n{4}\nИдентификатор:\n{5}"
-		"ua"		"Інформація:\n \nІм'я:\n{1}\nГрупа:\n{2}\nЗакінчується:\n{3}\nВведіть для авторизації:\n{4}\nІдентифікатор:\n{5}"
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Information:\n \nName:\n{1}\nSteamID:\n{2}\nGroup:\n{3}\nExpires:\n{4}"
+		"fi"		"Tiedotus:\n \nNimi:\n{1}\nSteamID:\n{2}\nRyhmä:\n{3}\nErääntyy:\n{4}"
+		"de"		"Accountinformationen:\n \nDer Name:\n{1}\nSteamID:\n{2}\nDie Gruppe:\n{3}\nLäuft ab:\n{4}"
+		"pt_p"		"Informação:\n \nNome:\n{1}\nSteamID:\n{2}\nGrupo:\n{3}\nExpira:\n{4}"
+		"ru"		"Информация:\n \nИмя:\n{1}\nSteamID:\n{2}\nГруппа:\n{3}\nИстекает:\n{4}"
+		"ua"		"Інформація:\n \nІм'я:\n{1}\nSteamID:\n{2}\nГрупа:\n{3}\nЗакінчується:\n{4}"
+	}
+	"TEMPORARY"
+	{
+		"en"		"Temporary"
+		"ru"		"Временный"
+		"ua"		"Тимчасовий"
 	}
 	"INFO"
 	{
@@ -552,61 +416,6 @@
 		"ru"		"Не удалось загрузить игрока!"
 		"ua"		"Не вдалося завантажити гравця!"
 	}
-	"IDENTIFICATION_TYPE"
-	{
-		"en"		"Identification method"
-		"fi"		"tunnistusmenetelmä"
-		"de"		"Identifikationstyp"
-		"pt_p"		"Método de identificação"
-		"ru"		"Тип идентификации"
-		"ua"		"Тип ідентифікациї"
-	}
-	"STEAM_ID"
-	{
-		"en"		"SteamID"
-		"fi"		"SteamID"
-		"de"		"SteamID"
-		"pt_p"		"SteamID"
-		"ru"		"SteamID"
-		"ua"		"SteamID"
-	}
-	"IP"
-	{
-		"en"		"IP-address"
-		"fi"		"IP-osoite"
-		"de"		"IP-Adresse"
-		"pt_p"		"Endereço de IP"
-		"ru"		"IP-адрес"
-		"es"		"Dirección IP"
-		"ua"		"IP-адрес"
-	}
-	"NAME"
-	{
-		"en"		"Name"
-		"fi"		"Nimi"
-		"de"		"Name"
-		"pt_p"		"Nome"
-		"ru"		"Имя"
-		"ua"		"Ім'я"
-	}
-	"ADMIN_GROUP"
-	{
-		"en"		"Admin-Group"
-		"fi"		"Admin-Ryhmä"
-		"de"		"Admin-Gruppe"
-		"pt_p"		"Grupo-Admin"
-		"ru"		"Админ-Группа"
-		"ua"		"Адмін-Група"
-	}
-	"ADMIN_FLAGS"
-	{
-		"en"		"Admin-flags"
-		"fi"		"Admin-liput"
-		"de"		"Flaggen"
-		"pt_p"		"Admin-flags"
-		"ru"		"Админ-флаги"
-		"ua"		"Адмін-прапорці"
-	}
 	"VIP_PLAYERS"
 	{
 		"en"		"VIP-players"
@@ -661,6 +470,36 @@
 		"ru"		"Настройки VIP перезагружены!"
 		"ua"		"Налаштування VIP були перезавантажені!"
 	}
+
+	"BY_ADMIN"
+	{
+		"en"		"by admin"
+		"ru"		"админом"
+	}
+
+	"BY_SERVER"
+	{
+		"en"		"by server"
+		"ru"		"сервером"
+	}
+
+	"BY_PLUGIN"
+	{
+		"en"		"by plugin"
+		"ru"		"плагином"
+	}
+
+	"REASON_EXPIRED"
+	{
+		"en"		"Expired"
+		"ru"		"Истек срок"
+	}
+
+	"REASON_INACTIVITY"
+	{
+		"en"		"For inactivity"
+		"ru"		"По неактивности"
+	}
 	"GROUP"
 	{
 		"en"		"VIP-Group"
@@ -707,23 +546,14 @@
 		"es"		"Expirado"
 		"ua"		"Закінчився"
 	}
-	"ENTER_PASS"
-	{
-		"en"		"Type password to chat\nand hit"
-		"fi"		"Kirjoita salasana chattiin\nja paina"
-		"de"		"Geben Sie das Kennwort zum Chat\nund drücken Sie"
-		"pt_p"		"Introduzir a password no chat\nand Pressionar"
-		"ru"		"Введите в чат пароль\nи нажмите"
-		"ua"		"Введіть в чат пароль\nі натисніть"
-	}
 	"ENTER_AUTH"
 	{
-		"en"		"Enter the chat Name/SteamID/IP-address\nand press"
-		"fi"		"Kirjoita chattiin Nimi/SteamID/IP-Osoite\nja paina"
-		"de"		"Gehen Sie in den Chat Der Name/Nach SteamID/Die ip-Adresse"
-		"pt_p"		"Introduz no chat Nome/SteamID/Endereço de IP\nand Confirmar"
-		"ru"		"Введите в чат Имя/SteamId/IP-адресс\nи нажмите"
-		"ua"		"Введіть в чат Ім'я/SteamId/IP-адресу\nі натисніть"
+		"en"		"Enter the chat Name/SteamID\nand press"
+		"fi"		"Kirjoita chattiin Nimi/SteamID\nja paina"
+		"de"		"Gehen Sie in den Chat Der Name/Nach SteamID"
+		"pt_p"		"Introduz no chat Nome/SteamID\nand Confirmar"
+		"ru"		"Введите в чат Имя/SteamId\nи нажмите"
+		"ua"		"Введіть в чат Ім'я/SteamId\nі натисніть"
 	}
 	"PERMANENT"
 	{
@@ -770,15 +600,6 @@
 		"ru"		"Используйте:"
 		"es"		"Usar:"
 		"ua"		"Використовуйте:"
-	}
-	"INCORRECT_ID"
-	{
-		"en"		"Incorrect ID, please use these: <steam>, <ip>, <name>, <flags>, <group>"
-		"fi"		"Virheellinen tunnus, käyttö: <steam>, <ip>, <name>, <flags>, <group>"
-		"de"		"Falsches ID, nutzen Sie: <steam>, <ip>, <name>, <flags>, <group>"
-		"pt_p"		"ID incorrecto, por favor utiliza estes: , , , ,"
-		"ru"		"Неверный идентификатор, используйте: <steam>, <ip>, <name>, <flags>, <group>"
-		"ua"		"Невірний ідентифікатор, використовуйте: \"
 	}
 	"ALREADY_HAS_VIP"
 	{
