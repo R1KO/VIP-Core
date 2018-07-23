@@ -82,7 +82,11 @@ void CreateTables()
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
+		#if USE_MORE_SERVERS 1
+		FormatEx(SZF(g_szSID), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
+		#else
 		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
+		#endif
 		g_hDatabase.Query(SQL_Callback_TableCreate,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 					`account_id` INT NOT NULL, \
 					`name` VARCHAR(64) NOT NULL default 'unknown', \
