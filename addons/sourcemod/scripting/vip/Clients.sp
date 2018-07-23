@@ -81,7 +81,7 @@ void Clients_LoadClient(int iClient, bool bNotify)
 	hDataPack.WriteCell(iAccountID);
 	hDataPack.WriteCell(bNotify);
 
-	DBG_SQL_Query(szQuery);
+	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_OnClientAuthorized, szQuery, hDataPack);
 }
 
