@@ -149,7 +149,7 @@ void RemoveExpAndOutPlayers()
 	if (g_CVAR_iOutdatedExpired > 0)
 	{
 		char szQuery[256];
-		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `lastvisit` > 0 AND `lastvisit` < (%d - %d)%s;", GetTime(), g_CVAR_iOutdatedExpired*86400, g_szSID);
+		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `lastvisit` > 0 AND `lastvisit` < %d%s;", (GetTime() - g_CVAR_iOutdatedExpired*86400), g_szSID);
 
 		DBG_SQL_Query(szQuery)
 		g_hDatabase.Query(SQL_Callback_SelectExpiredAndOutdated, szQuery, REASON_OUTDATED);
