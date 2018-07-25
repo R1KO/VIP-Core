@@ -115,15 +115,12 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 
 		int iExpires = hResult.FetchInt(0);
 		DBG_SQL_Response("hResult.FetchInt(0) = %d", iExpires)
-		LogMessage("iExpires = %d", iExpires);
 		if (iExpires > 0)
 		{
 			int iTime = GetTime();
-			LogMessage("iTime = %d", iTime);
-			
+
 			if (iTime > iExpires)
 			{
-				LogMessage("g_CVAR_iDeleteExpired = %d", g_CVAR_iDeleteExpired);
 				if (g_CVAR_iDeleteExpired == 0 || (g_CVAR_iDeleteExpired > 0 && iTime >= ((g_CVAR_iDeleteExpired * 86400) + iExpires)))
 				{
 					if (g_CVAR_bLogsEnable)

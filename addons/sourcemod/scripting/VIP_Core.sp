@@ -8,7 +8,7 @@
 
 #define VIP_VERSION		"3.0 DEV #41"
 
-#define DEBUG_MODE 		1	// Режим отладки
+#define DEBUG_MODE 		0	// Режим отладки
 
 #define USE_ADMINMENU	1	// Включение админ-меню для управления VIP
 
