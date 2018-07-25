@@ -13,7 +13,7 @@ void DebugMsg(const char[] sMsg, any ...)
 // Детальность логов
 // #define LOG_DOWNLOADS				// SQL Запросы
 #define LOG_QUERIES				// SQL Запросы
-//	#define LOG_RESPONSE			// Ответы SQL запросов
+#define LOG_RESPONSE			// Ответы SQL запросов
 //	#define LOG_API					// API
 //	#define LOG_FEATURES			// API
 //	#define LOG_CLIENTS				// API

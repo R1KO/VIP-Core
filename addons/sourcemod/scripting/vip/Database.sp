@@ -141,10 +141,10 @@ public void SQL_Callback_TableCreate(Database hOwner, DBResultSet hResult, const
 
 void RemoveExpAndOutPlayers()
 {
-	if (g_CVAR_iDeleteExpired > 0)
+	if (g_CVAR_iDeleteExpired >= 0)
 	{
 		char szQuery[256];
-		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `expires` > 0 AND `expires` < %d%s;", g_CVAR_iDeleteExpired*86400, g_szSID);
+		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `expires` > 0 AND `expires` < %d%s;", GetTime() - (g_CVAR_iDeleteExpired == 0 ? 1:g_CVAR_iDeleteExpired)*86400, g_szSID);
 
 		DBG_SQL_Query(szQuery)
 		g_hDatabase.Query(SQL_Callback_SelectExpiredAndOutdated, szQuery, REASON_EXPIRED);

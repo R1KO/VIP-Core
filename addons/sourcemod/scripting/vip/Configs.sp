@@ -2,6 +2,11 @@ public void OnMapStart()
 {
 	LoadSounds();
 	ReadDownloads();
+
+	if (g_hDatabase && (g_CVAR_iDeleteExpired != -1 || g_CVAR_iOutdatedExpired != -1))
+	{
+		RemoveExpAndOutPlayers();
+	}
 }
 
 void OnReadyToStart()
