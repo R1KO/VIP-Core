@@ -27,15 +27,8 @@ void DB_Connect()
 	}
 	else
 	{
-		KeyValues hKeyValues = new KeyValues(NULL_STRING);
-		hKeyValues.SetString("driver", "sqlite");
-		hKeyValues.SetString("database", "vip_core");
-
 		char szError[256];
-		g_hDatabase = SQL_ConnectCustom(hKeyValues, SZF(szError), false);
-
-		delete hKeyValues;
-	
+		g_hDatabase = SQLite_UseDatabase("vip_core", SZF(szError));
 		OnDBConnect(g_hDatabase, szError, 1);
 	}
 }
