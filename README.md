@@ -21,9 +21,9 @@ The plugin is very flexible and easy to configure.
 
 The plugin can work with SQLite or with a MySQL database.
 
-- Installation -> [F.A.Q. (General information, Installing the kernel, Installing the modules)] (http://hlmod.ru/threads/f-a-q-obschaja-informacija-ustanovka-jadra-ustanovka-modulej.33986/)
-- [Frequent problems and their solutions] (http://hlmod.ru/threads/chastye-problemy-i-ix-reshenija.33988/)
-- [Suggestions and wishes] (http://hlmod.ru/threads/predlozhenija-po-uluchsheniju-vip-i-idei-dlja-modulej.26407/)
-- Help with translation into other languages ​​-> [[VIP] Core] (http://translator.mitchdempsey.com/sourcemod_plugins/265), [[VIP] Modules] (http://translator.mitchdempsey.com/sourcemod_plugins/ 272)
+- Installation -> [F.A.Q. (General information, Installing the kernel, Installing the modules)](http://hlmod.ru/threads/f-a-q-obschaja-informacija-ustanovka-jadra-ustanovka-modulej.33986/)
+- [Frequent problems and their solutions](http://hlmod.ru/threads/chastye-problemy-i-ix-reshenija.33988/)
+- [Suggestions and wishes](http://hlmod.ru/threads/predlozhenija-po-uluchsheniju-vip-i-idei-dlja-modulej.26407/)
+- Help with translation into other languages ​​-> [[VIP] Core](http://translator.mitchdempsey.com/sourcemod_plugins/265), [[VIP] Modules](http://translator.mitchdempsey.com/sourcemod_plugins/ 272)
 
-[[VIP] Core official theme on HlMod.ru] (http://hlmod.ru/resources/vip-core.245/)
+[[VIP] Core official theme on HlMod.ru](http://hlmod.ru/resources/vip-core.245/)
