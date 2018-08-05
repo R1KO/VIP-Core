@@ -14,8 +14,6 @@
 
 #define USE_MORE_SERVERS	1	// Включить/Отключить режим при котором если ID сервера у игрока 0 - то VIP будет работать на всех серверах
 
-#define FIX_CSGO_MOTD	1	// Включение фикса MOTD в CS:GO
-
 #if USE_ADMINMENU 1
 #undef REQUIRE_PLUGIN
 #include <adminmenu>

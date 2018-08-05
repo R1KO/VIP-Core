@@ -145,24 +145,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 						Format(szBuffer, 256, "http://%s", szBuffer);
 					}
 					
-				//	ShowMOTDPanel(iClient, "VIP_INFO", szBuffer, MOTDPANEL_TYPE_URL);
-					
-					#if FIX_CSGO_MOTD 1
-					if (g_EngineVersion == Engine_CSGO)
-					{
-						char szPreparedURL[256];
-						EncodeBase64(SZF(szPreparedURL), szBuffer);
-						Format(szBuffer, iBufLen, FORMAT_URL, g_bUsedFirst[iClient] ? DOMAIN_1 : DOMAIN_2, szPreparedURL);
-						g_bUsedFirst[iClient] = !g_bUsedFirst[iClient];
-					}
-					#endif
-					
-					KeyValues hVGUIKv = new KeyValues("data");
-					hVGUIKv.SetString("title", "VIP_INFO");
-					hVGUIKv.SetString("type", "2");
-					hVGUIKv.SetString("msg", szBuffer);
-					ShowVGUIPanel(iClient, "info", hVGUIKv);
-					delete hVGUIKv;
+					ShowMOTDPanel(iClient, "VIP_INFO", szBuffer, MOTDPANEL_TYPE_URL);
 				}
 			}
 		}
@@ -221,85 +204,3 @@ public int SelectInfoPanel(Menu hPanel, MenuAction action, int iClient, int iOpt
 {
 	
 }
-
-#if FIX_CSGO_MOTD 1
-static const char sBase64Table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-static const int cFillChar = '=';
-
-int EncodeBase64(char[] szResult, int iMaxLen, const char[] szSource, int iSourceLen = 0)
-{
-	int iLength = (iSourceLen > 0) ? iSourceLen:strlen(szSource), iResPos, cCode, iPos;
-
-	for (iPos = 0; iPos < iLength; ++iPos)
-	{
-		cCode = (szSource[iPos] >> 2) & 0x3f;
-
-		iResPos += FormatEx(szResult[iResPos], iMaxLen - iResPos, "%c", sBase64Table[cCode]);
-
-		cCode = (szSource[iPos] << 4) & 0x3f;
-		if(++iPos < iLength)
-		{
-			cCode |= (szSource[iPos] >> 4) & 0x0f;
-		}
-
-		iResPos += FormatEx(szResult[iResPos], iMaxLen - iResPos, "%c", sBase64Table[cCode]);
-
-		if (iPos < iLength)
-		{
-			cCode = (szSource[iPos] << 2) & 0x3f;
-			if(++iPos < iLength)
-			cCode |= (szSource[iPos] >> 6) & 0x03;
-
-			iResPos += FormatEx(szResult[iResPos], iMaxLen - iResPos, "%c", sBase64Table[cCode]);
-		}
-		else
-		{
-			iPos++;
-			iResPos += FormatEx(szResult[iResPos], iMaxLen - iResPos, "%c", cFillChar);
-		}
-
-		if(iPos < iLength)
-		{
-			cCode = szSource[iPos] & 0x3f;
-			iResPos += FormatEx(szResult[iResPos], iMaxLen - iResPos, "%c", sBase64Table[cCode]);
-		}
-		else
-		{
-			iResPos += FormatEx(szResult[iResPos], iMaxLen - iResPos, "%c", cFillChar);
-		}
-	}
-
-	return iResPos;
-}
-#endif
-
-/*
-- Открыть ссылку в MOTD:
-  https://%param1%.ru/valve/csgo_hiddenmotd/%param2%
-  - Параметры:
-    - param1 - один из доменов: kruzefag или crazyhackgut. Для адекватной работы надо чередовать домены.
-    - param2 - загнанная в base64 ссылка
-  Пример использования:
-  https://kruzefag.ru/valve/csgo_hiddemotd/aHR0cDovL2hsbW9kLnJ1Lw==
-  Откроет хлмод в скрытом мотд
-
-- Открыть ссылку в окне игры
-  https://%param1%.ru/valve/csgo_normalmotd/%param2%/%param3%/%param4%/%param5%
-  Параметры:
-    - param1 - один из доменов: kruzefag или crazyhackgut. Для адекватной работы надо чередовать домены.
-    - param2 - загнанная в base64 ссылка
-    - param3 - на весь экран? 1 - да, 0 - нет
-    - param4 - ширина окна, если не на весь экран
-    - param5 - высота окна, если не на весь экран
-  Если Вам нужно просто открыть окно на весь экран, параметры 4 и 5 можно не передавать:
-  https://%param1%.ru/valve/csgo_normalmotd/%param2%/%param3%
-  Если устраивает стандартный размер окна (640х480), то можно так же опустить %param3%:
-  https://%param1%.ru/valve/csgo_normalmotd/%param2%
-
-  Пример использования:
-    - https://kruzefag.ru/valve/csgo_normalmotd/aHR0cDovL2hsbW9kLnJ1Lw==/1
-      Откроет хлмод на весь экран
-    - https://kruzefag.ru/valve/csgo_normalmotd/aHR0cDovL2hsbW9kLnJ1Lw==/0/1024/768
-      Откроет хлмод в небольшом окне размером 1024х768
-*/
-
