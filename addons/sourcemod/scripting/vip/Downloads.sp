@@ -65,7 +65,7 @@ bool Dir_AddToDownloadsTable(const char[] szPath)
 			char szDirEntry[PLATFORM_MAX_PATH];
 			while (hDir.GetNext(SZF(szDirEntry)))
 			{
-				if ((UTIL_StrCmpEx(szDirEntry, ".") || UTIL_StrCmpEx(szDirEntry, "..")) == false)
+				if ((UTIL_StrCmpEx(szDirEntry, ".") || UTIL_StrCmpEx(szDirEntry, "..") || UTIL_StrCmpEx(szDirEntry[strlen(szDirEntry)-4], ".bz2")) == false)
 				{
 					Format(SZF(szDirEntry), "%s/%s", szPath, szDirEntry);
 
