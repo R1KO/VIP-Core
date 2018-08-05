@@ -141,8 +141,8 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 			int iExp;
 			if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp) && iExp > 0)
 			{
-				int iTime;
-				if ((iTime = GetTime()) < iExp)
+				int iTime = GetTime();
+				if (iTime < iExp)
 				{
 					char szExpires[64];
 					UTIL_GetTimeFromStamp(SZF(szExpires), iExp - iTime, iClient);
