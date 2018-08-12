@@ -364,9 +364,9 @@ native bool VIP_SetClientVIP(int iClient, int iTime, any AuthType, const char[] 
 /**
  *	Отнимает у игрока VIP-права.
  *	-
- * @param iAdmin			Индекс админа (0 - сервер).
+ * @param iAdmin			Индекс админа (0 - сервер, -1 - плагин).
  * @param iClient			Индекс игрока.
- * @param bInDB				Удалять ли тз базы данных.
+ * @param bInDB				Удалять ли из базы данных.
  * @param bNotify			Уведомление игрока (true - уведомить/false - не уведомлять).
  *	-
  * @return					true - Успешно.
@@ -658,6 +658,7 @@ public void __pl_vip_core_SetNTVOptional()
 	MarkNativeAsOptional("VIP_FillArrayByFeatures");
 	MarkNativeAsOptional("VIP_SetClientVIP");
 	MarkNativeAsOptional("VIP_RemoveClientVIP");
+	MarkNativeAsOptional("VIP_RemoveClientVIP2");
 	MarkNativeAsOptional("VIP_CheckClient");
 	MarkNativeAsOptional("VIP_IsClientVIP");
 	MarkNativeAsOptional("VIP_GetClientID");
