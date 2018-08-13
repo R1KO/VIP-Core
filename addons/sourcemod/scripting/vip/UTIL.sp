@@ -45,12 +45,16 @@ stock int UTIL_ReplaceChars(char[] szBuffer, int InChar, int OutChar)
 
 bool UTIL_StrCmpEx(const char[] szString1, const char[] szString2)
 {
-	int iLen1 = strlen(szString1), 
-	iLen2 = strlen(szString2);
+	int iLen = strlen(szString1);
+	if (iLen != strlen(szString2))
+	{
+		// i don't see any reason, why we should compare strings,
+		// if length is different because this fact means: they
+		// different too.
+		return false;
+	}
 
-	int MaxLen = (iLen1 > iLen2) ? iLen1:iLen2, i;
-
-	for (i = 0; i < MaxLen; i++)
+	for (int i = 0; i < iLen; i++)
 	{
 		if (szString1[i] != szString2[i])
 		{
@@ -165,7 +169,7 @@ void UTIL_LoadVipCmd(ConVar &hCvar, ConCmd Call_CMD)
 	}
 }
 
-int UTIL_GetConVarAdminFlag(ConVar &hCvar)
+int UTIL_GetConVarAdminFlag(ConVar hCvar)
 {
 	char szBuffer[32];
 	hCvar.GetString(SZF(szBuffer));

@@ -270,15 +270,13 @@ void DB_RemoveClientFromID(int iAdmin = 0,
 	g_hDatabase.Query(SQL_Callback_SelectRemoveClient, szQuery, hDataPack);
 }
 
-public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, any hPack)
+public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, DataPack hPack)
 {
 	DBG_SQL_Response("SQL_Callback_SelectRemoveClient")
 
-	DataPack hDataPack = view_as<DataPack>(hPack);
-	
 	if (szError[0])
 	{
-		delete hDataPack;
+		delete hPack;
 		LogError("SQL_Callback_SelectRemoveClient: %s", szError);
 		return;
 	}
@@ -286,20 +284,20 @@ public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult
 	if (hResult.FetchRow())
 	{
 		DBG_SQL_Response("hResult.FetchRow()")
-		hDataPack.Reset();
-		int iClientID = hDataPack.ReadCell();
-		hDataPack.ReadCell();
-		hDataPack.ReadCell();
+		hPack.Reset();
+		int iClientID = hPack.ReadCell();
+		hPack.ReadCell();
+		hPack.ReadCell();
 		char szName[MAX_NAME_LENGTH*2+1];
-		hDataPack.ReadString(SZF(szName));
+		hPack.ReadString(SZF(szName));
 		hResult.FetchString(0, SZF(szName));
 		DBG_SQL_Response("hResult.FetchString(0) = '%s", szName)
-		hDataPack.WriteString(szName);
+		hPack.WriteString(szName);
 		hResult.FetchString(1, SZF(szName));
 		DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
-		hDataPack.WriteString(szName);
+		hPack.WriteString(szName);
 
-		DB_RemoveClient(hDataPack, iClientID);
+		DB_RemoveClient(hPack, iClientID);
 	}
 }
 
@@ -312,15 +310,13 @@ void DB_RemoveClient(DataPack hDataPack, int iClientID)
 	g_hDatabase.Query(SQL_Callback_RemoveClient, szQuery, hDataPack);
 }
 
-public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, any hPack)
+public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, DataPack hPack)
 {
 	DBG_SQL_Response("SQL_Callback_SelectRemoveClient")
 
-	DataPack hDataPack = view_as<DataPack>(hPack);
-
 	if (szError[0])
 	{
-		delete hDataPack;
+		delete hPack;
 		LogError("SQL_Callback_RemoveClient: %s", szError);
 		return;
 	}
@@ -329,17 +325,15 @@ public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, cons
 
 	if (hResult.AffectedRows)
 	{
-		hDataPack.Reset();
+		hPack.Reset();
 		
-		int iClientID = hDataPack.ReadCell();
-		int iAdmin = GET_CID(hDataPack.ReadCell());
-		bool bNotify = view_as<bool>(hDataPack.ReadCell());
+		int iClientID = hPack.ReadCell();
+		int iAdmin = GET_CID(hPack.ReadCell());
+		bool bNotify = view_as<bool>(hPack.ReadCell());
 		char szAdmin[128], szName[MNL], szGroup[64];
-		hDataPack.ReadString(SZF(szAdmin));
-		hDataPack.ReadString(SZF(szName));
-		hDataPack.ReadString(SZF(szGroup));
-		
-		delete hDataPack;
+		hPack.ReadString(SZF(szAdmin));
+		hPack.ReadString(SZF(szName));
+		hPack.ReadString(SZF(szGroup));
 
 		if(iAdmin == -1)
 		{
@@ -356,9 +350,11 @@ public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, cons
 			ReplyToCommand(iAdmin, "%t", "ADMIN_VIP_PLAYER_DELETED", szName, iClientID);
 		}
 	}
+
+	delete hPack;
 }
 
-public void SQL_Callback_SelectExpiredAndOutdated(Database hOwner, DBResultSet hResult, const char[] szError, any iReason)
+public void SQL_Callback_SelectExpiredAndOutdated(Database hOwner, DBResultSet hResult, const char[] szError, int iReason)
 {
 	DBG_SQL_Response("SQL_Callback_SelectExpiredAndOutdated")
 
