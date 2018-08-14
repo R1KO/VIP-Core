@@ -665,37 +665,39 @@ int API_RemoveClientVIP(Handle hPlugin,
 {
 	if (CheckValidClient(iClient))
 	{
-		if (iAdmin < 1 || CheckValidClient(iAdmin, false))
+		if (iAdmin)
 		{
-			char szPluginName[128];
-			GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
-			if (bInDB)
-			{
-				int iClientID;
-				if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
-				{
-					DB_RemoveClientFromID(REASON_PLUGIN, iClient, _, true, _, _, szPluginName);
-				}
-			}
-			
-			if(g_iClientInfo[iClient] & IS_MENU_OPEN)
-			{
-				CancelClientMenu(iClient);
-			}
-
-			ResetClient(iClient);
-
-			char szBuffer[PMP];
-			FormatEx(SZF(szBuffer), "Removed by %s", szPluginName);
-			CreateForward_OnVIPClientRemoved(iClient, szBuffer, iAdmin);
-
-			if (bNotify)
-			{
-				DisplayClientInfo(iClient, "expired_info");
-			}
-
-			return 1;
+			CheckValidClient(iAdmin, false);
 		}
+
+		char szPluginName[128];
+		GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
+		if (bInDB)
+		{
+			int iClientID;
+			if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
+			{
+				DB_RemoveClientFromID(REASON_PLUGIN, iClient, _, true, _, _, szPluginName);
+			}
+		}
+		
+		if(g_iClientInfo[iClient] & IS_MENU_OPEN)
+		{
+			CancelClientMenu(iClient);
+		}
+
+		ResetClient(iClient);
+
+		char szBuffer[PMP];
+		FormatEx(SZF(szBuffer), "Removed by %s", szPluginName);
+		CreateForward_OnVIPClientRemoved(iClient, szBuffer, iAdmin);
+
+		if (bNotify)
+		{
+			DisplayClientInfo(iClient, "expired_info");
+		}
+
+		return 1;
 	}
 
 	return 0;
