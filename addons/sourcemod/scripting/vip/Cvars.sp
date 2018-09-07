@@ -7,14 +7,6 @@ void Cvars_Setup()
 	hCvar.AddChangeHook(OnAdminFlagChange);
 	g_CVAR_iAdminFlag = UTIL_GetConVarAdminFlag(hCvar);
 
-	/*
-	#if USE_ADMINMENU 1
-	hCvar = CreateConVar("sm_vip_add_item_to_admin_menu", "1", "Добавить пункт \"Управление VIP\" в админ-меню.");
-	hCvar.AddChangeHook(OnAddItemToAdminMenuChange);
-	g_CVAR_bAddItemToAdminMenu = hCvar.BoolValue;
-	#endif
-	*/
-
 	g_CVAR_hVIPMenu_CMD = CreateConVar("sm_vip_menu_commands", "vip;sm_vip;sm_vipmenu", "Команды для вызова VIP-меню (разделять ;)");
 
 	hCvar = CreateConVar("sm_vip_server_id", "0", "ID сервера при приспользовании MySQL базы данных", _, true, 0.0);
@@ -76,49 +68,19 @@ public void OnAdminFlagChange(ConVar hCvar, const char[] szOldValue, const char[
 {
 	g_CVAR_iAdminFlag = UTIL_GetConVarAdminFlag(hCvar);
 
-	/*
 	#if USE_ADMINMENU 1
-	if(g_CVAR_bAddItemToAdminMenu)
+	if(g_hTopMenu)
 	{
-		if(g_hTopMenu)
+		if(VIPAdminMenuObject != INVALID_TOPMENUOBJECT )
 		{
-			if(VIPAdminMenuObject != INVALID_TOPMENUOBJECT )
-			{
-				RemoveFromTopMenu(g_hTopMenu, VIPAdminMenuObject);
-			}
-
-			AddItemsToTopMenu();
+			RemoveFromTopMenu(g_hTopMenu, VIPAdminMenuObject);
 		}
+
+		AddItemsToTopMenu();
 	}
 	#endif
-	*/
-}
-/*
-#if USE_ADMINMENU 1
-public void OnAddItemToAdminMenuChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
-{
-	g_CVAR_bAddItemToAdminMenu = hCvar.BoolValue;
-
-	if(g_hTopMenu != null)
-	{
-		if(VIPAdminMenuObject != INVALID_TOPMENUOBJECT)
-		{
-			g_hTopMenu.Remove(VIPAdminMenuObject);
-		}
-
-		if(g_CVAR_bAddItemToAdminMenu)
-		{
-			VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
-		}
-		else
-		{
-			AddItemsToTopMenu();
-		}
-	}
 }
 
-#endif
-*/
 public void OnServerIDChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_iServerID = hCvar.IntValue;
