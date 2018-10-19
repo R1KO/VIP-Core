@@ -88,3 +88,18 @@ VIP_ToggleState Features_GetStatus(const int &iClient, const char[] szFeature)
 
 	return NO_ACCESS;
 }
+
+void Features_SetStatusToStore(int iClient, const char[] szFeature, VIP_ToggleState eStatus)
+{
+	static char szKey[128];
+	FormatEx(SZF(szKey), "%s->Status", szFeature);
+	Store_SetClientValue(iClient, szKey, eStatus);
+}
+
+bool Features_GetStatusFromStore(const int &iClient, const char[] szFeature, VIP_ToggleState &eStatus)
+{
+	static char szKey[128];
+	FormatEx(SZF(szKey), "%s->Status", szFeature);
+
+	return Store_GetClientValue(iClient, szKey, eStatus);
+}

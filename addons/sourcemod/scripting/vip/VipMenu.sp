@@ -298,8 +298,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 						if (eNewStatus != eOldStatus)
 						{
 							Features_SetStatus(iClient, szItemInfo, eNewStatus);
-							IntToString(view_as<int>(eNewStatus), SZF(szBuffer));
-							SetClientCookie(iClient, view_as<Handle>(GetArrayCell(hBuffer, FEATURES_COOKIE)), szBuffer);
+							Features_SetStatusToStore(iClient, szItemInfo, eNewStatus);
 						}
 					}
 

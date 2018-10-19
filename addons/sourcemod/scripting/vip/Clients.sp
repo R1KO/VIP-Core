@@ -20,14 +20,18 @@ public void OnClientPutInServer(int iClient)
 
 public void OnClientDisconnect(int iClient)
 {
-	/*	if (g_bIsClientVIP[iClient])
+	/*
+	if (g_bIsClientVIP[iClient])
 	{
 		SaveClient(iClient);
-	}*/
+	}
+	*/
+	Store_SaveClient(iClient);
 	
 	ResetClient(iClient);
 	UTIL_CloseHandleEx(g_hClientData[iClient]);
 	g_iClientInfo[iClient] = 0;
+
 }
 
 void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = false)
@@ -177,7 +181,8 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 				DisplayClientInfo(iClient, iExpires == 0 ? "connect_info_perm":"connect_info_time");
 			}
 
-			Clients_LoadVIPFeaturesPre(iClient);
+		//	Clients_LoadVIPFeaturesPre(iClient);
+			Store_LoadClient(iClient);
 		}
 		else
 		{
@@ -207,7 +212,7 @@ void Clients_CreateClientVIPSettings(int iClient, int iExp)
 
 	g_hFeatures[iClient].SetValue(KEY_EXPIRES, iExp);
 }
-
+/*
 #if DEBUG_MODE 1
 public void OnClientCookiesCached(int iClient)
 {
@@ -271,7 +276,7 @@ public Action Timer_CheckCookies(Handle hTimer, Handle hDP)
 
 	return Plugin_Stop;
 }
-
+*/
 void Clients_LoadVIPFeatures(int iClient)
 {
 	DebugMessage("LoadVIPFeatures %N", iClient)
@@ -297,7 +302,7 @@ void Clients_LoadVIPFeatures(int iClient)
 
 	Clients_OnVIPClientLoaded(iClient);
 }
-
+/*
 void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
 {
 	DebugMessage("LoadVIPFeature %N", iClient)
@@ -314,13 +319,15 @@ void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
 			Clients_LoadFeature(iClient, szFeature);
 		}
 	}
+	*/
 /*
 	DebugMessage("Clients_OnVIPClientLoaded: %d %N", iClient, iClient)
 
 	Clients_OnVIPClientLoaded(iClient);
 	*/
+/*
 }
-
+*/
 void Clients_LoadFeature(int iClient, const char[] szFeature)
 {
 	static ArrayList hArray;
@@ -334,13 +341,7 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 			DebugMessage("GetValue: == true")
 			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 			{
-				static char	 			szBuffer[4];
-				static Handle			hCookie;
-				hCookie = view_as<Handle>(hArray.Get(FEATURES_COOKIE));
-				GetClientCookie(iClient, hCookie, SZF(szBuffer));
-				eStatus = view_as<VIP_ToggleState>(StringToInt(szBuffer));
-				DebugMessage("GetFeatureCookie: '%s'", szBuffer)
-				if (szBuffer[0] == '\0' || (view_as<int>(eStatus) > 2 || view_as<int>(eStatus) < 0))
+				if (!Features_GetStatusFromStore(iClient, szFeature, eStatus) || (view_as<int>(eStatus) > 2 || view_as<int>(eStatus) < 0))
 				{
 					switch(hArray.Get(FEATURES_DEF_STATUS))
 					{
@@ -349,8 +350,7 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 						case DISABLED:		eStatus = DISABLED;
 					}
 
-					IntToString(view_as<int>(eStatus), SZF(szBuffer));
-					SetClientCookie(iClient, hCookie, szBuffer);
+					Features_SetStatusToStore(iClient, szFeature, eStatus);
 					//	Features_SaveStatus(iClient, szFeature, hCookie, eStatus);
 				}
 			}

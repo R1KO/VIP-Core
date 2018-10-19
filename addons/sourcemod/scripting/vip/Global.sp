@@ -45,7 +45,6 @@ enum
 	FEATURES_PLUGIN = 0,
 	FEATURES_VALUE_TYPE,
 	FEATURES_ITEM_TYPE,
-	FEATURES_COOKIE,
 	FEATURES_MENU_CALLBACKS,
 	FEATURES_DEF_STATUS
 }
@@ -71,6 +70,12 @@ char g_szToggleStatus[][] =
 
 #define FEATURE_NAME_LENGTH 64
 
+#if USE_ADMINMENU 1
+TopMenu		g_hTopMenu;
+Menu		g_hVIPAdminMenu;
+TopMenuObject	VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
+#endif
+
 char		g_szLogFile[PMP];
 
 KeyValues	g_hGroups;
@@ -78,10 +83,6 @@ KeyValues	g_hInfo;
 
 Database	g_hDatabase;
 
-#if USE_ADMINMENU 1
-TopMenu		g_hTopMenu;
-Menu		g_hVIPAdminMenu;
-#endif
 
 Menu		g_hVIPMenu;
 
@@ -117,10 +118,7 @@ bool		g_CVAR_bHideNoAccessItems;
 bool		g_CVAR_bDefaultStatus;
 bool		g_CVAR_bLogsEnable;
 
-EngineVersion	g_EngineVersion;
-
 char		g_szSID[64];
 
-#if USE_ADMINMENU 1
-TopMenuObject	VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
-#endif
+EngineVersion	g_EngineVersion;
+

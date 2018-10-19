@@ -726,65 +726,58 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 	DebugMessage("Register feature \"%s\" (%s)", szFeature, sPluginName)
 	#endif
 	
-	if (IsValidFeature(szFeature) == false)
+	if (IsValidFeature(szFeature))
 	{
-		if (g_hFeaturesArray.Length == 0)
-		{
-			g_hVIPMenu.RemoveItem(0);
-		}
-
-		g_hFeaturesArray.PushString(szFeature);
-		DebugMessage("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature))
-
-		VIP_FeatureType eType = view_as<VIP_FeatureType>(GetNativeCell(3));
-		DebugMessage("FeatureType -> %i", eType)
-
-		ArrayList hArray = new ArrayList();
-		GLOBAL_TRIE.SetValue(szFeature, hArray);
-		
-		hArray.Push(hPlugin);
-		hArray.Push(GetNativeCell(2));
-		hArray.Push(eType);
-
-		if (eType != HIDE)
-		{
-			Handle hCookie = null;
-			if (eType == TOGGLABLE || (eType == SELECTABLE && iNumParams > 7 && GetNativeCell(8)))
-			{
-				hCookie = RegClientCookie(szFeature, szFeature, CookieAccess_Private);
-			}
-
-			hArray.Push(hCookie);
-
-			DataPack hDataPack = new DataPack();
-			hDataPack.WriteFunction(GetNativeCell(4));
-			hDataPack.WriteFunction(GetNativeCell(5));
-			hDataPack.WriteFunction(GetNativeCell(6));
-			hArray.Push(hDataPack);
-
-			if(eType == TOGGLABLE)
-			{
-				hArray.Push(iNumParams > 6 ? GetNativeCell(7):NO_ACCESS);
-			}
-
-			AddFeatureToVIPMenu(szFeature);
-		}
-
-		for (int iClient = 1; iClient <= MaxClients; ++iClient)
-		{
-			if (IsClientInGame(iClient) && g_iClientInfo[iClient] & IS_VIP)
-			{
-				Clients_LoadVIPFeaturesPre(iClient, szFeature);
-			}
-		}
-
-		CreateForward_OnFeatureRegistered(szFeature);
-		DebugMessage("Feature \"%s\" registered", szFeature)
+		return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" already defined/Функция \"%s\" уже существует", szFeature, szFeature);
 	}
-	else
+
+	if (g_hFeaturesArray.Length == 0)
 	{
-		ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" already defined/Функция \"%s\" уже существует", szFeature, szFeature);
+		g_hVIPMenu.RemoveItem(0);
 	}
+
+	g_hFeaturesArray.PushString(szFeature);
+	DebugMessage("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature))
+
+	VIP_FeatureType eType = view_as<VIP_FeatureType>(GetNativeCell(3));
+	DebugMessage("FeatureType -> %i", eType)
+
+	ArrayList hArray = new ArrayList();
+	GLOBAL_TRIE.SetValue(szFeature, hArray);
+	
+	hArray.Push(hPlugin);
+	hArray.Push(GetNativeCell(2));
+	hArray.Push(eType);
+
+	if (eType != HIDE)
+	{
+		DataPack hDataPack = new DataPack();
+		hDataPack.WriteFunction(GetNativeCell(4));
+		hDataPack.WriteFunction(GetNativeCell(5));
+		hDataPack.WriteFunction(GetNativeCell(6));
+		hArray.Push(hDataPack);
+
+		if(eType == TOGGLABLE)
+		{
+			hArray.Push(iNumParams > 6 ? GetNativeCell(7):NO_ACCESS);
+		}
+
+		AddFeatureToVIPMenu(szFeature);
+	}
+
+	for (int iClient = 1; iClient <= MaxClients; ++iClient)
+	{
+		if (IsClientInGame(iClient) && g_iClientInfo[iClient] & IS_VIP)
+		{
+			Clients_LoadVIPFeaturesPre(iClient, szFeature);
+		}
+	}
+
+	CreateForward_OnFeatureRegistered(szFeature);
+	DebugMessage("Feature \"%s\" registered", szFeature)
+
+
+	return true;
 }
 
 public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
@@ -798,17 +791,13 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 		if (GLOBAL_TRIE.GetValue(szFeature, hArray) && view_as<Handle>(hArray.Get(FEATURES_PLUGIN)) == hPlugin)
 		{
 			VIP_FeatureType eType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
-			if (eType == TOGGLABLE)
-			{
-				delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
-			}
-			
+
 			if (eType != HIDE)
 			{
 				DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
 				delete hDataPack;
 			}
-			
+
 			delete hArray;
 			
 			GLOBAL_TRIE.Remove(szFeature);
@@ -879,11 +868,7 @@ public int Native_UnregisterMe(Handle hPlugin, int iNumParams)
 			if (GLOBAL_TRIE.GetValue(szFeature, hArray))
 			{
 				eType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
-				if (eType == TOGGLABLE)
-				{
-					delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
-				}
-				
+
 				if (eType != HIDE)
 				{
 					delete view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
@@ -1050,8 +1035,7 @@ public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 					Features_SetStatus(iClient, szFeature, eNewStatus);
 					if(iNumParams > 4 && GetNativeCell(5))
 					{
-						IntToString(view_as<int>(eNewStatus), SZF(szFeature));
-						SetClientCookie(iClient, view_as<Handle>(GetArrayCell(hArray, FEATURES_COOKIE)), szFeature);
+						Features_SetStatusToStore(iClient,szFeature, eNewStatus);
 					}
 					return true;
 				}

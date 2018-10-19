@@ -89,6 +89,15 @@ void CreateTables()
 					`expires` INT UNSIGNED NOT NULL default 0, \
 					CONSTRAINT pk_PlayerID PRIMARY KEY (`account_id`, `sid`) \
 					) DEFAULT CHARSET=utf8;");
+
+		g_hDatabase.Query(SQL_Callback_TableCreate,	"CREATE TABLE IF NOT EXISTS `vip_users_store` (\
+					`account_id` INT NOT NULL, \
+					`key` VARCHAR(128) NOT NULL, \
+					`value` VARCHAR(256) NOT NULL, \
+					`sid` INT UNSIGNED NOT NULL, \
+					`lastvisit` INT UNSIGNED NOT NULL default 0,
+					CONSTRAINT pk_PlayerID PRIMARY KEY (`account_id`, `key`, `sid`) \
+					) DEFAULT CHARSET=utf8;");
 	}
 	else
 	{
@@ -99,6 +108,14 @@ void CreateTables()
 				`lastvisit` INTEGER UNSIGNED NOT NULL default 0, \
 				`group` VARCHAR(64) NOT NULL, \
 				`expires` INTEGER UNSIGNED NOT NULL default 0);");
+
+		g_hDatabase.Query(SQL_Callback_TableCreate,	"CREATE TABLE IF NOT EXISTS `vip_users_store` (\
+					`account_id` INTEGER NOT NULL, \
+					`key` VARCHAR(128) NOT NULL, \
+					`value` VARCHAR(256) NOT NULL, \
+					`lastvisit` INT UNSIGNED NOT NULL default 0,
+					PRIMARY KEY (`account_id`, `key`) \
+					) DEFAULT CHARSET=utf8;");
 	}
 }
 
