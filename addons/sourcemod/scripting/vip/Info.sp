@@ -1,13 +1,3 @@
-#if FIX_CSGO_MOTD 1
-
-#define DOMAIN_1	"kruzefag"
-#define DOMAIN_2	"crazyhackgut"
-
-#define FORMAT_URL	"https://%s.ru/valve/csgo_hiddenmotd/%s"
-
-bool	g_bUsedFirst[MAXPLAYERS+1];
-#endif
-
 void DisplayClientInfo(int iClient, const char[] szEvent)
 {
 	DebugMessage("DisplayClientInfo: Client: %N (%i) -> '%s'", iClient, iClient, szEvent)
@@ -137,15 +127,18 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 			case 'u':
 			{
 				DebugMessage("case 'u'")
-				if (KvGetLangString(szBuffer, iBufLen, szClientLang, szServLang))
+				if (g_EngineVersion != Engine_CSGO)	
 				{
-					DebugMessage("KvGetLangString: (%s, %s) = '%s'", szClientLang, szServLang, szBuffer)
-					if (strncmp(szBuffer, "http://", 7, true) != 0)
+					if (KvGetLangString(szBuffer, iBufLen, szClientLang, szServLang))
 					{
-						Format(szBuffer, 256, "http://%s", szBuffer);
+						DebugMessage("KvGetLangString: (%s, %s) = '%s'", szClientLang, szServLang, szBuffer)
+						if (strncmp(szBuffer, "http://", 7, true) != 0)
+						{
+							Format(szBuffer, 256, "http://%s", szBuffer);
+						}
+
+						ShowMOTDPanel(iClient, "VIP_INFO", szBuffer, MOTDPANEL_TYPE_URL);
 					}
-					
-					ShowMOTDPanel(iClient, "VIP_INFO", szBuffer, MOTDPANEL_TYPE_URL);
 				}
 			}
 		}
