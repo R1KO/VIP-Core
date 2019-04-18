@@ -61,6 +61,9 @@ void Cvars_Setup()
 	hCvar.AddChangeHook(OnLogsEnableChange);
 	g_CVAR_bLogsEnable = hCvar.BoolValue;
 
+	if (!DirExists("cfg/vip"))
+		CreateDirectory("cfg/vip", 511);
+	
 	AutoExecConfig(true, "VIP_Core", "vip");
 }
 
