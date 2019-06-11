@@ -780,11 +780,10 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 
 		CreateForward_OnFeatureRegistered(szFeature);
 		DebugMessage("Feature \"%s\" registered", szFeature)
+		return 0;
 	}
-	else
-	{
-		ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" already defined/Функция \"%s\" уже существует", szFeature, szFeature);
-	}
+	
+	return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" already defined/Функция \"%s\" уже существует", szFeature, szFeature);
 }
 
 public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
@@ -792,148 +791,108 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 	char szFeature[FEATURE_NAME_LENGTH];
 	GetNativeString(1, SZF(szFeature));
 	
-	if (IsValidFeature(szFeature))
+	if (!IsValidFeature(szFeature))
 	{
-		ArrayList hArray;
-		if (GLOBAL_TRIE.GetValue(szFeature, hArray) && view_as<Handle>(hArray.Get(FEATURES_PLUGIN)) == hPlugin)
-		{
-			VIP_FeatureType eType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
-			if (eType == TOGGLABLE)
-			{
-				delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
-			}
-			
-			if (eType != HIDE)
-			{
-				DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
-				delete hDataPack;
-			}
-			
-			delete hArray;
-			
-			GLOBAL_TRIE.Remove(szFeature);
-			
-			int i = g_hFeaturesArray.FindString(szFeature);
-			if (i != -1)
-			{
-				g_hFeaturesArray.Erase(i);
-			}
-			
-			if (eType != HIDE)
-			{
-				char szItemInfo[FEATURE_NAME_LENGTH];
-				int iSize;
-				iSize = (g_hVIPMenu).ItemCount;
-				for (i = 0; i < iSize; ++i)
-				{
-					g_hVIPMenu.GetItem(i, SZF(szItemInfo));
-					if (!strcmp(szItemInfo, szFeature, true))
-					{
-						g_hVIPMenu.RemoveItem(i);
-						break;
-					}
-				}
-				
-				if (g_hVIPMenu.ItemCount == 0)
-				{
-					g_hVIPMenu.AddItem("NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
-				}
-			}
-			
-			for (i = 1; i <= MaxClients; ++i)
-			{
-				if (IsClientInGame(i))
-				{
-					if (g_iClientInfo[i] & IS_VIP)
-					{
-						g_hFeatures[i].Remove(szFeature);
-						g_hFeatureStatus[i].Remove(szFeature);
-					}
-				}
-			}
-		}
+		return 0;
+	}
 
-		CreateForward_OnFeatureUnregistered(szFeature);
-		DebugMessage("Feature \"%s\" unregistered", szFeature)
-	}
-	else
+	int i = g_hFeaturesArray.FindString(szFeature);
+	if (i != -1)
 	{
-		ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", szFeature, szFeature);
+		g_hFeaturesArray.Erase(i);
 	}
+
+	UnregisterFeature(szFeature);
+	
+	// ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", szFeature, szFeature);
+
+	return 0;
 }
 
 public int Native_UnregisterMe(Handle hPlugin, int iNumParams)
 {
 	DebugMessage("FeaturesArraySize: %d", g_hFeaturesArray.Length)
-	if (g_hFeaturesArray.Length > 0)
+	if (!g_hFeaturesArray.Length)
 	{
-		char szFeature[FEATURE_NAME_LENGTH];
-		ArrayList hArray;
-		VIP_FeatureType eType;
-		int i, j;
+		return 0;
+	}
 
-		for (i = 0; i < g_hFeaturesArray.Length; ++i)
+	char szFeature[FEATURE_NAME_LENGTH];
+
+	for (int i = 0, iSize = g_hFeaturesArray.Length; i < iSize; ++i)
+	{
+		g_hFeaturesArray.GetString(i, SZF(szFeature));
+		g_hFeaturesArray.Erase(i);
+		--i;
+		--iSize;
+
+		UnregisterFeature(szFeature, hPlugin);
+	}
+
+	return 0;
+}
+
+void UnregisterFeature(const char[] szFeature, Handle hPlugin = null)
+{
+	ArrayList hArray;
+	VIP_FeatureType eType = TOGGLABLE;
+
+	if (GLOBAL_TRIE.GetValue(szFeature, hArray))
+	{
+		if (hPlugin && hPlugin != view_as<Handle>(hArray.Get(FEATURES_PLUGIN)))
 		{
-			g_hFeaturesArray.GetString(i, SZF(szFeature));
+			return;
+		}
 
-			if (GLOBAL_TRIE.GetValue(szFeature, hArray))
+		GLOBAL_TRIE.Remove(szFeature);
+
+		eType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
+		if (eType == TOGGLABLE)
+		{
+			delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
+		}
+		
+		if (eType != HIDE)
+		{
+			delete view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
+		}
+		
+		delete hArray;
+	}
+
+	int i;
+
+	if (eType != HIDE)
+	{
+		char szItemInfo[FEATURE_NAME_LENGTH];
+		int iSize = g_hVIPMenu.ItemCount;
+		for (i = 0; i < iSize; ++i)
+		{
+			g_hVIPMenu.GetItem(i, SZF(szItemInfo));
+			if (strcmp(szItemInfo, szFeature, true) == 0)
 			{
-				eType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
-				if (eType == TOGGLABLE)
-				{
-					delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
-				}
-				
-				if (eType != HIDE)
-				{
-					delete view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
-				}
-				
-				delete hArray;
-				
-				GLOBAL_TRIE.Remove(szFeature);
-				
-				g_hFeaturesArray.Erase(i);
-				--i;
-
-				if (eType != HIDE)
-				{
-					char szItemInfo[FEATURE_NAME_LENGTH];
-					int iSize;
-					iSize = (g_hVIPMenu).ItemCount;
-					for (j = 0; j < iSize; ++j)
-					{
-						g_hVIPMenu.GetItem(j, SZF(szItemInfo));
-						if (strcmp(szItemInfo, szFeature, true) == 0)
-						{
-							g_hVIPMenu.RemoveItem(j);
-							break;
-						}
-					}
-					
-					if (g_hVIPMenu.ItemCount == 0)
-					{
-						g_hVIPMenu.AddItem("NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
-					}
-				}
-				
-				for (j = 1; j <= MaxClients; ++j)
-				{
-					if (IsClientInGame(j))
-					{
-						if (g_iClientInfo[j] & IS_VIP)
-						{
-							g_hFeatures[j].Remove(szFeature);
-							g_hFeatureStatus[j].Remove(szFeature);
-						}
-					}
-				}
+				g_hVIPMenu.RemoveItem(i);
+				break;
 			}
-
-			CreateForward_OnFeatureUnregistered(szFeature);
-			DebugMessage("Feature \"%s\" unregistered", szFeature)
+		}
+		
+		if (iSize-1 == 0)
+		{
+			g_hVIPMenu.AddItem("NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
 		}
 	}
+
+	for (i = MaxClients; i != 0; --i)
+	{
+		if (g_iClientInfo[i] & IS_VIP && IsClientInGame(i))
+		{
+			g_hFeatures[i].Remove(szFeature);
+			g_hFeatureStatus[i].Remove(szFeature);
+		}
+	}
+
+	DebugMessage("Feature \"%s\" unregistered", szFeature)
+	CreateForward_OnFeatureUnregistered(szFeature);
 }
 
 public int Native_IsValidFeature(Handle hPlugin, int iNumParams)

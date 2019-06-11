@@ -419,9 +419,10 @@ native void VIP_RegisterFeature(const char[]			szFeature,
  *	-
  * @param szFeature				Уникальное имя ф-и.
  *	-
- * @noreturn
+ * @return					true - VIP-функция существовала и была удалена.
+ * 							false -  VIP-функция не существовала.	
 */
-native void VIP_UnregisterFeature(const char[] szFeature);
+native bool VIP_UnregisterFeature(const char[] szFeature);
 
 /**
  *	Удаляет все VIP-функции зарегистрированные плагином (вызывать в OnPluginEnd()).
