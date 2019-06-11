@@ -419,8 +419,7 @@ native void VIP_RegisterFeature(const char[]			szFeature,
  *	-
  * @param szFeature				Уникальное имя ф-и.
  *	-
- * @return					true - VIP-функция существовала и была удалена.
- * 							false -  VIP-функция не существовала.	
+ * @noreturn	
 */
 native bool VIP_UnregisterFeature(const char[] szFeature);
 
