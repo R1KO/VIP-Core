@@ -1,2 +1,2 @@
-*.sp gitlab-language=C++
-*.inc gitlab-language=C++
+*.sp gitlab-language=cpp
+*.inc gitlab-language=cpp
