@@ -1,5 +1,4 @@
 
-
 int GET_UID(int iClient)
 {
 	return iClient > 0 ? UID(iClient):iClient;
@@ -36,7 +35,7 @@ stock int UTIL_ReplaceChars(char[] szBuffer, int InChar, int OutChar)
 		if (szBuffer[i] == InChar)
 		{
 			szBuffer[i] = OutChar;
-			iNum++;
+			++iNum;
 		}
 	}
 	
@@ -48,13 +47,10 @@ bool UTIL_StrCmpEx(const char[] szString1, const char[] szString2)
 	int iLen = strlen(szString1);
 	if (iLen != strlen(szString2))
 	{
-		// i don't see any reason, why we should compare strings,
-		// if length is different because this fact means: they
-		// different too.
 		return false;
 	}
 
-	for (int i = 0; i < iLen; i++)
+	for (int i = 0; i < iLen; ++i)
 	{
 		if (szString1[i] != szString2[i])
 		{
@@ -256,7 +252,7 @@ void UTIL_ReloadVIPPlayers(int iClient, bool bNotify)
 	}
 }
 /*
-void UTIL_REM_VIP_PLAYER(int iClient = 0, int iTarget = 0, int iAccID = 0, int iClientID, const char[] szReason)
+void UTIL_REM_VIP_PLAYER(int iClient = OWNER_SERVER, int iTarget = 0, int iAccID = 0, int iClientID, const char[] szReason)
 {
 	if (g_CVAR_bLogsEnable)
 	{
@@ -297,7 +293,7 @@ void UTIL_Reply(int iClient, const char[] szMsg, any ...)
 	}
 }
 
-void UTIL_ADD_VIP_PLAYER(int iAdmin = 0,
+void UTIL_ADD_VIP_PLAYER(int iAdmin = OWNER_SERVER,
 						int iTarget = 0,
 						int iAccID = 0,
 						int iDuration,
@@ -338,11 +334,11 @@ void UTIL_ADD_VIP_PLAYER(int iAdmin = 0,
 
 	switch(iAdmin)
 	{
-		case REASON_PLUGIN:
+		case OWNER_PLUGIN:
 		{
 			FormatEx(SZF(szAdmin), "%T %s", "BY_PLUGIN", LANG_SERVER, szByWho);
 		}
-		case 0:
+		case OWNER_SERVER:
 		{
 			FormatEx(SZF(szAdmin), "%T", "BY_SERVER", LANG_SERVER);
 		}
