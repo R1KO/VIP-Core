@@ -63,7 +63,7 @@ void CreateForward_OnVIPClientLoaded(int iClient)
 	Call_Finish();
 }
 
-void CreateForward_OnVIPClientAdded(int iClient, int iAdmin = 0)
+void CreateForward_OnVIPClientAdded(int iClient, int iAdmin = OWNER_SERVER)
 {
 	DBG_API("CreateForward_OnVIPClientAdded(%N (%d), %d)", iClient, iClient, iAdmin)
 	Call_StartForward(g_hGlobalForward_OnVIPClientAdded);
@@ -72,7 +72,7 @@ void CreateForward_OnVIPClientAdded(int iClient, int iAdmin = 0)
 	Call_Finish();
 }
 
-void CreateForward_OnVIPClientRemoved(int iClient, const char[] sReason, int iAdmin = 0)
+void CreateForward_OnVIPClientRemoved(int iClient, const char[] sReason, int iAdmin = OWNER_SERVER)
 {
 	DBG_API("CreateForward_OnVIPClientRemoved(%N (%d), %d, '%s')", iClient, iClient, iAdmin, sReason)
 	Call_StartForward(g_hGlobalForward_OnVIPClientRemoved);
@@ -562,7 +562,7 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 	char szGroup[64];
 	GetNativeString(4, SZF(szGroup));
 
-	return API_GiveClientVIP(hPlugin, REASON_PLUGIN, iClient, iTime, szGroup, bAddToDB);
+	return API_GiveClientVIP(hPlugin, OWNER_PLUGIN, iClient, iTime, szGroup, bAddToDB);
 }
 
 int API_GiveClientVIP(Handle hPlugin,
@@ -676,7 +676,7 @@ int API_RemoveClientVIP(Handle hPlugin,
 			int iClientID;
 			if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 			{
-				DB_RemoveClientFromID(REASON_PLUGIN, iClient, _, true, _, _, szPluginName);
+				DB_RemoveClientFromID(OWNER_PLUGIN, iClient, _, true, _, _, szPluginName);
 			}
 		}
 		
@@ -1221,7 +1221,7 @@ public int Native_GetTimeFromStamp(Handle hPlugin, int iNumParams)
 	if (iTimeStamp > 0)
 	{
 		int iClient = GetNativeCell(4);
-		if (iClient == 0 || CheckValidClient(iClient, false))
+		if (iClient == LANG_SERVER || CheckValidClient(iClient, false))
 		{
 			char szBuffer[64];
 			UTIL_GetTimeFromStamp(SZF(szBuffer), iTimeStamp, iClient);
