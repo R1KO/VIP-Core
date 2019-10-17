@@ -188,7 +188,7 @@ forward void VIP_OnVIPClientLoaded(int iClient);
  *	Вызывается когда игрок получает VIP-статус.
  *	-
  * @param iClient			Индекс игрока.
- * @param iAdmin			Индекс админа (0 - сервер).
+ * @param iAdmin			Индекс админа (0 - сервер, -1 - плагин).
  *	-
  * @noreturn
 */
@@ -202,7 +202,7 @@ forward void VIP_OnVIPClientAdded(int iClient, int iAdmin);
  * 								"Expired" - Истек;
  * 								"Removed by Admin" - Удален админом;
  * 								"Removed by native" - Удален нативом.
- * @param iAdmin			Индекс админа (0 - сервер).
+ * @param iAdmin			Индекс админа (0 - сервер, -1 - плагин).
  *	-
  * @noreturn
 */
