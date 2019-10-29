@@ -632,6 +632,20 @@ native bool VIP_GetTimeFromStamp(char[] szBuffer, int iMaxLength, int iTimeStamp
 */
 native void VIP_AddStringToggleStatus(const char[] szInput, char[] szBuffer, int iMaxLength, const char[] szFeature, int iClient);
 
+/**
+ *	Формирует путь к файлу с настройками модуля.
+ *	-
+ * @param szBuffer			Буфер, в который будет помещен результат.
+ * @param iMaxLength		Размер буфера.
+ * @param szFileName		Имя файла.
+ *	-
+ * @noreturn
+*/
+stock void VIP_BuildModulesPath(char[] szBuffer, int iMaxLen, const char[] szFileName)
+{
+    BuildPath(Path_SM, szBuffer, iMaxLen, "data/vip/modules/%s", szFileName);
+}
+
 public SharedPlugin __pl_vip_core= 
 {
 	name = "vip_core",
