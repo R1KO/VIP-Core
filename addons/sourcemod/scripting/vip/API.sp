@@ -795,66 +795,10 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 	if (IsValidFeature(szFeature))
 	{
 		ArrayList hArray;
-		if (GLOBAL_TRIE.GetValue(szFeature, hArray) && view_as<Handle>(hArray.Get(FEATURES_PLUGIN)) == hPlugin)
+		if (GLOBAL_TRIE.GetValue(szFeature, hArray)/* && view_as<Handle>(hArray.Get(FEATURES_PLUGIN)) == hPlugin*/)
 		{
-			VIP_FeatureType eType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
-			if (eType == TOGGLABLE)
-			{
-				delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
-			}
-			
-			if (eType != HIDE)
-			{
-				DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
-				delete hDataPack;
-			}
-			
-			delete hArray;
-			
-			GLOBAL_TRIE.Remove(szFeature);
-			
-			int i = g_hFeaturesArray.FindString(szFeature);
-			if (i != -1)
-			{
-				g_hFeaturesArray.Erase(i);
-			}
-			
-			if (eType != HIDE)
-			{
-				char szItemInfo[FEATURE_NAME_LENGTH];
-				int iSize;
-				iSize = (g_hVIPMenu).ItemCount;
-				for (i = 0; i < iSize; ++i)
-				{
-					g_hVIPMenu.GetItem(i, SZF(szItemInfo));
-					if (!strcmp(szItemInfo, szFeature, true))
-					{
-						g_hVIPMenu.RemoveItem(i);
-						break;
-					}
-				}
-				
-				if (g_hVIPMenu.ItemCount == 0)
-				{
-					g_hVIPMenu.AddItem("NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
-				}
-			}
-			
-			for (i = 1; i <= MaxClients; ++i)
-			{
-				if (IsClientInGame(i))
-				{
-					if (g_iClientInfo[i] & IS_VIP)
-					{
-						g_hFeatures[i].Remove(szFeature);
-						g_hFeatureStatus[i].Remove(szFeature);
-					}
-				}
-			}
+			UnregisterFeature(szFeature, hArray);
 		}
-
-		CreateForward_OnFeatureUnregistered(szFeature);
-		DebugMessage("Feature \"%s\" unregistered", szFeature)
 	}
 	else
 	{
@@ -869,71 +813,74 @@ public int Native_UnregisterMe(Handle hPlugin, int iNumParams)
 	{
 		char szFeature[FEATURE_NAME_LENGTH];
 		ArrayList hArray;
-		VIP_FeatureType eType;
-		int i, j;
 
-		for (i = 0; i < g_hFeaturesArray.Length; ++i)
+		for (int i = 0, iSize = g_hFeaturesArray.Length; i < iSize; ++i)
 		{
 			g_hFeaturesArray.GetString(i, SZF(szFeature));
 
 			if (GLOBAL_TRIE.GetValue(szFeature, hArray))
 			{
-				eType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
-				if (eType == TOGGLABLE)
+				if (view_as<Handle>(hArray.Get(FEATURES_PLUGIN)) != hPlugin)
 				{
-					delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
+					continue;
 				}
-				
-				if (eType != HIDE)
-				{
-					delete view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
-				}
-				
-				delete hArray;
-				
-				GLOBAL_TRIE.Remove(szFeature);
-				
+
+				UnregisterFeature(szFeature, hArray);
+
 				g_hFeaturesArray.Erase(i);
 				--i;
-
-				if (eType != HIDE)
-				{
-					char szItemInfo[FEATURE_NAME_LENGTH];
-					int iSize;
-					iSize = (g_hVIPMenu).ItemCount;
-					for (j = 0; j < iSize; ++j)
-					{
-						g_hVIPMenu.GetItem(j, SZF(szItemInfo));
-						if (strcmp(szItemInfo, szFeature, true) == 0)
-						{
-							g_hVIPMenu.RemoveItem(j);
-							break;
-						}
-					}
-					
-					if (g_hVIPMenu.ItemCount == 0)
-					{
-						g_hVIPMenu.AddItem("NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
-					}
-				}
-				
-				for (j = 1; j <= MaxClients; ++j)
-				{
-					if (IsClientInGame(j))
-					{
-						if (g_iClientInfo[j] & IS_VIP)
-						{
-							g_hFeatures[j].Remove(szFeature);
-							g_hFeatureStatus[j].Remove(szFeature);
-						}
-					}
-				}
 			}
-
-			CreateForward_OnFeatureUnregistered(szFeature);
-			DebugMessage("Feature \"%s\" unregistered", szFeature)
 		}
 	}
+}
+
+void UnregisterFeature(const char[] szFeature, ArrayList hArray)
+{
+	VIP_FeatureType eType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
+	if (eType == TOGGLABLE)
+	{
+		delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
+	}
+	
+	if (eType != HIDE)
+	{
+		delete view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
+	}
+	
+	delete hArray;
+	
+	GLOBAL_TRIE.Remove(szFeature);
+
+	if (eType != HIDE)
+	{
+		char szItemInfo[FEATURE_NAME_LENGTH];
+		for (int j = 0, iSize = g_hVIPMenu.ItemCount; j < iSize; ++j)
+		{
+			g_hVIPMenu.GetItem(j, SZF(szItemInfo));
+			if (strcmp(szItemInfo, szFeature, true) == 0)
+			{
+				g_hVIPMenu.RemoveItem(j);
+				break;
+			}
+		}
+		
+		if (g_hVIPMenu.ItemCount == 0)
+		{
+			g_hVIPMenu.AddItem("NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
+		}
+	}
+	
+	for (int j = 1; j <= MaxClients; ++j)
+	{
+		if (IsClientInGame(j) && g_iClientInfo[j] & IS_VIP)
+		{
+			g_hFeatures[j].Remove(szFeature);
+			g_hFeatureStatus[j].Remove(szFeature);
+		}
+	}
+
+	CreateForward_OnFeatureUnregistered(szFeature);
+	DebugMessage("Feature \"%s\" unregistered", szFeature)
 }
 
 public int Native_IsValidFeature(Handle hPlugin, int iNumParams)
