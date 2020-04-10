@@ -798,6 +798,12 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 		if (GLOBAL_TRIE.GetValue(szFeature, hArray)/* && view_as<Handle>(hArray.Get(FEATURES_PLUGIN)) == hPlugin*/)
 		{
 			UnregisterFeature(szFeature, hArray);
+
+			int i = g_hFeaturesArray.FindString(szFeature);
+			if (i != -1)
+			{
+				g_hFeaturesArray.Erase(i);
+			}
 		}
 	}
 	else
