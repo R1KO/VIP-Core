@@ -835,6 +835,7 @@ public int Native_UnregisterMe(Handle hPlugin, int iNumParams)
 
 				g_hFeaturesArray.Erase(i);
 				--i;
+				--iSize;
 			}
 		}
 	}
