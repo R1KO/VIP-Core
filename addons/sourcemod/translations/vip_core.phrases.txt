@@ -467,7 +467,7 @@
 		"fi"		"Luettelo VIP-pelaajille on käynnistetty uudelleen!"
 		"de"		"Liste der VIP-Spieler neu gestartet wurde!"
 		"pt"		"Cache dos VIPS foi atualizado!"
-		"pt_p"		"A cache dos VIP's foi actualizada"!
+		"pt_p"		"A cache dos VIP's foi actualizada!"
 		"ru"		"Список VIP-игроков перезагружен!"
 		"ua"		"Кеш VIP було оновлено!"
 	}
