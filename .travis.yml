@@ -51,11 +51,8 @@ deploy:
       - VIP_Core.zip
       - VIP_Core.tar.gz
     on:
+      tags: true
       branch: master
-      branches:
-        - master
-        - dev
-        - /^v\d+\.\d+\.\d+.*$/
 
 #Notifications
 notifications:
