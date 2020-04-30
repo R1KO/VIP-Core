@@ -371,7 +371,7 @@ void UTIL_ADD_VIP_PLAYER(int iAdmin = 0,
 	
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		FormatEx(SZF(szQuery), "INSERT INTO `vip_users` (`account_id`, `sid`, `expires`, `group`, `name`, `lastvisit`) VALUES (%d, %d, %d, '%s', '%s', %d) \
+		FormatEx(SZF(szQuery), "INSERT INTO `vip_users` (`account_id`, `sid`, `expires`, `group`, `name`, `lastvisit`) VALUES (%u, %d, %d, '%s', '%s', %d) \
 		ON DUPLICATE KEY UPDATE `expires` = %d, `group` = '%s';", iAccountID, g_CVAR_iServerID, iExpires, szGroup, szName, iLastVisit, iExpires, szGroup);
 		DBG_SQL_Query(szQuery)
 		g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hDataPack);
@@ -379,7 +379,7 @@ void UTIL_ADD_VIP_PLAYER(int iAdmin = 0,
 		return;
 	}
 
-	FormatEx(SZF(szQuery), "INSERT OR REPLACE INTO `vip_users` (`account_id`, `name`, `expires`, `group`, `lastvisit`) VALUES (%d, '%s', %d, '%s', %d);", iAccountID, szName, iExpires, szGroup, iLastVisit);
+	FormatEx(SZF(szQuery), "INSERT OR REPLACE INTO `vip_users` (`account_id`, `name`, `expires`, `group`, `lastvisit`) VALUES (%u, '%s', %d, '%s', %d);", iAccountID, szName, iExpires, szGroup, iLastVisit);
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hDataPack);
 }

@@ -264,7 +264,7 @@ void DB_RemoveClientFromID(int iAdmin = 0,
 		return;
 	}
 
-	FormatEx(SZF(szQuery), "SELECT `name`, `group` FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
+	FormatEx(SZF(szQuery), "SELECT `name`, `group` FROM `vip_users` WHERE `account_id` = %u%s;", iClientID, g_szSID);
 
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_SelectRemoveClient, szQuery, hDataPack);
@@ -304,7 +304,7 @@ public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult
 void DB_RemoveClient(DataPack hDataPack, int iClientID)
 {
 	char szQuery[256];
-	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
+	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %u%s;", iClientID, g_szSID);
 
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_RemoveClient, szQuery, hDataPack);
