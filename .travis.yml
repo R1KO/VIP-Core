@@ -53,6 +53,7 @@ deploy:
 	branches:
 		- master
 		- dev
+		- ci
 		- /^v\d+\.\d+\.\d+.*$/
 
 #Notifications
