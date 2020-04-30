@@ -11,12 +11,11 @@ language: c
 #Set the build environment
 env:
   global:
-    - STEAMWORKS_VERS=SteamWorks-git131
     - INCLUDE=addons/sourcemod/scripting/include
     - SCRIPTING=addons/sourcemod/scripting
     - PLUGINS=addons/sourcemod/plugins
-    - EXTENSIONS=addons/sourcemod/extensions
   matrix:
+    - SMVERSION=1.9
     - SMVERSION=1.10
     - SMVERSION=1.11
 
@@ -28,37 +27,30 @@ install:
     # Sourcemod download
     - wget --input-file=http://sourcemod.net/smdrop/$SMVERSION/sourcemod-latest-linux
     - tar -xzf $(cat sourcemod-latest-linux)
-    # SteamWorks download
-    - wget http://users.alliedmods.net/~kyles/builds/SteamWorks/$STEAMWORKS_VERS-linux.tar.gz
-    - wget http://users.alliedmods.net/~kyles/builds/SteamWorks/$STEAMWORKS_VERS-windows.zip
-    - tar -xzf $STEAMWORKS_VERS-linux.tar.gz $EXTENSIONS/SteamWorks.ext.so $INCLUDE/SteamWorks.inc
-    - unzip -j $STEAMWORKS_VERS-windows.zip $EXTENSIONS/SteamWorks.ext.dll -d $EXTENSIONS
 before_script:
     - chmod +x $SCRIPTING/spcomp
     - mkdir $SCRIPTING/compiled
-script: $SCRIPTING/spcomp -E -o$SCRIPTING'/compiled/shop' -v0 $SCRIPTING'/shop.sp'
+script: $SCRIPTING/spcomp -E -o$SCRIPTING'/compiled/VIP_Core' -v0 $SCRIPTING'/VIP_Core.sp'
 
 #Release
 before_deploy:
     - mkdir shop shop/cfg shop/cfg/shop shop/addons shop/addons/sourcemod shop/addons/sourcemod/extensions shop/addons/sourcemod/plugins shop/addons/sourcemod/scripting shop/addons/sourcemod/scripting/include shop/addons/sourcemod/translations shop/addons/sourcemod/configs
-    - mv $EXTENSIONS/SteamWorks.ext* shop/$EXTENSIONS
-    - mv $SCRIPTING/shop.sp shop/$SCRIPTING
-    - mv $SCRIPTING/shop shop/$SCRIPTING
-    - mv $SCRIPTING/compiled/* shop/$PLUGINS
-    - mv $INCLUDE/shop* shop/$INCLUDE
-    - mv $INCLUDE/SteamWorks.inc shop/$INCLUDE
-    - rsync -a --prune-empty-dirs --include '*/' --include 'shop*' --exclude '*' addons/sourcemod/translations/ shop/addons/sourcemod/translations/
+    - mv $SCRIPTING/VIP_Core.sp VIP_Core/$SCRIPTING
+    - mv $SCRIPTING/vip vip/$SCRIPTING
+    - mv $SCRIPTING/compiled/* vip/$PLUGINS
+    - mv $INCLUDE/vip_core.inc vip/$INCLUDE
+    - rsync -a --prune-empty-dirs --include '*/' --include 'vip*' --exclude '*' addons/sourcemod/translations/ shop/addons/sourcemod/translations/
     - mv addons/sourcemod/configs/shop* shop/addons/sourcemod/configs
-    - mv cfg/shop/* shop/cfg/shop
-    - mv LICENSE shop
-    - zip -rq shop shop
-    - tar -czf shop.tar.gz shop
+    - mv cfg/vip/* shop/cfg/vip
+    - mv LICENSE vip
+    - zip -rq vip vip
+    - tar -czf VIP_Core.tar.gz vip
 deploy:
     provider: releases
     api_key: ${GH_TOKEN}
     file:
-      - shop.zip
-      - shop.tar.gz
+      - VIP_Core.zip
+      - VIP_Core.tar.gz
     skip_cleanup: true
     on:
        tags: true
