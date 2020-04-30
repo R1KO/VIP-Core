@@ -93,19 +93,19 @@ void CreateForward_OnPlayerSpawn(int iClient, int iTeam)
 	Call_Finish();
 }
 
-bool CreateForward_OnShowClientInfo(int iClient, const char[] szEvent, const char[] szType, KeyValues hKeyValues)
+Action CreateForward_OnShowClientInfo(int iClient, const char[] szEvent, const char[] szType, KeyValues hKeyValues)
 {
 	DBG_API("CreateForward_OnShowClientInfo(%N (%d), '%s', '%s')", iClient, iClient, szEvent, szType)
-	bool bResult = true;
+	Action eResult = Plugin_Continue;
 	Call_StartForward(g_hGlobalForward_OnShowClientInfo);
 	Call_PushCell(iClient);
 	Call_PushString(szEvent);
 	Call_PushString(szType);
 	Call_PushCell(hKeyValues);
-	Call_Finish(bResult);
-	DBG_API("CreateForward_OnShowClientInfo = %b", bResult)
+	Call_Finish(eResult);
+	DBG_API("CreateForward_OnShowClientInfo = %b", eResult)
 
-	return bResult;
+	return eResult;
 }
 
 VIP_ToggleState CreateForward_OnFeatureToggle(int iClient, const char[] szFeature, VIP_ToggleState eOldStatus, VIP_ToggleState eNewStatus)
@@ -124,24 +124,20 @@ VIP_ToggleState CreateForward_OnFeatureToggle(int iClient, const char[] szFeatur
 
 	switch (aResult)
 	{
-	case Plugin_Continue:
+		case Plugin_Continue:
 		{
 			return eNewStatus;
 		}
-	case Plugin_Changed:
+		case Plugin_Changed:
 		{
 			return eResultStatus;
 		}
-	case Plugin_Handled, Plugin_Stop:
+		case Plugin_Handled, Plugin_Stop:
 		{
 			return eOldStatus;
 		}
-	default:
-		{
-			return eResultStatus;
-		}
 	}
-	
+
 	return eResultStatus;
 }
 
@@ -186,12 +182,8 @@ VIP_ToggleState Function_OnItemToggle(Handle hPlugin, Function FuncToggle, int i
 		{
 			return eOldStatus;
 		}
-		default:
-		{
-			return eResultStatus;
-		}
 	}
-	
+
 	return eResultStatus;
 }
 
