@@ -624,8 +624,3 @@ void ReductionMenu(Menu &hMenu, int iNum)
 		hMenu.AddItem(NULL_STRING, NULL_STRING, ITEMDRAW_NOTEXT);
 	}
 }
-
-#include "vip/AdminMenu/Add.sp"
-#include "vip/AdminMenu/List.sp"
-#include "vip/AdminMenu/Edit.sp"
-#include "vip/AdminMenu/Del.sp"
