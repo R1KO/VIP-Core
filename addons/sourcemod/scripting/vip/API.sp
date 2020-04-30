@@ -1110,19 +1110,19 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 		{
 			case BOOL:
 			{
-				g_hFeatures[iClient].SetValue(szFeature, view_as<bool>(StringToInt(szFeature)));
+				g_hFeatures[iClient].SetValue(szFeature, view_as<bool>(StringToInt(szValue)));
 			}
 			case INT:
 			{
-				g_hFeatures[iClient].SetValue(szFeature, StringToInt(szFeature));
+				g_hFeatures[iClient].SetValue(szFeature, StringToInt(szValue));
 			}
 			case FLOAT:
 			{
-				g_hFeatures[iClient].SetValue(szFeature, StringToFloat(szFeature));
+				g_hFeatures[iClient].SetValue(szFeature, StringToFloat(szValue));
 			}
 			case STRING:
 			{
-				g_hFeatures[iClient].SetString(szFeature, szFeature);
+				g_hFeatures[iClient].SetString(szFeature, szValue);
 			}
 		}
 
