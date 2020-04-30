@@ -96,7 +96,7 @@ void CreateForward_OnPlayerSpawn(int iClient, int iTeam)
 Action CreateForward_OnShowClientInfo(int iClient, const char[] szEvent, const char[] szType, KeyValues hKeyValues)
 {
 	DBG_API("CreateForward_OnShowClientInfo(%N (%d), '%s', '%s')", iClient, iClient, szEvent, szType)
-	Action eResult = true;
+	Action eResult = Plugin_Continue;
 	Call_StartForward(g_hGlobalForward_OnShowClientInfo);
 	Call_PushCell(iClient);
 	Call_PushString(szEvent);
