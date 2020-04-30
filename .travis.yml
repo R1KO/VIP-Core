@@ -50,11 +50,11 @@ deploy:
       - VIP_Core.tar.gz
     skip_cleanup: true
 
-branches:
-  only:
-    - master
-    - dev
-    - /^v\d+\.\d+\.\d+.*$/
+#branches:
+#  only:
+#    - master
+#    - dev
+#    - /^v\d+\.\d+\.\d+.*$/
 #Notifications
 notifications:
     email: false
