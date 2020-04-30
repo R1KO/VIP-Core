@@ -50,11 +50,12 @@ deploy:
     file:
       - VIP_Core.zip
       - VIP_Core.tar.gz
-	branches:
-		- master
-		- dev
-		- ci
-		- /^v\d+\.\d+\.\d+.*$/
+	on:
+	  branches:
+		  - master
+		  - dev
+		  - ci
+		  - /^v\d+\.\d+\.\d+.*$/
 
 #Notifications
 notifications:
