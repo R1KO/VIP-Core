@@ -124,24 +124,20 @@ VIP_ToggleState CreateForward_OnFeatureToggle(int iClient, const char[] szFeatur
 
 	switch (aResult)
 	{
-	case Plugin_Continue:
+		case Plugin_Continue:
 		{
 			return eNewStatus;
 		}
-	case Plugin_Changed:
+		case Plugin_Changed:
 		{
 			return eResultStatus;
 		}
-	case Plugin_Handled, Plugin_Stop:
+		case Plugin_Handled, Plugin_Stop:
 		{
 			return eOldStatus;
 		}
-	default:
-		{
-			return eResultStatus;
-		}
 	}
-	
+
 	return eResultStatus;
 }
 
@@ -186,12 +182,8 @@ VIP_ToggleState Function_OnItemToggle(Handle hPlugin, Function FuncToggle, int i
 		{
 			return eOldStatus;
 		}
-		default:
-		{
-			return eResultStatus;
-		}
 	}
-	
+
 	return eResultStatus;
 }
 

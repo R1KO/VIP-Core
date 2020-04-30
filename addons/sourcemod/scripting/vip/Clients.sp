@@ -417,12 +417,8 @@ bool GetValue(int iClient, VIP_ValueType ValueType, const char[] szFeature)
 			}
 			return false;
 		}
-		default:
-		{
-			return false;
-		}
 	}
-	
+
 	return false;
 }
 
