@@ -50,6 +50,7 @@ deploy:
     file:
       - VIP_Core.zip
       - VIP_Core.tar.gz
+    draft: true
     on:
       tags: true
       branch: master
