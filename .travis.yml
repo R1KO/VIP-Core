@@ -30,7 +30,9 @@ install:
 before_script:
     - chmod +x $SCRIPTING/spcomp
     - mkdir $SCRIPTING/compiled
-script: $SCRIPTING/spcomp -E -o$SCRIPTING'/compiled/VIP_Core' -v0 $SCRIPTING'/VIP_Core.sp'
+script:
+    - ls -lR
+    - $SCRIPTING/spcomp -E -o$SCRIPTING'/compiled/VIP_Core' -v0 $SCRIPTING'/VIP_Core.sp'
 
 #Release
 before_deploy:
