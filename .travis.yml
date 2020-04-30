@@ -49,8 +49,12 @@ deploy:
       - VIP_Core.zip
       - VIP_Core.tar.gz
     skip_cleanup: true
-    on:
-       tags: true
+
+branches:
+  only:
+    - master
+    - dev
+    - /^v\d+\.\d+\.\d+.*$/
 #Notifications
 notifications:
     email: false
