@@ -41,6 +41,10 @@ public Plugin myinfo =
 #include "vip/Cvars.sp"
 #if USE_ADMINMENU 1
 #include "vip/AdminMenu.sp"
+#include "vip/adminmenu/Add.sp"
+#include "vip/adminmenu/List.sp"
+#include "vip/adminmenu/Edit.sp"
+#include "vip/adminmenu/Del.sp"
 #endif
 #include "vip/VipMenu.sp"
 #include "vip/API.sp"
