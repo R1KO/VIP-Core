@@ -34,15 +34,14 @@ script: $SCRIPTING/spcomp -E -o$SCRIPTING'/compiled/VIP_Core' -v0 $SCRIPTING'/VI
 
 #Release
 before_deploy:
-    - mkdir shop shop/cfg shop/cfg/shop shop/addons shop/addons/sourcemod shop/addons/sourcemod/extensions shop/addons/sourcemod/plugins shop/addons/sourcemod/scripting shop/addons/sourcemod/scripting/include shop/addons/sourcemod/translations shop/addons/sourcemod/configs
+    - mkdir -p vip
+    - ls -lR
     - mv $SCRIPTING/VIP_Core.sp VIP_Core/$SCRIPTING
     - mv $SCRIPTING/vip vip/$SCRIPTING
     - mv $SCRIPTING/compiled/* vip/$PLUGINS
     - mv $INCLUDE/vip_core.inc vip/$INCLUDE
     - rsync -a --prune-empty-dirs --include '*/' --include 'vip*' --exclude '*' addons/sourcemod/translations/ shop/addons/sourcemod/translations/
     - mv addons/sourcemod/configs/shop* shop/addons/sourcemod/configs
-    - mv cfg/vip/* shop/cfg/vip
-    - mv LICENSE vip
     - zip -rq vip vip
     - tar -czf VIP_Core.tar.gz vip
 deploy:
