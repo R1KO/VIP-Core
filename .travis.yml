@@ -46,7 +46,7 @@ before_deploy:
     - tar -czf VIP_Core.tar.gz build
 deploy:
     provider: releases
-    api_key: ${GH_TOKEN}
+    github_token: ${GH_TOKEN}
     file:
       - VIP_Core.zip
       - VIP_Core.tar.gz
