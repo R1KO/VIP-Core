@@ -1,5 +1,6 @@
-#Use the new container-based infrastructure
-sudo: false
+#General settings
+dist: xenial
+os: linux
 
 #Install some apt packages needed for spcomp
 addons:
@@ -8,18 +9,19 @@ addons:
         - lib32stdc++6
 
 language: c
+
 #Set the build environment
 env:
   global:
     - INCLUDE=addons/sourcemod/scripting/include
     - SCRIPTING=addons/sourcemod/scripting
     - PLUGINS=addons/sourcemod/plugins
-  matrix:
+  jobs:
     - SMVERSION=1.9
     - SMVERSION=1.10
     - SMVERSION=1.11
 
-matrix:
+jobs:
   allow_failures:
     - env: SMVERSION=1.11
 
@@ -44,11 +46,10 @@ before_deploy:
     - tar -czf VIP_Core.tar.gz build
 deploy:
     provider: releases
-    api_key: ${GH_TOKEN}
+    token: ${GH_TOKEN}
     file:
       - VIP_Core.zip
       - VIP_Core.tar.gz
-    skip_cleanup: true
 
 #branches:
 #  only:
