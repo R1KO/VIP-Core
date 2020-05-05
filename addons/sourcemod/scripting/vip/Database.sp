@@ -82,13 +82,13 @@ void CreateTables()
 		#endif
 		g_hDatabase.Query(SQL_Callback_TableCreate,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 					`account_id` INT NOT NULL, \
-					`name` VARCHAR(64) NOT NULL default 'unknown' COLLATE 'utf8mb4_unicode_ci', \
+					`name` VARCHAR(64) NOT NULL default 'unknown' COLLATE '" ... COLLATION ... "', \
 					`lastvisit` INT UNSIGNED NOT NULL default 0, \
 					`sid` INT UNSIGNED NOT NULL, \
 					`group` VARCHAR(64) NOT NULL, \
 					`expires` INT UNSIGNED NOT NULL default 0, \
 					CONSTRAINT pk_PlayerID PRIMARY KEY (`account_id`, `sid`) \
-					) DEFAULT CHARSET=utf8mb4;");
+					) DEFAULT CHARSET=" ... CHARSET ... ";");
 	}
 	else
 	{
@@ -114,15 +114,10 @@ public void SQL_Callback_TableCreate(Database hOwner, DBResultSet hResult, const
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		if(!gH_SQL.SetCharset("utf8mb4"))
-		{
-			gH_SQL.SetCharset("utf8");
-			g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET NAMES 'utf8'");
-		}
-		else
-		{
-			g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET NAMES 'utf8mb4'");
-		}
+		g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET NAMES '" ... CHARSET ... "'");
+		g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET CHARSET '" ... CHARSET ... "'");
+
+		g_hDatabase.SetCharset(CHARSET);
 	}
 
 	UNSET_BIT(GLOBAL_INFO, IS_LOADING);
