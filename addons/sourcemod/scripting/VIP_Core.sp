@@ -6,7 +6,7 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION		"3.0 R"
+#define VIP_VERSION		"3.0.1 R"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -41,6 +41,10 @@ public Plugin myinfo =
 #include "vip/Cvars.sp"
 #if USE_ADMINMENU 1
 #include "vip/AdminMenu.sp"
+#include "vip/adminmenu/Add.sp"
+#include "vip/adminmenu/List.sp"
+#include "vip/adminmenu/Edit.sp"
+#include "vip/adminmenu/Del.sp"
 #endif
 #include "vip/VipMenu.sp"
 #include "vip/API.sp"

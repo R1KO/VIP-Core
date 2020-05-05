@@ -683,6 +683,10 @@ public void __pl_vip_core_SetNTVOptional()
 	MarkNativeAsOptional("VIP_SecondsToTime");
 	MarkNativeAsOptional("VIP_GetTimeFromStamp");
 	MarkNativeAsOptional("VIP_AddStringToggleStatus");
+	MarkNativeAsOptional("VIP_GiveClientVIP");
+	MarkNativeAsOptional("VIP_UnregisterMe");
+	MarkNativeAsOptional("VIP_GiveClientFeature");
+	MarkNativeAsOptional("VIP_RemoveClientFeature");
 }
 #endif
 
