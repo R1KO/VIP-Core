@@ -14,6 +14,12 @@
 
 #define USE_MORE_SERVERS	1	// Включить/Отключить режим при котором если ID сервера у игрока 0 - то VIP будет работать на всех серверах
 
+//#define  CHARSET "utf8mb4"
+//#define  COLLATION "utf8mb4_unicode_ci"
+
+#define  CHARSET "utf8"
+#define  COLLATION "utf8_unicode_ci"
+
 #if USE_ADMINMENU 1
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
