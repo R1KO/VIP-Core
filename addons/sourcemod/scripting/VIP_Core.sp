@@ -6,13 +6,19 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION		"3.0 R"
+#define VIP_VERSION		"3.0.1 R"
 
 #define DEBUG_MODE 		0	// Режим отладки
 
 #define USE_ADMINMENU	1	// Включение админ-меню для управления VIP
 
 #define USE_MORE_SERVERS	1	// Включить/Отключить режим при котором если ID сервера у игрока 0 - то VIP будет работать на всех серверах
+
+//#define  CHARSET "utf8mb4"
+//#define  COLLATION "utf8mb4_unicode_ci"
+
+#define  CHARSET "utf8"
+#define  COLLATION "utf8_unicode_ci"
 
 #if USE_ADMINMENU 1
 #undef REQUIRE_PLUGIN
@@ -41,6 +47,10 @@ public Plugin myinfo =
 #include "vip/Cvars.sp"
 #if USE_ADMINMENU 1
 #include "vip/AdminMenu.sp"
+#include "vip/adminmenu/Add.sp"
+#include "vip/adminmenu/List.sp"
+#include "vip/adminmenu/Edit.sp"
+#include "vip/adminmenu/Del.sp"
 #endif
 #include "vip/VipMenu.sp"
 #include "vip/API.sp"
