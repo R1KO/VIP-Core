@@ -131,7 +131,7 @@
 		"en"		"The player is no longer available"
 		"fi"		"Pelaaja ei ole enää saatavilla"
 		"de"		"Der Spieler ist nicht mehr verfügbar"
-		"pt"		"O player não está mais disponível"
+		"pt"		"Player não está mais disponível"
 		"pt_p"		"O jogador já não se encontra disponível"
 		"ru"		"Игрок больше не доступен"
 		"ua"		"Гравець більше недоступний"
@@ -524,21 +524,25 @@
 	"BY_SERVER"
 	{
 		"en"		"by server"
+		"pt"		"por servidor"
 		"ru"		"сервером"
 	}
 	"BY_PLUGIN"
 	{
 		"en"		"by plugin"
+		"pt"		"por plugin"
 		"ru"		"плагином"
 	}
 	"REASON_EXPIRED"
 	{
 		"en"		"Expired"
+		"pt"		"Expirado"
 		"ru"		"Истек срок"
 	}
 	"REASON_INACTIVITY"
 	{
 		"en"		"For inactivity"
+		"pt"		"Por inatividade"
 		"ru"		"По неактивности"
 	}
 	"GROUP"
@@ -687,7 +691,7 @@
 		"en"		"y."
 		"fi"		"v."
 		"de"		"j."
-		"pt_p"		"a."
+		"pt"		"a."
 		"pt_p"		"ano."
 		"ru"		"г."
 		"es"		"a."
