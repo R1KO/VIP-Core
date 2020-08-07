@@ -651,6 +651,7 @@
 		"en"		"Use:"
 		"fi"		"Käyttö:"
 		"de"		"Nutzen Sie:"
+		"pt"		"Uso:"
 		"pt_p"		"Usar:"
 		"ru"		"Используйте:"
 		"es"		"Usar:"
