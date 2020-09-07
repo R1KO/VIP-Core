@@ -1,18 +1,14 @@
-//===== Translations =====
-//  = White |  = Dark Red |  = White |  = Dark Green
-//  = Moss Green |  = Lime Green |  = Light Red
-//
 "Phrases"
 {
 	"VIP_CHAT_PREFIX"
 	{
-		"en"		"[ VIP ]"
-		"fi"		"[ VIP ]"
-		"de"		"[ VIP ]"
-		"pt"		"[ VIP ]"
-		"pt_p"		"[ VIP ]"
-		"ru"		"[ VIP ]"
-		"ua"		"[ VIP ]"
+		"en"		"{DEFAULT}[ {RED}VIP {DEFAULT}]"
+		"fi"		"{DEFAULT}[ {RED}VIP {DEFAULT}]"
+		"de"		"{DEFAULT}[ {RED}VIP {DEFAULT}]"
+		"pt"		"{DEFAULT}[ {RED}VIP {DEFAULT}]"
+		"pt_p"		"{DEFAULT}[ {RED}VIP {DEFAULT}]"
+		"ru"		"{DEFAULT}[ {RED}VIP {DEFAULT}]"
+		"ua"		"{DEFAULT}[ {RED}VIP {DEFAULT}]"
 	}
 	"VIP_MENU_TITLE"
 	{
@@ -651,7 +647,7 @@
 		"en"		"Use:"
 		"fi"		"Käyttö:"
 		"de"		"Nutzen Sie:"
-		"pt"		"Uso:"
+		"pt"		"Use:"
 		"pt_p"		"Usar:"
 		"ru"		"Используйте:"
 		"es"		"Usar:"
@@ -693,7 +689,7 @@
 		"fi"		"v."
 		"de"		"j."
 		"pt"		"a."
-		"pt_p"		"ano."
+		"pt_p"		"a."
 		"ru"		"г."
 		"es"		"a."
 		"ua"		"р."
