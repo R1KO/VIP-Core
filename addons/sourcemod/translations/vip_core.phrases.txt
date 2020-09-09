@@ -2,13 +2,13 @@
 {
 	"VIP_CHAT_PREFIX"
 	{
-		"en"		"{DEFAULT}[ {RED}VIP {DEFAULT}]"
-		"fi"		"{DEFAULT}[ {RED}VIP {DEFAULT}]"
-		"de"		"{DEFAULT}[ {RED}VIP {DEFAULT}]"
-		"pt"		"{DEFAULT}[ {RED}VIP {DEFAULT}]"
-		"pt_p"		"{DEFAULT}[ {RED}VIP {DEFAULT}]"
-		"ru"		"{DEFAULT}[ {RED}VIP {DEFAULT}]"
-		"ua"		"{DEFAULT}[ {RED}VIP {DEFAULT}]"
+		"en"		"{DEFAULT}[ {GREEN}VIP {DEFAULT}]"
+		"fi"		"{DEFAULT}[ {GREEN}VIP {DEFAULT}]"
+		"de"		"{DEFAULT}[ {GREEN}VIP {DEFAULT}]"
+		"pt"		"{DEFAULT}[ {GREEN}VIP {DEFAULT}]"
+		"pt_p"		"{DEFAULT}[ {GREEN}VIP {DEFAULT}]"
+		"ru"		"{DEFAULT}[ {GREEN}VIP {DEFAULT}]"
+		"ua"		"{DEFAULT}[ {GREEN}VIP {DEFAULT}]"
 	}
 	"VIP_MENU_TITLE"
 	{
