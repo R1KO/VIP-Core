@@ -54,21 +54,6 @@ deploy:
     on:
       tags: true
 
-#Release
-before_commit_build:
-    - ls -lR
-    - cp $SCRIPTING/compiled/VIP_Core.smx build/$PLUGINS
-    - zip -rq VIP_Core.zip build
-    - tar -czf VIP_Core.tar.gz build
-commit_build:
-    provider: releases
-    token: ${GH_TOKEN}
-    name: VIP_Core-${TRAVIS_COMMIT}
-    file:
-      - VIP_Core.zip
-      - VIP_Core.tar.gz
-    draft: true
-
 #Notifications
 notifications:
     email: false
