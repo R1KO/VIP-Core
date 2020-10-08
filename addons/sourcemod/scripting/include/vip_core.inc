@@ -185,6 +185,16 @@ forward void VIP_OnClientLoaded(int iClient, bool bIsVIP);
 forward void VIP_OnVIPClientLoaded(int iClient);
 
 /**
+ *	Вызывается когда игрок на стадии отключения.
+ *
+ * @param iClient			Индекс игрока.
+ * @param bIsVIP			Имеет ли игрок VIP-статус.
+ *
+ * @noreturn
+*/
+forward void VIP_OnClientDisconnect(int iClient, bool bIsVIP);
+
+/**
  *	Вызывается когда игрок получает VIP-статус.
  *
  * @param iClient			Индекс игрока.
