@@ -10,6 +10,7 @@ static Handle g_hGlobalForward_OnShowClientInfo;
 static Handle g_hGlobalForward_OnFeatureToggle;
 static Handle g_hGlobalForward_OnFeatureRegistered;
 static Handle g_hGlobalForward_OnFeatureUnregistered;
+static Handle g_hGlobalForward_OnClientDisconnect;
 
 void API_SetupForwards()
 {
@@ -25,6 +26,7 @@ void API_SetupForwards()
 	g_hGlobalForward_OnFeatureToggle				= CreateGlobalForward("VIP_OnFeatureToggle", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
 	g_hGlobalForward_OnFeatureRegistered			= CreateGlobalForward("VIP_OnFeatureRegistered", ET_Ignore, Param_String);
 	g_hGlobalForward_OnFeatureUnregistered			= CreateGlobalForward("VIP_OnFeatureUnregistered", ET_Ignore, Param_String);
+	g_hGlobalForward_OnClientDisconnect             = CreateGlobalForward("VIP_OnClientDisconnect", ET_Ignore, Param_Cell, Param_Cell);
 }
 
 // Global Forwards
@@ -61,6 +63,15 @@ void CreateForward_OnVIPClientLoaded(int iClient)
 	DBG_API("CreateForward_OnVIPClientLoaded(%N (%d))", iClient, iClient)
 	Call_StartForward(g_hGlobalForward_OnVIPClientLoaded);
 	Call_PushCell(iClient);
+	Call_Finish();
+}
+
+void CreateForward_OnClientDisconnect(int iClient)
+{
+	DBG_API("CreateForward_OnClientDisconnect(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP)
+	Call_StartForward(g_hGlobalForward_OnClientDisconnect);
+	Call_PushCell(iClient);
+	Call_PushCell(g_iClientInfo[iClient] & IS_VIP);
 	Call_Finish();
 }
 

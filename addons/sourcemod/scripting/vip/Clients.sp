@@ -24,6 +24,8 @@ public void OnClientDisconnect(int iClient)
 	{
 		SaveClient(iClient);
 	}*/
+
+	CreateForward_OnClientDisconnect(iClient);
 	
 	ResetClient(iClient);
 	UTIL_CloseHandleEx(g_hClientData[iClient]);
