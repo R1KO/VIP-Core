@@ -58,7 +58,7 @@ public Action ReloadVIPCfg_CMD(int iClient, int iArgs)
 	
 	ReadConfigs();
 	UTIL_ReloadVIPPlayers(iClient, false);
-	UTIL_Reply(iClient, "[VIP] %t", "VIP_CFG_REFRESHED");
+	UTIL_Reply(iClient, "%t", "VIP_CFG_REFRESHED");
 	
 	return Plugin_Handled;
 }
