@@ -81,7 +81,7 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 			{
 				int iOffset;
 				g_hClientData[iClient].GetValue(DATA_KEY_Offset, iOffset);
-				ShowVipPlayersFromDBMenu(iOffset, iOffset + LIST_OFFSET);
+				ShowVipPlayersFromDBMenu(iClient, iOffset + LIST_OFFSET);
 
 				return 0;
 			}
