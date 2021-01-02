@@ -302,7 +302,7 @@ void ShowTimeMenu(int iClient)
 
 			if (iMenuType != TIME_SET && szTime[0] == '0') continue;
 
-			hKv.GetString(szClientLang, SZF(szBuffer), "LangError");
+			hKv.GetString(szClientLang, SZF(szBuffer));
 			if (!szBuffer[0])
 			{
 				hKv.GetString(szServerLang, SZF(szBuffer), "LangError");

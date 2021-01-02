@@ -1,4 +1,10 @@
 
+bool IsValidFeature(const char[] szFeature)
+{
+	DebugMessage("IsValidFeature:: FindStringInArray -> %i", g_hFeaturesArray.FindString(szFeature))
+	return (g_hFeaturesArray.FindString(szFeature) != -1);
+}
+
 void Features_TurnOffAll(int iClient)
 {
 	DebugMessage("Features_TurnOffAll %N (%i)", iClient, iClient)

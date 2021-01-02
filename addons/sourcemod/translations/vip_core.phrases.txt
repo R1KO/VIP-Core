@@ -203,6 +203,7 @@
 	}
 	"LOG_ADMIN_SET_EXPIRATION"
 	{
+		"#format"	"{1:L},{2:s},{3:s}"
 		"en"		"Admin {1} has set {2} VIP's duration to {3}"
 		"fi"		"Admin {1} on asettanut VIP-pelaajalle {2} VIP keston tilalle {3}"
 		"de"		"Admin {1} {2}s VIP-Dauer um {3} eingestellt"

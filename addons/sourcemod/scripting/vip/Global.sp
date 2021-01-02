@@ -35,6 +35,10 @@
 #define REASON_EXPIRED	-2
 #define REASON_OUTDATED	-3
 
+
+#define OWNER_SERVER    0
+#define OWNER_PLUGIN    -1
+
 char	KEY_CID[]		= "Core->ClientID";
 char	KEY_EXPIRES[]	= "Core->Expires";
 char	KEY_GROUP[]		= "Core->Group";

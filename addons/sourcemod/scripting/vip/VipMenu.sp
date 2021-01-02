@@ -319,12 +319,6 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 	return 0;
 }
 
-bool IsValidFeature(const char[] szFeature)
-{
-	DebugMessage("IsValidFeature:: FindStringInArray -> %i", g_hFeaturesArray.FindString(szFeature))
-	return (g_hFeaturesArray.FindString(szFeature) != -1);
-}
-
 bool OnVipMenuFlood(int iClient)
 {
 	static float fLastTime[MAXPLAYERS + 1];
