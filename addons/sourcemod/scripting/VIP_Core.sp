@@ -86,6 +86,10 @@ public void OnPluginStart()
 	ITEM_DRAW = hDataPack.Position;
 	delete hDataPack;
 
+
+	g_bIsTranslationPhraseExistsAvailable = (CanTestFeatures() && 
+		GetFeatureStatus(FeatureType_Native, "TranslationPhraseExists") == FeatureStatus_Available);
+
 	ReadConfigs();
 
 	VIPMenu_Setup();

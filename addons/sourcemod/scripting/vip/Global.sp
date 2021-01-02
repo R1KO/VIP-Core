@@ -122,6 +122,7 @@ bool		g_CVAR_bDefaultStatus;
 bool		g_CVAR_bLogsEnable;
 
 EngineVersion	g_EngineVersion;
+bool g_bIsTranslationPhraseExistsAvailable;
 
 char		g_szSID[64];
 
