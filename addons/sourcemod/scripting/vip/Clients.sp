@@ -303,6 +303,16 @@ void Clients_LoadVIPFeatures(int iClient)
 	Clients_OnVIPClientLoaded(iClient);
 }
 
+void Clients_LoadGroupFeatures(int iClient, const char[] szGroup)
+{
+	char szFeature[FEATURE_NAME_LENGTH];
+	for (int i = 0; i < iFeatures; ++i)
+	{
+		g_hFeaturesArray.GetString(i, SZF(szFeature));
+		Clients_LoadFeature(iClient, szFeature);
+	}
+}
+
 void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
 {
 	DebugMessage("LoadVIPFeature %N", iClient)

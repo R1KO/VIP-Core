@@ -431,6 +431,10 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 						}
 					}
 				}
+				else
+				{
+					Clients_LoadVIPFeatures(iClient);
+				}
 				
 				return true;
 			}

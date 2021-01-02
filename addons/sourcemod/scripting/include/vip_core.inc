@@ -661,6 +661,7 @@ public void __pl_vip_core_SetNTVOptional()
 	MarkNativeAsOptional("VIP_GetDatabaseType");
 	MarkNativeAsOptional("VIP_RegisterFeature");
 	MarkNativeAsOptional("VIP_UnregisterFeature");
+	MarkNativeAsOptional("VIP_UnregisterMe");
 	MarkNativeAsOptional("VIP_IsValidFeature");
 	MarkNativeAsOptional("VIP_GetFeatureType");
 	MarkNativeAsOptional("VIP_GetFeatureValueType");
@@ -694,7 +695,6 @@ public void __pl_vip_core_SetNTVOptional()
 	MarkNativeAsOptional("VIP_GetTimeFromStamp");
 	MarkNativeAsOptional("VIP_AddStringToggleStatus");
 	MarkNativeAsOptional("VIP_GiveClientVIP");
-	MarkNativeAsOptional("VIP_UnregisterMe");
 	MarkNativeAsOptional("VIP_GiveClientFeature");
 	MarkNativeAsOptional("VIP_RemoveClientFeature");
 }
