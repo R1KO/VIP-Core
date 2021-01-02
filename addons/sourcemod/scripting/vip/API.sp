@@ -401,50 +401,49 @@ public int Native_GetClientVIPGroup(Handle hPlugin, int iNumParams)
 public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient))
+	if (!CheckValidClient(iClient))
 	{
-		char szGroup[64];
-		GetNativeString(2, SZF(szGroup));
-		if (UTIL_CheckValidVIPGroup(szGroup))
-		{
-			if (g_hFeatures[iClient].SetString(KEY_GROUP, szGroup))
-			{
-				if (view_as<bool>(GetNativeCell(3)))
-				{
-					int iClientID;
-					if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
-					{
-						char szQuery[256];
-						FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iClientID, g_szSID);
-						DBG_SQL_Query(szQuery)
-						g_hDatabase.Query(SQL_Callback_ChangeClientSettings, szQuery, UID(iClient));
+		return 0;
+	}
+	char szGroup[64];
+	GetNativeString(2, SZF(szGroup));
+	if (!UTIL_CheckValidVIPGroup(szGroup))
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid group (%s)", szGroup);;
+	}
 
-						if (g_CVAR_bLogsEnable)
-						{
-							char szName[MNL], szAdmin[128], szPluginName[128], szOldGroup[64];
-							GetClientName(iClient, SZF(szName));
-							GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
-							FormatEx(SZF(szAdmin), "%T %s", "BY_PLUGIN", LANG_SERVER, szPluginName);
-							g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szOldGroup));
-							g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
-							LogToFile(g_szLogFile, "%T", "LOG_CHANGE_GROUP", LANG_SERVER, szName, iClientID, szOldGroup, szGroup, szAdmin);
-						}
-					}
-				}
-				else
-				{
-					Clients_LoadVIPFeatures(iClient);
-				}
-				
-				return true;
+	if (!g_hFeatures[iClient].SetString(KEY_GROUP, szGroup))
+	{
+		return 0;
+	}
+	if (view_as<bool>(GetNativeCell(3)))
+	{
+		int iClientID;
+		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
+		{
+			char szQuery[256];
+			FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iClientID, g_szSID);
+			DBG_SQL_Query(szQuery)
+			g_hDatabase.Query(SQL_Callback_ChangeClientSettings, szQuery, UID(iClient));
+
+			if (g_CVAR_bLogsEnable)
+			{
+				char szName[MNL], szAdmin[128], szPluginName[128], szOldGroup[64];
+				GetClientName(iClient, SZF(szName));
+				GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
+				FormatEx(SZF(szAdmin), "%T %s", "BY_PLUGIN", LANG_SERVER, szPluginName);
+				g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szOldGroup));
+				g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
+				LogToFile(g_szLogFile, "%T", "LOG_CHANGE_GROUP", LANG_SERVER, szName, iClientID, szOldGroup, szGroup, szAdmin);
 			}
 		}
-		else
-		{
-			ThrowNativeError(SP_ERROR_NATIVE, "Invalid group/Некорректная VIP-группа (%s)", szGroup);
-		}
 	}
-	return false;
+	else
+	{
+		Clients_LoadVIPFeatures(iClient);
+	}
+
+	return 1;
 }
 
 public int Native_GetClientAccessTime(Handle hPlugin, int iNumParams)
@@ -471,8 +470,7 @@ public int Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
 		
 		if (iTime < 0 || (iTime != 0 && iTime < GetTime()))
 		{
-			ThrowNativeError(SP_ERROR_NATIVE, "Invalid time/Некорректное время (%i)", iTime);
-			return false;
+			return ThrowNativeError(SP_ERROR_NATIVE, "Invalid time (%i)", iTime);
 		}
 		
 		if (g_hFeatures[iClient].SetValue(KEY_EXPIRES, iTime))
@@ -594,17 +592,17 @@ int API_GiveClientVIP(Handle hPlugin,
 			}
 			else
 			{
-				return ThrowNativeError(SP_ERROR_NATIVE, "The player %L is already a VIP/Игрок %L уже является VIP-игроком", iClient, iClient);
+				return ThrowNativeError(SP_ERROR_NATIVE, "The player %L is already a VIP", iClient, iClient);
 			}
 		}
 
 		if (!UTIL_CheckValidVIPGroup(szGroup))
 		{
-			return ThrowNativeError(SP_ERROR_NATIVE, "Invalid VIP-group/Некорректная VIP-группа (%s)", szGroup);
+			return ThrowNativeError(SP_ERROR_NATIVE, "Invalid VIP-group (%s)", szGroup);
 		}
 		if (iTime < 0)
 		{
-			return ThrowNativeError(SP_ERROR_NATIVE, "Invalid time/Некорректное время (%d)", iTime);
+			return ThrowNativeError(SP_ERROR_NATIVE, "Invalid time (%d)", iTime);
 		}
 		
 		if (bAddToDB)
@@ -733,65 +731,70 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 	DebugMessage("Register feature \"%s\" (%s)", szFeature, sPluginName)
 	#endif
 	
-	if (IsValidFeature(szFeature) == false)
+	if (IsValidFeature(szFeature))
 	{
-		if (g_hFeaturesArray.Length == 0)
-		{
-			g_hVIPMenu.RemoveItem(0);
-		}
-
-		g_hFeaturesArray.PushString(szFeature);
-		DebugMessage("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature))
-
-		VIP_FeatureType eType = view_as<VIP_FeatureType>(GetNativeCell(3));
-		DebugMessage("FeatureType -> %i", eType)
-
-		ArrayList hArray = new ArrayList();
-		GLOBAL_TRIE.SetValue(szFeature, hArray);
-		
-		hArray.Push(hPlugin);
-		hArray.Push(GetNativeCell(2));
-		hArray.Push(eType);
-
-		if (eType != HIDE)
-		{
-			Handle hCookie = null;
-			if (eType == TOGGLABLE || (eType == SELECTABLE && iNumParams > 7 && GetNativeCell(8)))
-			{
-				hCookie = RegClientCookie(szFeature, szFeature, CookieAccess_Private);
-			}
-
-			hArray.Push(hCookie);
-
-			DataPack hDataPack = new DataPack();
-			hDataPack.WriteFunction(GetNativeCell(4));
-			hDataPack.WriteFunction(GetNativeCell(5));
-			hDataPack.WriteFunction(GetNativeCell(6));
-			hArray.Push(hDataPack);
-
-			if(eType == TOGGLABLE)
-			{
-				hArray.Push(iNumParams > 6 ? GetNativeCell(7):NO_ACCESS);
-			}
-
-			AddFeatureToVIPMenu(szFeature);
-		}
-
-		for (int iClient = 1; iClient <= MaxClients; ++iClient)
-		{
-			if (IsClientInGame(iClient) && g_iClientInfo[iClient] & IS_VIP)
-			{
-				Clients_LoadVIPFeaturesPre(iClient, szFeature);
-			}
-		}
-
-		CreateForward_OnFeatureRegistered(szFeature);
-		DebugMessage("Feature \"%s\" registered", szFeature)
+		return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" already defined", szFeature);
 	}
-	else
+	if (g_hFeaturesArray.Length == 0)
 	{
-		ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" already defined/Функция \"%s\" уже существует", szFeature, szFeature);
+		g_hVIPMenu.RemoveItem(0);
 	}
+
+	g_hFeaturesArray.PushString(szFeature);
+	DebugMessage("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature))
+
+	VIP_FeatureType eType = view_as<VIP_FeatureType>(GetNativeCell(3));
+	DebugMessage("FeatureType -> %i", eType)
+
+	ArrayList hArray = new ArrayList();
+	GLOBAL_TRIE.SetValue(szFeature, hArray);
+	
+	hArray.Push(hPlugin);
+	hArray.Push(GetNativeCell(2));
+	hArray.Push(eType);
+
+	if (eType != HIDE)
+	{
+		Handle hCookie = null;
+		if (eType == TOGGLABLE || (eType == SELECTABLE && iNumParams > 7 && GetNativeCell(8)))
+		{
+			hCookie = RegClientCookie(szFeature, szFeature, CookieAccess_Private);
+		}
+
+		Function fCallback = GetNativeCell(4);
+		if (eType == SELECTABLE && fCallback == INVALID_FUNCTION)
+		{
+			return ThrowNativeError(SP_ERROR_NATIVE, "Undefined callback for SELECTABLE feature \"%s\"", szFeature);
+		}
+
+		hArray.Push(hCookie);
+
+		DataPack hDataPack = new DataPack();
+		hDataPack.WriteFunction(fCallback);
+		hDataPack.WriteFunction(GetNativeCell(5));
+		hDataPack.WriteFunction(GetNativeCell(6));
+		hArray.Push(hDataPack);
+
+		if(eType == TOGGLABLE)
+		{
+			hArray.Push(iNumParams > 6 ? GetNativeCell(7):NO_ACCESS);
+		}
+
+		AddFeatureToVIPMenu(szFeature);
+	}
+
+	for (int iClient = 1; iClient <= MaxClients; ++iClient)
+	{
+		if (IsClientInGame(iClient) && g_iClientInfo[iClient] & IS_VIP)
+		{
+			Clients_LoadVIPFeaturesPre(iClient, szFeature);
+		}
+	}
+
+	CreateForward_OnFeatureRegistered(szFeature);
+	DebugMessage("Feature \"%s\" registered", szFeature)
+
+	return 1;
 }
 
 public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
@@ -799,24 +802,24 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 	char szFeature[FEATURE_NAME_LENGTH];
 	GetNativeString(1, SZF(szFeature));
 	
-	if (IsValidFeature(szFeature))
+	if (!IsValidFeature(szFeature))
 	{
-		ArrayList hArray;
-		if (GLOBAL_TRIE.GetValue(szFeature, hArray)/* && view_as<Handle>(hArray.Get(FEATURES_PLUGIN)) == hPlugin*/)
-		{
-			UnregisterFeature(szFeature, hArray);
+		return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid", szFeature);
+	}
 
-			int i = g_hFeaturesArray.FindString(szFeature);
-			if (i != -1)
-			{
-				g_hFeaturesArray.Erase(i);
-			}
+	ArrayList hArray;
+	if (GLOBAL_TRIE.GetValue(szFeature, hArray))
+	{
+		UnregisterFeature(szFeature, hArray);
+
+		int i = g_hFeaturesArray.FindString(szFeature);
+		if (i != -1)
+		{
+			g_hFeaturesArray.Erase(i);
 		}
 	}
-	else
-	{
-		ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", szFeature, szFeature);
-	}
+	
+	return 1;
 }
 
 public int Native_UnregisterMe(Handle hPlugin, int iNumParams)
@@ -846,6 +849,8 @@ public int Native_UnregisterMe(Handle hPlugin, int iNumParams)
 			}
 		}
 	}
+
+	return 1;
 }
 
 void UnregisterFeature(const char[] szFeature, ArrayList hArray)
@@ -895,6 +900,8 @@ void UnregisterFeature(const char[] szFeature, ArrayList hArray)
 
 	CreateForward_OnFeatureUnregistered(szFeature);
 	DebugMessage("Feature \"%s\" unregistered", szFeature)
+
+	return 1;
 }
 
 public int Native_IsValidFeature(Handle hPlugin, int iNumParams)
@@ -916,7 +923,7 @@ public int Native_GetFeatureType(Handle hPlugin, int iNumParams)
 		return hArray.Get(FEATURES_ITEM_TYPE);
 	}
 
-	return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", szFeature, szFeature);
+	return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid", szFeature);
 }
 
 public int Native_GetFeatureValueType(Handle hPlugin, int iNumParams)
@@ -930,7 +937,7 @@ public int Native_GetFeatureValueType(Handle hPlugin, int iNumParams)
 		return hArray.Get(FEATURES_VALUE_TYPE);
 	}
 
-	return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", szFeature, szFeature);
+	return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid", szFeature);
 }
 
 public int Native_FillArrayByFeatures(Handle hPlugin, int iNumParams)
@@ -1100,8 +1107,7 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 		ArrayList hArray;
 		if (!IsValidFeature(szFeature) || !GLOBAL_TRIE.GetValue(szFeature, hArray))
 		{
-			ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", szFeature, szFeature);
-			return 0;
+			return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid", szFeature);
 		}
 
 		char szValue[256];
@@ -1165,8 +1171,7 @@ public int Native_RemoveClientFeature(Handle hPlugin, int iNumParams)
 		ArrayList hArray;
 		if (!IsValidFeature(szFeature) || !GLOBAL_TRIE.GetValue(szFeature, hArray))
 		{
-			ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", szFeature, szFeature);
-			return 0;
+			return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid", szFeature);
 		}
 
 		VIP_ToggleState eToggleState = Features_GetStatus(iClient, szFeature);
@@ -1242,7 +1247,7 @@ public int Native_AddStringToggleStatus(Handle hPlugin, int iNumParams)
 	GetNativeString(4, SZF(szFeature));
 	if (!IsValidFeature(szFeature))
 	{
-		return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", szFeature, szFeature);
+		return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid", szFeature);
 	}
 
 	int iClient = GetNativeCell(5);
@@ -1262,13 +1267,11 @@ bool CheckValidClient(const int &iClient, bool bCheckVIP = true)
 {
 	if (iClient < 1 || iClient > MaxClients)
 	{
-		ThrowNativeError(SP_ERROR_NATIVE, "Invalid client index/Некорректный индекс игрока (%i)", iClient);
-		return false;
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid client index (%i)", iClient);
 	}
 	if (IsClientInGame(iClient) == false)
 	{
-		ThrowNativeError(SP_ERROR_NATIVE, "Client %i is not connected/Игрок %i не подключен", iClient, iClient);
-		return false;
+		return ThrowNativeError(SP_ERROR_NATIVE, "Client %i is not connected", iClient);
 	}
 	if (bCheckVIP)
 	{

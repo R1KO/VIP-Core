@@ -306,7 +306,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 					hMenu.DisplayAt(iClient, hMenu.Selection, MENU_TIME_FOREVER);
 					return 0;
 				}
-				
+
 				g_hFeatures[iClient].SetValue(KEY_MENUITEM, hMenu.Selection);
 				if (Function_OnItemSelect(hPlugin, fCallback, iClient, szItemInfo))
 				{
