@@ -1164,43 +1164,43 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 public int Native_RemoveClientFeature(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient))
+	if (!CheckValidClient(iClient))
 	{
-		char szFeature[64];
-		GetNativeString(1, SZF(szFeature));
-		ArrayList hArray;
-		if (!IsValidFeature(szFeature) || !GLOBAL_TRIE.GetValue(szFeature, hArray))
-		{
-			return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid", szFeature);
-		}
-
-		VIP_ToggleState eToggleState = Features_GetStatus(iClient, szFeature);
-
-		g_hFeatures[iClient].Remove(szFeature);
-		g_hFeatureStatus[iClient].Remove(szFeature);
-
-		if (!g_hFeatures[iClient].Size)
-		{
-			ResetClient(iClient);
-		}
-
-		if (eToggleState != NO_ACCESS && view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
-		{
-			DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
-			hDataPack.Position = ITEM_SELECT;
-			Function fCallback = hDataPack.ReadFunction();
-
-			if (fCallback != INVALID_FUNCTION)
-			{
-				Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), fCallback, iClient, szFeature, eToggleState, NO_ACCESS);
-			}
-			CreateForward_OnFeatureToggle(iClient, szFeature, eToggleState, NO_ACCESS);
-		}
-
-		return 1;
+		return 0;
 	}
 
-	return 0;
+	char szFeature[64];
+	GetNativeString(2, SZF(szFeature));
+	ArrayList hArray;
+	if (!IsValidFeature(szFeature) || !GLOBAL_TRIE.GetValue(szFeature, hArray))
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid", szFeature);
+	}
+
+	VIP_ToggleState eToggleState = Features_GetStatus(iClient, szFeature);
+
+	g_hFeatures[iClient].Remove(szFeature);
+	g_hFeatureStatus[iClient].Remove(szFeature);
+
+	if (!g_hFeatures[iClient].Size)
+	{
+		ResetClient(iClient);
+	}
+
+	if (eToggleState != NO_ACCESS && view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
+	{
+		DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
+		hDataPack.Position = ITEM_SELECT;
+		Function fCallback = hDataPack.ReadFunction();
+
+		if (fCallback != INVALID_FUNCTION)
+		{
+			Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), fCallback, iClient, szFeature, eToggleState, NO_ACCESS);
+		}
+		CreateForward_OnFeatureToggle(iClient, szFeature, eToggleState, NO_ACCESS);
+	}
+
+	return 1;
 }
 
 public int Native_GetDatabase(Handle hPlugin, int iNumParams)
