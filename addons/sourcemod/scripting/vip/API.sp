@@ -409,7 +409,7 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 	GetNativeString(2, SZF(szGroup));
 	if (!UTIL_CheckValidVIPGroup(szGroup))
 	{
-		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid group (%s)", szGroup);;
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid group (%s)", szGroup);
 	}
 
 	if (!g_hFeatures[iClient].SetString(KEY_GROUP, szGroup))
@@ -900,8 +900,6 @@ void UnregisterFeature(const char[] szFeature, ArrayList hArray)
 
 	CreateForward_OnFeatureUnregistered(szFeature);
 	DebugMessage("Feature \"%s\" unregistered", szFeature)
-
-	return 1;
 }
 
 public int Native_IsValidFeature(Handle hPlugin, int iNumParams)
@@ -1267,11 +1265,13 @@ bool CheckValidClient(const int &iClient, bool bCheckVIP = true)
 {
 	if (iClient < 1 || iClient > MaxClients)
 	{
-		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid client index (%i)", iClient);
+		ThrowNativeError(SP_ERROR_NATIVE, "Invalid client index (%i)", iClient);
+		return false;
 	}
 	if (IsClientInGame(iClient) == false)
 	{
-		return ThrowNativeError(SP_ERROR_NATIVE, "Client %i is not connected", iClient);
+		ThrowNativeError(SP_ERROR_NATIVE, "Client %i is not connected", iClient);
+		return false;
 	}
 	if (bCheckVIP)
 	{
