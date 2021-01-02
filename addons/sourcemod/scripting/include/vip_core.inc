@@ -159,7 +159,6 @@ forward void VIP_OnFeatureUnregistered(const char[] szFeature);
  *
  * @param iClient			Индекс игрока.
  *
-
  * @return					true - продолжить.
  * 							false - не выполнять проверку.
 */
@@ -199,7 +198,7 @@ forward void VIP_OnClientDisconnect(int iClient, bool bIsVIP);
  *
  * @param iClient			Индекс игрока.
  * @param iAdmin			Индекс админа (0 - сервер, -1 - плагин).
- *	-
+ *
  * @noreturn
 */
 forward void VIP_OnVIPClientAdded(int iClient, int iAdmin = -1);
@@ -213,7 +212,7 @@ forward void VIP_OnVIPClientAdded(int iClient, int iAdmin = -1);
  * 								"Removed by Admin" - Удален админом;
  * 								"Removed by native" - Удален нативом.
  * @param iAdmin			Индекс админа (0 - сервер, -1 - плагин).
- *	-
+ *
  * @noreturn
 */
 forward void VIP_OnVIPClientRemoved(int iClient, const char[] szReason, int iAdmin = -1);
@@ -428,7 +427,7 @@ native void VIP_RegisterFeature(const char[]			szFeature,
  *	Удаляет VIP-функцию.
  *
  * @param szFeature				Уникальное имя ф-и.
- *	-
+ *
  * @noreturn
 */
 native void VIP_UnregisterFeature(const char[] szFeature);
@@ -644,11 +643,11 @@ native void VIP_AddStringToggleStatus(const char[] szInput, char[] szBuffer, int
 
 /**
  *	Формирует путь к файлу с настройками модуля.
- *	-
+ *
  * @param szBuffer			Буфер, в который будет помещен результат.
  * @param iMaxLength		Размер буфера.
  * @param szFileName		Имя файла.
- *	-
+ *
  * @noreturn
 */
 stock void VIP_BuildModulesPath(char[] szBuffer, int iMaxLen, const char[] szFileName)
