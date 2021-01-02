@@ -201,7 +201,7 @@ forward void VIP_OnClientDisconnect(int iClient, bool bIsVIP);
  *
  * @noreturn
 */
-forward void VIP_OnVIPClientAdded(int iClient, int iAdmin = -1);
+forward void VIP_OnVIPClientAdded(int iClient, int iAdmin);
 
 /**
  *	Вызывается когда игрок лишается VIP-статуса.
@@ -215,7 +215,7 @@ forward void VIP_OnVIPClientAdded(int iClient, int iAdmin = -1);
  *
  * @noreturn
 */
-forward void VIP_OnVIPClientRemoved(int iClient, const char[] szReason, int iAdmin = -1);
+forward void VIP_OnVIPClientRemoved(int iClient, const char[] szReason, int iAdmin);
 
 /**
  *	Запускает проверку игрока на наличие VIP прав.
