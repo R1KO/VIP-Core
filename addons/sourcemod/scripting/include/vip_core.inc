@@ -159,7 +159,6 @@ forward void VIP_OnFeatureUnregistered(const char[] szFeature);
  *
  * @param iClient			Индекс игрока.
  *
-
  * @return					true - продолжить.
  * 							false - не выполнять проверку.
 */
@@ -198,7 +197,7 @@ forward void VIP_OnClientDisconnect(int iClient, bool bIsVIP);
  *	Вызывается когда игрок получает VIP-статус.
  *
  * @param iClient			Индекс игрока.
- * @param iAdmin			Индекс админа (0 - сервер).
+ * @param iAdmin			Индекс админа (0 - сервер, -1 - плагин).
  *
  * @noreturn
 */
@@ -212,7 +211,7 @@ forward void VIP_OnVIPClientAdded(int iClient, int iAdmin);
  * 								"Expired" - Истек;
  * 								"Removed by Admin" - Удален админом;
  * 								"Removed by native" - Удален нативом.
- * @param iAdmin			Индекс админа (0 - сервер).
+ * @param iAdmin			Индекс админа (0 - сервер, -1 - плагин).
  *
  * @noreturn
 */
@@ -366,7 +365,7 @@ native void VIP_SendClientVIPMenu(int iClient, bool bSelection = false);
  *
  * @noreturn
 */
-native void VIP_GiveClientVIP(int iAdmin = 0, int iClient, int iTime, const char[] szGroup, bool bAddToDB = true);
+native void VIP_GiveClientVIP(int iAdmin = -1, int iClient, int iTime, const char[] szGroup, bool bAddToDB = true);
 
 #pragma deprecated Use VIP_GiveClientVIP() instead
 native bool VIP_SetClientVIP(int iClient, int iTime, any AuthType, const char[] szGroup, bool bAddToDB = true);
@@ -382,7 +381,7 @@ native bool VIP_SetClientVIP(int iClient, int iTime, any AuthType, const char[] 
  * @return					true - Успешно.
  * 							false - Не удалось выполнить.
 */
-native bool VIP_RemoveClientVIP2(int iAdmin = 0, int iClient, bool bInDB, bool bNotify);
+native bool VIP_RemoveClientVIP2(int iAdmin = -1, int iClient, bool bInDB, bool bNotify);
 
 #pragma deprecated Use VIP_RemoveClientVIP2() instead
 native bool VIP_RemoveClientVIP(int iClient, bool bInDB, bool bNotify);
@@ -641,6 +640,20 @@ native bool VIP_GetTimeFromStamp(char[] szBuffer, int iMaxLength, int iTimeStamp
  * @noreturn
 */
 native void VIP_AddStringToggleStatus(const char[] szInput, char[] szBuffer, int iMaxLength, const char[] szFeature, int iClient);
+
+/**
+ *	Формирует путь к файлу с настройками модуля.
+ *
+ * @param szBuffer			Буфер, в который будет помещен результат.
+ * @param iMaxLength		Размер буфера.
+ * @param szFileName		Имя файла.
+ *
+ * @noreturn
+*/
+stock void VIP_BuildModulesPath(char[] szBuffer, int iMaxLen, const char[] szFileName)
+{
+    BuildPath(Path_SM, szBuffer, iMaxLen, "data/vip/modules/%s", szFileName);
+}
 
 public SharedPlugin __pl_vip_core= 
 {

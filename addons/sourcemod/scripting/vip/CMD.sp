@@ -1,4 +1,3 @@
-
 void CMD_Setup()
 {
 	RegConsoleCmd("sm_refresh_vips",	ReloadVIPPlayers_CMD);

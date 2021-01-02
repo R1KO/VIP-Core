@@ -6,7 +6,11 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION		"3.0.1 R"
+#if defined VIP_CORE_VERSION
+#define VIP_VERSION		VIP_CORE_VERSION
+#else
+#define VIP_VERSION		"3.1 DEV"
+#endif
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -81,6 +85,10 @@ public void OnPluginStart()
 	hDataPack.WriteCell(0);
 	ITEM_DRAW = hDataPack.Position;
 	delete hDataPack;
+
+
+	g_bIsTranslationPhraseExistsAvailable = (CanTestFeatures() && 
+		GetFeatureStatus(FeatureType_Native, "TranslationPhraseExists") == FeatureStatus_Available);
 
 	ReadConfigs();
 
