@@ -31,9 +31,9 @@
 #define IS_MySQL					(1<<1)
 #define IS_LOADING					(1<<2)
 
-#define REASON_PLUGIN	-2
-#define REASON_EXPIRED	-3
-#define REASON_OUTDATED	-4
+#define REASON_PLUGIN	-1
+#define REASON_EXPIRED	-2
+#define REASON_OUTDATED	-3
 
 char	KEY_CID[]		= "Core->ClientID";
 char	KEY_EXPIRES[]	= "Core->Expires";
