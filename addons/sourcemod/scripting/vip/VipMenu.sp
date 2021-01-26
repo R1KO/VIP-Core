@@ -231,7 +231,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 
 				if (view_as<VIP_FeatureType>(hBuffer.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 				{
-					FormatEx(SZF(szDisplay), "%s [%T]", szDisplay, g_szToggleStatus[view_as<int>(Features_GetStatus(iClient, szFeature))], iClient);
+					Format(SZF(szDisplay), "%s [%T]", szDisplay, g_szToggleStatus[view_as<int>(Features_GetStatus(iClient, szFeature))], iClient);
 				}
 				
 				return RedrawMenuItem(szDisplay);
