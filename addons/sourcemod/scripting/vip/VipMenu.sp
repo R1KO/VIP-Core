@@ -188,7 +188,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 			
 			DebugMessage("MenuAction_DisplayItem: Client: %i, Feature: %s", iClient, szFeature)
 
-			char szDisplay[128];
+			static char szDisplay[128];
 			if (strcmp(szFeature, "NO_FEATURES") == 0)
 			{
 				FormatEx(SZF(szDisplay), "%T", "NO_FEATURES", iClient);
@@ -220,23 +220,21 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 					}
 				}
 
-				static char szFeatureName[128];
 				if(IsTranslationPhraseExists(szFeature))
 				{
-					FormatEx(SZF(szFeatureName), "%T", szFeature, iClient);
+					FormatEx(SZF(szDisplay), "%T", szFeature, iClient);
 				}
 				else
 				{
-					strcopy(SZF(szFeatureName), szFeature);
+					strcopy(SZF(szDisplay), szFeature);
 				}
 
 				if (view_as<VIP_FeatureType>(hBuffer.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 				{
-					FormatEx(SZF(szDisplay), "%s [%T]", szFeatureName, g_szToggleStatus[view_as<int>(Features_GetStatus(iClient, szFeature))], iClient);
-					return RedrawMenuItem(szDisplay);
-				} else {
-					return RedrawMenuItem(szFeatureName);
+					FormatEx(SZF(szDisplay), "%s [%T]", szDisplay, g_szToggleStatus[view_as<int>(Features_GetStatus(iClient, szFeature))], iClient);
 				}
+				
+				return RedrawMenuItem(szDisplay);
 			}
 		}
 		
