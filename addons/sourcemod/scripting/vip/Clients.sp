@@ -281,16 +281,16 @@ void Clients_LoadVIPFeatures(int iClient)
 {
 	DebugMessage("LoadVIPFeatures %N", iClient)
 
-	int iFeatures = g_hFeaturesArray.Length;
-	DebugMessage("FeaturesArraySize: %d", iFeatures)
-	if (iFeatures > 0)
+	int iFeaturesCount = g_hFeaturesArray.Length;
+	DebugMessage("FeaturesArraySize: %d", iFeaturesCount)
+	if (iFeaturesCount > 0)
 	{
 		char szFeature[FEATURE_NAME_LENGTH];
 
 		g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szFeature));
 		if (UTIL_CheckValidVIPGroup(szFeature))
 		{
-			for (int i = 0; i < iFeatures; ++i)
+			for (int i = 0; i < iFeaturesCount; ++i)
 			{
 				g_hFeaturesArray.GetString(i, SZF(szFeature));
 				Clients_LoadFeature(iClient, szFeature);
@@ -303,23 +303,14 @@ void Clients_LoadVIPFeatures(int iClient)
 	Clients_OnVIPClientLoaded(iClient);
 }
 
-stock void Clients_LoadGroupFeatures(int iClient, const char[] szGroup)
-{
-	char szFeature[FEATURE_NAME_LENGTH];
-	for (int i = 0; i < iFeatures; ++i)
-	{
-		g_hFeaturesArray.GetString(i, SZF(szFeature));
-		Clients_LoadFeature(iClient, szFeature);
-	}
-}
 
 void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
 {
 	DebugMessage("LoadVIPFeature %N", iClient)
 
-	int iFeatures = g_hFeaturesArray.Length;
-	DebugMessage("FeaturesArraySize: %d", iFeatures)
-	if (iFeatures > 0)
+	int iFeaturesCount = g_hFeaturesArray.Length;
+	DebugMessage("FeaturesArraySize: %d", iFeaturesCount)
+	if (iFeaturesCount > 0)
 	{
 		char szGroup[FEATURE_NAME_LENGTH];
 
