@@ -368,6 +368,27 @@
 		"ru"		"Список VIP-игроков"
 		"ua"		"Список VIP-гравців"
 	}
+
+	"FIND_PLAYER"
+	{
+		"en"		"Find a player"
+		"fi"		"Etsi pelaaja"
+		"de"		"Finde einen Spieler"
+		"pt"		"Encontre um jogador"
+		"pt_p"		"Encontre um jogador"
+		"ru"		"Найти игрока"
+		"ua"		"Знайти гравця"
+	}
+	"SHOW_ALL"
+	{
+		"en"		"Show all"
+		"fi"		"Näytä kaikki"
+		"de"		"Zeige alles"
+		"pt"		"Mostre tudo"
+		"pt_p"		"Mostre tudo"
+		"ru"		"Показать всех"
+		"ua"		"Показати всіх"
+	}
 	"MENU_SEARCH"
 	{
 		"#format"	"{1:s},{2:d}"
