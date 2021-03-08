@@ -12,10 +12,10 @@ void ShowVipPlayersListMenu(int iClient)
 	hMenu.SetTitle("%T:\n ", "MENU_LIST_VIP", iClient);
 	hMenu.ExitBackButton = true;
 
-	FormatEx(SZF(szName), "%T\n ", "FIND_PLAYER");
+	FormatEx(SZF(szName), "%T\n ", "FIND_PLAYER", iClient);
 	hMenu.AddItem("search", szName);
 
-	FormatEx(SZF(szName), "%T\n ", "SHOW_ALL");
+	FormatEx(SZF(szName), "%T\n ", "SHOW_ALL", iClient);
 	hMenu.AddItem("show_all", szName);
 
 	szUserID[0] = 0;
