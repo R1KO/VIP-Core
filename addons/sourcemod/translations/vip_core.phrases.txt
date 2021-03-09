@@ -147,7 +147,7 @@
 	{
 		"#format"	"{1:s},{2:d},{3:s},{4:s},{5:s},{6:s}"
 		"en"		"VIP-Player {1} (ID: {2}, Duration: {3}, Expires: {4}, Group: {5}) added {6}"
-		"pt"		"Player VIP {1} (ID: {2}, Duração: {3}, Expira: {4}, Grupo: {5}) adicionado {6}"
+		"pt"		"VIP do Player {1} (ID: {2}, Duração: {3}, Expira: {4}, Grupo: {5}) adicionado {6}"
 		"ru"		"VIP-Игрок {1} (ID: {2}, Длительность: {3}, Истекает: {4}, Группа: {5}) добавлен {6}"
 	}
 	"ADMIN_VIP_ADD_FAILED"
