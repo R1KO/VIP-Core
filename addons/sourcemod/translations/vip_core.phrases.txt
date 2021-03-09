@@ -331,7 +331,7 @@
 	{
 		"#format"	"{1:s},{2:d},{3:s},{4:s},{5:s}"
 		"en"		"VIP-Player {1} (ID: {2}, Group: {3}) changed the group to {4} {5}"
-		"pt"		"VIP Player {1} (ID: {2}, Grupo: {3}) mudou o grupo para {4} {5}"
+		"pt"		"VIP do Player {1} (ID: {2}, Grupo: {3}) mudou o grupo para {4} {5}"
 		"ru"		"VIP-Игроку {1} (ID: {2}, Группа: {3}) изменена группа на {4} {5}"
 	}
 	"MENU_DEL_VIP"
@@ -359,7 +359,7 @@
 	{
 		"#format"	"{1:s},{2:d},{3:s},{4:s}"
 		"en"		"VIP-Player {1} (ID: {2}, Group: {3}) removed {4}"
-		"pt"		"VIP Player {1} (ID: {2}, Grupo: {3}) removido {4}"
+		"pt"		"VIP do Player {1} (ID: {2}, Grupo: {3}) removido {4}"
 		"ru"		"VIP-Игрок {1} (ID: {2}, Группа: {3}) удален {4}"
 	}
 	"MENU_LIST_VIP"
@@ -405,7 +405,7 @@
 		"en"		"Information:\n \nName:\n{1}\nSteamID:\n{2}\nGroup:\n{3}\nExpires:\n{4}"
 		"fi"		"Tiedotus:\n \nNimi:\n{1}\nSteamID:\n{2}\nRyhmä:\n{3}\nErääntyy:\n{4}"
 		"de"		"Accountinformationen:\n \nDer Name:\n{1}\nSteamID:\n{2}\nDie Gruppe:\n{3}\nLäuft ab:\n{4}"
-		"pt"		"Informação:\n \nNome:\n{1}\nSteamID:\n{2}\nGrupo:\n{3}\nExpira:\n{4}"
+		"pt"		"Informação:\n \nNick:\n{1}\nSteamID:\n{2}\nGrupo:\n{3}\nExpira:\n{4}"
 		"pt_p"		"Informação:\n \nNome:\n{1}\nSteamID:\n{2}\nGrupo:\n{3}\nExpira:\n{4}"
 		"ru"		"Информация:\n \nИмя:\n{1}\nSteamID:\n{2}\nГруппа:\n{3}\nИстекает:\n{4}"
 		"ua"		"Інформація:\n \nІм'я:\n{1}\nSteamID:\n{2}\nГрупа:\n{3}\nЗакінчується:\n{4}"
@@ -624,7 +624,7 @@
 		"en"		"Enter the chat Name/SteamID\n and press"
 		"fi"		"Kirjoita chattiin Nimi/SteamID\nja paina"
 		"de"		"Gehen Sie in den Chat Der Name/Nach SteamID"
-		"pt"		"Digite Nome/SteamID\nno chat e confirme"
+		"pt"		"Digite Nick/SteamID\nno chat e confirme"
 		"pt_p"		"Introduz no chat Nome/SteamID\ne confirmar"
 		"ru"		"Введите в чат Имя/SteamId\nи нажмите"
 		"ua"		"Введіть в чат Ім'я/SteamId\nі натисніть"
