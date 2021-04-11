@@ -211,7 +211,7 @@
 		"fi"		"Admin {1} on asettanut VIP-pelaajalle {2} VIP keston tilalle {3}"
 		"de"		"Admin {1} hat {2} VIPs Dauer auf {3} eingestellt"
 		"pt"		"Administrador {1} definiu a duração de VIP {2} para {3}"
-		"pt_p"		"O Admin {1} definiu a duração de VIP {2} para {3}"
+		"pt_p"		"Admin {1} definiu a duração de VIP {2} para {3}"
 		"ru"		"Админ {1} установил длительность VIP-статуса игроку {2} до {3}"
 		"ua"		"Адмін {1} встановив тривалість VIP гравцю {2} до {3}"
 	}
