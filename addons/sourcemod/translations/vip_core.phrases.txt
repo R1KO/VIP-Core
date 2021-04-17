@@ -651,9 +651,9 @@
 	}
 	"FIND_THE_ID_FAIL"
 	{
-		"en"		"Synax: sm_delvip <vip-id>"
+		"en"		"Synax: sm_delvip <VIP-ID>"
 		"fi"		"Käyttö: sm_delvip <vip-tunnus>"
-		"de"		"Synax: sm_delvip <vip-id>"
+		"de"		"Synax: sm_delvip <VIP-ID>"
 		"pt"		"Sintaxe: sm_delvip <VIP-ID>"
 		"pt_p"		"Sintaxe: sm_delvip <VIP-ID>"
 		"ru"		"Используйте: sm_delvip <идентификатор>"
