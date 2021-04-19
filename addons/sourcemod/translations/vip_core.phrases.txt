@@ -217,7 +217,7 @@
 	{
 		"en"		"Add Time"
 		"fi"		"Lisää aikaa"
-		"de"		"Zeiten verlängern"
+		"de"		"Zeit hinzufügen"
 		"pt"		"Adicionar Tempo"
 		"pt_p"		"Adicionar Tempo"
 		"ru"		"Добавить время"
@@ -726,7 +726,7 @@
 		"fi"		"v."
 		"de"		"j."
 		"pt"		"a."
-		"pt_p"		"a."
+		"pt_p"		"ano."
 		"ru"		"г."
 		"es"		"a."
 		"ua"		"р."
