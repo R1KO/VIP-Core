@@ -265,7 +265,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 
 					if (eNewStatus != eOldStatus)
 					{
-						eNewStatus = CreateForward_OnFeatureToggle(iClient, szFeature, eOldStatus, eNewStatus);
+						eNewStatus = CallForward_OnFeatureToggle(iClient, szFeature, eOldStatus, eNewStatus);
 						if (eNewStatus != eOldStatus)
 						{
 							Features_SetStatus(iClient, szFeature, eNewStatus);

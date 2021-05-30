@@ -266,7 +266,7 @@ void UTIL_REM_VIP_PLAYER(int iClient = OWNER_SERVER, int iTarget = 0, int iAccID
 
 	ResetClient(iTarget);
 
-	CreateForward_OnVIPClientRemoved(iTarget, szReason);
+	CallForward_OnVIPClientRemoved(iTarget, szReason);
 
 	DisplayClientInfo(iTarget, "expired_info");
 }
@@ -435,7 +435,7 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 	if (iTarget)
 	{
 		Clients_CheckVipAccess(iTarget, true);
-		CreateForward_OnVIPClientAdded(iTarget, iAdmin);
+		CallForward_OnVIPClientAdded(iTarget, iAdmin);
 	}
 	
 	char szAuth[32];

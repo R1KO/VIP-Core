@@ -36,7 +36,7 @@ void CallForward_OnVIPLoaded()
 	Call_Finish();
 }
 
-bool CreateForward_OnClientPreLoad(int iClient)
+bool CallForward_OnClientPreLoad(int iClient)
 {
 	DBG_API("g_hGlobalForward_OnClientPreLoad(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP)
 	bool bResult = true;
@@ -48,44 +48,44 @@ bool CreateForward_OnClientPreLoad(int iClient)
 	return bResult;
 }
 
-void CreateForward_OnClientLoaded(int iClient)
+void CallForward_OnClientLoaded(int iClient)
 {
-	DBG_API("CreateForward_OnClientLoaded(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP)
+	DBG_API("CallForward_OnClientLoaded(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP)
 	Call_StartForward(g_hGlobalForward_OnClientLoaded);
 	Call_PushCell(iClient);
 	Call_PushCell(g_iClientInfo[iClient] & IS_VIP);
 	Call_Finish();
 }
 
-void CreateForward_OnVIPClientLoaded(int iClient)
+void CallForward_OnVIPClientLoaded(int iClient)
 {
-	DBG_API("CreateForward_OnVIPClientLoaded(%N (%d))", iClient, iClient)
+	DBG_API("CallForward_OnVIPClientLoaded(%N (%d))", iClient, iClient)
 	Call_StartForward(g_hGlobalForward_OnVIPClientLoaded);
 	Call_PushCell(iClient);
 	Call_Finish();
 }
 
-void CreateForward_OnClientDisconnect(int iClient)
+void CallForward_OnClientDisconnect(int iClient)
 {
-	DBG_API("CreateForward_OnClientDisconnect(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP)
+	DBG_API("CallForward_OnClientDisconnect(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP)
 	Call_StartForward(g_hGlobalForward_OnClientDisconnect);
 	Call_PushCell(iClient);
 	Call_PushCell(g_iClientInfo[iClient] & IS_VIP);
 	Call_Finish();
 }
 
-void CreateForward_OnVIPClientAdded(int iClient, int iAdmin = OWNER_PLUGIN)
+void CallForward_OnVIPClientAdded(int iClient, int iAdmin = OWNER_PLUGIN)
 {
-	DBG_API("CreateForward_OnVIPClientAdded(%N (%d), %d)", iClient, iClient, iAdmin)
+	DBG_API("CallForward_OnVIPClientAdded(%N (%d), %d)", iClient, iClient, iAdmin)
 	Call_StartForward(g_hGlobalForward_OnVIPClientAdded);
 	Call_PushCell(iClient);
 	Call_PushCell(iAdmin);
 	Call_Finish();
 }
 
-void CreateForward_OnVIPClientRemoved(int iClient, const char[] sReason, int iAdmin = OWNER_PLUGIN)
+void CallForward_OnVIPClientRemoved(int iClient, const char[] sReason, int iAdmin = OWNER_PLUGIN)
 {
-	DBG_API("CreateForward_OnVIPClientRemoved(%N (%d), %d, '%s')", iClient, iClient, iAdmin, sReason)
+	DBG_API("CallForward_OnVIPClientRemoved(%N (%d), %d, '%s')", iClient, iClient, iAdmin, sReason)
 	Call_StartForward(g_hGlobalForward_OnVIPClientRemoved);
 	Call_PushCell(iClient);
 	Call_PushString(sReason);
@@ -93,9 +93,9 @@ void CreateForward_OnVIPClientRemoved(int iClient, const char[] sReason, int iAd
 	Call_Finish();
 }
 
-void CreateForward_OnPlayerSpawn(int iClient, int iTeam)
+void CallForward_OnPlayerSpawn(int iClient, int iTeam)
 {
-	DBG_API("CreateForward_OnPlayerSpawn(%N (%d), %d, %b)", iClient, iClient, iTeam, g_iClientInfo[iClient] & IS_VIP)
+	DBG_API("CallForward_OnPlayerSpawn(%N (%d), %d, %b)", iClient, iClient, iTeam, g_iClientInfo[iClient] & IS_VIP)
 	Call_StartForward(g_hGlobalForward_OnPlayerSpawn);
 	Call_PushCell(iClient);
 	Call_PushCell(iTeam);
@@ -103,9 +103,9 @@ void CreateForward_OnPlayerSpawn(int iClient, int iTeam)
 	Call_Finish();
 }
 
-Action CreateForward_OnShowClientInfo(int iClient, const char[] szEvent, const char[] szType, KeyValues hKeyValues)
+Action CallForward_OnShowClientInfo(int iClient, const char[] szEvent, const char[] szType, KeyValues hKeyValues)
 {
-	DBG_API("CreateForward_OnShowClientInfo(%N (%d), '%s', '%s')", iClient, iClient, szEvent, szType)
+	DBG_API("CallForward_OnShowClientInfo(%N (%d), '%s', '%s')", iClient, iClient, szEvent, szType)
 	Action eResult = Plugin_Continue;
 	Call_StartForward(g_hGlobalForward_OnShowClientInfo);
 	Call_PushCell(iClient);
@@ -113,14 +113,14 @@ Action CreateForward_OnShowClientInfo(int iClient, const char[] szEvent, const c
 	Call_PushString(szType);
 	Call_PushCell(hKeyValues);
 	Call_Finish(eResult);
-	DBG_API("CreateForward_OnShowClientInfo = %d", eResult)
+	DBG_API("CallForward_OnShowClientInfo = %d", eResult)
 
 	return eResult;
 }
 
-VIP_ToggleState CreateForward_OnFeatureToggle(int iClient, const char[] szFeature, VIP_ToggleState eOldStatus, VIP_ToggleState eNewStatus)
+VIP_ToggleState CallForward_OnFeatureToggle(int iClient, const char[] szFeature, VIP_ToggleState eOldStatus, VIP_ToggleState eNewStatus)
 {
-	DBG_API("CreateForward_OnFeatureToggle(%N (%d), '%s', %d, %d)", iClient, iClient, szFeature, eOldStatus, eNewStatus)
+	DBG_API("CallForward_OnFeatureToggle(%N (%d), '%s', %d, %d)", iClient, iClient, szFeature, eOldStatus, eNewStatus)
 	Action aResult = Plugin_Continue;
 	VIP_ToggleState eResultStatus = eNewStatus;
 
@@ -130,7 +130,7 @@ VIP_ToggleState CreateForward_OnFeatureToggle(int iClient, const char[] szFeatur
 	Call_PushCell(eOldStatus);
 	Call_PushCellRef(eResultStatus);
 	Call_Finish(aResult);
-	DBG_API("CreateForward_OnShowClientInfo = %b", bResult)
+	DBG_API("CallForward_OnShowClientInfo = %b", bResult)
 
 	switch (aResult)
 	{
@@ -151,17 +151,17 @@ VIP_ToggleState CreateForward_OnFeatureToggle(int iClient, const char[] szFeatur
 	return eResultStatus;
 }
 
-void CreateForward_OnFeatureRegistered(const char[] szFeature)
+void CallForward_OnFeatureRegistered(const char[] szFeature)
 {
-	DBG_API("CreateForward_OnFeatureRegistered('%s')", szFeature)
+	DBG_API("CallForward_OnFeatureRegistered('%s')", szFeature)
 	Call_StartForward(g_hGlobalForward_OnFeatureRegistered);
 	Call_PushString(szFeature);
 	Call_Finish();
 }
 
-void CreateForward_OnFeatureUnregistered(const char[] szFeature)
+void CallForward_OnFeatureUnregistered(const char[] szFeature)
 {
-	DBG_API("CreateForward_OnFeatureUnregistered('%s')", szFeature)
+	DBG_API("CallForward_OnFeatureUnregistered('%s')", szFeature)
 	Call_StartForward(g_hGlobalForward_OnFeatureUnregistered);
 	Call_PushString(szFeature);
 	Call_Finish();
@@ -587,7 +587,7 @@ int API_GiveClientVIP(Handle hPlugin,
 			{
 				ResetClient(iClient);
 
-				CreateForward_OnVIPClientRemoved(iClient, "Removed for VIP-status change", iAdmin);
+				CallForward_OnVIPClientRemoved(iClient, "Removed for VIP-status change", iAdmin);
 			}
 			else
 			{
@@ -696,7 +696,7 @@ int API_RemoveClientVIP(Handle hPlugin,
 
 		char szBuffer[PMP];
 		FormatEx(SZF(szBuffer), "Removed by %s", szPluginName);
-		CreateForward_OnVIPClientRemoved(iClient, szBuffer, iAdmin);
+		CallForward_OnVIPClientRemoved(iClient, szBuffer, iAdmin);
 
 		if (bNotify)
 		{
@@ -792,7 +792,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 		}
 	}
 
-	CreateForward_OnFeatureRegistered(szFeature);
+	CallForward_OnFeatureRegistered(szFeature);
 	DebugMessage("Feature \"%s\" registered", szFeature)
 
 	return 1;
@@ -901,7 +901,7 @@ void UnregisterFeature(const char[] szFeature, ArrayList hArray)
 		}
 	}
 
-	CreateForward_OnFeatureUnregistered(szFeature);
+	CallForward_OnFeatureUnregistered(szFeature);
 	DebugMessage("Feature \"%s\" unregistered", szFeature)
 }
 
@@ -1153,7 +1153,7 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 			{
 				Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), fCallback, iClient, szFeature, NO_ACCESS, ENABLED);
 			}
-			CreateForward_OnFeatureToggle(iClient, szFeature, NO_ACCESS, ENABLED);
+			CallForward_OnFeatureToggle(iClient, szFeature, NO_ACCESS, ENABLED);
 		}
 
 		return 1;
@@ -1198,7 +1198,7 @@ public int Native_RemoveClientFeature(Handle hPlugin, int iNumParams)
 		{
 			Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), fCallback, iClient, szFeature, eToggleState, NO_ACCESS);
 		}
-		CreateForward_OnFeatureToggle(iClient, szFeature, eToggleState, NO_ACCESS);
+		CallForward_OnFeatureToggle(iClient, szFeature, eToggleState, NO_ACCESS);
 	}
 
 	return 1;
