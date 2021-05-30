@@ -6,10 +6,8 @@
 #include <vip_core>
 #include <clientprefs>
 
-#if defined VIP_CORE_VERSION
-#define VIP_VERSION		VIP_CORE_VERSION
-#else
-#define VIP_VERSION		"3.1 DEV"
+#if !defined VIP_CORE_VERSION
+#define VIP_CORE_VERSION	"3.1.0 DEV"
 #endif
 
 #define DEBUG_MODE 		0	// Режим отладки
@@ -34,12 +32,12 @@ public Plugin myinfo =
 {
 	name = "[VIP] Core",
 	author = "R1KO",
-	version = VIP_VERSION,
+	version = VIP_CORE_VERSION,
 	url = "http://hlmod.ru"
 };
 
 #include "vip/Global.sp"
-#include "vip/Debug.sp"
+#include "vip/Debugger.sp"
 #include "vip/Downloads.sp"
 #include "vip/Colors.sp"
 #include "vip/UTIL.sp"

@@ -1,7 +1,7 @@
 
 void Cvars_Setup()
 {
-	CreateConVar("sm_vip_core_version", VIP_VERSION, "VIP-CORE VERSION", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_CHEAT|FCVAR_DONTRECORD);
+	CreateConVar("sm_vip_core_version", VIP_CORE_VERSION, "VIP-CORE VERSION", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_CHEAT|FCVAR_DONTRECORD);
 
 	ConVar hCvar = CreateConVar("sm_vip_admin_flag", "z", "Флаг админа, необходимый чтобы иметь доступ к управлению VIP-игроками.");
 	hCvar.AddChangeHook(OnAdminFlagChange);
@@ -12,18 +12,7 @@ void Cvars_Setup()
 	hCvar = CreateConVar("sm_vip_server_id", "0", "ID сервера при приспользовании MySQL базы данных", _, true, 0.0);
 	hCvar.AddChangeHook(OnServerIDChange);
 	g_CVAR_iServerID = hCvar.IntValue;
-	if (GLOBAL_INFO & IS_MySQL)
-	{
-		#if USE_MORE_SERVERS 1
-		FormatEx(SZF(g_szSID), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
-		#else
-		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
-		#endif
-	}
-	else
-	{
-		g_szSID[0] = 0;
-	}
+	SetupServerID();
 
 	hCvar = CreateConVar("sm_vip_auto_open_menu", "0", "Автоматически открывать VIP-меню при входе (0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnAutoOpenMenuChange);
@@ -84,6 +73,11 @@ public void OnAdminFlagChange(ConVar hCvar, const char[] szOldValue, const char[
 public void OnServerIDChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_iServerID = hCvar.IntValue;
+	SetupServerID();
+}
+
+void SetupServerID()
+{
 	if (GLOBAL_INFO & IS_MySQL)
 	{
 		#if USE_MORE_SERVERS 1
@@ -114,7 +108,6 @@ public void OnDeleteExpiredChange(ConVar hCvar, const char[] szOldValue, const c
 	if(g_CVAR_iDeleteExpired < -1)
 	{
 		g_CVAR_iDeleteExpired = -1;
-		return;
 	}
 }
 

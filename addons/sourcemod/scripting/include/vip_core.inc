@@ -3,6 +3,8 @@
 #endif
 #define _vip_core_included
 
+#define VIP_CORE_INTERFACE 310
+
 /* Типы данных VIP-функций */
 enum VIP_ValueType
 {
