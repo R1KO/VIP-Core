@@ -655,6 +655,11 @@ stock void VIP_BuildModulesPath(char[] szBuffer, int iMaxLen, const char[] szFil
     BuildPath(Path_SM, szBuffer, iMaxLen, "data/vip/modules/%s", szFileName);
 }
 
+stock bool IsVipCoreAvailable()
+{
+    return CanTestFeatures() && GetFeatureStatus(FeatureType_Native, "VIP_UnregisterFeature") == FeatureStatus_Available;
+}
+
 public SharedPlugin __pl_vip_core= 
 {
 	name = "vip_core",
