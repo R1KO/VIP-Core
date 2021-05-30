@@ -95,3 +95,60 @@ VIP_ToggleState Features_GetStatus(const int &iClient, const char[] szFeature)
 
 	return NO_ACCESS;
 }
+
+
+#if USE_CLIENTPREFS == 0
+void Features_GetStorageKeyName(const char[] szFeature, char[] szValue, int iMaxLength)
+{
+	FormatEx(szValue, iMaxLength, "FeatureStatus-%s", szFeature);
+}
+#endif
+
+void Features_GetValueFromStorage(int iClient, const char[] szFeature, ArrayList hArray, char[] szValue, int iMaxLength)
+{
+	#if USE_CLIENTPREFS 1
+	Handle hCookie = view_as<Handle>(hArray.Get(FEATURES_COOKIE));
+	GetClientCookie(iClient, hCookie, szValue, iMaxLength);
+	#else
+	char szKey[128];
+	Features_GetStorageKeyName(szFeature, SZF(szKey));
+	Storage_GetClientValue(iClient, szKey, szValue, iMaxLength);
+	#endif
+
+}
+
+void Features_SetValueToStorage(int iClient, const char[] szFeature, ArrayList hArray, const char[] szValue)
+{
+	#if USE_CLIENTPREFS 1
+	SetClientCookie(iClient, szValue);
+	#else
+	char szKey[128];
+	Features_GetStorageKeyName(szFeature, SZF(szKey));
+	Storage_SetClientValue(iClient, szKey, szValue);
+	#endif
+}
+
+VIP_ToggleState Features_GetStatusFromStorage(int iClient, const char[] szFeature, ArrayList hArray)
+{
+	char szValue[4];
+	Features_GetValueFromStorage(iClient, szFeature, hArray, SZF(szValue));
+	VIP_ToggleState eStatus = view_as<VIP_ToggleState>(StringToInt(szValue));
+	if (szValue[0] == '\0' || (view_as<int>(eStatus) > 2 || view_as<int>(eStatus) < 0))
+	{
+		switch(hArray.Get(FEATURES_DEF_STATUS))
+		{
+			case NO_ACCESS:		eStatus = g_CVAR_bDefaultStatus ? ENABLED:DISABLED;
+			case ENABLED:		eStatus = ENABLED;
+			case DISABLED:		eStatus = DISABLED;
+		}
+	}
+
+	return eStatus;
+}
+
+void Features_SetStatusToStorage(int iClient, const char[] szFeature, ArrayList hArray, VIP_ToggleState eStatus)
+{
+	char szValue[4];
+	IntToString(view_as<int>(eStatus), SZF(szValue));
+	Features_SetValueToStorage(iClient, szFeature, hArray, szValue);
+}

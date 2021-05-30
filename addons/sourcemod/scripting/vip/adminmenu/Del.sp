@@ -41,14 +41,15 @@ public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iC
 						iTarget = CID(iTarget);
 						if (!iTarget && iTargetID != -1)
 						{
-							iTarget = IsClientOnline(iTargetID);
+							iTarget = GetClientByID(iTargetID);
 						}
 
 						if (iTarget)
 						{
 							DB_RemoveClientFromID(iClient, iTarget, _, true);
 							Features_TurnOffAll(iTarget);
-							ResetClient(iTarget);
+							Clients_ResetClient(iTarget);
+							SET_BIT(g_iClientInfo[iTarget], IS_LOADED);
 							CallForward_OnVIPClientRemoved(iTarget, "Removed by Admin", iClient);
 							DisplayClientInfo(iTarget, "expired_info");
 							BackToAdminMenu(iClient);

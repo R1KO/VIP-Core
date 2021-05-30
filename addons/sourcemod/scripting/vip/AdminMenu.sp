@@ -67,7 +67,7 @@ void InitiateDataMap(int iClient)
 	}
 }
 
-int IsClientOnline(int ID)
+int GetClientByID(int ID)
 {
 	int iClientID;
 	for (int i = 1; i <= MaxClients; ++i)
@@ -558,12 +558,13 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 					iTarget = CID(iTarget);
 					if (!iTarget)
 					{
-						iTarget = IsClientOnline(iTargetID);
+						iTarget = GetClientByID(iTargetID);
 					}
 
 					if (iTarget)
 					{
-						ResetClient(iTarget);
+						Clients_ResetClient(iTarget);
+						SET_BIT(g_iClientInfo[iTarget], IS_LOADED);
 						CallForward_OnVIPClientRemoved(iTarget, "VIP-Group Changed", iClient);
 						Clients_CheckVipAccess(iTarget, false);
 					}
@@ -606,7 +607,7 @@ public void SQL_Callback_ChangeTime(Database hOwner, DBResultSet hResult, const 
 			if(!iTarget)
 			{
 				g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTarget);
-				iTarget = IsClientOnline(iTarget);
+				iTarget = GetClientByID(iTarget);
 			}
 
 			if (iTarget)

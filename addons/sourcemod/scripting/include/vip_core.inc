@@ -116,6 +116,15 @@ forward void VIP_OnPlayerSpawn(int iClient, int iTeam, bool bIsVIP);
 forward Action VIP_OnShowClientInfo(int iClient, const char[] szEvent, const char[] szType, KeyValues hKeyValues);
 
 /**
+ *	Вызывается когда загружены данные из хранилища игрока
+ *
+ * @param iClient			Индекс игрока.
+ *
+ * @noreturn
+*/
+forward void VIP_OnClientStorageLoaded(int iClient);
+
+/**
  *	Вызывается когда у VIP-игрока изменяется статус функции.
  *
  * @param iClient			Индекс игрока.
@@ -579,6 +588,29 @@ native bool VIP_GiveClientFeature(int iClient, const char[] szFeature, const cha
  * 							false - Не удалось выполнить.
 */
 native bool VIP_RemoveClientFeature(int iClient, const char[] szFeature);
+
+
+/**
+ *  Сохраняет значение в хранилище игрока
+ *
+ * @param iClient			Индекс игрока.
+ * @param szKey				Ключ
+ * @param szValue			Значение
+ *
+ * @noreturn
+*/
+native void VIP_SetClientStorageValue(int iClient, const char[] szKey, const char[] szValue);
+
+/**
+ *	Получает значение из хранилища игрока
+ *
+ * @param szKey				Ключ
+ * @param szValue			Буфер, в который будет помещен результат.
+ * @param iMaxLength		Размер буфера.
+ *
+ * @noreturn
+*/
+native void VIP_GetClientStorageValue(int iClient, const char[] szKey, char[] szValue, int iMaxLength);
 
 /**
  *	Получает Handle базы данных. После работы необходимо закрыть с помощью CloseHandle() или delete

@@ -80,7 +80,8 @@ void CreateTables()
 		#else
 		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
 		#endif
-		g_hDatabase.Query(SQL_Callback_TableCreate,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
+		
+		g_hDatabase.Query(SQL_Callback_TableCreate, "CREATE TABLE IF NOT EXISTS `vip_users` (\
 					`account_id` INT NOT NULL, \
 					`name` VARCHAR(64) NOT NULL default 'unknown' COLLATE '" ... COLLATION ... "', \
 					`lastvisit` INT UNSIGNED NOT NULL default 0, \
@@ -89,16 +90,34 @@ void CreateTables()
 					`expires` INT UNSIGNED NOT NULL default 0, \
 					CONSTRAINT pk_PlayerID PRIMARY KEY (`account_id`, `sid`) \
 					) DEFAULT CHARSET=" ... CHARSET ... ";");
+
+		g_hDatabase.Query(SQL_Callback_StorageTableCreate, "CREATE TABLE IF NOT EXISTS `vip_storage` (\
+					`account_id` INT NOT NULL, \
+					`key` VARCHAR(128) NOT NULL, \
+					`value` varchar(256) NOT NULL default '', \
+					`sid` INT UNSIGNED NOT NULL, \
+					`updated` INT UNSIGNED NOT NULL default 0, \
+					PRIMARY KEY (`account_id`, `key`, `sid`) \
+					) DEFAULT CHARSET=" ... CHARSET ... ";");
 	}
 	else
 	{
 		g_szSID[0] = 0;
-		g_hDatabase.Query(SQL_Callback_TableCreate,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
+		
+		g_hDatabase.Query(SQL_Callback_TableCreate, "CREATE TABLE IF NOT EXISTS `vip_users` (\
 				`account_id` INTEGER PRIMARY KEY NOT NULL, \
 				`name` VARCHAR(64) NOT NULL default 'unknown', \
 				`lastvisit` INTEGER UNSIGNED NOT NULL default 0, \
 				`group` VARCHAR(64) NOT NULL, \
 				`expires` INTEGER UNSIGNED NOT NULL default 0);");
+
+		g_hDatabase.Query(SQL_Callback_StorageTableCreate, "CREATE TABLE IF NOT EXISTS `vip_storage` (\
+				`account_id` INTEGER PRIMARY KEY NOT NULL, \
+				`key` VARCHAR(128) NOT NULL, \
+				`value` TEXT NOT NULL default '', \
+				`updated` INTEGER UNSIGNED NOT NULL default 0, \
+				PRIMARY KEY (`account_id`, `key`) \
+				);");
 	}
 }
 
@@ -106,7 +125,7 @@ public void SQL_Callback_TableCreate(Database hOwner, DBResultSet hResult, const
 {
 	DBG_SQL_Response("SQL_Callback_TableCreate")
 
-	if (szError[0])
+	if (!hResult || szError[0])
 	{
 		SetFailState("SQL_Callback_TableCreate: %s", szError);
 		return;
@@ -129,6 +148,17 @@ public void SQL_Callback_TableCreate(Database hOwner, DBResultSet hResult, const
 	if (g_CVAR_iDeleteExpired != -1 || g_CVAR_iOutdatedExpired != -1)
 	{
 		RemoveExpAndOutPlayers();
+	}
+}
+
+public void SQL_Callback_StorageTableCreate(Database hOwner, DBResultSet hResult, const char[] szError, any data)
+{
+	DBG_SQL_Response("SQL_Callback_StorageTableCreate")
+
+	if (!hResult || szError[0])
+	{
+		SetFailState("SQL_Callback_StorageTableCreate: %s", szError);
+		return;
 	}
 }
 
