@@ -16,7 +16,7 @@ void OnReadyToStart()
 	{
 		GLOBAL_INFO |= IS_STARTED;
 		
-		CreateForward_OnVIPLoaded();
+		CallForward_OnVIPLoaded();
 		
 		for (int iClient = 1; iClient <= MaxClients; ++iClient)
 		{

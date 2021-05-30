@@ -29,9 +29,9 @@ void API_SetupForwards()
 }
 
 // Global Forwards
-void CreateForward_OnVIPLoaded()
+void CallForward_OnVIPLoaded()
 {
-	DBG_API("CreateForward_OnVIPLoaded()")
+	DBG_API("CallForward_OnVIPLoaded()")
 	Call_StartForward(g_hGlobalForward_OnVIPLoaded);
 	Call_Finish();
 }
@@ -690,6 +690,8 @@ int API_RemoveClientVIP(Handle hPlugin,
 			CancelClientMenu(iClient);
 		}
 
+
+		Features_TurnOffAll(iClient);
 		ResetClient(iClient);
 
 		char szBuffer[PMP];
