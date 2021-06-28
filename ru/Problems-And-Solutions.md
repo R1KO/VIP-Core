@@ -19,13 +19,15 @@
 4 | `Native "FormatEx" reported: Language phrase "Имя фразы" not found` | Отсутствуют фразы в переводе. Обратите внимание на `"Имя фразы"` и добавьте её в файл перевода модулей
 5 | VIP-меню ведет себя странно, пропадают пункты, всё смещается | Смотрите пункт 4
 6 | Ошибка в логе:
-
-> L 06/28/2021 - 11:34:46: [SM] Exception reported: Plugin handle 550055 is invalid (error 3)
-> L 06/28/2021 - 11:34:46: [SM] Blaming: vip/VIP_Core.smx
-> L 06/28/2021 - 11:34:46: [SM] Call stack trace:
-> L 06/28/2021 - 11:34:46: [SM]   [0] Call_StartFunction
-> L 06/28/2021 - 11:34:46: [SM]   [1] Line 221, vip/VipMenu.sp::Handler_VIPMenu
-> ... | Перезагружаете/выгружаете/загружаете какой-то не обновленный модуль, проверьте наличие обновлений для перезагружаемых модулей
+```
+L 06/28/2021 - 11:34:46: [SM] Exception reported: Plugin handle 550055 is invalid (error 3)
+L 06/28/2021 - 11:34:46: [SM] Blaming: vip/VIP_Core.smx
+L 06/28/2021 - 11:34:46: [SM] Call stack trace:
+L 06/28/2021 - 11:34:46: [SM]   [0] Call_StartFunction
+L 06/28/2021 - 11:34:46: [SM]   [1] Line 221, vip/VipMenu.sp::Handler_VIPMenu
+...
+```
+| Перезагружаете/выгружаете/загружаете какой-то не обновленный модуль, проверьте наличие обновлений для перезагружаемых модулей
 7 | `Native "VIP_RegisterFeature" reported: Feature "Имя модуля" already defined !` | Модуль установлен несколько раз (либо несколько разных версий либо в разных папках)
 8 | `Native "VIP_SetClientVIP" reported: Invalid group (test_vip)` | Некорректная группа в файле `cfg/vip/vip_test.cfg` укажите свою группу там которая есть в `groups.ini` или создайте её
 9 | `KeyValues Error: RecursiveLoadFromBuffer: got } in key in file addons/sourcemod/data/vip/cfg/groups.ini` | Забыли добавить скобку в файле `groups.ini`, проверьте все ли кавычки и скобки присутствуют и нет ли лишних, смотрите пункт 1
