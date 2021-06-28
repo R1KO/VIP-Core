@@ -1,42 +1,27 @@
-## VIP Core
+# VIP Core
+
+## Russian
+
+Плагин позволяет выдавать игрокам VIP-статус на определенный срок или навсегда.
+Учитывая модульную систему плагина вы всегда имеете возможность расширить функционал плагина.
+Плагин очень гибкий и удобный в настройке, может работать как с SQLite так и с MySQL базой.
+
+[[VIP] Core Официальная тема на HlMod.ru](http://hlmod.ru/resources/vip-core.245/)
 
 1. [Установка и настройка ядра](url)
 1. [Установка и настройка модулей](url)
 1. [Список модулей](url)
-1. [Частые проблемы и их решения](url)
+1. [Частые проблемы и их решения, а так же полезные ссылки](url)
 
-You can use the [editor on GitHub](https://github.com/R1KO/VIP-Core/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+## English
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+This plugin allows you to give VIP status to players for a specific period or forever.
+Given the plugin's modular system, the functionality can always be expanded.
+The plugin is very flexible and easy to configure, it can work with both SQLite and MySQL database.
 
-### Markdown
+[[VIP] Core official topic on HlMod.ru](http://hlmod.ru/resources/vip-core.245/)
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/R1KO/VIP-Core/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+1. [Installing and configuring the core](url)
+1. [Installing and configuring modules](url)
+1. [List of modules](url)
+1. [Frequent problems and their solutions, as well as useful links](url)
