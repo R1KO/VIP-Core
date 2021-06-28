@@ -1,4 +1,9 @@
-## Welcome to GitHub Pages
+## VIP Core
+
+1. [Установка и настройка ядра](url)
+1. [Установка и настройка модулей](url)
+1. [Список модулей](url)
+1. [Частые проблемы и их решения](url)
 
 You can use the [editor on GitHub](https://github.com/R1KO/VIP-Core/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
