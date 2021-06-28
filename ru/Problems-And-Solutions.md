@@ -3,7 +3,7 @@
 ## Полезные ссылки:
 
 * [Предложения по улучшению VIP и идеи для модулей](http://hlmod.ru/threads/predlozhenija-po-uluchsheniju-vip-i-idei-dlja-modulej.26407/)
-* Хотите помочь с переводом на другие языки?[[VIP] Core](http://translator.mitchdempsey.com/sourcemod_plugins/265), [[VIP] Modules](http://translator.mitchdempsey.com/sourcemod_plugins/272)
+* Хотите помочь с переводом на другие языки? [[VIP] Core](http://translator.mitchdempsey.com/sourcemod_plugins/265), [[VIP] Modules](http://translator.mitchdempsey.com/sourcemod_plugins/272)
 * [Как обновить модуль для последней версии ядра?](https://github.com/R1KO/VIP-Core/blob/master/update_modules.md) (TODO: move to docs)
 * ~~[Простой, безболезненный и автоматизированный перенос БД из SQLite в MySQL, и наоборот](https://hlmod.ru/threads/vip-core.37613/page-41#post-352843)~~
 * [Обновление с VIP Core 2.х до 3.0](https://hlmod.ru/threads/vip-core.37613/page-46#post-368144)
