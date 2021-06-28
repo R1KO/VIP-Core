@@ -18,29 +18,25 @@
 3 | "No access" или "Нет доступа" в VIP-меню | Не прописан параметр модуля в группу файле `groups.ini` либо смотреть пункт 1
 4 | `Native "FormatEx" reported: Language phrase "Имя фразы" not found` | Отсутствуют фразы в переводе. Обратите внимание на `"Имя фразы"` и добавьте её в файл перевода модулей
 5 | VIP-меню ведет себя странно, пропадают пункты, всё смещается | Смотрите пункт 4
-6 | Ошибка в логе:
-```
-L 06/28/2021 - 11:34:46: [SM] Exception reported: Plugin handle 550055 is invalid (error 3)
-L 06/28/2021 - 11:34:46: [SM] Blaming: vip/VIP_Core.smx
-L 06/28/2021 - 11:34:46: [SM] Call stack trace:
-L 06/28/2021 - 11:34:46: [SM]   [0] Call_StartFunction
-L 06/28/2021 - 11:34:46: [SM]   [1] Line 221, vip/VipMenu.sp::Handler_VIPMenu
-...
-```
-| Перезагружаете/выгружаете/загружаете какой-то не обновленный модуль, проверьте наличие обновлений для перезагружаемых модулей
+6 | Ошибка в логе: `[SM] Exception reported: Plugin handle 550055 is invalid (error 3)` | Перезагружаете/выгружаете/загружаете какой-то не обновленный модуль, проверьте наличие обновлений для перезагружаемых модулей
 7 | `Native "VIP_RegisterFeature" reported: Feature "Имя модуля" already defined !` | Модуль установлен несколько раз (либо несколько разных версий либо в разных папках)
 8 | `Native "VIP_SetClientVIP" reported: Invalid group (test_vip)` | Некорректная группа в файле `cfg/vip/vip_test.cfg` укажите свою группу там которая есть в `groups.ini` или создайте её
 9 | `KeyValues Error: RecursiveLoadFromBuffer: got } in key in file addons/sourcemod/data/vip/cfg/groups.ini` | Забыли добавить скобку в файле `groups.ini`, проверьте все ли кавычки и скобки присутствуют и нет ли лишних, смотрите пункт 1
-10 | Админ-меню ведет себя странно, открываются не те пункты меню, которые выбираешь | В `addons/sourcemod/configs/adminmenu_sorting.txt` добавьте
-```
-   "vip_admin"
-   {
-       "item"        "add_vip"
-       "item"        "edit_vip"
-       "item"        "del_vip"
-       "item"        "list_vip"
-       "item"        "reload_vip_players"
-       "item"        "reload_vip_cfg"
-   }
-   ```
+10 | Админ-меню ведет себя странно, открываются не те пункты меню, которые выбираешь | Решение проблемы №10
 11 | Проблема | Решение
+
+
+
+### Решение проблемы №10
+В `addons/sourcemod/configs/adminmenu_sorting.txt` добавьте
+```
+"vip_admin"
+{
+    "item"        "add_vip"
+    "item"        "edit_vip"
+    "item"        "del_vip"
+    "item"        "list_vip"
+    "item"        "reload_vip_players"
+    "item"        "reload_vip_cfg"
+}
+```
