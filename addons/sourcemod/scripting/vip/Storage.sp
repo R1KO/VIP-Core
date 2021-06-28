@@ -1,6 +1,7 @@
 
 bool Storage_IsClientLoaded(int iClient)
 {
+	DBG_STORAGE("Storage_IsClientLoaded: %N (%d): %b", iClient, iClient, IS_CLIENT_CACHE_LOADED(iClient) && g_hCache[iClient])
 	return IS_CLIENT_CACHE_LOADED(iClient) && g_hCache[iClient];
 }
 
@@ -25,8 +26,9 @@ void Storage_LoadClient(int iClient)
 	char szQuery[256];
 
 	int iAccountID = GetSteamAccountID(iClient);
+	DBG_STORAGE("Storage_LoadClient: %N (%d): %d", iClient, iClient, iAccountID)
 
-	DebugMessage("Storage_LoadClient %N (%d)", iClient, iClient)
+	DebugMessage("Storage_LoadClient %N (%d): %d", iClient, iClient, iAccountID)
 
 	FormatEx(SZF(szQuery), "SELECT `key`, `value` \
 										FROM `vip_storage` \
@@ -54,8 +56,11 @@ public void SQL_Callback_OnClientLoadStorage(Database hOwner, DBResultSet hResul
 
 	g_hCache[iClient] = new StringMap();
 
+	DBG_STORAGE("SQL_Callback_OnClientLoadStorage: %N (%d)", iClient, iClient)
+	DBG_STORAGE("RowCount: %d", hResult.RowCount)
 	if (!hResult.RowCount)
 	{
+		Storage_OnClientLoaded(iClient);
 		return;
 	}
 
@@ -65,10 +70,16 @@ public void SQL_Callback_OnClientLoadStorage(Database hOwner, DBResultSet hResul
 	{
 		hResult.FetchString(0, SZF(szKey));
 		hResult.FetchString(1, SZF(szValue));
+		DBG_STORAGE("SetString: '%s' -> '%s'", szKey, szValue)
 
 		g_hCache[iClient].SetString(szKey, szValue);
 	}
 
+	Storage_OnClientLoaded(iClient);
+}
+
+void Storage_OnClientLoaded(int iClient)
+{
 	SET_BIT(g_iClientInfo[iClient], IS_CACHE_LOADED);
 
 	CallForward_OnClientStorageLoaded(iClient);
@@ -76,6 +87,8 @@ public void SQL_Callback_OnClientLoadStorage(Database hOwner, DBResultSet hResul
 
 void Storage_ResetClient(int iClient)
 {
+	DBG_STORAGE("Storage_ResetClient: %N (%d)", iClient, iClient)
+
 	if (g_hCache[iClient])
 	{
 		delete g_hCache[iClient];
@@ -87,6 +100,8 @@ void Storage_ResetClient(int iClient)
 
 void Storage_SaveClient(int iClient)
 {
+	DBG_STORAGE("Storage_SaveClient: %N (%d)", iClient, iClient)
+
 	if (!Storage_IsClientLoaded(iClient) || !g_hCache[iClient])
 	{
 		return;
@@ -102,6 +117,8 @@ void Storage_SaveClient(int iClient)
 	{
 		hStorageSnapshot.GetKey(i, SZF(szKey));
 		g_hCache[iClient].GetString(szKey, SZF(szValue));
+		DBG_STORAGE("GetString: '%s' -> '%s'", szKey, szValue)
+
 
 		Storage_SaveClientValue(iAccountID, szKey, szValue, iUpdated);
 	}
@@ -122,9 +139,9 @@ void Storage_SaveClientValue(int iAccountID, const char[] szKey, const char[] sz
 	}
 	else
 	{
-		g_hDatabase.Format(SZF(szQuery), "INSERT OR REPLACE INTO `vip_storage` (`account_id`, `sid`, `key`, `value`, `updated`) \
-			VALUES (%d, %d, \"%s\", \"%s\", %d);",
-			iAccountID, g_CVAR_iServerID, szKey, szValue, iUpdated);
+		g_hDatabase.Format(SZF(szQuery), "INSERT OR REPLACE INTO `vip_storage` (`account_id`, `key`, `value`, `updated`) \
+			VALUES (%d, \"%s\", \"%s\", %d);",
+			iAccountID, szKey, szValue, iUpdated);
 	}
 
 	DBG_SQL_Query(szQuery)
@@ -136,7 +153,7 @@ public void SQL_Callback_OnClientSaveStorage(Database hOwner, DBResultSet hResul
 	DBG_SQL_Response("SQL_Callback_OnClientSaveStorage")
 	if (hResult == null || szError[0])
 	{
-		LogError("SQL_Callback_OnClientLoadStorage: %s", szError);
+		LogError("SQL_Callback_OnClientSaveStorage: %s", szError);
 		return;
 	}
 }

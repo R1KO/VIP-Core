@@ -1,3 +1,5 @@
+#define VIP_CLIENT(%0)	(g_hFeatures[%0] && IS_CLIENT_VIP(iClient) && IS_CLIENT_LOADED(iClient))
+
 static Handle g_hGlobalForward_OnVIPLoaded;
 static Handle g_hGlobalForward_OnClientPreLoad;
 static Handle g_hGlobalForward_OnClientLoaded;
@@ -55,7 +57,7 @@ void CallForward_OnClientLoaded(int iClient)
 	DBG_API("CallForward_OnClientLoaded(%N (%d), %b)", iClient, iClient, IS_CLIENT_VIP(iClient))
 	Call_StartForward(g_hGlobalForward_OnClientLoaded);
 	Call_PushCell(iClient);
-	Call_PushCell(g_iClientInfo[iClient] & IS_VIP);
+	Call_PushCell(IS_CLIENT_VIP(iClient));
 	Call_Finish();
 }
 
@@ -302,8 +304,6 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 	return APLRes_Success;
 }
 
-#define VIP_CLIENT(%0)	(g_hFeatures[%0] && (g_iClientInfo[%0] & IS_VIP))
-
 public int Native_CheckClient(Handle hPlugin, int iNumParams)
 {
 	DBG_API("Native_CheckClient(%d)", iNumParams)
@@ -323,9 +323,10 @@ public int Native_IsClientVIP(Handle hPlugin, int iNumParams)
 	if (CheckValidClient(iClient, false))
 	{
 		DBG_API("IS_VIP = %b", (g_iClientInfo[iClient] & IS_VIP))
-		return view_as<bool>(g_iClientInfo[iClient] & IS_VIP);
+		DBG_API("IS_CLIENT_LOADED = %b", (g_iClientInfo[iClient] & IS_LOADED))
+		return IS_CLIENT_VIP(iClient) && IS_CLIENT_LOADED(iClient);
 	}
-	
+
 	return false;
 }
 
@@ -453,7 +454,7 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 	}
 	else
 	{
-		Clients_LoadVIPFeatures(iClient);
+		Clients_LoadFeatures(iClient);
 	}
 
 	return 1;
@@ -640,7 +641,7 @@ int API_GiveClientVIP(Handle hPlugin,
 
 		Clients_InitVIPClient(iClient, -1, szGroup, iExpires);
 
-		Clients_LoadVIPFeatures(iClient);
+		Clients_LoadFeatures(iClient);
 
 		DisplayClientInfo(iClient, iTime == 0 ? "connect_info_perm":"connect_info_time");
 
@@ -749,6 +750,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 	{
 		return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" already defined", szFeature);
 	}
+
 	if (g_hFeaturesArray.Length == 0)
 	{
 		g_hVIPMenu.RemoveItem(0);
@@ -794,22 +796,22 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 
 		if(eType == TOGGLABLE)
 		{
-			hArray.Push(iNumParams > 6 ? GetNativeCell(7):NO_ACCESS);
+			hArray.Push(iNumParams > 6 ? GetNativeCell(7) : NO_ACCESS);
 		}
 
 		AddFeatureToVIPMenu(szFeature);
 	}
 
-	for (int iClient = 1; iClient <= MaxClients; ++iClient)
-	{
-		if (IsClientInGame(iClient) && g_iClientInfo[iClient] & IS_VIP)
-		{
-			Clients_LoadVIPFeaturesPre(iClient, szFeature);
-		}
-	}
-
 	CallForward_OnFeatureRegistered(szFeature);
 	DebugMessage("Feature \"%s\" registered", szFeature)
+
+	for (int iClient = 1; iClient <= MaxClients; ++iClient)
+	{
+		if (IsClientInGame(iClient) && VIP_CLIENT(iClient))
+		{
+			Clients_TryLoadFeature(iClient, szFeature);
+		}
+	}
 
 	return 1;
 }

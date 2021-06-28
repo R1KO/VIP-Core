@@ -124,7 +124,6 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 
 	
 	LoadClient(iClient, iAccountID, szGroup, iExpires);
-	OnClientLoaded(iClient);
 
 	if (IS_CLIENT_VIP(iClient))
 	{
@@ -142,9 +141,11 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 			DisplayClientInfo(iClient, iExpires == 0 ? "connect_info_perm":"connect_info_time");
 		}
 
-		// TODO: load from storage
-		Clients_LoadVIPFeaturesPre(iClient);
+		Clients_TryLoadFeatures(iClient);
+		return;
 	}
+
+	OnClientLoaded(iClient);
 }
 
 void LoadClient(int iClient, int iAccountID, const char[] szGroup, int iExpires)
@@ -242,68 +243,76 @@ void OnClientStorageLoaded(int iClient)
 bool IsClientStorageLoaded(int iClient)
 {
 	#if USE_CLIENTPREFS 1
+	DebugMessage("AreClientCookiesCached: %d %N", iClient, iClient)
 	return AreClientCookiesCached(iClient);
 	#else
+	DebugMessage("Storage_IsClientLoaded: %d %N", iClient, iClient)
 	return Storage_IsClientLoaded(iClient);
 	#endif
 }
 
-void Clients_LoadVIPFeaturesPre(int iClient, const char[] szFeature = NULL_STRING)
+void Clients_TryLoadFeatures(int iClient)
 {
-	DebugMessage("Clients_LoadVIPFeaturesPre %N", iClient)
-
-	// DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
+	DebugMessage("Clients_TryLoadFeatures %N", iClient)
 
 	if (!IsClientStorageLoaded(iClient))
 	{
+		// TODO: may be will add attempts counter
 		DataPack hDataPack = new DataPack();
 		hDataPack.WriteCell(UID(iClient));
-		if(szFeature[0])
-		{
-			hDataPack.WriteCell(true);
-			hDataPack.WriteString(szFeature);
-		}
-		else
-		{
-			hDataPack.WriteCell(false);
-		}
-		CreateTimer(0.5, Timer_CheckCookies, hDataPack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
-	}
-
-	if(szFeature[0])
-	{
-		Clients_LoadVIPFeature(iClient, szFeature);
-		return;
+		CreateTimer(1.0, Timer_CheckStorageLoadFeatures, hDataPack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
 	}
 	
-	Clients_LoadVIPFeatures(iClient);
+	Clients_LoadFeatures(iClient);
 }
 
-public Action Timer_CheckCookies(Handle hTimer, Handle hDP)
+public Action Timer_CheckStorageLoadFeatures(Handle hTimer, DataPack hDataPack)
 {
-	DataPack hDataPack = view_as<DataPack>(hDP);
 	hDataPack.Reset();
 	int iClient = CID(hDataPack.ReadCell());
 	
-	DebugMessage("Timer_CheckCookies -> iClient: %N (%d), IsClientVIP: %b", iClient, iClient, IS_CLIENT_VIP(iClient))
-	if (iClient && g_iClientInfo[iClient] & IS_VIP)
+	DebugMessage("Timer_CheckStorageLoadFeatures -> iClient: %N (%d), IsClientVIP: %b", iClient, iClient, IS_CLIENT_VIP(iClient))
+	if (iClient && IS_CLIENT_VIP(iClient))
 	{
-		char szFeature[FEATURE_NAME_LENGTH];
-		if(hDataPack.ReadCell())
-		{
-			hDataPack.ReadString(SZF(szFeature));
-		}
-		else
-		{
-			szFeature[0] = 0;
-		}
-		Clients_LoadVIPFeaturesPre(iClient, szFeature);
+		Clients_TryLoadFeatures(iClient);
 	}
 
 	return Plugin_Stop;
 }
 
-void Clients_LoadVIPFeatures(int iClient)
+
+void Clients_TryLoadFeature(int iClient, const char[] szFeature)
+{
+	DebugMessage("Clients_TryLoadFeatures %N", iClient)
+
+	if (!IsClientStorageLoaded(iClient))
+	{
+		DataPack hDataPack = new DataPack();
+		hDataPack.WriteCell(UID(iClient));
+		hDataPack.WriteString(szFeature);
+		CreateTimer(1.0, Timer_CheckStorageLoadFeature, hDataPack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
+	}
+
+	Clients_LoadFeature(iClient, szFeature);
+}
+
+public Action Timer_CheckStorageLoadFeature(Handle hTimer, DataPack hDataPack)
+{
+	hDataPack.Reset();
+	int iClient = CID(hDataPack.ReadCell());
+	
+	DebugMessage("Timer_CheckStorageLoadFeature -> iClient: %N (%d), IsClientVIP: %b", iClient, iClient, IS_CLIENT_VIP(iClient))
+	if (iClient && IS_CLIENT_VIP(iClient))
+	{
+		char szFeature[FEATURE_NAME_LENGTH];
+		hDataPack.ReadString(SZF(szFeature));
+		Clients_LoadFeature(iClient, szFeature);
+	}
+
+	return Plugin_Stop;
+}
+
+void Clients_LoadFeatures(int iClient)
 {
 	DebugMessage("LoadVIPFeatures %N", iClient)
 
@@ -319,18 +328,19 @@ void Clients_LoadVIPFeatures(int iClient)
 			for (int i = 0; i < iFeaturesCount; ++i)
 			{
 				g_hFeaturesArray.GetString(i, SZF(szFeature));
-				Clients_LoadFeature(iClient, szFeature);
+				Clients_LoadFeatureValue(iClient, szFeature);
 			}
 		}
 	}
 
 	DebugMessage("Clients_OnVIPClientLoaded: %d %N", iClient, iClient)
 
+	OnClientLoaded(iClient);
 	OnVIPClientLoaded(iClient);
 }
 
 
-void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
+void Clients_LoadFeature(int iClient, const char[] szFeature)
 {
 	DebugMessage("LoadVIPFeature %N", iClient)
 
@@ -343,7 +353,7 @@ void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
 		g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szGroup));
 		if (UTIL_CheckValidVIPGroup(szGroup))
 		{
-			Clients_LoadFeature(iClient, szFeature);
+			Clients_LoadFeatureValue(iClient, szFeature);
 		}
 	}
 /*
@@ -353,21 +363,32 @@ void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
 	*/
 }
 
-void Clients_LoadFeature(int iClient, const char[] szFeature)
+void Clients_LoadFeatureValue(int iClient, const char[] szFeature)
 {
 	static ArrayList hArray;
 	if (GLOBAL_TRIE.GetValue(szFeature, hArray))
 	{
 		DebugMessage("LoadClientFeature: %s", szFeature)
 
-		if (GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), szFeature))
+		if (GetFeatureValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), szFeature))
 		{
-			static VIP_ToggleState	eStatus;
+			static VIP_ToggleState eStatus;
 			DebugMessage("GetValue: == true")
 			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 			{
+				static Function fnToggleCallback;
 				eStatus = Features_GetStatusFromStorage(iClient, szFeature, hArray);
 				DebugMessage("Features_GetStatusFromStorage: '%d'", eStatus)
+
+				// TODO: add call toggle callback
+				if (eStatus != NO_ACCESS)
+				{
+					fnToggleCallback = Feature_GetSelectCallback();
+					if(fnToggleCallback != INVALID_FUNCTION)
+					{
+						Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), fnToggleCallback, iClient, szFeature, NO_ACCESS, eStatus);
+					}
+				}
 
 				Features_SetStatusToStorage(iClient, szFeature, hArray, eStatus);
 			}
@@ -382,9 +403,9 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 	}
 }
 
-bool GetValue(int iClient, VIP_ValueType ValueType, const char[] szFeature)
+bool GetFeatureValue(int iClient, VIP_ValueType ValueType, const char[] szFeature)
 {
-	DebugMessage("GetValue: %d - %s", ValueType, szFeature)
+	DebugMessage("GetFeatureValue: %d - %s", ValueType, szFeature)
 	switch (ValueType)
 	{
 		case BOOL:

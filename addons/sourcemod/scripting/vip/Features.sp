@@ -106,6 +106,7 @@ void Features_GetStorageKeyName(const char[] szFeature, char[] szValue, int iMax
 
 void Features_GetValueFromStorage(int iClient, const char[] szFeature, ArrayList hArray, char[] szValue, int iMaxLength)
 {
+	DBG_FEATURES("Features_GetValueFromStorage %N (%d): '%s'", iClient, iClient, szFeature)
 	#if USE_CLIENTPREFS 1
 	Handle hCookie = view_as<Handle>(hArray.Get(FEATURES_COOKIE));
 	GetClientCookie(iClient, hCookie, szValue, iMaxLength);
@@ -117,8 +118,10 @@ void Features_GetValueFromStorage(int iClient, const char[] szFeature, ArrayList
 
 }
 
+
 void Features_SetValueToStorage(int iClient, const char[] szFeature, ArrayList hArray, const char[] szValue)
 {
+	DBG_FEATURES("Features_SetValueToStorage %N (%d): '%s' -> '%s'", iClient, iClient, szFeature, szValue)
 	#if USE_CLIENTPREFS 1
 	SetClientCookie(iClient, szValue);
 	#else
@@ -128,10 +131,19 @@ void Features_SetValueToStorage(int iClient, const char[] szFeature, ArrayList h
 	#endif
 }
 
+void Features_SetStatusToStorage(int iClient, const char[] szFeature, ArrayList hArray, VIP_ToggleState eStatus)
+{
+	DBG_FEATURES("Features_SetStatusToStorage %N (%d): '%s' -> %d", iClient, iClient, szFeature, eStatus)
+	char szValue[4];
+	IntToString(view_as<int>(eStatus), SZF(szValue));
+	Features_SetValueToStorage(iClient, szFeature, hArray, szValue);
+}
+
 VIP_ToggleState Features_GetStatusFromStorage(int iClient, const char[] szFeature, ArrayList hArray)
 {
 	char szValue[4];
 	Features_GetValueFromStorage(iClient, szFeature, hArray, SZF(szValue));
+	DBG_FEATURES("Features_GetStatusFromStorage %N (%d): '%s' -> '%s'", iClient, iClient, szFeature, szValue)
 	VIP_ToggleState eStatus = view_as<VIP_ToggleState>(StringToInt(szValue));
 	if (szValue[0] == '\0' || (view_as<int>(eStatus) > 2 || view_as<int>(eStatus) < 0))
 	{
@@ -142,13 +154,16 @@ VIP_ToggleState Features_GetStatusFromStorage(int iClient, const char[] szFeatur
 			case DISABLED:		eStatus = DISABLED;
 		}
 	}
+	DBG_FEATURES("Features_GetStatusFromStorage %N (%d): '%s' -> %d", iClient, iClient, szFeature, eStatus)
 
 	return eStatus;
 }
 
-void Features_SetStatusToStorage(int iClient, const char[] szFeature, ArrayList hArray, VIP_ToggleState eStatus)
+
+Function Feature_GetSelectCallback(ArrayList hFeature)
 {
-	char szValue[4];
-	IntToString(view_as<int>(eStatus), SZF(szValue));
-	Features_SetValueToStorage(iClient, szFeature, hArray, szValue);
+	DataPack hDataPack = view_as<DataPack>(hFeature.Get(FEATURES_MENU_CALLBACKS));
+	hDataPack.Position = ITEM_SELECT;
+	return hDataPack.ReadFunction();;
 }
+

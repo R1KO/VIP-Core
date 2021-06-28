@@ -112,7 +112,7 @@ void CreateTables()
 				`expires` INTEGER UNSIGNED NOT NULL default 0);");
 
 		g_hDatabase.Query(SQL_Callback_StorageTableCreate, "CREATE TABLE IF NOT EXISTS `vip_storage` (\
-				`account_id` INTEGER PRIMARY KEY NOT NULL, \
+				`account_id` INTEGER NOT NULL, \
 				`key` VARCHAR(128) NOT NULL, \
 				`value` TEXT NOT NULL default '', \
 				`updated` INTEGER UNSIGNED NOT NULL default 0, \
