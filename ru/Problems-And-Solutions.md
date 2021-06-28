@@ -1,5 +1,7 @@
 # Частые проблемы и их решения, полезные ссылки
 
+[К содержанию](/)
+
 ## Полезные ссылки:
 
 * [Предложения по улучшению VIP и идеи для модулей](http://hlmod.ru/threads/predlozhenija-po-uluchsheniju-vip-i-idei-dlja-modulej.26407/)
