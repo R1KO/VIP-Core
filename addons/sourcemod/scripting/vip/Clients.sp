@@ -27,7 +27,7 @@ public void OnClientDisconnect(int iClient)
 
 	if(!IsFakeClient(iClient))
 	{
-		CreateForward_OnClientDisconnect(iClient);
+		CallForward_OnClientDisconnect(iClient);
 	}
 	
 	ResetClient(iClient);
@@ -37,7 +37,7 @@ public void OnClientDisconnect(int iClient)
 
 void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = false)
 {
-	if(bForward && !CreateForward_OnClientPreLoad(iClient))
+	if(bForward && !CallForward_OnClientPreLoad(iClient))
 	{
 		return;
 	}
@@ -54,7 +54,7 @@ void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = f
 	else
 	{
 		g_iClientInfo[iClient] |= IS_LOADED;
-		CreateForward_OnClientLoaded(iClient);
+		CallForward_OnClientLoaded(iClient);
 	}
 }
 
@@ -141,12 +141,12 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 					DB_RemoveClientFromID(REASON_EXPIRED, iClient, iAccountID, false, _, szGroup);
 				}
 
-				CreateForward_OnVIPClientRemoved(iClient, "Expired");
+				CallForward_OnVIPClientRemoved(iClient, "Expired");
 				
 				DisplayClientInfo(iClient, "expired_info");
 				
 				g_iClientInfo[iClient] |= IS_LOADED;
-				CreateForward_OnClientLoaded(iClient);
+				CallForward_OnClientLoaded(iClient);
 				return;
 			}
 			
@@ -166,7 +166,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 			
 			g_iClientInfo[iClient] |= IS_VIP|IS_LOADED;
 
-			CreateForward_OnClientLoaded(iClient);
+			CallForward_OnClientLoaded(iClient);
 
 			char szName[MAX_NAME_LENGTH*2+1];
 			hResult.FetchString(2, SZF(szName));
@@ -191,14 +191,14 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 		return;
 	}
 
-	CreateForward_OnClientLoaded(iClient);
+	CallForward_OnClientLoaded(iClient);
 }
 
 void Clients_OnVIPClientLoaded(int iClient)
 {
 	Features_TurnOnAll(iClient);
 
-	CreateForward_OnVIPClientLoaded(iClient);
+	CallForward_OnVIPClientLoaded(iClient);
 }
 
 void Clients_CreateClientVIPSettings(int iClient, int iExp)
@@ -281,16 +281,16 @@ void Clients_LoadVIPFeatures(int iClient)
 {
 	DebugMessage("LoadVIPFeatures %N", iClient)
 
-	int iFeatures = g_hFeaturesArray.Length;
-	DebugMessage("FeaturesArraySize: %d", iFeatures)
-	if (iFeatures > 0)
+	int iFeaturesCount = g_hFeaturesArray.Length;
+	DebugMessage("FeaturesArraySize: %d", iFeaturesCount)
+	if (iFeaturesCount > 0)
 	{
 		char szFeature[FEATURE_NAME_LENGTH];
 
 		g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szFeature));
 		if (UTIL_CheckValidVIPGroup(szFeature))
 		{
-			for (int i = 0; i < iFeatures; ++i)
+			for (int i = 0; i < iFeaturesCount; ++i)
 			{
 				g_hFeaturesArray.GetString(i, SZF(szFeature));
 				Clients_LoadFeature(iClient, szFeature);
@@ -303,13 +303,14 @@ void Clients_LoadVIPFeatures(int iClient)
 	Clients_OnVIPClientLoaded(iClient);
 }
 
+
 void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
 {
 	DebugMessage("LoadVIPFeature %N", iClient)
 
-	int iFeatures = g_hFeaturesArray.Length;
-	DebugMessage("FeaturesArraySize: %d", iFeatures)
-	if (iFeatures > 0)
+	int iFeaturesCount = g_hFeaturesArray.Length;
+	DebugMessage("FeaturesArraySize: %d", iFeaturesCount)
+	if (iFeaturesCount > 0)
 	{
 		char szGroup[FEATURE_NAME_LENGTH];
 
@@ -490,7 +491,7 @@ public Action Timer_OnPlayerSpawn(Handle hTimer, any UserID)
 			}
 			
 			g_iClientInfo[iClient] |= IS_SPAWNED;
-			CreateForward_OnPlayerSpawn(iClient, iTeam);
+			CallForward_OnPlayerSpawn(iClient, iTeam);
 		}
 	}
 	return Plugin_Stop;
@@ -558,7 +559,7 @@ void Clients_ExpiredClient(int iClient)
 
 	ResetClient(iClient);
 	
-	CreateForward_OnVIPClientRemoved(iClient, "Expired");
+	CallForward_OnVIPClientRemoved(iClient, "Expired");
 	
 	DisplayClientInfo(iClient, "expired_info");
 } 

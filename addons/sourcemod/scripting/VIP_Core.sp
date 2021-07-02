@@ -6,7 +6,9 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION		"3.0.1 R"
+#if !defined VIP_CORE_VERSION
+#define VIP_CORE_VERSION	"3.1.0 DEV"
+#endif
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -14,11 +16,11 @@
 
 #define USE_MORE_SERVERS	1	// Включить/Отключить режим при котором если ID сервера у игрока 0 - то VIP будет работать на всех серверах
 
-//#define  CHARSET "utf8mb4"
-//#define  COLLATION "utf8mb4_unicode_ci"
+#define CHARSET "utf8mb4"
+#define COLLATION "utf8mb4_unicode_ci"
 
-#define  CHARSET "utf8"
-#define  COLLATION "utf8_unicode_ci"
+//#define CHARSET "utf8"
+//#define COLLATION "utf8_unicode_ci"
 
 #if USE_ADMINMENU 1
 #undef REQUIRE_PLUGIN
@@ -30,12 +32,12 @@ public Plugin myinfo =
 {
 	name = "[VIP] Core",
 	author = "R1KO",
-	version = VIP_VERSION,
+	version = VIP_CORE_VERSION,
 	url = "http://hlmod.ru"
 };
 
 #include "vip/Global.sp"
-#include "vip/Debug.sp"
+#include "vip/Debugger.sp"
 #include "vip/Downloads.sp"
 #include "vip/Colors.sp"
 #include "vip/UTIL.sp"
@@ -81,6 +83,10 @@ public void OnPluginStart()
 	hDataPack.WriteCell(0);
 	ITEM_DRAW = hDataPack.Position;
 	delete hDataPack;
+
+
+	g_bIsTranslationPhraseExistsAvailable = (CanTestFeatures() && 
+		GetFeatureStatus(FeatureType_Native, "TranslationPhraseExists") == FeatureStatus_Available);
 
 	ReadConfigs();
 

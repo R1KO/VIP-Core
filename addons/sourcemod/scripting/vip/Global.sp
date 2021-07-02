@@ -31,9 +31,13 @@
 #define IS_MySQL					(1<<1)
 #define IS_LOADING					(1<<2)
 
-#define REASON_PLUGIN	-2
-#define REASON_EXPIRED	-3
-#define REASON_OUTDATED	-4
+#define REASON_PLUGIN	-1
+#define REASON_EXPIRED	-2
+#define REASON_OUTDATED	-3
+
+
+#define OWNER_SERVER    0
+#define OWNER_PLUGIN    -1
 
 char	KEY_CID[]		= "Core->ClientID";
 char	KEY_EXPIRES[]	= "Core->Expires";
@@ -118,6 +122,7 @@ bool		g_CVAR_bDefaultStatus;
 bool		g_CVAR_bLogsEnable;
 
 EngineVersion	g_EngineVersion;
+bool g_bIsTranslationPhraseExistsAvailable;
 
 char		g_szSID[64];
 

@@ -30,7 +30,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 	{
 		KeyValues hKeyValues = new KeyValues(szType);
 		KvCopySubkeys(g_hInfo, hKeyValues);
-		switch(CreateForward_OnShowClientInfo(iClient, szEvent, szType, hKeyValues))
+		switch(CallForward_OnShowClientInfo(iClient, szEvent, szType, hKeyValues))
 		{
 			case Plugin_Stop, Plugin_Handled:
 			{
