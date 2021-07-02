@@ -311,24 +311,27 @@ public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult
 		return;
 	}
 
-	if (hResult.FetchRow())
+	if (!hResult.FetchRow())
 	{
-		DBG_SQL_Response("hResult.FetchRow()")
-		hPack.Reset();
-		int iClientID = hPack.ReadCell();
-		hPack.ReadCell();
-		hPack.ReadCell();
-		char szName[MAX_NAME_LENGTH*2+1];
-		hPack.ReadString(SZF(szName));
-		hResult.FetchString(0, SZF(szName));
-		DBG_SQL_Response("hResult.FetchString(0) = '%s", szName)
-		hPack.WriteString(szName);
-		hResult.FetchString(1, SZF(szName));
-		DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
-		hPack.WriteString(szName);
-
-		DB_RemoveClient(hPack, iClientID);
+		delete hPack;
+		return;
 	}
+
+	DBG_SQL_Response("hResult.FetchRow()")
+	hPack.Reset();
+	int iClientID = hPack.ReadCell();
+	hPack.ReadCell();
+	hPack.ReadCell();
+	char szName[MAX_NAME_LENGTH*2+1];
+	hPack.ReadString(SZF(szName));
+	hResult.FetchString(0, SZF(szName));
+	DBG_SQL_Response("hResult.FetchString(0) = '%s", szName)
+	hPack.WriteString(szName);
+	hResult.FetchString(1, SZF(szName));
+	DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
+	hPack.WriteString(szName);
+
+	DB_RemoveClient(hPack, iClientID);
 }
 
 void DB_RemoveClient(DataPack hDataPack, int iClientID)
@@ -353,35 +356,36 @@ public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, cons
 
 	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows)
 
-	if (hResult.AffectedRows)
+	if (!hResult.AffectedRows)
 	{
-		hPack.Reset();
-		
-		int iClientID = hPack.ReadCell();
-		int iAdmin = GET_CID(hPack.ReadCell());
-		bool bNotify = view_as<bool>(hPack.ReadCell());
-		char szAdmin[128], szName[MNL], szGroup[64];
-		hPack.ReadString(SZF(szAdmin));
-		hPack.ReadString(SZF(szName));
-		hPack.ReadString(SZF(szGroup));
+		delete hPack;
+		return;
+	}
+	hPack.Reset();
+	
+	int iClientID = hPack.ReadCell();
+	int iAdmin = GET_CID(hPack.ReadCell());
+	bool bNotify = view_as<bool>(hPack.ReadCell());
+	char szAdmin[128], szName[MNL], szGroup[64];
+	hPack.ReadString(SZF(szAdmin));
+	hPack.ReadString(SZF(szName));
+	hPack.ReadString(SZF(szGroup));
+	delete hPack;
 
-		if(iAdmin == -1)
-		{
-			return;
-		}
-
-		if (g_CVAR_bLogsEnable)
-		{
-			LogToFile(g_szLogFile, "%T", "LOG_VIP_DELETED", LANG_SERVER, szName, iClientID, szGroup, szAdmin);
-		}
-
-		if (bNotify && iAdmin > 0)
-		{
-			ReplyToCommand(iAdmin, "%t", "ADMIN_VIP_PLAYER_DELETED", szName, iClientID);
-		}
+	if(iAdmin == -1)
+	{
+		return;
 	}
 
-	delete hPack;
+	if (g_CVAR_bLogsEnable)
+	{
+		LogToFile(g_szLogFile, "%T", "LOG_VIP_DELETED", LANG_SERVER, szName, iClientID, szGroup, szAdmin);
+	}
+
+	if (bNotify && iAdmin > 0)
+	{
+		ReplyToCommand(iAdmin, "%t", "ADMIN_VIP_PLAYER_DELETED", szName, iClientID);
+	}
 }
 
 public void SQL_Callback_SelectExpiredAndOutdated(Database hOwner, DBResultSet hResult, const char[] szError, int iReason)
