@@ -36,7 +36,7 @@ before_script:
     - cp -R addons build
     - cp LICENSE build
 script:
-    - $SCRIPTING/spcomp -E -o$SCRIPTING'/compiled/VIP_Core' -v0 $SCRIPTING'/VIP_Core.sp'
+    - $SCRIPTING/spcomp -E -w203 -o$SCRIPTING'/compiled/VIP_Core' -v0 $SCRIPTING'/VIP_Core.sp'
 
 #Release
 before_deploy:
@@ -56,4 +56,4 @@ deploy:
 
 #Notifications
 notifications:
-    email: false
+    email: true
