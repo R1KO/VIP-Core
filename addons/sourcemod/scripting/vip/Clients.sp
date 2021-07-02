@@ -200,7 +200,7 @@ void OnVIPClientLoaded(int iClient)
 	CallForward_OnVIPClientLoaded(iClient);
 }
 
-void Clients_OnVIPClientLoaded(int iClient)
+stock void Clients_OnVIPClientLoaded(int iClient)
 {
 	Features_TurnOnAll(iClient);
 
@@ -383,7 +383,7 @@ void Clients_LoadFeatureValue(int iClient, const char[] szFeature)
 				// TODO: add call toggle callback
 				if (eStatus != NO_ACCESS)
 				{
-					fnToggleCallback = Feature_GetSelectCallback();
+					fnToggleCallback = Feature_GetSelectCallback(hArray);
 					if(fnToggleCallback != INVALID_FUNCTION)
 					{
 						Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), fnToggleCallback, iClient, szFeature, NO_ACCESS, eStatus);
