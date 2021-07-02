@@ -22,11 +22,11 @@ void Cvars_Setup()
 	hCvar.AddChangeHook(OnTimeModeChange);
 	g_CVAR_iTimeMode = hCvar.IntValue;
 
-	hCvar = CreateConVar("sm_vip_delete_expired", "1", "Удалять VIP-игроков у которых истек срок (-1 - Не удалять, 0 - Удалять сразу, > 0 - Количество дней, по истечению которых удалять)", _, true, -1.0, true, 365.0);
+	hCvar = CreateConVar("sm_vip_delete_expired", "1", "Удалять VIP-игроков у которых истек срок и они не заходили на сервер (-1 - Не удалять, 0 - Удалять сразу, > 0 - Количество дней, по истечению которых удалять)", _, true, -1.0, true, 365.0);
 	hCvar.AddChangeHook(OnDeleteExpiredChange);
 	g_CVAR_iDeleteExpired = hCvar.IntValue;
 
-	hCvar = CreateConVar("sm_vip_delete_outdated", "-1", "Удалять VIP-игроков которые не заходили на сервер X дней (-1 - Не удалять, > 0 - Количество дней, по истечению которых удалять (минимум 3 суток))", _, true, -1.0, true, 365.0);
+	hCvar = CreateConVar("sm_vip_delete_outdated", "-1", "Удалять VIP-игроков которые не заходили на сервер X дней (-1 или 0 - Не удалять, > 0 - Количество дней, по истечению которых удалять (минимум 3 суток))", _, true, -1.0, true, 365.0);
 	hCvar.AddChangeHook(OnDeleteOutdatedChange);
 	g_CVAR_iOutdatedExpired = hCvar.IntValue;
 

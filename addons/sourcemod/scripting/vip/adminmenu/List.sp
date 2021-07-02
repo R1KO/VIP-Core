@@ -288,7 +288,7 @@ public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, 
 			DBG_SQL_Response("hResult.FetchInt(0) = %d", iClientID)
 			DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
 			
-			if(IsClientOnline(iClientID))
+			if(GetClientByID(iClientID))
 			{
 				Format(SZF(szName), "• %s", szName);
 			}

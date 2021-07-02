@@ -4,23 +4,30 @@
 
 #include <sourcemod>
 #include <vip_core>
-#include <clientprefs>
 
 #if !defined VIP_CORE_VERSION
 #define VIP_CORE_VERSION	"3.1.0 DEV"
 #endif
 
-#define DEBUG_MODE 		0	// Режим отладки
+#define DEBUG_MODE 			0	// Режим отладки
 
-#define USE_ADMINMENU	1	// Включение админ-меню для управления VIP
+#define USE_ADMINMENU		1	// Включение админ-меню для управления VIP
 
 #define USE_MORE_SERVERS	1	// Включить/Отключить режим при котором если ID сервера у игрока 0 - то VIP будет работать на всех серверах
+
+
+#define USE_CLIENTPREFS		0	// Использовать ли стандартные куки для хранения данных игроков
 
 #define CHARSET "utf8mb4"
 #define COLLATION "utf8mb4_unicode_ci"
 
 //#define CHARSET "utf8"
 //#define COLLATION "utf8_unicode_ci"
+
+
+#if USE_CLIENTPREFS 1
+#include <clientprefs>
+#endif
 
 #if USE_ADMINMENU 1
 #undef REQUIRE_PLUGIN
@@ -41,6 +48,7 @@ public Plugin myinfo =
 #include "vip/Downloads.sp"
 #include "vip/Colors.sp"
 #include "vip/UTIL.sp"
+#include "vip/Storage.sp"
 #include "vip/Features.sp"
 #include "vip/Sounds.sp"
 #include "vip/Info.sp"

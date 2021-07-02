@@ -251,26 +251,6 @@ void UTIL_ReloadVIPPlayers(int iClient, bool bNotify)
 		UTIL_Reply(iClient, "%t", "VIP_CACHE_REFRESHED");
 	}
 }
-/*
-void UTIL_REM_VIP_PLAYER(int iClient = OWNER_SERVER, int iTarget = 0, int iAccID = 0, int iClientID, const char[] szReason)
-{
-	if (g_CVAR_bLogsEnable)
-	{
-		if(iTarget)
-		{
-			LogToFile(g_szLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iTarget);
-		}
-	}
-
-	DB_RemoveClientFromID(iClient, iClientID, false);
-
-	ResetClient(iTarget);
-
-	CallForward_OnVIPClientRemoved(iTarget, szReason);
-
-	DisplayClientInfo(iTarget, "expired_info");
-}
-*/
 
 void UTIL_Reply(int iClient, const char[] szMsg, any ...)
 {
