@@ -683,6 +683,16 @@
 		"ru"		"Указанная VIP-группа не существует!"
 		"ua"		"Зазначена VIP-група не існує!"
 	}
+	"MENU_SEARCH_PLAYERS"
+    	{
+    		"en"		"Search for a player"
+        	"pt"		"Buscar por um jogador"
+    	}
+    	"MENU_DISPLAY_ALL_PLAYERS"
+    	{
+    		"en"		"Show all players"
+        	"pt"		"Mostrar todos jogadores"
+    	}
 	"y."
 	{
 		"en"		"y."
