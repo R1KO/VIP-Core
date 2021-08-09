@@ -12,13 +12,13 @@ void ShowVipPlayersListMenu(int iClient)
 	hMenu.SetTitle("%T:\n ", "MENU_LIST_VIP", iClient);
 	hMenu.ExitBackButton = true;
 
-	char str[64];
-	Format(str, sizeof(str), "%T\n ", "MENU_SEARCH_PLAYERS", iClient);
-	hMenu.AddItem("search", str);
+	char szName[32];
+	FormatEx(SZF(szName), "%T\n ", "MENU_SEARCH_PLAYERS", iClient);
+	hMenu.AddItem("search", szName);
 	
-	char str2[64];
-	Format(str2, sizeof(str2), "%T\n ", "MENU_DISPLAY_ALL_PLAYERS", iClient);
-	hMenu.AddItem("show_all", str2);
+	char szName[64];
+	FormatEx(SZF,(szName), "%T\n ", "MENU_DISPLAY_ALL_PLAYERS", iClient);
+	hMenu.AddItem("show_all", szName);
 
 	szUserID[0] = 0;
 	for (i = 1; i <= MaxClients; ++i)
