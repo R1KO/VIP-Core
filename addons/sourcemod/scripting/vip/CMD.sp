@@ -4,6 +4,7 @@ void CMD_Setup()
 	RegAdminCmd("sm_refresh_vips", ReloadVIPPlayers_CMD, ADMFLAG_ROOT);
 	RegAdminCmd("sm_reload_vip_cfg", ReloadVIPCfg_CMD, ADMFLAG_ROOT);
 	RegAdminCmd("sm_addvip", AddVIP_CMD, ADMFLAG_ROOT);
+	RegAdminCmd("sm_setvip", SetVIP_CMD, ADMFLAG_ROOT);
 	RegAdminCmd("sm_delvip", DelVIP_CMD, ADMFLAG_ROOT);
 
 	#if USE_ADMINMENU 1
@@ -109,12 +110,6 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 		{
 			if(IsClientInGame(iTargetList[i]))
 			{
-				if (g_iClientInfo[iTargetList[i]] & IS_VIP)
-				{
-					ReplyToCommand(iClient, "[VIP] %t", "ALREADY_HAS_VIP");
-					continue;
-				}
-				
 				UTIL_ADD_VIP_PLAYER(iClient, iTargetList[i], _, UTIL_TimeToSeconds(iTime), szGroup);
 			}
 		}
@@ -123,6 +118,73 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 	}
 	
 	UTIL_ADD_VIP_PLAYER(iClient, _, iAccountID, UTIL_TimeToSeconds(iTime), szGroup);
+
+	return Plugin_Handled;
+}
+
+public Action SetVIP_CMD(int iClient, int iArgs)
+{
+	if (iArgs != 3)
+	{
+		ReplyToCommand(iClient, "[VIP] %t!\nSyntax: sm_setvip <#steam_id|#name|#userid> <group> <time>", "INCORRECT_USAGE");
+		return Plugin_Handled;
+	}
+	
+	char szBuffer[64], szTargetName[MAX_TARGET_LENGTH];
+	GetCmdArg(1, SZF(szBuffer));
+
+	int[] iTargetList = new int[MaxClients];
+	bool bIsMulti;
+	int iTargets, iAccountID = 0;
+
+	if((iTargets = ProcessTargetString(
+			szBuffer,
+			iClient, 
+			iTargetList, 
+			MaxClients, 
+			COMMAND_FILTER_CONNECTED|COMMAND_FILTER_NO_BOTS,
+			SZF(szTargetName),
+			bIsMulti)) < 1)
+	{
+		iAccountID = UTIL_GetAccountIDFromSteamID(szBuffer);
+		if(!iAccountID)
+		{
+			ReplyToTargetError(iClient, iTargets);
+			return Plugin_Handled;
+		}
+	}
+
+	char szGroup[64];
+	GetCmdArg(3, SZF(szGroup));
+	int iTime = StringToInt(szGroup);
+	if (iTime < 0)
+	{
+		ReplyToCommand(iClient, "[VIP] %t", "INCORRECT_TIME");
+		return Plugin_Handled;
+	}
+
+	szGroup[0] = 0;
+	GetCmdArg(2, SZF(szGroup));
+	if (!szGroup[0] || !UTIL_CheckValidVIPGroup(szGroup))
+	{
+		ReplyToCommand(iClient, "%t", "VIP_GROUP_DOES_NOT_EXIST");
+		return Plugin_Handled;
+	}
+
+	if(iTargets > 0)
+	{
+		for(int i = 0; i < iTargets; ++i)
+		{
+			if(IsClientInGame(iTargetList[i]))
+			{
+				UTIL_SET_VIP_PLAYER(iClient, iTargetList[i], _, UTIL_TimeToSeconds(iTime), szGroup);
+			}
+		}
+
+		return Plugin_Handled;
+	}
+	
+	UTIL_SET_VIP_PLAYER(iClient, _, iAccountID, UTIL_TimeToSeconds(iTime), szGroup);
 
 	return Plugin_Handled;
 }
