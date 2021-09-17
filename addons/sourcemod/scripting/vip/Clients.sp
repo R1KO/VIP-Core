@@ -261,6 +261,7 @@ void Clients_TryLoadFeatures(int iClient)
 		DataPack hDataPack = new DataPack();
 		hDataPack.WriteCell(UID(iClient));
 		CreateTimer(1.0, Timer_CheckStorageLoadFeatures, hDataPack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
+		return;
 	}
 	
 	Clients_LoadFeatures(iClient);
