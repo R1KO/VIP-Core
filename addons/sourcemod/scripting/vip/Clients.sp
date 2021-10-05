@@ -169,7 +169,7 @@ void LoadClient(int iClient, int iAccountID, const char[] szGroup, int iExpires)
 
 				DebugMessage("Clients_LoadClient %N (%d):\tDelete", iClient, iClient)
 
-				DB_RemoveClientFromID(REASON_EXPIRED, iClient, iAccountID, false, _, szGroup);
+				Clients_RemoveVipPlayer(REASON_EXPIRED, iClient, iAccountID, true);
 			}
 
 			CallForward_OnVIPClientRemoved(iClient, "Expired");
@@ -564,7 +564,7 @@ void Clients_ExpiredClient(int iClient)
 		{
 			LogToFile(g_szLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
 
-			DB_RemoveClientFromID(REASON_EXPIRED, iClient, _, false);
+			Clients_RemoveVipPlayer(REASON_EXPIRED, iClient, _, true);
 		}
 	}
 	
@@ -690,4 +690,103 @@ void Clients_OnVipPlayerAdded(
 	}
 
 	LogToFile(g_szLogFile, "%T", "LOG_VIP_ADDED", LANG_SERVER, szTargetInfo, iTargetAccountID, szDuration, szExpires, szGroup, szAdminInfo);
+}
+
+void Clients_RemoveVipPlayer(
+	int iAdmin = 0,
+	int iTarget = 0,
+	int iTargetAccountID = 0,
+	bool bNotify,
+	const char[] szByWho = NULL_STRING
+)
+{
+	DebugMessage("Clients_RemoveVipPlayer %d: - > iTargetAccountID: %d, : bNotify: %b", iTarget, iTargetAccountID, bNotify)
+
+	if (iTarget) {
+		iTargetAccountID = GetSteamAccountID(iTarget);
+	}
+
+	char szAdminInfo[PMP];
+	switch(iAdmin)
+	{
+		case REASON_EXPIRED:
+		{
+			FormatEx(SZF(szAdminInfo), "%T", "REASON_EXPIRED", LANG_SERVER);
+		}
+		case REASON_OUTDATED:
+		{
+			FormatEx(SZF(szAdminInfo), "%T", "REASON_INACTIVITY", LANG_SERVER);
+		}
+		case OWNER_PLUGIN:
+		{
+			FormatEx(SZF(szAdminInfo), "%T %s", "BY_PLUGIN", LANG_SERVER, szByWho);
+		}
+		case OWNER_SERVER:
+		{
+			FormatEx(SZF(szAdminInfo), "%T", "BY_SERVER", LANG_SERVER);
+		}
+		default:
+		{
+			char szAdmin[128];
+			UTIL_GetClientInfo(iAdmin, SZF(szAdmin));
+			FormatEx(SZF(szAdminInfo), "%T %s", "BY_ADMIN", LANG_SERVER, szAdmin);
+			iAdmin = UID(iAdmin);
+		}
+	}
+
+	DB_RemoveVipPlayer(
+		iAdmin,
+		szAdminInfo,
+		iTarget,
+		iTargetAccountID,
+		bNotify
+	);
+}
+
+void Clients_OnVipPlayerRemoved(
+	const int iAdmin,
+	const char[] szAdminInfo,
+	const int iTarget,
+	const int iTargetAccountID,
+	const char[] szTargetInfo,
+	const char[] szGroup,
+	const bool bNotify
+)
+{
+	LogToFile(g_szLogFile, "%T", "LOG_VIP_DELETED", LANG_SERVER, szTargetInfo, iTargetAccountID, szGroup, szAdminInfo);
+
+	if (iTarget)
+	{
+		Features_TurnOffAll(iTarget);
+		Clients_ResetClient(iTarget);
+		//CallForward_OnVIPClientRemoved(iTarget, "Removed by Admin", iClient);
+		// SET_BIT(g_iClientInfo[iTarget], IS_LOADED);
+		// DisplayClientInfo(iTarget, "expired_info");
+
+		if (bNotify)
+		{
+			// TODO: notify player
+		}
+	}
+
+	if (iAdmin > 0)
+	{
+		ReplyToCommand(iAdmin, "%t", "ADMIN_VIP_PLAYER_DELETED", szTargetInfo, iTargetAccountID);
+	}
+}
+
+void Clients_ReloadVipPlayers(int iClient, bool bNotify)
+{
+	for (int i = 1; i <= MaxClients; ++i)
+	{
+		if (IsClientInGame(i))
+		{
+			Clients_CheckVipAccess(i, false, true);
+		}
+	}
+	
+	if (bNotify)
+	{
+		UTIL_Reply(iClient, "%t", "VIP_CACHE_REFRESHED");
+	}
 }

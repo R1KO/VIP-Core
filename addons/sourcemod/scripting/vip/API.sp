@@ -690,7 +690,7 @@ int API_RemoveClientVIP(Handle hPlugin,
 			int iClientID;
 			if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 			{
-				DB_RemoveClientFromID(OWNER_PLUGIN, iClient, _, true, _, _, szPluginName);
+				Clients_RemoveVipPlayer(OWNER_PLUGIN, iClient, _, true, szPluginName);
 			}
 		}
 		
@@ -1033,7 +1033,7 @@ public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 					Features_SetStatus(iClient, szFeature, eNewStatus);
 					if (iNumParams > 4 && GetNativeCell(5))
 					{
-						Features_SetStatusToStorage(iClient, szFeature, hArray, eNewStatus);
+						Features_SetStatusToStorage(iClient, szFeature, eNewStatus);
 					}
 					return true;
 				}

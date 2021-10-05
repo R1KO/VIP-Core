@@ -34,6 +34,7 @@
 #define IS_MySQL					(1<<1)
 #define IS_LOADING					(1<<2)
 
+#define REASON_SERVER	 0
 #define REASON_PLUGIN	-1
 #define REASON_EXPIRED	-2
 #define REASON_OUTDATED	-3

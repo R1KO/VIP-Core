@@ -235,22 +235,6 @@ void UTIL_GetClientInfo(int iClient, char[] szBuffer, int iMaxLen)
 	FormatEx(szBuffer, iMaxLen, "%s (%s, %s)", szName, szAuth, szIP);
 }
 
-void UTIL_ReloadVIPPlayers(int iClient, bool bNotify)
-{
-	for (int i = 1; i <= MaxClients; ++i)
-	{
-		if (IsClientInGame(i))
-		{
-			Clients_CheckVipAccess(i, false, true);
-		}
-	}
-	
-	if (bNotify)
-	{
-		UTIL_Reply(iClient, "%t", "VIP_CACHE_REFRESHED");
-	}
-}
-
 void UTIL_Reply(int iClient, const char[] szMsg, any ...)
 {
 	if(iClient < 0)
@@ -270,4 +254,14 @@ void UTIL_Reply(int iClient, const char[] szMsg, any ...)
 		Colors_RemoveColors(szMessage);
 		PrintToServer(szMessage);
 	}
+}
+
+int UTIL_GetVipClientByAccountID(int iAccountID)
+{
+	int iClientID;
+	for (int i = 1; i <= MaxClients; ++i)
+	{
+		if (IsClientInGame(i) && g_hFeatures[i] != null && g_hFeatures[i].GetValue(KEY_CID, iClientID) && iClientID == iAccountID) return i;
+	}
+	return 0;
 }

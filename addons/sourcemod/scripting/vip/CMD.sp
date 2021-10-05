@@ -46,7 +46,7 @@ public Action ReloadVIPPlayers_CMD(int iClient, int iArgs)
 {
 	CHECK_ACCESS(iClient)
 	
-	UTIL_ReloadVIPPlayers(iClient, true);
+	Clients_ReloadVipPlayers(iClient, true);
 	
 	return Plugin_Handled;
 }
@@ -56,7 +56,7 @@ public Action ReloadVIPCfg_CMD(int iClient, int iArgs)
 	CHECK_ACCESS(iClient)
 	
 	ReadConfigs();
-	UTIL_ReloadVIPPlayers(iClient, false);
+	Clients_ReloadVipPlayers(iClient, false);
 	UTIL_Reply(iClient, "%t", "VIP_CFG_REFRESHED");
 	
 	return Plugin_Handled;
@@ -189,14 +189,31 @@ public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hResu
 	
 	if (hResult.FetchRow())
 	{
-		DBG_SQL_Response("hResult.FetchRow()")
-		int iAccountID = hResult.FetchInt(0);
-		DBG_SQL_Response("hResult.FetchInt(0) = %d", iAccountID)
-		char szName[MNL], szGroup[64];
+		int iAccountID;
+		char szName[MNL*2], szGroup[64], szAdminInfo[128], szTargetInfo[128], szAuth[32];
+		UTIL_GetClientInfo(iClient, SZF(szTargetInfo));
+		FormatEx(SZF(szAdminInfo), "%T %s", "BY_ADMIN", LANG_SERVER, szTargetInfo);
+
+		iAccountID = hResult.FetchInt(0);
 		hResult.FetchString(1, SZF(szName));
 		hResult.FetchString(2, SZF(szGroup));
-		DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
-		DB_RemoveClientFromID(iClient, _, iAccountID, true, szName, szGroup);
+
+		DBG_SQL_Response("hResult.FetchInt(0) = %d", iAccountID)
+		DBG_SQL_Response("hResult.FetchString(1) = '%s'", szName)
+		DBG_SQL_Response("hResult.FetchString(2) = '%s'", szGroup)
+
+		UTIL_GetSteamIDFromAccountID(iAccountID, SZF(szAuth));
+		FormatEx(SZF(szTargetInfo), "%s (%s, unknown)", szName, szAuth);
+
+		DB_RemoveVipPlayerByData(
+			iClient,
+			szAdminInfo,
+			0,
+			iAccountID,
+			szTargetInfo,
+			szGroup,
+			true
+		);
 	}
 	else
 	{

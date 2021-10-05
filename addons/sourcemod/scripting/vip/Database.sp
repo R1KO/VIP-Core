@@ -33,7 +33,7 @@ void DB_Connect()
 	}
 }
 
-public void OnDBConnect(Database hDatabase, const char[] szError, any data)
+public void OnDBConnect(Database hDatabase, const char[] szError, int data)
 {
 	if (hDatabase == null || szError[0])
 	{
@@ -143,7 +143,7 @@ public void SQL_Callback_TableCreate(Database hOwner, DBResultSet hResult, const
 
 	OnReadyToStart();
 	
-	UTIL_ReloadVIPPlayers(0, false);
+	Clients_ReloadVipPlayers(0, false);
 
 	if (g_CVAR_iDeleteExpired != -1 || g_CVAR_iOutdatedExpired != -1)
 	{
@@ -216,6 +216,332 @@ void DB_UpdateClient(int iClient, const char[] szDbName = NULL_STRING)
 	g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery);
 }
 
+public void SQL_Callback_SelectExpiredAndOutdated(Database hOwner, DBResultSet hResult, const char[] szError, int iReason)
+{
+	DBG_SQL_Response("SQL_Callback_SelectExpiredAndOutdated")
+
+	if (szError[0])
+	{
+		LogError("SQL_Callback_SelectExpiredAndOutdated: %s", szError);
+		return;
+	}
+	
+	DBG_SQL_Response("hResult.RowCount = %d", hResult.RowCount)
+
+	if (hResult.RowCount)
+	{
+		int iAccountID;
+		char szName[MNL*2], szGroup[64], szAdminInfo[128], szTargetInfo[128], szAuth[32];
+		FormatEx(SZF(szAdminInfo), "%T", "REASON_EXPIRED", LANG_SERVER);
+		while (hResult.FetchRow())
+		{
+			DBG_SQL_Response("hResult.FetchRow()")
+			iAccountID = hResult.FetchInt(0);
+			hResult.FetchString(1, SZF(szName));
+			hResult.FetchString(2, SZF(szGroup));
+			
+			DBG_SQL_Response("hResult.FetchInt(0) = %d", iAccountID)
+			DBG_SQL_Response("hResult.FetchString(1) = '%s'", szName)
+			DBG_SQL_Response("hResult.FetchString(2) = '%s'", szGroup)
+
+			UTIL_GetSteamIDFromAccountID(iAccountID, SZF(szAuth));
+			FormatEx(SZF(szTargetInfo), "%s (%s, unknown)", szName, szAuth);
+
+			DB_RemoveVipPlayerByData(
+				REASON_EXPIRED,
+				szAdminInfo,
+				0,
+				iAccountID,
+				szTargetInfo,
+				szGroup,
+				true
+			);
+		}
+	}
+}
+
+void DB_AddVipPlayer(
+	const int iAdmin,
+	const char[] szAdminInfo,
+	const int iTarget,
+	const int iTargetAccountID,
+	const char[] szTargetInfo,
+	const int iDuration,
+	const int iExpires,
+	const char[] szGroup
+)
+{
+	DataPack hDataPack = new DataPack();
+
+	// Admin
+	hDataPack.WriteCell(iAdmin);
+	hDataPack.WriteString(szAdminInfo);
+
+	// Target
+	hDataPack.WriteCell(GET_UID(iTarget));
+	hDataPack.WriteCell(iTargetAccountID);
+	hDataPack.WriteString(szTargetInfo);
+
+	// Data
+	hDataPack.WriteCell(iDuration);
+	hDataPack.WriteCell(iExpires);	
+	hDataPack.WriteString(szGroup);
+
+	int iLastVisit = iTarget ? GetTime() : 0;
+
+	char szQuery[512], szName[MNL*2+1];
+	if (iTarget)
+	{
+		GetClientName(iTarget, SZF(szQuery));
+		g_hDatabase.Escape(szQuery, SZF(szName));
+	}
+	else
+	{
+		strcopy(SZF(szName), "unknown");
+	}
+
+	if (GLOBAL_INFO & IS_MySQL)
+	{
+		FormatEx(SZF(szQuery), "INSERT INTO `vip_users` (`account_id`, `sid`, `expires`, `group`, `name`, `lastvisit`) VALUES (%d, %d, %d, '%s', '%s', %d) \
+		ON DUPLICATE KEY UPDATE `expires` = %d, `group` = '%s';", iTargetAccountID, g_CVAR_iServerID, iExpires, szGroup, szName, iLastVisit, iExpires, szGroup);
+		DBG_SQL_Query(szQuery)
+		g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hDataPack);
+
+		return;
+	}
+
+	FormatEx(SZF(szQuery), "INSERT OR REPLACE INTO `vip_users` (`account_id`, `name`, `expires`, `group`, `lastvisit`) VALUES (%d, '%s', %d, '%s', %d);", iTargetAccountID, szName, iExpires, szGroup, iLastVisit);
+	DBG_SQL_Query(szQuery)
+	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hDataPack);
+}
+
+public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, const char[] szError, DataPack hDataPack)
+{
+	DBG_SQL_Response("SQL_Callback_OnVIPClientAdded")
+	hDataPack.Reset();
+
+	// Admin
+	int iAdmin = GET_CID(hDataPack.ReadCell());
+
+	if (hResult == null || szError[0])
+	{
+		delete hDataPack;
+
+		if (iAdmin >= 0)
+		{
+			UTIL_Reply(iAdmin, "%t", "ADMIN_VIP_ADD_FAILED");
+		}
+
+		LogError("SQL_Callback_OnVIPClientAdded: %s", szError);
+		return;
+	}
+	
+	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows)
+
+	if (!hResult.AffectedRows)
+	{
+		delete hDataPack;
+
+		if (iAdmin >= 0)
+		{
+			UTIL_Reply(iAdmin, "%t", "ADMIN_VIP_ADD_FAILED");
+		}
+		return;
+	}
+
+	int iTarget, iDuration, iExpires, iAccountID;
+	char szAdminInfo[PMP], szTargetInfo[PMP], szGroup[64];
+	
+	hDataPack.ReadString(SZF(szAdminInfo));
+	
+	// Target
+	iTarget = GET_CID(hDataPack.ReadCell());
+	iAccountID = hDataPack.ReadCell();
+	hDataPack.ReadString(SZF(szTargetInfo));
+
+	// Data
+	iDuration = hDataPack.ReadCell();
+	iExpires = hDataPack.ReadCell();
+	hDataPack.ReadString(SZF(szGroup));
+
+	delete hDataPack;
+
+	Clients_OnVipPlayerAdded(
+		iAdmin,
+		szAdminInfo,
+		iTarget,
+		iAccountID,
+		szTargetInfo,
+		iDuration,
+		iExpires,
+		szGroup
+	);
+}
+
+void DB_RemoveVipPlayer(
+	const int iAdmin,
+	const char[] szAdminInfo,
+	const int iTarget,
+	const int iTargetAccountID,
+	const bool bNotify
+)
+{
+	DataPack hDataPack = new DataPack();
+	hDataPack.WriteCell(iAdmin);
+	hDataPack.WriteString(szAdminInfo);
+	hDataPack.WriteCell(GET_UID(iTarget));
+	hDataPack.WriteCell(iTargetAccountID);
+	hDataPack.WriteCell(bNotify);
+
+	char szQuery[512];
+	FormatEx(SZF(szQuery), "SELECT `name`, `group` FROM `vip_users` WHERE `account_id` = %d%s;", iTargetAccountID, g_szSID);
+
+	DBG_SQL_Query(szQuery)
+	g_hDatabase.Query(SQL_Callback_SelectForRemoveClient, szQuery, hDataPack);
+}
+
+public void SQL_Callback_SelectForRemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, DataPack hDataPack)
+{
+	DBG_SQL_Response("SQL_Callback_SelectForRemoveClient")
+
+	if (szError[0])
+	{
+		delete hDataPack;
+		LogError("SQL_Callback_SelectForRemoveClient: %s", szError);
+		return;
+	}
+
+	if (!hResult.FetchRow())
+	{
+		delete hDataPack;
+		return;
+	}
+
+	DBG_SQL_Response("hResult.FetchRow()")
+	hDataPack.Reset();
+
+	int iAdmin, iTarget, iTargetAccountID;
+	char szAdminInfo[128], szTargetInfo[128];
+
+	iAdmin = hDataPack.ReadCell();
+	hDataPack.ReadString(SZF(szAdminInfo));
+	iTarget = GET_CID(hDataPack.ReadCell());
+	iTargetAccountID = hDataPack.ReadCell();
+	bool bNotify = hDataPack.ReadCell();
+
+	char szGroup[64];
+	hResult.FetchString(1, SZF(szGroup));
+
+	if (iTarget)
+	{
+		UTIL_GetClientInfo(iTarget, SZF(szTargetInfo));
+	}
+	else
+	{
+		char szName[MAX_NAME_LENGTH*2+1], szAuth[32];
+		UTIL_GetSteamIDFromAccountID(iTargetAccountID, SZF(szAuth));
+		hResult.FetchString(0, SZF(szName));
+		FormatEx(SZF(szTargetInfo), "%s (%s, unknown)", szName, szAuth);
+	}
+
+	DB_RemoveVipPlayerByData(
+		iAdmin,
+		szAdminInfo,
+		iTarget,
+		iTargetAccountID,
+		szTargetInfo,
+		szGroup,
+		bNotify
+	);
+}
+
+void DB_RemoveVipPlayerByData(
+	const int iAdmin,
+	const char[] szAdminInfo,
+	const int iTarget,
+	const int iTargetAccountID,
+	const char[] szTargetInfo,
+	const char[] szGroup,
+	const bool bNotify
+)
+{
+	DataPack hDataPack = new DataPack();
+
+	// Admin
+	hDataPack.WriteCell(iAdmin);
+	hDataPack.WriteString(szAdminInfo);
+
+	// Target
+	hDataPack.WriteCell(GET_UID(iTarget));
+	hDataPack.WriteCell(iTargetAccountID);
+	hDataPack.WriteString(szTargetInfo);
+
+	// Data
+	hDataPack.WriteString(szGroup);
+	hDataPack.WriteCell(bNotify);
+
+	char szQuery[256];
+	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iTargetAccountID, g_szSID);
+
+	DBG_SQL_Query(szQuery)
+	g_hDatabase.Query(SQL_Callback_RemoveClient, szQuery, hDataPack);
+}
+
+public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, DataPack hDataPack)
+{
+	DBG_SQL_Response("SQL_Callback_SelectRemoveClient")
+
+	if (szError[0])
+	{
+		delete hDataPack;
+		LogError("SQL_Callback_RemoveClient: %s", szError);
+		return;
+	}
+
+	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows)
+
+	if (!hResult.AffectedRows)
+	{
+		delete hDataPack;
+		return;
+	}
+	hDataPack.Reset();
+	
+
+	int iAdmin, iTarget, iAccountID;
+	char szAdminInfo[PMP], szTargetInfo[PMP], szGroup[64];
+	
+	// Admin
+	iAdmin = GET_CID(hDataPack.ReadCell());
+	hDataPack.ReadString(SZF(szAdminInfo));
+	
+	// Target
+	iTarget = GET_CID(hDataPack.ReadCell());
+	iAccountID = hDataPack.ReadCell();
+	hDataPack.ReadString(SZF(szTargetInfo));
+
+	// Data
+	hDataPack.ReadString(SZF(szGroup));
+	bool bNotify = hDataPack.ReadCell();
+
+	delete hDataPack;
+
+	if (!iTarget)
+	{
+		iTarget = UTIL_GetVipClientByAccountID(iAccountID);
+	}
+
+	Clients_OnVipPlayerRemoved(
+		iAdmin,
+		szAdminInfo,
+		iTarget,
+		iAccountID,
+		szTargetInfo,
+		szGroup,
+		bNotify
+	);
+}
+/**
 void DB_RemoveClientFromID(int iAdmin = 0,
 							int iClient = 0,
 							int iClientID = 0,
@@ -300,41 +626,41 @@ void DB_RemoveClientFromID(int iAdmin = 0,
 	g_hDatabase.Query(SQL_Callback_SelectRemoveClient, szQuery, hDataPack);
 }
 
-public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, DataPack hPack)
+public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, DataPack hDataPack)
 {
 	DBG_SQL_Response("SQL_Callback_SelectRemoveClient")
 
 	if (szError[0])
 	{
-		delete hPack;
+		delete hDataPack;
 		LogError("SQL_Callback_SelectRemoveClient: %s", szError);
 		return;
 	}
 
 	if (!hResult.FetchRow())
 	{
-		delete hPack;
+		delete hDataPack;
 		return;
 	}
 
 	DBG_SQL_Response("hResult.FetchRow()")
-	hPack.Reset();
-	int iClientID = hPack.ReadCell();
-	hPack.ReadCell();
-	hPack.ReadCell();
+	hDataPack.Reset();
+	int iClientID = hDataPack.ReadCell();
+	hDataPack.ReadCell();
+	hDataPack.ReadCell();
 	char szName[MAX_NAME_LENGTH*2+1];
-	hPack.ReadString(SZF(szName));
+	hDataPack.ReadString(SZF(szName));
 	hResult.FetchString(0, SZF(szName));
 	DBG_SQL_Response("hResult.FetchString(0) = '%s", szName)
-	hPack.WriteString(szName);
+	hDataPack.WriteString(szName);
 	hResult.FetchString(1, SZF(szName));
 	DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
-	hPack.WriteString(szName);
+	hDataPack.WriteString(szName);
 
-	DB_RemoveClient(hPack, iClientID);
+	DB_RemoveClient(hDataPack, iClientID);
 }
 
-void DB_RemoveClient(DataPack hDataPack, int iClientID)
+void DB_RemoveClient(int iClientID, DataPack hDataPack)
 {
 	char szQuery[256];
 	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
@@ -343,13 +669,13 @@ void DB_RemoveClient(DataPack hDataPack, int iClientID)
 	g_hDatabase.Query(SQL_Callback_RemoveClient, szQuery, hDataPack);
 }
 
-public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, DataPack hPack)
+public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, DataPack hDataPack)
 {
 	DBG_SQL_Response("SQL_Callback_SelectRemoveClient")
 
 	if (szError[0])
 	{
-		delete hPack;
+		delete hDataPack;
 		LogError("SQL_Callback_RemoveClient: %s", szError);
 		return;
 	}
@@ -358,180 +684,27 @@ public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, cons
 
 	if (!hResult.AffectedRows)
 	{
-		delete hPack;
+		delete hDataPack;
 		return;
 	}
-	hPack.Reset();
-	
-	int iClientID = hPack.ReadCell();
-	int iAdmin = GET_CID(hPack.ReadCell());
-	bool bNotify = view_as<bool>(hPack.ReadCell());
-	char szAdmin[128], szName[MNL], szGroup[64];
-	hPack.ReadString(SZF(szAdmin));
-	hPack.ReadString(SZF(szName));
-	hPack.ReadString(SZF(szGroup));
-	delete hPack;
-
-	if (iAdmin == -1)
-	{
-		return;
-	}
-
-	LogToFile(g_szLogFile, "%T", "LOG_VIP_DELETED", LANG_SERVER, szName, iClientID, szGroup, szAdmin);
-
-	if (bNotify && iAdmin > 0)
-	{
-		ReplyToCommand(iAdmin, "%t", "ADMIN_VIP_PLAYER_DELETED", szName, iClientID);
-	}
-}
-
-public void SQL_Callback_SelectExpiredAndOutdated(Database hOwner, DBResultSet hResult, const char[] szError, int iReason)
-{
-	DBG_SQL_Response("SQL_Callback_SelectExpiredAndOutdated")
-
-	if (szError[0])
-	{
-		LogError("SQL_Callback_SelectExpiredAndOutdated: %s", szError);
-		return;
-	}
-	
-	DBG_SQL_Response("hResult.RowCount = %d", hResult.RowCount)
-
-	if (hResult.RowCount)
-	{
-		int iClientID;
-		char szName[MNL*2], szGroup[64];
-		while (hResult.FetchRow())
-		{
-			DBG_SQL_Response("hResult.FetchRow()")
-			iClientID = hResult.FetchInt(0);
-			DBG_SQL_Response("hResult.FetchInt(0) = %d", iClientID)
-			hResult.FetchString(1, SZF(szName));
-			DBG_SQL_Response("hResult.FetchString(1) = '%s'", szName)
-			hResult.FetchString(2, SZF(szGroup));
-			DBG_SQL_Response("hResult.FetchString(2) = '%s'", szGroup)
-			DB_RemoveClientFromID(iReason, _, iClientID, false, szName, szGroup);
-		}
-	}
-}
-
-void DB_AddVipPlayer(
-	const int iAdmin,
-	const char[] szAdminInfo,
-	const int iTarget,
-	const int iTargetAccountID,
-	const char[] szTargetInfo,
-	const int iDuration,
-	const int iExpires,
-	const char[] szGroup
-)
-{
-	DataPack hDataPack = new DataPack();
-
-	// Admin
-	hDataPack.WriteCell(iAdmin);
-	hDataPack.WriteString(szAdminInfo);
-
-	// Target
-	hDataPack.WriteCell(GET_UID(iTarget));
-	hDataPack.WriteCell(iTargetAccountID);
-	hDataPack.WriteString(szTargetInfo);
-
-	// Data
-	hDataPack.WriteCell(iDuration);
-	hDataPack.WriteCell(iExpires);	
-	hDataPack.WriteString(szGroup);
-
-	int iLastVisit = iTarget ? GetTime() : 0;
-
-	char szQuery[512], szName[MNL*2+1];
-	if (iTarget)
-	{
-		GetClientName(iTarget, SZF(szQuery));
-		g_hDatabase.Escape(szQuery, SZF(szName));
-	}
-	else
-	{
-		strcopy(SZF(szName), "unknown");
-	}
-
-	if (GLOBAL_INFO & IS_MySQL)
-	{
-		FormatEx(SZF(szQuery), "INSERT INTO `vip_users` (`account_id`, `sid`, `expires`, `group`, `name`, `lastvisit`) VALUES (%d, %d, %d, '%s', '%s', %d) \
-		ON DUPLICATE KEY UPDATE `expires` = %d, `group` = '%s';", iTargetAccountID, g_CVAR_iServerID, iExpires, szGroup, szName, iLastVisit, iExpires, szGroup);
-		DBG_SQL_Query(szQuery)
-		g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hDataPack);
-
-		return;
-	}
-
-	FormatEx(SZF(szQuery), "INSERT OR REPLACE INTO `vip_users` (`account_id`, `name`, `expires`, `group`, `lastvisit`) VALUES (%d, '%s', %d, '%s', %d);", iTargetAccountID, szName, iExpires, szGroup, iLastVisit);
-	DBG_SQL_Query(szQuery)
-	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hDataPack);
-}
-
-public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, const char[] szError, any hPack)
-{
-	DBG_SQL_Response("SQL_Callback_OnVIPClientAdded")
-	DataPack hDataPack = view_as<DataPack>(hPack);
 	hDataPack.Reset();
-
-	// Admin
+	
+	int iClientID = hDataPack.ReadCell();
 	int iAdmin = GET_CID(hDataPack.ReadCell());
-
-	if (hResult == null || szError[0])
-	{
-		delete hDataPack;
-
-		if (iAdmin >= 0)
-		{
-			UTIL_Reply(iAdmin, "%t", "ADMIN_VIP_ADD_FAILED");
-		}
-
-		LogError("SQL_Callback_OnVIPClientAdded: %s", szError);
-		return;
-	}
-	
-	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows)
-
-	if (!hResult.AffectedRows)
-	{
-		delete hDataPack;
-
-		if (iAdmin >= 0)
-		{
-			UTIL_Reply(iAdmin, "%t", "ADMIN_VIP_ADD_FAILED");
-		}
-		return;
-	}
-
-	int iTarget, iDuration, iExpires, iAccountID;
-	char szAdminInfo[PMP], szTargetInfo[PMP], szGroup[64];
-	
-	hDataPack.ReadString(SZF(szAdminInfo));
-	
-	// Target
-	iTarget = GET_CID(hDataPack.ReadCell());
-	iAccountID = hDataPack.ReadCell();
-	hDataPack.ReadString(SZF(szTargetInfo));
-
-	// Data
-	iDuration = hDataPack.ReadCell();
-	iExpires = hDataPack.ReadCell();
+	bool bNotify = view_as<bool>(hDataPack.ReadCell());
+	char szAdmin[128], szName[MNL], szGroup[64];
+	hDataPack.ReadString(SZF(szAdmin));
+	hDataPack.ReadString(SZF(szName));
 	hDataPack.ReadString(SZF(szGroup));
-
 	delete hDataPack;
 
-
-	Clients_OnVipPlayerAdded(
+	Clients_OnVipPlayerRemoved(
 		iAdmin,
 		szAdminInfo,
 		iTarget,
-		iAccountID,
+		iTargetAccountID,
 		szTargetInfo,
-		iDuration,
-		iExpires,
 		szGroup
 	);
 }
-
+*/

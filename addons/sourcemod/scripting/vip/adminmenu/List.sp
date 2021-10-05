@@ -288,7 +288,7 @@ public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, 
 			DBG_SQL_Response("hResult.FetchInt(0) = %d", iClientID)
 			DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
 			
-			if (GetClientByID(iClientID))
+			if (UTIL_GetVipClientByAccountID(iClientID))
 			{
 				Format(SZF(szName), "• %s", szName);
 			}
@@ -478,7 +478,7 @@ public int MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iCli
 		{
 			switch (Item)
 			{
-				case 0:	ShowDeleteVipPlayerMenu(iClient);
+				case 0:	ShowConfirmDeleteVipPlayerMenu(iClient);
 				case 1:	ShowEditTimeMenu(iClient);
 				case 2:
 				{

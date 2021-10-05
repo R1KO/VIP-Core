@@ -67,16 +67,6 @@ void InitiateDataMap(int iClient)
 	}
 }
 
-int GetClientByID(int ID)
-{
-	int iClientID;
-	for (int i = 1; i <= MaxClients; ++i)
-	{
-		if (IsClientInGame(i) && g_hFeatures[i] != null && g_hFeatures[i].GetValue(KEY_CID, iClientID) && iClientID == ID) return i;
-	}
-	return 0;
-}
-
 // ************************ ADMIN_MENU ************************
 void VIPAdminMenu_Setup()
 {
@@ -544,7 +534,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 					iTarget = CID(iTarget);
 					if (!iTarget)
 					{
-						iTarget = GetClientByID(iTargetID);
+						iTarget = UTIL_GetVipClientByAccountID(iTargetID);
 					}
 
 					if (iTarget)
@@ -591,7 +581,7 @@ public void SQL_Callback_ChangeTime(Database hOwner, DBResultSet hResult, const 
 			if (!iTarget)
 			{
 				g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTarget);
-				iTarget = GetClientByID(iTarget);
+				iTarget = UTIL_GetVipClientByAccountID(iTarget);
 			}
 
 			if (iTarget)

@@ -268,7 +268,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 						if (eNewStatus != eOldStatus)
 						{
 							Features_SetStatus(iClient, szFeature, eNewStatus);
-							Features_SetStatusToStorage(iClient, szFeature, hBuffer, eNewStatus);
+							Features_SetStatusToStorage(iClient, szFeature, eNewStatus);
 						}
 					}
 
