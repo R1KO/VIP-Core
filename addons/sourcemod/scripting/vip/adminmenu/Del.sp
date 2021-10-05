@@ -13,6 +13,8 @@ void ShowConfirmDeleteVipPlayerMenu(int iClient)
 	hMenu.AddItem(NULL_STRING, szBuffer);
 	
 	ReductionMenu(hMenu, 4);
+
+	// TODO: add back button
 	
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }

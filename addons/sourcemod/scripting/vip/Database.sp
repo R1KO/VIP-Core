@@ -387,7 +387,7 @@ void DB_RemoveVipPlayer(
 )
 {
 	DataPack hDataPack = new DataPack();
-	hDataPack.WriteCell(iAdmin);
+	hDataPack.WriteCell(GET_UID(iAdmin));
 	hDataPack.WriteString(szAdminInfo);
 	hDataPack.WriteCell(GET_UID(iTarget));
 	hDataPack.WriteCell(iTargetAccountID);
@@ -423,7 +423,7 @@ public void SQL_Callback_SelectForRemoveClient(Database hOwner, DBResultSet hRes
 	int iAdmin, iTarget, iTargetAccountID;
 	char szAdminInfo[128], szTargetInfo[128];
 
-	iAdmin = hDataPack.ReadCell();
+	iAdmin = GET_CID(hDataPack.ReadCell());
 	hDataPack.ReadString(SZF(szAdminInfo));
 	iTarget = GET_CID(hDataPack.ReadCell());
 	iTargetAccountID = hDataPack.ReadCell();
@@ -468,7 +468,7 @@ void DB_RemoveVipPlayerByData(
 	DataPack hDataPack = new DataPack();
 
 	// Admin
-	hDataPack.WriteCell(iAdmin);
+	hDataPack.WriteCell(GET_UID(iAdmin));
 	hDataPack.WriteString(szAdminInfo);
 
 	// Target
@@ -514,7 +514,7 @@ public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, cons
 	// Admin
 	iAdmin = GET_CID(hDataPack.ReadCell());
 	hDataPack.ReadString(SZF(szAdminInfo));
-	
+
 	// Target
 	iTarget = GET_CID(hDataPack.ReadCell());
 	iAccountID = hDataPack.ReadCell();

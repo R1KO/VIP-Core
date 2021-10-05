@@ -676,7 +676,7 @@ void Clients_OnVipPlayerAdded(
 			FormatEx(SZF(szDuration), "%T", "PERMANENT", iAdmin);
 			FormatEx(SZF(szExpires), "%T", "NEVER", iAdmin);
 		}
-		UTIL_Reply(iAdmin, "%t", "ADMIN_VIP_ADD_SUCCESS", szTargetInfo, iTargetAccountID);
+		UTIL_Reply(iAdmin, "%t", "ADMIN_VIP_ADD_SUCCESS", szTargetInfo, szGroup);
 	}
 
 	if (iDuration)
@@ -730,7 +730,6 @@ void Clients_RemoveVipPlayer(
 			char szAdmin[128];
 			UTIL_GetClientInfo(iAdmin, SZF(szAdmin));
 			FormatEx(SZF(szAdminInfo), "%T %s", "BY_ADMIN", LANG_SERVER, szAdmin);
-			iAdmin = UID(iAdmin);
 		}
 	}
 
@@ -771,7 +770,7 @@ void Clients_OnVipPlayerRemoved(
 
 	if (iAdmin > 0)
 	{
-		ReplyToCommand(iAdmin, "%t", "ADMIN_VIP_PLAYER_DELETED", szTargetInfo, iTargetAccountID);
+		UTIL_Reply(iAdmin, "%t", "ADMIN_VIP_PLAYER_DELETED", szTargetInfo, szGroup);
 	}
 }
 

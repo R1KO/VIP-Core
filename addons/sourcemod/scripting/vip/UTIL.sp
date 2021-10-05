@@ -232,7 +232,7 @@ void UTIL_GetClientInfo(int iClient, char[] szBuffer, int iMaxLen)
 	GetClientAuthId(iClient, AuthId_Engine, SZF(szAuth));
 	GetClientIP(iClient, SZF(szIP));
 	
-	FormatEx(szBuffer, iMaxLen, "%s (%s, %s)", szName, szAuth, szIP);
+	FormatEx(szBuffer, iMaxLen, "%s <%s, %s>", szName, szAuth, szIP);
 }
 
 void UTIL_Reply(int iClient, const char[] szMsg, any ...)
