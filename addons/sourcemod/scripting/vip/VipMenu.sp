@@ -95,7 +95,7 @@ stock void PrintArray(ArrayList &hArray)
 */
 public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOption)
 {
-	if((action == MenuAction_Display ||
+	if ((action == MenuAction_Display ||
 		action == MenuAction_DisplayItem ||
 		action == MenuAction_DrawItem ||
 		action == MenuAction_Select) && 
@@ -220,7 +220,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 					}
 				}
 
-				if(IsTranslationPhraseExists(szFeature))
+				if (IsTranslationPhraseExists(szFeature))
 				{
 					FormatEx(SZF(szDisplay), "%T", szFeature, iClient);
 				}

@@ -12,7 +12,7 @@ public void OnClientPutInServer(int iClient)
 	//	g_iClientInfo[iClient] = 0;
 	DebugMessage("OnClientPutInServer %N (%d): %b", iClient, iClient, g_iClientInfo[iClient])
 	
-	if(IsFakeClient(iClient) || IsClientSourceTV(iClient))
+	if (IsFakeClient(iClient) || IsClientSourceTV(iClient))
 	{
 		return;
 	}
@@ -28,7 +28,7 @@ public void OnClientDisconnect(int iClient)
 		SaveClient(iClient);
 	}*/
 
-	if(!IsFakeClient(iClient))
+	if (!IsFakeClient(iClient))
 	{
 		CallForward_OnClientDisconnect(iClient);
 		Storage_SaveClient(iClient);
@@ -43,7 +43,7 @@ public void OnClientDisconnect(int iClient)
 
 void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = false)
 {
-	if(bForward && !CallForward_OnClientPreLoad(iClient))
+	if (bForward && !CallForward_OnClientPreLoad(iClient))
 	{
 		return;
 	}
@@ -165,10 +165,7 @@ void LoadClient(int iClient, int iAccountID, const char[] szGroup, int iExpires)
 		{
 			if (g_CVAR_iDeleteExpired == 0 || (g_CVAR_iDeleteExpired > 0 && iTime >= ((g_CVAR_iDeleteExpired * 86400) + iExpires)))
 			{
-				if (g_CVAR_bLogsEnable)
-				{
-					LogToFile(g_szLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
-				}
+				LogToFile(g_szLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
 
 				DebugMessage("Clients_LoadClient %N (%d):\tDelete", iClient, iClient)
 
@@ -565,16 +562,13 @@ void Clients_ExpiredClient(int iClient)
 	{
 		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 		{
-			if (g_CVAR_bLogsEnable)
-			{
-				LogToFile(g_szLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
-			}
-			
+			LogToFile(g_szLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
+
 			DB_RemoveClientFromID(REASON_EXPIRED, iClient, _, false);
 		}
 	}
 	
-	if(g_iClientInfo[iClient] & IS_MENU_OPEN)
+	if (g_iClientInfo[iClient] & IS_MENU_OPEN)
 	{
 		CancelClientMenu(iClient);
 	}
@@ -586,3 +580,114 @@ void Clients_ExpiredClient(int iClient)
 
 	DisplayClientInfo(iClient, "expired_info");
 } 
+
+void Clients_AddVipPlayer(
+	int iAdmin = OWNER_SERVER,
+	int iTarget = 0,
+	int iTargetAccountID = 0,
+	int iDuration,
+	const char[] szGroup,
+	const char[] szByWho = NULL_STRING
+)
+{
+	char szAdminInfo[PMP], szTargetInfo[PMP];
+	int iExpires;
+
+	if (iDuration)
+	{
+		iExpires = iDuration + GetTime();
+	}
+	else
+	{
+		iExpires = iDuration;
+	}
+	
+	if (iTarget)
+	{
+		iTargetAccountID = GetSteamAccountID(iTarget);
+		UTIL_GetClientInfo(iTarget, SZF(szTargetInfo));
+	}
+	else
+	{
+		char szAuth[32];
+		UTIL_GetSteamIDFromAccountID(iTargetAccountID, SZF(szAuth));
+		FormatEx(SZF(szTargetInfo), "unknown (%s, unknown)", szAuth);
+	}
+
+	switch(iAdmin)
+	{
+		case OWNER_PLUGIN:
+		{
+			FormatEx(SZF(szAdminInfo), "%T %s", "BY_PLUGIN", LANG_SERVER, szByWho);
+		}
+		case OWNER_SERVER:
+		{
+			FormatEx(SZF(szAdminInfo), "%T", "BY_SERVER", LANG_SERVER);
+		}
+		default:
+		{
+			char szAdmin[128];
+			UTIL_GetClientInfo(iAdmin, SZF(szAdmin));
+			FormatEx(SZF(szAdminInfo), "%T %s", "BY_ADMIN", LANG_SERVER, szAdmin);
+			iAdmin = UID(iAdmin);
+		}
+	}
+
+	DB_AddVipPlayer(
+		iAdmin,
+		szAdminInfo,
+		iTarget,
+		iTargetAccountID,
+		szTargetInfo,
+		iDuration,
+		iExpires,
+		szGroup
+	);
+}
+
+void Clients_OnVipPlayerAdded(
+	const int iAdmin,
+	const char[] szAdminInfo,
+	const int iTarget,
+	const int iTargetAccountID,
+	const char[] szTargetInfo,
+	const int iDuration,
+	const int iExpires,
+	const char[] szGroup
+)
+{
+	char szExpires[64], szDuration[64];
+
+	if (iTarget)
+	{
+		Clients_CheckVipAccess(iTarget, true);
+		CallForward_OnVIPClientAdded(iTarget, iAdmin);
+	}
+
+	if (iAdmin >= 0)
+	{
+		if (iDuration)
+		{
+			UTIL_GetTimeFromStamp(SZF(szDuration), iDuration, iAdmin);
+			FormatTime(SZF(szExpires), "%d/%m/%Y - %H:%M", iExpires);
+		}
+		else
+		{
+			FormatEx(SZF(szDuration), "%T", "PERMANENT", iAdmin);
+			FormatEx(SZF(szExpires), "%T", "NEVER", iAdmin);
+		}
+		UTIL_Reply(iAdmin, "%t", "ADMIN_VIP_ADD_SUCCESS", szTargetInfo, iTargetAccountID);
+	}
+
+	if (iDuration)
+	{
+		UTIL_GetTimeFromStamp(SZF(szExpires), iDuration, LANG_SERVER);
+	}
+	else
+	{
+		FormatEx(SZF(szExpires), "%T", "PERMANENT", LANG_SERVER);
+		FormatEx(SZF(szExpires), "%T", "NEVER", LANG_SERVER);
+	}
+
+	LogToFile(g_szLogFile, "%T", "LOG_VIP_ADDED", LANG_SERVER, szTargetInfo, iTargetAccountID, szDuration, szExpires, szGroup, szAdminInfo);
+}

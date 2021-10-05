@@ -36,7 +36,7 @@ public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iC
 					g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTargetID);
 
 					int iTarget = 0;
-					if(g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget))
+					if (g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget))
 					{
 						iTarget = CID(iTarget);
 						if (!iTarget && iTargetID != -1)
@@ -57,7 +57,7 @@ public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iC
 						}
 					}
 
-					if(iTargetID != -1)
+					if (iTargetID != -1)
 					{
 						char szGroup[64], szName[MAX_NAME_LENGTH];
 						g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));

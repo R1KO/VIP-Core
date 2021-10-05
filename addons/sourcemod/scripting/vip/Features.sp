@@ -9,7 +9,7 @@ void Features_TurnOffAll(int iClient)
 {
 	DBG_FEATURES("Features_TurnOffAll %N (%i)", iClient, iClient)
 	int iFeaturesCount = g_hFeaturesArray.Length;
-	if(!iFeaturesCount)
+	if (!iFeaturesCount)
 	{
 		return;
 	}
@@ -21,29 +21,31 @@ void Features_TurnOffAll(int iClient)
 	for(int i = 0; i < iFeaturesCount; ++i)
 	{
 		g_hFeaturesArray.GetString(i, SZF(szFeature));
-		if(!GetTrieValue(GLOBAL_TRIE, szFeature, hArray))
+		if (!GetTrieValue(GLOBAL_TRIE, szFeature, hArray))
 		{
 			continue;
 		}
 
-		if(view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) != TOGGLABLE)
+		if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) != TOGGLABLE)
 		{
 			continue;
 		}
 
 		fnToggleCallback = Feature_GetSelectCallback(hArray);
-		if(fnToggleCallback == INVALID_FUNCTION)
+		if (fnToggleCallback == INVALID_FUNCTION)
 		{
 			continue;
 		}
 
 		eOldStatus = Features_GetStatus(iClient, szFeature);
-		if(eOldStatus == NO_ACCESS)
+		if (eOldStatus == NO_ACCESS)
 		{
 			continue;
 		}
-		
+
+		CallForward_OnFeatureToggle(iClient, szFeature, eOldStatus, NO_ACCESS);
 		Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), fnToggleCallback, iClient, szFeature, eOldStatus, NO_ACCESS);
+		Features_SetStatus(iClient, szFeature, NO_ACCESS);
 	}
 }
 
@@ -52,7 +54,7 @@ void Features_TurnOnAll(int iClient)
 	DBG_FEATURES("Features_TurnOnAll %N (%i)", iClient, iClient)
 
 	int iFeaturesCount = g_hFeaturesArray.Length;
-	if(!iFeaturesCount)
+	if (!iFeaturesCount)
 	{
 		return;
 	}
@@ -64,28 +66,29 @@ void Features_TurnOnAll(int iClient)
 	for(int i = 0; i < iFeaturesCount; ++i)
 	{
 		GetArrayString(g_hFeaturesArray, i, SZF(szFeature));
-		if(!GetTrieValue(GLOBAL_TRIE, szFeature, hArray))
+		if (!GetTrieValue(GLOBAL_TRIE, szFeature, hArray))
 		{
 			continue;
 		}
 
-		if(view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) != TOGGLABLE)
+		if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) != TOGGLABLE)
 		{
 			continue;
 		}
 
 		fnToggleCallback = Feature_GetSelectCallback(hArray);
-		if(fnToggleCallback == INVALID_FUNCTION)
+		if (fnToggleCallback == INVALID_FUNCTION)
 		{
 			continue;
 		}
 
 		eStatus = Features_GetStatus(iClient, szFeature);
-		if(eStatus == NO_ACCESS)
+		if (eStatus == NO_ACCESS)
 		{
 			continue;
 		}
-		
+
+		eNewStatus = CallForward_OnFeatureToggle(iClient, szFeature, NO_ACCESS, eStatus);
 		eNewStatus = Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), fnToggleCallback, iClient, szFeature, NO_ACCESS, eStatus);
 
 		if (eNewStatus != eStatus)
@@ -104,7 +107,7 @@ void Features_SetStatus(int iClient, const char[] szFeature, VIP_ToggleState eSt
 VIP_ToggleState Features_GetStatus(const int &iClient, const char[] szFeature)
 {
 	static VIP_ToggleState eStatus;
-	if(g_hFeatureStatus[iClient].GetValue(szFeature, eStatus))
+	if (g_hFeatureStatus[iClient].GetValue(szFeature, eStatus))
 	{
 		DBG_FEATURES("Features_GetStatus: %N (%i) -> Feature: %s, eStatus: %i", iClient, iClient, szFeature, eStatus)
 		return eStatus;

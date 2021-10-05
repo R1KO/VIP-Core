@@ -180,12 +180,7 @@ public void OnAdminMenuReady(Handle aTopMenu)
 	}
 	
 	g_hTopMenu = hTopMenu;
-	
-	/*if (g_CVAR_bAddItemToAdminMenu)
-	{
-		AddItemsToTopMenu();
-	}
-	*/
+
 	AddItemsToTopMenu();
 }
 // g_CVAR_iAdminFlag
@@ -385,10 +380,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 					FormatTime(SZF(szTime), "%d/%m/%Y - %H:%M", iExpires);
 					VIP_PrintToChatClient(iClient, "%t", "ADMIN_SET_EXPIRATION", szName, szTime);
 					
-					if (g_CVAR_bLogsEnable)
-					{
-						LogToFile(g_szLogFile, "%T", "LOG_ADMIN_SET_EXPIRATION", LANG_SERVER, iClient, szName, szTime);
-					}
+					LogToFile(g_szLogFile, "%T", "LOG_ADMIN_SET_EXPIRATION", LANG_SERVER, iClient, szName, szTime);
 				}
 				case TIME_ADD:
 				{
@@ -405,10 +397,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 					UTIL_GetTimeFromStamp(SZF(szTime), iTime, iClient);
 					VIP_PrintToChatClient(iClient, "%t", "ADMIN_EXTENDED", szName, szTime);
 
-					if (g_CVAR_bLogsEnable)
-					{
-						LogToFile(g_szLogFile, "%T", "LOG_ADMIN_EXTENDED", LANG_SERVER, iClient, szName, szTime);
-					}
+					LogToFile(g_szLogFile, "%T", "LOG_ADMIN_EXTENDED", LANG_SERVER, iClient, szName, szTime);
 				}
 				case TIME_TAKE:
 				{
@@ -433,10 +422,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 
 					VIP_PrintToChatClient(iClient, "%t", "ADMIN_REDUCED", szName, szTime);
 					
-					if (g_CVAR_bLogsEnable)
-					{
-						LogToFile(g_szLogFile, "%T", "LOG_ADMIN_REDUCED", LANG_SERVER, iClient, szName, szTime);
-					}
+					LogToFile(g_szLogFile, "%T", "LOG_ADMIN_REDUCED", LANG_SERVER, iClient, szName, szTime);
 				}
 			}
 
@@ -469,7 +455,7 @@ void ShowGroupsMenu(int iClient, const char[] sTargetGroup = NULL_STRING)
 		{
 			if (g_hGroups.GetSectionName(SZF(szGroup)))
 			{
-				if(sTargetGroup[0] && !strcmp(sTargetGroup, szGroup))
+				if (sTargetGroup[0] && !strcmp(sTargetGroup, szGroup))
 				{
 					Format(SZF(szGroup), "%s [X]", szGroup);
 					hMenu.AddItem(szGroup, szGroup, ITEMDRAW_DISABLED);
@@ -530,7 +516,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 					{
 						g_hClientData[iClient].GetValue(DATA_KEY_Time, iBuffer);
 						g_hClientData[iClient].Clear();
-						UTIL_ADD_VIP_PLAYER(iClient, iTarget, _, iBuffer, szGroup);
+						Clients_AddVipPlayer(iClient, iTarget, _, iBuffer, szGroup);
 					}
 					else
 					{
@@ -570,13 +556,11 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 					}
 	
 					VIP_PrintToChatClient(iClient, "%t", "ADMIN_SET_GROUP", szName, szGroup);
-					if (g_CVAR_bLogsEnable)
-					{
-						char szAdmin[256], szAdminInfo[128];
-						UTIL_GetClientInfo(iClient, SZF(szAdminInfo));
-						FormatEx(SZF(szAdmin), "%T %s", "BY_ADMIN", LANG_SERVER, szAdminInfo);
-						LogToFile(g_szLogFile, "%T", "LOG_CHANGE_GROUP", LANG_SERVER, szName, iTargetID, szOldGroup, szGroup, szAdmin);
-					}
+					
+					char szAdmin[256], szAdminInfo[128];
+					UTIL_GetClientInfo(iClient, SZF(szAdminInfo));
+					FormatEx(SZF(szAdmin), "%T %s", "BY_ADMIN", LANG_SERVER, szAdminInfo);
+					LogToFile(g_szLogFile, "%T", "LOG_CHANGE_GROUP", LANG_SERVER, szName, iTargetID, szOldGroup, szGroup, szAdmin);
 
 					ShowTargetInfo(iClient);
 				}
@@ -604,7 +588,7 @@ public void SQL_Callback_ChangeTime(Database hOwner, DBResultSet hResult, const 
 			int iTarget;
 			g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget);
 			iTarget = CID(iTarget);
-			if(!iTarget)
+			if (!iTarget)
 			{
 				g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTarget);
 				iTarget = GetClientByID(iTarget);

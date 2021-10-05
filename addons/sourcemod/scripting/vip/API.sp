@@ -360,17 +360,16 @@ public int Native_PrintToChatAll(Handle hPlugin, int iNumParams)
 		}
 	}
 }
+
 public int Native_LogMessage(Handle hPlugin, int iNumParams)
 {
 	DBG_API("Native_LogMessage(%d)", iNumParams)
-	if (g_CVAR_bLogsEnable)
-	{
-		char szMessage[512];
-		SetGlobalTransTarget(LANG_SERVER);
-		FormatNativeString(0, 1, 2, sizeof(szMessage), _, szMessage);
-		
-		LogToFile(g_szLogFile, szMessage);
-	}
+	
+	char szMessage[512];
+	SetGlobalTransTarget(LANG_SERVER);
+	FormatNativeString(0, 1, 2, sizeof(szMessage), _, szMessage);
+	
+	LogToFile(g_szLogFile, szMessage);
 }
 
 public int Native_GetClientID(Handle hPlugin, int iNumParams)
@@ -440,22 +439,19 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 			DBG_SQL_Query(szQuery)
 			g_hDatabase.Query(SQL_Callback_ChangeClientSettings, szQuery, UID(iClient));
 
-			if (g_CVAR_bLogsEnable)
-			{
-				char szName[MNL], szAdmin[128], szPluginName[128], szOldGroup[64];
-				GetClientName(iClient, SZF(szName));
-				GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
-				FormatEx(SZF(szAdmin), "%T %s", "BY_PLUGIN", LANG_SERVER, szPluginName);
-				g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szOldGroup));
-				g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
-				LogToFile(g_szLogFile, "%T", "LOG_CHANGE_GROUP", LANG_SERVER, szName, iClientID, szOldGroup, szGroup, szAdmin);
-			}
+			char szName[MNL], szAdmin[128], szPluginName[128], szOldGroup[64];
+			GetClientName(iClient, SZF(szName));
+			GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
+			FormatEx(SZF(szAdmin), "%T %s", "BY_PLUGIN", LANG_SERVER, szPluginName);
+			g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szOldGroup));
+			g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
+			LogToFile(g_szLogFile, "%T", "LOG_CHANGE_GROUP", LANG_SERVER, szName, iClientID, szOldGroup, szGroup, szAdmin);
 		}
+
+		return 1;
 	}
-	else
-	{
-		Clients_LoadFeatures(iClient);
-	}
+
+	Clients_LoadFeatures(iClient);
 
 	return 1;
 }
@@ -527,7 +523,7 @@ public void SQL_Callback_ChangeClientSettings(Database hOwner, DBResultSet hResu
 public int Native_GetVIPClientTrie(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false) && g_hFeatures[iClient] && IS_CLIENT_VIP(iClient))
+	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
 		return view_as<int>(g_hFeatures[iClient]);
 	}
@@ -542,12 +538,12 @@ public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
 	{
 		bool bSelection = false;
 
-		if(iNumParams == 2)
+		if (iNumParams == 2)
 		{
 			bSelection = view_as<bool>(GetNativeCell(2));
 		}
 		
-		if(bSelection)
+		if (bSelection)
 		{
 			g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
 			return;
@@ -625,7 +621,7 @@ int API_GiveClientVIP(Handle hPlugin,
 		{
 			char szPluginName[128];
 			GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
-			UTIL_ADD_VIP_PLAYER(iAdmin, iClient, _, iTime, szGroup, szPluginName);
+			Clients_AddVipPlayer(iAdmin, iClient, _, iTime, szGroup, szPluginName);
 			return 0;
 		}
 
@@ -698,7 +694,7 @@ int API_RemoveClientVIP(Handle hPlugin,
 			}
 		}
 		
-		if(g_iClientInfo[iClient] & IS_MENU_OPEN)
+		if (g_iClientInfo[iClient] & IS_MENU_OPEN)
 		{
 			CancelClientMenu(iClient);
 		}
@@ -794,7 +790,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 		hDataPack.WriteFunction(GetNativeCell(6));
 		hArray.Push(hDataPack);
 
-		if(eType == TOGGLABLE)
+		if (eType == TOGGLABLE)
 		{
 			hArray.Push(iNumParams > 6 ? GetNativeCell(7) : NO_ACCESS);
 		}
@@ -1021,7 +1017,7 @@ public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 		{
 			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 			{
-				if(iNumParams > 3 && GetNativeCell(4))
+				if (iNumParams > 3 && GetNativeCell(4))
 				{
 					DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
 					hDataPack.Position = ITEM_SELECT;
@@ -1035,7 +1031,7 @@ public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 				if (eOldStatus != eNewStatus)
 				{
 					Features_SetStatus(iClient, szFeature, eNewStatus);
-					if(iNumParams > 4 && GetNativeCell(5))
+					if (iNumParams > 4 && GetNativeCell(5))
 					{
 						Features_SetStatusToStorage(iClient, szFeature, hArray, eNewStatus);
 					}

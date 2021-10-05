@@ -117,15 +117,9 @@ int			g_CVAR_iDeleteExpired;
 int			g_CVAR_iOutdatedExpired;
 float		g_CVAR_fSpawnDelay;
 bool		g_CVAR_bAutoOpenMenu;
-/*
-#if USE_ADMINMENU 1
-bool		g_CVAR_bAddItemToAdminMenu;
-#endif
-*/
 bool		g_CVAR_bUpdateName;
 bool		g_CVAR_bHideNoAccessItems;
 bool		g_CVAR_bDefaultStatus;
-bool		g_CVAR_bLogsEnable;
 
 EngineVersion	g_EngineVersion;
 bool g_bIsTranslationPhraseExistsAvailable;

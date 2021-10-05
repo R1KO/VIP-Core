@@ -118,10 +118,10 @@ public void OnPluginStart()
 	#if USE_ADMINMENU 1
 	RegConsoleCmd("sm_vipadmin", VIPAdmin_CMD);
 
-	if(LibraryExists("adminmenu"))
+	if (LibraryExists("adminmenu"))
 	{
 		TopMenu hTopMenu = GetAdminTopMenu();
-		if(hTopMenu != null)
+		if (hTopMenu != null)
 		{
 			OnAdminMenuReady(hTopMenu);
 		}
@@ -137,11 +137,11 @@ public void OnAllPluginsLoaded()
 #if USE_ADMINMENU 1
 public Action OnClientSayCommand(int iClient, const char[] szCommand, const char[] szArgs)
 {
-	if(iClient > 0 && iClient <= MaxClients && szArgs[0])
+	if (iClient > 0 && iClient <= MaxClients && szArgs[0])
 	{
-		if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+		if (g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 		{
-			if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+			if (g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 			{
 				ShowWaitSearchMenu(iClient, szArgs);
 			}

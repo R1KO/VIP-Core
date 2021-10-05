@@ -98,7 +98,7 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 					g_hFeatures[iTarget].GetValue(KEY_CID, UserID);
 					g_hClientData[iClient].SetValue(DATA_KEY_TargetID, UserID);
 					
-					if(UserID == -1)
+					if (UserID == -1)
 					{
 						ShowTemporaryTargetInfo(iClient);
 						return 0;
@@ -197,10 +197,10 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 	char szQuery[1024], szSearch[64], szWhere[128];
 	szSearch[0] = 0;
 	szWhere[0] = 0;
-	if(g_hClientData[iClient].GetString(DATA_KEY_Search, SZF(szSearch)) && szSearch[0])
+	if (g_hClientData[iClient].GetString(DATA_KEY_Search, SZF(szSearch)) && szSearch[0])
 	{
 		int iAccountID = UTIL_GetAccountIDFromSteamID(szSearch);
-		if(iAccountID)
+		if (iAccountID)
 		{
 			FormatEx(SZF(szWhere), " AND `account_id` = %d", iAccountID);
 		}
@@ -221,7 +221,7 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 	}
 	else
 	{
-		if(szWhere[0])
+		if (szWhere[0])
 		{
 			FormatEx(SZF(szQuery), "SELECT `account_id`, `name` \
 									FROM `vip_users` \
@@ -258,7 +258,7 @@ public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, 
 		hMenu.ExitBackButton = true;
 		szSearch[0] = 0;
 		g_hClientData[iClient].GetString(DATA_KEY_Search, SZF(szSearch));
-		if(szSearch[0])
+		if (szSearch[0])
 		{
 			hMenu.SetTitle("%T:\n%T:\n ", "MENU_LIST_VIP", iClient, "MENU_SEARCH", iClient, szSearch, hResult.RowCount);
 		}
@@ -288,7 +288,7 @@ public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, 
 			DBG_SQL_Response("hResult.FetchInt(0) = %d", iClientID)
 			DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
 			
-			if(GetClientByID(iClientID))
+			if (GetClientByID(iClientID))
 			{
 				Format(SZF(szName), "• %s", szName);
 			}
@@ -372,7 +372,7 @@ void ShowTemporaryTargetInfo(int iClient)
 	int iTarget;
 	g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget);
 	iTarget = CID(iTarget);
-	if(!iTarget)
+	if (!iTarget)
 	{
 		VIP_PrintToChatClient(iClient, "%t", "PLAYER_NO_LONGER_AVAILABLE");
 		ShowVipPlayersListMenu(iClient);
@@ -424,7 +424,7 @@ void ShowTargetInfoMenu(int iClient)
 		FormatEx(SZF(szBuffer), "%T", "NEVER", iClient);
 	}
 	
-	if(iClientID == -1)
+	if (iClientID == -1)
 	{
 		Format(SZF(szBuffer), "%s (%T)", szBuffer, "TEMPORARY", iClient);
 	}

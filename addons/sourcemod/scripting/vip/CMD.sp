@@ -79,7 +79,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 	bool bIsMulti;
 	int iTargets, iAccountID = 0;
 
-	if((iTargets = ProcessTargetString(
+	if ((iTargets = ProcessTargetString(
 			szBuffer,
 			iClient, 
 			iTargetList, 
@@ -89,7 +89,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 			bIsMulti)) < 1)
 	{
 		iAccountID = UTIL_GetAccountIDFromSteamID(szBuffer);
-		if(!iAccountID)
+		if (!iAccountID)
 		{
 			ReplyToTargetError(iClient, iTargets);
 			return Plugin_Handled;
@@ -113,11 +113,11 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 		return Plugin_Handled;
 	}
 
-	if(iTargets > 0)
+	if (iTargets > 0)
 	{
 		for(int i = 0; i < iTargets; ++i)
 		{
-			if(IsClientInGame(iTargetList[i]))
+			if (IsClientInGame(iTargetList[i]))
 			{
 				if (g_iClientInfo[iTargetList[i]] & IS_VIP)
 				{
@@ -125,14 +125,14 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 					continue;
 				}
 				
-				UTIL_ADD_VIP_PLAYER(iClient, iTargetList[i], _, UTIL_TimeToSeconds(iTime), szGroup);
+				Clients_AddVipPlayer(iClient, iTargetList[i], _, UTIL_TimeToSeconds(iTime), szGroup);
 			}
 		}
 	
 		return Plugin_Handled;
 	}
 	
-	UTIL_ADD_VIP_PLAYER(iClient, _, iAccountID, UTIL_TimeToSeconds(iTime), szGroup);
+	Clients_AddVipPlayer(iClient, _, iAccountID, UTIL_TimeToSeconds(iTime), szGroup);
 
 	return Plugin_Handled;
 }
@@ -151,7 +151,7 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 	GetCmdArg(1, SZF(szAuth));
 	
 	int iAccountID = UTIL_GetAccountIDFromSteamID(szAuth);
-	if(!iAccountID)
+	if (!iAccountID)
 	{
 		ReplyToTargetError(iClient, COMMAND_TARGET_NONE);
 		return Plugin_Handled;
@@ -210,13 +210,13 @@ public Action DumpFeatures_CMD(int iClient, int iArgs)
 	CHECK_ACCESS(iClient)
 	
 	int iFeatures = g_hFeaturesArray.Length;
-	if(iFeatures != 0)
+	if (iFeatures != 0)
 	{
 		char szBuffer[PLATFORM_MAX_PATH];
 		BuildPath(Path_SM, SZF(szBuffer), "data/vip/features_dump.txt");
 		File hFile = OpenFile(szBuffer, "w");
 
-		if(hFile != null)
+		if (hFile != null)
 		{
 			char				szPluginName[64];
 			char				szPluginPath[PLATFORM_MAX_PATH];
@@ -230,7 +230,7 @@ public Action DumpFeatures_CMD(int iClient, int iArgs)
 			for(int i = 0; i < iFeatures; ++i)
 			{
 				g_hFeaturesArray.GetString(i, SZF(szFeature));
-				if(GLOBAL_TRIE.GetValue(szFeature, hArray))
+				if (GLOBAL_TRIE.GetValue(szFeature, hArray))
 				{
 					hPlugin = view_as<Handle>(hArray.Get(FEATURES_PLUGIN));
 					GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
