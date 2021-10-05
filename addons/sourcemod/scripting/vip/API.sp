@@ -1,4 +1,4 @@
-#define VIP_CLIENT(%0)	(g_hFeatures[%0] && IS_CLIENT_VIP(iClient) && IS_CLIENT_LOADED(iClient))
+#define VIP_CLIENT(%0)	(g_hFeatures[%0] && IS_CLIENT_VIP(%0) && IS_CLIENT_LOADED(%0))
 
 static Handle g_hGlobalForward_OnVIPLoaded;
 static Handle g_hGlobalForward_OnClientPreLoad;
@@ -527,7 +527,7 @@ public void SQL_Callback_ChangeClientSettings(Database hOwner, DBResultSet hResu
 public int Native_GetVIPClientTrie(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
+	if (CheckValidClient(iClient, false) && g_hFeatures[iClient] && IS_CLIENT_VIP(iClient))
 	{
 		return view_as<int>(g_hFeatures[iClient]);
 	}

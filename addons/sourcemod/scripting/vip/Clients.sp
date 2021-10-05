@@ -32,12 +32,13 @@ public void OnClientDisconnect(int iClient)
 	{
 		CallForward_OnClientDisconnect(iClient);
 		Storage_SaveClient(iClient);
-		Storage_ResetClient(iClient);
 	}
-	
+
 	Clients_ResetClient(iClient);
 	UTIL_CloseHandleEx(g_hClientData[iClient]);
 	g_iClientInfo[iClient] = 0;
+
+	Storage_ResetClient(iClient);
 }
 
 void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = false)
@@ -225,20 +226,21 @@ public void OnClientCookiesCached(int iClient)
 	DebugMessage("OnClientCookiesCached %d %N", iClient, iClient)
 	
 	DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
-	OnClientStorageLoaded(iClient);
+	//OnClientStorageLoaded(iClient);
 }
 #else
 public void VIP_OnClientStorageLoaded(int iClient)
 {
 	DebugMessage("VIP_OnClientStorageLoaded: %d %N", iClient, iClient)
-	OnClientStorageLoaded(iClient);
+	//OnClientStorageLoaded(iClient);
 }
 #endif
-
+/*
 void OnClientStorageLoaded(int iClient)
 {
 	DebugMessage("OnClientStorageLoaded: %d %N", iClient, iClient)
 }
+*/
 
 bool IsClientStorageLoaded(int iClient)
 {
@@ -338,8 +340,8 @@ void Clients_LoadFeatures(int iClient)
 
 	OnClientLoaded(iClient);
 	OnVIPClientLoaded(iClient);
+	Features_TurnOnAll(iClient);
 }
-
 
 void Clients_LoadFeature(int iClient, const char[] szFeature)
 {
@@ -369,7 +371,7 @@ void Clients_LoadFeatureValue(int iClient, const char[] szFeature)
 	static ArrayList hArray;
 	if (GLOBAL_TRIE.GetValue(szFeature, hArray))
 	{
-		DebugMessage("LoadClientFeature: %s", szFeature)
+		DebugMessage("Clients_LoadFeatureValue: %s", szFeature)
 
 		if (GetFeatureValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), szFeature))
 		{
@@ -377,21 +379,8 @@ void Clients_LoadFeatureValue(int iClient, const char[] szFeature)
 			DebugMessage("GetValue: == true")
 			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 			{
-				static Function fnToggleCallback;
 				eStatus = Features_GetStatusFromStorage(iClient, szFeature, hArray);
 				DebugMessage("Features_GetStatusFromStorage: '%d'", eStatus)
-
-				// TODO: add call toggle callback
-				if (eStatus != NO_ACCESS)
-				{
-					fnToggleCallback = Feature_GetSelectCallback(hArray);
-					if(fnToggleCallback != INVALID_FUNCTION)
-					{
-						Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), fnToggleCallback, iClient, szFeature, NO_ACCESS, eStatus);
-					}
-				}
-
-				Features_SetStatusToStorage(iClient, szFeature, hArray, eStatus);
 			}
 			else
 			{

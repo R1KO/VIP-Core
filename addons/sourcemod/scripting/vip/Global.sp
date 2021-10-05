@@ -22,15 +22,13 @@
 
 #define IS_VIP						(1<<0) // VIP ли игрок
 #define IS_LOADED					(1<<1) // Загружен ли игрок
-#define IS_CACHE_LOADED				(1<<2) // Загружен ли кеш игрока
-#define IS_WAIT_CHAT_PASS			(1<<3) // Ожидается ввод пароля в чат
-#define IS_WAIT_CHAT_SEARCH			(1<<4) // Ожидается ввод значения для поиска в чат
-#define IS_SPAWNED					(1<<5) // Игрок возродился
-#define IS_MENU_OPEN				(1<<6) // VIP-меню открыто
+#define IS_WAIT_CHAT_PASS			(1<<2) // Ожидается ввод пароля в чат
+#define IS_WAIT_CHAT_SEARCH			(1<<3) // Ожидается ввод значения для поиска в чат
+#define IS_SPAWNED					(1<<4) // Игрок возродился
+#define IS_MENU_OPEN				(1<<5) // VIP-меню открыто
 
 #define IS_CLIENT_VIP(%0)			g_iClientInfo[%0] & IS_VIP == IS_VIP
 #define IS_CLIENT_LOADED(%0)		g_iClientInfo[%0] & IS_LOADED == IS_LOADED
-#define IS_CLIENT_CACHE_LOADED(%0)	g_iClientInfo[%0] & IS_CACHE_LOADED == IS_CACHE_LOADED
 
 #define IS_STARTED					(1<<0)
 #define IS_MySQL					(1<<1)

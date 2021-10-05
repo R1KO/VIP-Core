@@ -1,4 +1,8 @@
 
+#define IS_CLIENT_CACHE_LOADED(%0)	g_bIsCacheLoaded[%0]
+
+static bool g_bIsCacheLoaded[MPL+1];
+
 bool Storage_IsClientLoaded(int iClient)
 {
 	DBG_STORAGE("Storage_IsClientLoaded: %N (%d): %b", iClient, iClient, IS_CLIENT_CACHE_LOADED(iClient) && g_hCache[iClient])
@@ -27,8 +31,6 @@ void Storage_LoadClient(int iClient)
 
 	int iAccountID = GetSteamAccountID(iClient);
 	DBG_STORAGE("Storage_LoadClient: %N (%d): %d", iClient, iClient, iAccountID)
-
-	DebugMessage("Storage_LoadClient %N (%d): %d", iClient, iClient, iAccountID)
 
 	FormatEx(SZF(szQuery), "SELECT `key`, `value` \
 										FROM `vip_storage` \
@@ -80,7 +82,7 @@ public void SQL_Callback_OnClientLoadStorage(Database hOwner, DBResultSet hResul
 
 void Storage_OnClientLoaded(int iClient)
 {
-	SET_BIT(g_iClientInfo[iClient], IS_CACHE_LOADED);
+	g_bIsCacheLoaded[iClient] = true;
 
 	CallForward_OnClientStorageLoaded(iClient);
 }
@@ -95,7 +97,7 @@ void Storage_ResetClient(int iClient)
 		g_hCache[iClient] = null;
 	}
 
-	UNSET_BIT(g_iClientInfo[iClient], IS_CACHE_LOADED);
+	g_bIsCacheLoaded[iClient] = false;
 }
 
 void Storage_SaveClient(int iClient)
