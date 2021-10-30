@@ -12,11 +12,11 @@ void DebugMsg(const char[] sMsg, any ...)
 
 // Детальность логов
 // #define LOG_DOWNLOADS				// SQL Запросы
-#define LOG_QUERIES				// SQL Запросы
-#define LOG_RESPONSE			// Ответы SQL запросов
+// #define LOG_QUERIES				// SQL Запросы
+// #define LOG_RESPONSE			// Ответы SQL запросов
 // #define LOG_API					// API
-#define LOG_FEATURES			// API
-// #define LOG_CLIENTS				// API
+// #define LOG_FEATURES			// API
+#define LOG_CLIENTS				// API
 // #define LOG_DB					// API
 #define LOG_STORAGE
 
@@ -59,4 +59,11 @@ void DebugMsg(const char[] sMsg, any ...)
 #define DBG_STORAGE(%0) DebugMsg("STORAGE: " ... %0);
 #else
 #define DBG_STORAGE(%0)
+#endif
+
+
+#if defined LOG_CLIENTS
+#define DBG_CLIENTS(%0) DebugMsg("STORAGE: " ... %0);
+#else
+#define DBG_CLIENTS(%0)
 #endif

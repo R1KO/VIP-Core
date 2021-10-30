@@ -608,6 +608,7 @@ int API_GiveClientVIP(Handle hPlugin,
 			if (iClientID == -1 && bAddToDB)
 			{
 				Clients_ResetClient(iClient);
+				SET_BIT(g_iClientInfo[iClient], IS_LOADED);
 
 				CallForward_OnVIPClientRemoved(iClient, "Removed for VIP-status change", iAdmin);
 			}
@@ -637,7 +638,7 @@ int API_GiveClientVIP(Handle hPlugin,
 
 		Clients_InitVIPClient(iClient, -1, szGroup, iExpires);
 
-		Clients_LoadFeatures(iClient);
+		Clients_TryLoadFeatures(iClient);
 
 		DisplayClientInfo(iClient, iTime == 0 ? "connect_info_perm":"connect_info_time");
 
@@ -690,15 +691,16 @@ int API_RemoveClientVIP(Handle hPlugin,
 			int iClientID;
 			if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 			{
-				Clients_RemoveVipPlayer(OWNER_PLUGIN, iClient, _, true, szPluginName);
+				Clients_RemoveVipPlayer(OWNER_PLUGIN, iClient, iClientID, bNotify, szPluginName);
+				return 1;
 			}
 		}
-		
+
+		// TODO: remake this
 		if (g_iClientInfo[iClient] & IS_MENU_OPEN)
 		{
 			CancelClientMenu(iClient);
 		}
-
 
 		Features_TurnOffAll(iClient);
 		Clients_ResetClient(iClient);

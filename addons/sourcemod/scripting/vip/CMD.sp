@@ -10,7 +10,7 @@ void CMD_Setup()
 	#endif
 }
 
-public void OnConfigsExecuted()
+public void CMD_Register()
 {
 	static bool bIsRegistered;
 	if (bIsRegistered == false)

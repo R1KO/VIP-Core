@@ -145,10 +145,7 @@ public void SQL_Callback_TableCreate(Database hOwner, DBResultSet hResult, const
 	
 	Clients_ReloadVipPlayers(0, false);
 
-	if (g_CVAR_iDeleteExpired != -1 || g_CVAR_iOutdatedExpired != -1)
-	{
-		RemoveExpAndOutPlayers();
-	}
+	RemoveExpAndOutPlayers();
 }
 
 public void SQL_Callback_StorageTableCreate(Database hOwner, DBResultSet hResult, const char[] szError, any data)
@@ -164,12 +161,17 @@ public void SQL_Callback_StorageTableCreate(Database hOwner, DBResultSet hResult
 
 void RemoveExpAndOutPlayers()
 {
+	DebugMessage("RemoveExpAndOutPlayers")
+	DebugMessage("g_CVAR_iDeleteExpired: %d", g_CVAR_iDeleteExpired)
+	DebugMessage("g_CVAR_iOutdatedExpired: %d", g_CVAR_iOutdatedExpired)
+
 	if (g_CVAR_iDeleteExpired >= 0)
 	{
 		char szQuery[256];
-		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `expires` > 0 AND `expires` < %d%s;", GetTime() - (g_CVAR_iDeleteExpired == 0 ? 1:g_CVAR_iDeleteExpired)*86400, g_szSID);
+		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `expires` > 0 AND `expires` < %d%s;", (GetTime() - g_CVAR_iDeleteExpired*86400), g_szSID);
 
 		DBG_SQL_Query(szQuery)
+		DebugMessage(szQuery)
 		g_hDatabase.Query(SQL_Callback_SelectExpiredAndOutdated, szQuery, REASON_EXPIRED);
 	}
 
@@ -227,6 +229,7 @@ public void SQL_Callback_SelectExpiredAndOutdated(Database hOwner, DBResultSet h
 	}
 	
 	DBG_SQL_Response("hResult.RowCount = %d", hResult.RowCount)
+	DebugMessage("hResult.RowCount = %d", hResult.RowCount)
 
 	if (hResult.RowCount)
 	{

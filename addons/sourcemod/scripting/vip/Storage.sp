@@ -82,6 +82,7 @@ public void SQL_Callback_OnClientLoadStorage(Database hOwner, DBResultSet hResul
 
 void Storage_OnClientLoaded(int iClient)
 {
+	DBG_STORAGE("Storage_OnClientLoaded: %N (%d)", iClient, iClient)
 	g_bIsCacheLoaded[iClient] = true;
 
 	CallForward_OnClientStorageLoaded(iClient);

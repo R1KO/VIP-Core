@@ -153,3 +153,20 @@ public Action OnClientSayCommand(int iClient, const char[] szCommand, const char
 	return Plugin_Continue;
 }
 #endif
+
+public void OnMapStart()
+{
+	LoadSounds();
+	ReadDownloads();
+}
+
+public void OnConfigsExecuted()
+{
+	DebugMessage("OnConfigsExecuted: %x", g_hDatabase)
+	CMD_Register();
+
+	if (g_hDatabase  && (GLOBAL_INFO & IS_STARTED))
+	{
+		RemoveExpAndOutPlayers();
+	}
+}
