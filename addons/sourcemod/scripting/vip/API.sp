@@ -262,6 +262,7 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 	RegNative(SendClientVIPMenu);
 
 	RegNative(IsValidVIPGroup);
+	RegNative(IsGroupExists);
 
 	RegNative(GetClientFeatureStatus);
 	RegNative(SetClientFeatureStatus);
@@ -726,6 +727,49 @@ public int Native_IsValidVIPGroup(Handle hPlugin, int iNumParams)
 	char szGroup[64];
 	GetNativeString(1, SZF(szGroup));
 	return UTIL_CheckValidVIPGroup(szGroup);
+}
+
+public int Native_IsGroupExists(Handle hPlugin, int iNumParams)
+{
+	char szGroup[64];
+	GetNativeString(1, SZF(szGroup));
+	return UTIL_CheckValidVIPGroup(szGroup);
+}
+
+public int Native_AddGroup(Handle hPlugin, int iNumParams)
+{
+	char szGroup[64];
+	GetNativeString(1, SZF(szGroup));
+	if (UTIL_CheckValidVIPGroup(szGroup))
+	{
+		return 0;
+	}
+
+	g_hGroups.Rewind();
+	if (g_hGroups.JumpToKey(szGroup, true))
+	{
+		KeyValues hGroupKv = view_as<KeyValues>(GetNativeCell(2));
+		KvCopySubkeys(hGroupKv, g_hGroups);
+		g_hGroups.Rewind();
+		return 1;
+	}
+
+	return 0;
+}
+
+
+public int Native_RemoveGroup(Handle hPlugin, int iNumParams)
+{
+	char szGroup[64];
+	GetNativeString(1, SZF(szGroup));
+	if (UTIL_CheckValidVIPGroup(szGroup))
+	{
+		g_hGroups.DeleteThis();
+		g_hGroups.Rewind();
+		return 1;
+	}
+
+	return 0;
 }
 
 public int Native_IsVIPLoaded(Handle hPlugin, int iNumParams)
