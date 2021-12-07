@@ -756,6 +756,9 @@ public void __pl_vip_core_SetNTVOptional()
 	MarkNativeAsOptional("VIP_GetVIPClientTrie");
 	MarkNativeAsOptional("VIP_SendClientVIPMenu");
 	MarkNativeAsOptional("VIP_IsValidVIPGroup");
+	MarkNativeAsOptional("VIP_IsGroupExists");
+	MarkNativeAsOptional("VIP_AddGroup");
+	MarkNativeAsOptional("VIP_RemoveGroup")
 	MarkNativeAsOptional("VIP_GetClientFeatureStatus");
 	MarkNativeAsOptional("VIP_SetClientFeatureStatus");
 	MarkNativeAsOptional("VIP_IsClientFeatureUse");
@@ -773,5 +776,7 @@ public void __pl_vip_core_SetNTVOptional()
 	MarkNativeAsOptional("VIP_GiveClientVIP");
 	MarkNativeAsOptional("VIP_GiveClientFeature");
 	MarkNativeAsOptional("VIP_RemoveClientFeature");
+	MarkNativeAsOptional("VIP_SetClientStorageValue");
+	MarkNativeAsOptional("VIP_GetClientStorageValue");
 }
 #endif

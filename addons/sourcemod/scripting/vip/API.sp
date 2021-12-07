@@ -263,6 +263,8 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 
 	RegNative(IsValidVIPGroup);
 	RegNative(IsGroupExists);
+	RegNative(AddGroup);
+	RegNative(RemoveGroup);
 
 	RegNative(GetClientFeatureStatus);
 	RegNative(SetClientFeatureStatus);
