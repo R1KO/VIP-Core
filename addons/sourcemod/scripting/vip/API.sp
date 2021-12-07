@@ -13,6 +13,7 @@ static Handle g_hGlobalForward_OnFeatureRegistered;
 static Handle g_hGlobalForward_OnFeatureUnregistered;
 static Handle g_hGlobalForward_OnClientDisconnect;
 static Handle g_hGlobalForward_OnClientStorageLoaded;
+static Handle g_hGlobalForward_OnConfigsLoaded;
 
 void API_SetupForwards()
 {
@@ -30,6 +31,7 @@ void API_SetupForwards()
 	g_hGlobalForward_OnFeatureUnregistered			= CreateGlobalForward("VIP_OnFeatureUnregistered", ET_Ignore, Param_String);
 	g_hGlobalForward_OnClientDisconnect             = CreateGlobalForward("VIP_OnClientDisconnect", ET_Ignore, Param_Cell, Param_Cell);
 	g_hGlobalForward_OnClientStorageLoaded          = CreateGlobalForward("VIP_OnClientStorageLoaded", ET_Ignore, Param_Cell);
+	g_hGlobalForward_OnConfigsLoaded        		= CreateGlobalForward("VIP_OnConfigsLoaded", ET_Ignore);
 }
 
 // Global Forwards
@@ -37,6 +39,13 @@ void CallForward_OnVIPLoaded()
 {
 	DBG_API("CallForward_OnVIPLoaded()")
 	Call_StartForward(g_hGlobalForward_OnVIPLoaded);
+	Call_Finish();
+}
+
+void CallForward_OnConfigsLoaded()
+{
+	DBG_API("CallForward_OnConfigsLoaded()")
+	Call_StartForward(g_hGlobalForward_OnConfigsLoaded);
 	Call_Finish();
 }
 

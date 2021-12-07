@@ -148,6 +148,15 @@ forward Action VIP_OnFeatureToggle(int iClient, const char[] szFeature, VIP_Togg
 forward void VIP_OnVIPLoaded();
 
 /**
+ *	Вызывается когда VIP-плагин загрузил настройки.
+ *
+ * @noparams
+ *
+ * @noreturn
+*/
+forward void VIP_OnConfigsLoaded();
+
+/**
  *	Вызывается когда VIP-функция была зарегистрирована.
  *
  * @param szFeature			Уникальное имя ф-и.
