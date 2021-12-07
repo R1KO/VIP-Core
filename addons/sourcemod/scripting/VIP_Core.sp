@@ -96,6 +96,7 @@ public void OnPluginStart()
 	g_bIsTranslationPhraseExistsAvailable = (CanTestFeatures() && 
 		GetFeatureStatus(FeatureType_Native, "TranslationPhraseExists") == FeatureStatus_Available);
 
+	API_SetupForwards();
 	ReadConfigs();
 
 	VIPMenu_Setup();
@@ -104,7 +105,6 @@ public void OnPluginStart()
 	#endif
 
 	Cvars_Setup();
-	API_SetupForwards();
 
 	HookEvent("player_spawn",			Event_PlayerSpawn);
 	HookEvent("player_death",			Event_PlayerDeath);
