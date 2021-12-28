@@ -1277,7 +1277,7 @@ bool CheckValidClient(const int &iClient, bool bCheckVIP = true)
 		ThrowNativeError(SP_ERROR_NATIVE, "Invalid client index/Некорректный индекс игрока (%i)", iClient);
 		return false;
 	}
-	if (IsClientInGame(iClient) == false)
+	if (bCheckVIP && IsClientInGame(iClient) == false)
 	{
 		ThrowNativeError(SP_ERROR_NATIVE, "Client %i is not connected/Игрок %i не подключен", iClient, iClient);
 		return false;

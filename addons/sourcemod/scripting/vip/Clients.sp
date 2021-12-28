@@ -7,6 +7,13 @@ void ResetClient(int iClient)
 	UTIL_CloseHandleEx(g_hFeatureStatus[iClient]);
 }
 
+public bool OnClientConnect(int client, char[] rejectmsg, int maxlen)
+{
+	ResetClient(client);
+
+	return true;
+}
+
 public void OnClientPutInServer(int iClient)
 {
 	//	g_iClientInfo[iClient] = 0;
@@ -42,10 +49,6 @@ void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = f
 		return;
 	}
 
-	g_iClientInfo[iClient] &= ~IS_LOADED;
-	
-	ResetClient(iClient);
-	
 	if (IsFakeClient(iClient) == false && (GLOBAL_INFO & IS_STARTED) && g_hDatabase)
 	{
 		Clients_LoadClient(iClient, bNotify);
