@@ -151,7 +151,7 @@ VIP_ToggleState CallForward_OnFeatureToggle(int iClient, const char[] szFeature,
 	Call_PushCell(eOldStatus);
 	Call_PushCellRef(eResultStatus);
 	Call_Finish(aResult);
-	DBG_API("CallForward_OnShowClientInfo = %b", bResult)
+	DBG_API("CallForward_OnFeatureToggle = %b", bResult)
 
 	switch (aResult)
 	{
