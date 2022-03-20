@@ -1,4 +1,4 @@
-name: Build and deploy
+name: Build
 
 on:
   push:
@@ -34,7 +34,7 @@ jobs:
           cd addons/sourcemod
           mkdir plugins
           cd scripting
-          spcomp __GITHUB=1 VIP_Core.sp -E -o ../plugins/VIP_Core.smx -iinclude ${{ matrix.compiler-options }}
+          spcomp VIP_Core.sp -E -o ../plugins/VIP_Core.smx -iinclude ${{ matrix.compiler-options }}
       
       # - name: Make artifact archive
       #   if: github.ref == 'refs/heads/master'
