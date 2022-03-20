@@ -20,7 +20,7 @@ jobs:
     env:
       DEBUG: ${{ contains(matrix.compiler-options, '__XDEBUG=1') }}
 
-    name: "SM version ${{ matrix.sm-version }} ${{ matrix.compiler-options != '' && format('({0})', matrix.compiler-options) || '' }}"
+    name: "Build SM ${{ matrix.sm-version }} ${{ matrix.compiler-options != '' && format('({0})', matrix.compiler-options) || '' }}"
     steps:
       - uses: actions/checkout@v2
 
