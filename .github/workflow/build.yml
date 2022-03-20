@@ -3,10 +3,14 @@ name: Build
 on:
   push:
     branches:
-      - '**'        # matches every branch
+      - '*'
+      - 'master'
+      - 'add_internal_storage'
   pull_request:
     branches:
-      - '**'        # matches every branch
+      - '*'
+      - 'master'
+      - 'add_internal_storage'
 
 jobs:
   compile:
@@ -51,7 +55,7 @@ jobs:
       #     tar -cvf $ARCHIVE_FILENAME addons
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+       uses: actions/upload-artifact@v3
         with:
           name: VIP-Core
           path: addons
