@@ -1,4 +1,4 @@
-name: Build and deploy
+name: Build
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
     env:
       DEBUG: ${{ contains(matrix.compiler-options, '__XDEBUG=1') }}
 
-    name: "SM version ${{ matrix.sm-version }} ${{ matrix.compiler-options != '' && format('({0})', matrix.compiler-options) || '' }}"
+    name: "Build SM ${{ matrix.sm-version }} ${{ matrix.compiler-options != '' && format('({0})', matrix.compiler-options) || '' }}"
     steps:
       - uses: actions/checkout@v2
 
@@ -34,7 +34,7 @@ jobs:
           cd addons/sourcemod
           mkdir plugins
           cd scripting
-          spcomp __GITHUB=1 VIP_Core.sp -E -o ../plugins/VIP_Core.smx -iinclude ${{ matrix.compiler-options }}
+          spcomp VIP_Core.sp -E -o ../plugins/VIP_Core.smx -iinclude ${{ matrix.compiler-options }}
       
       # - name: Make artifact archive
       #   if: github.ref == 'refs/heads/master'
@@ -51,8 +51,10 @@ jobs:
       #     tar -cvf $ARCHIVE_FILENAME addons
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: VIP-Core
-          path: VIP-Core
-          
+#        uses: actions/upload-artifact@v3
+#         with:
+#           name: VIP-Core
+#           path: VIP-Core
+        run: |
+          pwd
+          ls -l
