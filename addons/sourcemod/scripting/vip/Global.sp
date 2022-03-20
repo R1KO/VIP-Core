@@ -27,8 +27,8 @@
 #define IS_SPAWNED					(1<<4) // Игрок возродился
 #define IS_MENU_OPEN				(1<<5) // VIP-меню открыто
 
-#define IS_CLIENT_VIP(%0)			g_iClientInfo[%0] & IS_VIP == IS_VIP
-#define IS_CLIENT_LOADED(%0)		g_iClientInfo[%0] & IS_LOADED == IS_LOADED
+#define IS_CLIENT_VIP(%0)			(g_iClientInfo[%0] & IS_VIP == IS_VIP)
+#define IS_CLIENT_LOADED(%0)		(g_iClientInfo[%0] & IS_LOADED == IS_LOADED)
 
 #define IS_STARTED					(1<<0)
 #define IS_MySQL					(1<<1)

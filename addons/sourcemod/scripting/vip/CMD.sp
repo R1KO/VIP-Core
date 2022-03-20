@@ -284,24 +284,17 @@ public Action DumpFeatures_CMD(int iClient, int iArgs)
 
 public Action VIPMenu_CMD(int iClient, int iArgs)
 {
-	if (iClient)
+	if (iClient && !IsVipMenuFlood(iClient))
 	{
-		if (OnVipMenuFlood(iClient) == false)
+		if (!IS_CLIENT_VIP(iClient))
 		{
-			if (g_iClientInfo[iClient] & IS_VIP)
-			{
-				g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
-			}
-			else
-			{
-				/*
-				PrintToChat(iClient, "%t%t", "VIP_CHAT_PREFIX", "COMMAND_NO_ACCESS");
-				*/
-				
-				PlaySound(iClient, NO_ACCESS_SOUND);
-				DisplayClientInfo(iClient, "no_access_info");
-			}
+			PlaySound(iClient, NO_ACCESS_SOUND);
+			DisplayClientInfo(iClient, "no_access_info");
+			return Plugin_Handled;
 		}
+
+		DisplayVipMenu(iClient);
 	}
+
 	return Plugin_Handled;
 }

@@ -423,7 +423,7 @@ void ShowTargetInfoMenu(int iClient)
 	{
 		FormatEx(SZF(szBuffer), "%T", "NEVER", iClient);
 	}
-	
+
 	if (iClientID == -1)
 	{
 		Format(SZF(szBuffer), "%s (%T)", szBuffer, "TEMPORARY", iClient);

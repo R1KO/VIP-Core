@@ -524,7 +524,7 @@ public void SQL_Callback_ChangeClientSettings(Database hOwner, DBResultSet hResu
 public int Native_GetVIPClientTrie(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
+	if (CheckValidClient(iClient, false) && g_hFeatures[iClient])
 	{
 		return view_as<int>(g_hFeatures[iClient]);
 	}
@@ -944,11 +944,6 @@ void UnregisterFeature(const char[] szFeature, ArrayList hArray)
 				g_hVIPMenu.RemoveItem(j);
 				break;
 			}
-		}
-		
-		if (g_hVIPMenu.ItemCount == 0)
-		{
-			g_hVIPMenu.AddItem("NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
 		}
 	}
 
