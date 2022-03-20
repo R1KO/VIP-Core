@@ -119,7 +119,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 		{
 			if (IsClientInGame(iTargetList[i]))
 			{
-				if (g_iClientInfo[iTargetList[i]] & IS_VIP)
+				if (IS_CLIENT_VIP(iTargetList[i]))
 				{
 					ReplyToCommand(iClient, "[VIP] %t", "ALREADY_HAS_VIP");
 					continue;

@@ -98,7 +98,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 		action == MenuAction_DisplayItem ||
 		action == MenuAction_DrawItem ||
 		action == MenuAction_Select) && 
-		(!(g_iClientInfo[iClient] & IS_VIP) || !g_hFeatures[iClient]))
+		(!IS_CLIENT_VIP(iClient) || !g_hFeatures[iClient]))
 		{
 		return 0;
 	}

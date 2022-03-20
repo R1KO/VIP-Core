@@ -83,7 +83,7 @@ void CallForward_OnClientDisconnect(int iClient)
 	DBG_API("CallForward_OnClientDisconnect(%N (%d), %b)", iClient, iClient, IS_CLIENT_VIP(iClient))
 	Call_StartForward(g_hGlobalForward_OnClientDisconnect);
 	Call_PushCell(iClient);
-	Call_PushCell(g_iClientInfo[iClient] & IS_VIP);
+	Call_PushCell(IS_CLIENT_VIP(iClient));
 	Call_Finish();
 }
 
@@ -112,7 +112,7 @@ void CallForward_OnPlayerSpawn(int iClient, int iTeam)
 	Call_StartForward(g_hGlobalForward_OnPlayerSpawn);
 	Call_PushCell(iClient);
 	Call_PushCell(iTeam);
-	Call_PushCell(g_iClientInfo[iClient] & IS_VIP);
+	Call_PushCell(IS_CLIENT_VIP(iClient));
 	Call_Finish();
 }
 
@@ -334,7 +334,7 @@ public int Native_IsClientVIP(Handle hPlugin, int iNumParams)
 	DBG_API("iClient = %d", iClient)
 	if (CheckValidClient(iClient, false))
 	{
-		DBG_API("IS_VIP = %b", (g_iClientInfo[iClient] & IS_VIP))
+		DBG_API("IS_VIP = %b", IS_CLIENT_VIP(iClient))
 		DBG_API("IS_CLIENT_LOADED = %b", (g_iClientInfo[iClient] & IS_LOADED))
 		return IS_CLIENT_VIP(iClient) && IS_CLIENT_LOADED(iClient);
 	}
@@ -613,7 +613,7 @@ int API_GiveClientVIP(Handle hPlugin,
 			return ThrowNativeError(SP_ERROR_NATIVE, "Invalid time (%d)", iTime);
 		}
 
-		if (g_iClientInfo[iClient] & IS_VIP)
+		if (IS_CLIENT_VIP(iClient))
 		{
 			int iClientID;
 			g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
@@ -960,7 +960,7 @@ void UnregisterFeature(const char[] szFeature, ArrayList hArray)
 
 	for (int j = 1; j <= MaxClients; ++j)
 	{
-		if (IsClientInGame(j) && g_iClientInfo[j] & IS_VIP)
+		if (IsClientInGame(j) && IS_CLIENT_VIP(j))
 		{
 			g_hFeatures[j].Remove(szFeature);
 			g_hFeatureStatus[j].Remove(szFeature);
@@ -1179,7 +1179,7 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 		char szValue[256];
 		GetNativeString(3, SZF(szValue));
 		
-		if (!(g_iClientInfo[iClient] & IS_VIP))
+		if ((IS_CLIENT_VIP(iClient))
 		{
 			Clients_InitVIPClient(iClient, -1, NULL_STRING, 0);
 			g_hFeatures[iClient].SetValue(KEY_CID, -1);
@@ -1387,7 +1387,7 @@ bool CheckValidClient(const int &iClient, bool bCheckVIP = true)
 			ThrowNativeError(SP_ERROR_NATIVE, "Client %i is not loaded", iClient);
 			return false;
 		}
-		if (!(g_iClientInfo[iClient] & IS_VIP) || !(g_iClientInfo[iClient] & IS_AUTHORIZED))
+		if (!IS_CLIENT_VIP(iClient) || !(g_iClientInfo[iClient] & IS_AUTHORIZED))
 		{
 			ThrowNativeError(SP_ERROR_NATIVE, "Client %i is not VIP", iClient);
 			return false;

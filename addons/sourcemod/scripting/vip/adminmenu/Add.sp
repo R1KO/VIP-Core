@@ -11,7 +11,7 @@ void ShowAddVIPMenu(int iClient)
 	{
 		if (IsClientInGame(i) && IsFakeClient(i) == false && GetClientName(i, SZF(szName)))
 		{
-			if (g_iClientInfo[i] & IS_VIP)
+			if (IS_CLIENT_VIP(i))
 			{
 				g_hFeatures[i].GetValue(KEY_CID, iClientID);
 				if (iClientID != -1)

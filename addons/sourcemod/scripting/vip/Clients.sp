@@ -502,7 +502,7 @@ public Action Timer_OnPlayerSpawn(Handle hTimer, any UserID)
 		{
 			DBG_CLIENTS("Timer_OnPlayerSpawn: %N (%d)", iClient, iClient)
 			
-			if (g_iClientInfo[iClient] & IS_VIP)
+			if (IS_CLIENT_VIP(iClient))
 			{
 				int iExp;
 				if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp) && iExp > 0 && iExp < GetTime())
@@ -528,7 +528,7 @@ public void Event_RoundEnd(Event hEvent, const char[] sEvName, bool bDontBroadca
 		if (IsClientInGame(i))
 		{
 			g_iClientInfo[i] &= ~IS_SPAWNED;
-			if ((g_iClientInfo[i] & IS_VIP) && g_hFeatures[i].GetValue(KEY_EXPIRES, iExp) && iExp > 0 && iExp < iTime)
+			if (IS_CLIENT_VIP(i) && g_hFeatures[i].GetValue(KEY_EXPIRES, iExp) && iExp > 0 && iExp < iTime)
 			{
 				Clients_ExpiredClient(i);
 			}
@@ -541,7 +541,7 @@ public Action Timer_VIP_Expired(Handle hTimer, any UserID)
 	DBG_CLIENTS("Timer_VIP_Expired %d:", UserID)
 	
 	int iClient = CID(UserID);
-	if (iClient && g_iClientInfo[iClient] & IS_VIP)
+	if (iClient && IS_CLIENT_VIP(iClient))
 	{
 		int iExp;
 		if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp) && iExp > 0 && iExp < GetTime())
@@ -551,6 +551,8 @@ public Action Timer_VIP_Expired(Handle hTimer, any UserID)
 			Clients_ExpiredClient(iClient);
 		}
 	}
+
+	return Plugin_Stop;
 }
 
 void Clients_ExpiredClient(int iClient)

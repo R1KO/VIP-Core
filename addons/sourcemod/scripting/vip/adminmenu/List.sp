@@ -21,7 +21,7 @@ void ShowVipPlayersListMenu(int iClient)
 	szUserID[0] = 0;
 	for (i = 1; i <= MaxClients; ++i)
 	{
-		if (IsClientInGame(i) && (g_iClientInfo[i] & IS_VIP) && !IsFakeClient(i) && GetClientName(i, SZF(szName)))
+		if (IsClientInGame(i) && IS_CLIENT_VIP(i) && !IsFakeClient(i) && GetClientName(i, SZF(szName)))
 		{
 			g_hFeatures[i].GetValue(KEY_CID, iClientID);
 			FormatEx(SZF(szUserID), "u%d", UID(i));
