@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/R1KO/VIP-Core.svg?branch=master)](https://travis-ci.org/R1KO/VIP-Core)
+[![Build](https://github.com/R1KO/VIP-Core/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/R1KO/VIP-Core/actions/workflows/build.yml)
 
 ## [VIP] Core
 
