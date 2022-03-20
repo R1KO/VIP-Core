@@ -56,10 +56,10 @@ jobs:
       - name: Declare some variables
         env:
           GITHUB_SHA: ${{ github.sha }}
-        run: tar -czf VIP-Core_"${GITHUB_SHA}".tar.gz --exclude=*.git addons
+        run: tar -czf VIP-Core.tar.gz --exclude=*.git addons
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: VIP-Core
-          path: VIP-Core_"${GITHUB_SHA}".tar.gz
+          path: VIP-Core.tar.gz
