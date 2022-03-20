@@ -53,9 +53,13 @@ jobs:
       #     echo "SMVERSION_SHORT=$SMVERSION_SHORT" >> $GITHUB_ENV
           
       #     tar -cvf $ARCHIVE_FILENAME addons
-      
+      - name: Declare some variables
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: tar -czf VIP-Core_"${GITHUB_SHA}".tar.gz --exclude=*.git addons
+
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: VIP-Core
-          path: VIP-Core
+          path: VIP-Core_"${GITHUB_SHA}".tar.gz
