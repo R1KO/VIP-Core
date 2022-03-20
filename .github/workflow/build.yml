@@ -53,9 +53,8 @@ jobs:
       #     echo "SMVERSION_SHORT=$SMVERSION_SHORT" >> $GITHUB_ENV
           
       #     tar -cvf $ARCHIVE_FILENAME addons
-      
-      - name: Upload artifact
-       uses: actions/upload-artifact@v3
+    - name: Upload artifact
+        uses: actions/upload-artifact@v3
         with:
           name: VIP-Core
-          path: addons
+          path: ../VIP-Core
