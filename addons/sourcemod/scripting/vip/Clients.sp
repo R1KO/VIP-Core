@@ -432,7 +432,7 @@ bool GetFeatureValue(int iClient, VIP_ValueType ValueType, const char[] szFeatur
 		}
 		case STRING:
 		{
-			char szBuffer[256];
+			char szBuffer[PMP];
 			g_hGroups.GetString(szFeature, SZF(szBuffer));
 			if (szBuffer[0])
 			{

@@ -517,7 +517,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 				}
 				case MENU_TYPE_EDIT:
 				{
-					char szQuery[256], szName[MNL], szOldGroup[64];
+					char szQuery[PMP], szName[MNL], szOldGroup[64];
 					hMenu.GetItem(Item, SZF(szGroup));
 					int iTargetID;
 					g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTargetID);
@@ -547,7 +547,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 	
 					VIP_PrintToChatClient(iClient, "%t", "ADMIN_SET_GROUP", szName, szGroup);
 					
-					char szAdmin[256], szAdminInfo[128];
+					char szAdmin[PMP], szAdminInfo[128];
 					UTIL_GetClientInfo(iClient, SZF(szAdminInfo));
 					FormatEx(SZF(szAdmin), "%T %s", "BY_ADMIN", LANG_SERVER, szAdminInfo);
 					LogToFile(g_szLogFile, "%T", "LOG_CHANGE_GROUP", LANG_SERVER, szName, iTargetID, szOldGroup, szGroup, szAdmin);
@@ -557,6 +557,8 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 			}
 		}
 	}
+
+	return 0;
 }
 
 public void SQL_Callback_ChangeTime(Database hOwner, DBResultSet hResult, const char[] szError, any UserID)

@@ -27,7 +27,7 @@ void DB_Connect()
 	}
 	else
 	{
-		char szError[256];
+		char szError[PMP];
 		g_hDatabase = SQLite_UseDatabase("vip_core", SZF(szError));
 		OnDBConnect(g_hDatabase, szError, 1);
 	}
@@ -167,7 +167,7 @@ void RemoveExpAndOutPlayers()
 
 	if (g_CVAR_iDeleteExpired >= 0)
 	{
-		char szQuery[256];
+		char szQuery[PMP];
 		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `expires` > 0 AND `expires` < %d%s;", (GetTime() - g_CVAR_iDeleteExpired*86400), g_szSID);
 
 		DBG_SQL_Query(szQuery)
@@ -177,7 +177,7 @@ void RemoveExpAndOutPlayers()
 
 	if (g_CVAR_iOutdatedExpired > 0)
 	{
-		char szQuery[256];
+		char szQuery[PMP];
 		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `lastvisit` > 0 AND `lastvisit` < %d%s;", (GetTime() - g_CVAR_iOutdatedExpired*86400), g_szSID);
 
 		DBG_SQL_Query(szQuery)
@@ -200,7 +200,7 @@ void DB_UpdateClient(int iClient, const char[] szDbName = NULL_STRING)
 	int iClientID;
 	g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
 
-	char szQuery[256];
+	char szQuery[PMP];
 
 	if (g_CVAR_bUpdateName || !strcmp(szDbName, "unknown"))
 	{
@@ -483,7 +483,7 @@ void DB_RemoveVipPlayerByData(
 	hDataPack.WriteString(szGroup);
 	hDataPack.WriteCell(bNotify);
 
-	char szQuery[256];
+	char szQuery[PMP];
 	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iTargetAccountID, g_szSID);
 
 	DBG_SQL_Query(szQuery)
@@ -554,7 +554,7 @@ void DB_RemoveClientFromID(int iAdmin = 0,
 							const char[] szByWho = NULL_STRING)
 {
 	DebugMessage("DB_RemoveClientFromID %N (%d): - > iClientID: %d, : bNotify: %b", iClient, iClient, iClientID, bNotify)
-	char szQuery[256], szName[MNL], szGroup[64];
+	char szQuery[PMP], szName[MNL], szGroup[64];
 	DataPack hDataPack = new DataPack();
 
 	if (iClient)
@@ -665,7 +665,7 @@ public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult
 
 void DB_RemoveClient(int iClientID, DataPack hDataPack)
 {
-	char szQuery[256];
+	char szQuery[PMP];
 	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
 
 	DBG_SQL_Query(szQuery)

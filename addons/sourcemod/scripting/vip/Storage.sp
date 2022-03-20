@@ -27,7 +27,7 @@ void Storage_GetClientValue(int iClient, const char[] szKey, char[] szValue, int
 
 void Storage_LoadClient(int iClient)
 {
-	char szQuery[256];
+	char szQuery[PMP];
 
 	int iAccountID = GetSteamAccountID(iClient);
 	DBG_STORAGE("Storage_LoadClient: %N (%d): %d", iClient, iClient, iAccountID)
@@ -66,7 +66,7 @@ public void SQL_Callback_OnClientLoadStorage(Database hOwner, DBResultSet hResul
 		return;
 	}
 
-	char szKey[128], szValue[256];
+	char szKey[128], szValue[PMP];
 
 	while (hResult.FetchRow())
 	{
@@ -114,7 +114,7 @@ void Storage_SaveClient(int iClient)
 
 	StringMapSnapshot hStorageSnapshot = g_hCache[iClient].Snapshot();
 
-	char szKey[128], szValue[256];
+	char szKey[128], szValue[PMP];
 
 	for(int i = 0, iSize = hStorageSnapshot.Length; i < iSize; ++i)
 	{

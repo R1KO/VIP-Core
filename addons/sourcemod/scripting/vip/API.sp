@@ -325,6 +325,8 @@ public int Native_CheckClient(Handle hPlugin, int iNumParams)
 	{
 		Clients_CheckVipAccess(iClient, view_as<bool>(GetNativeCell(2)), view_as<bool>(GetNativeCell(3)));
 	}
+
+	return 0;
 }
 
 public int Native_IsClientVIP(Handle hPlugin, int iNumParams)
@@ -339,7 +341,7 @@ public int Native_IsClientVIP(Handle hPlugin, int iNumParams)
 		return IS_CLIENT_VIP(iClient) && IS_CLIENT_LOADED(iClient);
 	}
 
-	return false;
+	return 0;
 }
 
 public int Native_PrintToChatClient(Handle hPlugin, int iNumParams)
@@ -349,18 +351,20 @@ public int Native_PrintToChatClient(Handle hPlugin, int iNumParams)
 	DBG_API("iClient = %d", iClient)
 	if (CheckValidClient(iClient, false))
 	{
-		char szMessage[256];
+		char szMessage[PMP];
 		SetGlobalTransTarget(iClient);
 		FormatNativeString(0, 2, 3, sizeof(szMessage), _, szMessage);
 
 		Colors_Print(iClient, szMessage);
 	}
+
+	return 0;
 }
 
 public int Native_PrintToChatAll(Handle hPlugin, int iNumParams)
 {
 	DBG_API("Native_PrintToChatAll(%d)", iNumParams)
-	char szMessage[256];
+	char szMessage[PMP];
 
 	for (int i = 1; i <= MCL; ++i)
 	{
@@ -371,6 +375,8 @@ public int Native_PrintToChatAll(Handle hPlugin, int iNumParams)
 			Colors_Print(i, szMessage);
 		}
 	}
+
+	return 0;
 }
 
 public int Native_LogMessage(Handle hPlugin, int iNumParams)
@@ -382,6 +388,8 @@ public int Native_LogMessage(Handle hPlugin, int iNumParams)
 	FormatNativeString(0, 1, 2, sizeof(szMessage), _, szMessage);
 	
 	LogToFile(g_szLogFile, szMessage);
+
+	return 0;
 }
 
 public int Native_GetClientID(Handle hPlugin, int iNumParams)
@@ -446,7 +454,7 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 		int iClientID;
 		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 		{
-			char szQuery[256];
+			char szQuery[PMP];
 			FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iClientID, g_szSID);
 			DBG_SQL_Query(szQuery)
 			g_hDatabase.Query(SQL_Callback_ChangeClientSettings, szQuery, UID(iClient));
@@ -502,7 +510,7 @@ public int Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
 				int iClientID;
 				if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 				{
-					char szQuery[256];
+					char szQuery[PMP];
 					FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = %d WHERE `account_id` = %d%s;", iTime, iClientID, g_szSID);
 					DBG_SQL_Query(szQuery)
 					g_hDatabase.Query(SQL_Callback_ChangeClientSettings, szQuery, UID(iClient));
@@ -546,26 +554,30 @@ public int Native_GetVIPClientTrie(Handle hPlugin, int iNumParams)
 public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
 {
 	int iClient = GetNativeCell(1);
-	if (CheckValidClient(iClient))
+	if (!CheckValidClient(iClient))
 	{
-		bool bSelection = false;
-
-		if (iNumParams == 2)
-		{
-			bSelection = view_as<bool>(GetNativeCell(2));
-		}
-		
-		if (bSelection)
-		{
-			g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
-			return;
-		}
-		
-		int iItem = 0;
-		g_hFeatures[iClient].GetValue(KEY_MENUITEM, iItem);
-
-		g_hVIPMenu.DisplayAt(iClient, iItem, MENU_TIME_FOREVER);
+		return 0;
 	}
+
+	bool bSelection = false;
+
+	if (iNumParams == 2)
+	{
+		bSelection = view_as<bool>(GetNativeCell(2));
+	}
+	
+	if (bSelection)
+	{
+		g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
+		return;
+	}
+	
+	int iItem = 0;
+	g_hFeatures[iClient].GetValue(KEY_MENUITEM, iItem);
+
+	g_hVIPMenu.DisplayAt(iClient, iItem, MENU_TIME_FOREVER);
+
+	return 0;
 }
 
 public int Native_GiveClientVIP(Handle hPlugin, int iNumParams)
@@ -969,6 +981,8 @@ void UnregisterFeature(const char[] szFeature, ArrayList hArray)
 
 	CallForward_OnFeatureUnregistered(szFeature);
 	DebugMessage("Feature \"%s\" unregistered", szFeature)
+
+	return 0;
 }
 
 public int Native_IsValidFeature(Handle hPlugin, int iNumParams)
@@ -1149,7 +1163,7 @@ public int Native_GetClientFeatureString(Handle hPlugin, int iNumParams)
 	int iLen = GetNativeCell(4);
 	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
-		char szFeature[64], szBuffer[256];
+		char szFeature[64], szBuffer[PMP];
 		GetNativeString(2, SZF(szFeature));
 
 		if (g_hFeatures[iClient].GetString(szFeature, SZF(szBuffer)))
@@ -1176,7 +1190,7 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 			return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid", szFeature);
 		}
 
-		char szValue[256];
+		char szValue[PMP];
 		GetNativeString(3, SZF(szValue));
 		
 		if ((IS_CLIENT_VIP(iClient))
@@ -1281,7 +1295,7 @@ public int Native_SetClientStorageValue(Handle hPlugin, int iNumParams)
 		return 0;
 	}
 
-	char szKey[128], szValue[256];
+	char szKey[128], szValue[PMP];
 	GetNativeString(2, SZF(szKey));
 	GetNativeString(3, SZF(szValue));
 
@@ -1298,7 +1312,7 @@ public int Native_GetClientStorageValue(Handle hPlugin, int iNumParams)
 		return 0;
 	}
 
-	char szKey[128], szValue[256];
+	char szKey[128], szValue[PMP];
 	GetNativeString(2, SZF(szKey));
 
 	Storage_GetClientValue(iClient, szKey, SZF(szValue));

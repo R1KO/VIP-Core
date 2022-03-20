@@ -195,5 +195,5 @@ void ReplaceValues(int iClient, char[] szBuffer, int iBufLen, bool bExt)
 
 public int SelectInfoPanel(Menu hPanel, MenuAction action, int iClient, int iOption)
 {
-	
+	return 0;
 }

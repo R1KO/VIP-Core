@@ -43,20 +43,28 @@ public int MenuHandler_AddVip_PlayerList(Menu hMenu, MenuAction action, int iCli
 		case MenuAction_End:delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if (Item == MenuCancel_ExitBack) BackToAdminMenu(iClient);
+			if (Item == MenuCancel_ExitBack)
+			{
+				BackToAdminMenu(iClient);
+			}
 		}
 		case MenuAction_Select:
 		{
 			char szUserID[16];
 			hMenu.GetItem(Item, SZF(szUserID));
 			int UserID = StringToInt(szUserID);
-			if (CID(UserID))
+			if (!CID(UserID))
 			{
-				g_hClientData[iClient].SetValue(DATA_KEY_TargetUID, UserID);
-				g_hClientData[iClient].SetValue(DATA_KEY_TimeType, TIME_SET);
-				g_hClientData[iClient].SetValue(DATA_KEY_MenuType, MENU_TYPE_ADD);
-				ShowTimeMenu(iClient);
-			} else VIP_PrintToChatClient(iClient, "%t", "PLAYER_NO_LONGER_AVAILABLE");
+				VIP_PrintToChatClient(iClient, "%t", "PLAYER_NO_LONGER_AVAILABLE");
+				return 0;
+			}
+
+			g_hClientData[iClient].SetValue(DATA_KEY_TargetUID, UserID);
+			g_hClientData[iClient].SetValue(DATA_KEY_TimeType, TIME_SET);
+			g_hClientData[iClient].SetValue(DATA_KEY_MenuType, MENU_TYPE_ADD);
+			ShowTimeMenu(iClient);
 		}
 	}
+
+	return 0;
 }

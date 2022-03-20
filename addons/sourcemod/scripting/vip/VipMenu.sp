@@ -121,7 +121,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 			g_hFeatures[iClient].Remove(KEY_MENUITEM);
 
 			DebugMessage("MenuAction_Display: Client: %i", iClient)
-			char szTitle[256];
+			char szTitle[PMP];
 			if (FormatMenuTitle(iClient, SZF(szTitle)))
 			{
 				(view_as<Panel>(iOption)).SetTitle(szTitle);
@@ -318,7 +318,7 @@ void DisplayVipMenu(int iClient)
 
 void DisplayEmptyFeaturesMenu(int iClient)
 {
-	char szBuffer[256];
+	char szBuffer[PMP];
 	if (!FormatMenuTitle(iClient, SZF(szBuffer)))
 	{
 		return;

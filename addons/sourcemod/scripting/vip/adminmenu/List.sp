@@ -186,6 +186,8 @@ public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int 
 			}
 		}
 	}
+
+	return 0;
 }
 
 void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
@@ -490,4 +492,6 @@ public int MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iCli
 			}
 		}
 	}
+
+	return 0;
 } 
