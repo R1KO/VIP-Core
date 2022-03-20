@@ -1,16 +1,6 @@
 name: Build
 
-on:
-  push:
-    branches:
-      - '*'
-      - 'master'
-      - 'add_internal_storage'
-  pull_request:
-    branches:
-      - '*'
-      - 'master'
-      - 'add_internal_storage'
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   compile:
