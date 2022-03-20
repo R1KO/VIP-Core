@@ -1,16 +1,6 @@
 name: Build
 
-on:
-  push:
-    branches:
-      - '*'
-      - 'master'
-      - 'add_internal_storage'
-  pull_request:
-    branches:
-      - '*'
-      - 'master'
-      - 'add_internal_storage'
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   compile:
@@ -53,13 +43,9 @@ jobs:
       #     echo "SMVERSION_SHORT=$SMVERSION_SHORT" >> $GITHUB_ENV
           
       #     tar -cvf $ARCHIVE_FILENAME addons
-      - name: Declare some variables
-        env:
-          GITHUB_SHA: ${{ github.sha }}
-        run: tar -czf VIP-Core.tar.gz --exclude=*.git addons
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: VIP-Core
-          path: VIP-Core.tar.gz
+          path: addons
