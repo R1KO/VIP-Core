@@ -59,4 +59,6 @@ public int MenuHandler_AddVip_PlayerList(Menu hMenu, MenuAction action, int iCli
 			} else VIP_PrintToChatClient(iClient, "%t", "PLAYER_NO_LONGER_AVAILABLE");
 		}
 	}
+
+	return 0;
 }

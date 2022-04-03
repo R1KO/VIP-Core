@@ -478,7 +478,7 @@ void ShowGroupsMenu(int iClient, const char[] sTargetGroup = NULL_STRING)
 
 				hMenu.AddItem(szGroup, szGroup);
 			}
-		} while g_hGroups.GotoNextKey();
+		} while (g_hGroups.GotoNextKey());
 	}
 	if (!szGroup[0])
 	{
@@ -582,6 +582,8 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 			}
 		}
 	}
+
+	return 0;
 }
 
 public void SQL_Callback_ChangeTime(Database hOwner, DBResultSet hResult, const char[] szError, any UserID)

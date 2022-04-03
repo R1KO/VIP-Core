@@ -529,6 +529,8 @@ public Action Timer_VIP_Expired(Handle hTimer, any UserID)
 			Clients_ExpiredClient(iClient);
 		}
 	}
+
+	return Plugin_Continue;
 }
 
 void Clients_ExpiredClient(int iClient)
