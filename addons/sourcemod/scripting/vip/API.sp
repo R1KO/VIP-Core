@@ -300,6 +300,8 @@ public int Native_CheckClient(Handle hPlugin, int iNumParams)
 	{
 		Clients_CheckVipAccess(iClient, view_as<bool>(GetNativeCell(2)), view_as<bool>(GetNativeCell(3)));
 	}
+
+	return 0;
 }
 
 public int Native_IsClientVIP(Handle hPlugin, int iNumParams)
@@ -329,6 +331,8 @@ public int Native_PrintToChatClient(Handle hPlugin, int iNumParams)
 
 		Colors_Print(iClient, szMessage);
 	}
+
+	return 0;
 }
 
 public int Native_PrintToChatAll(Handle hPlugin, int iNumParams)
@@ -345,6 +349,8 @@ public int Native_PrintToChatAll(Handle hPlugin, int iNumParams)
 			Colors_Print(i, szMessage);
 		}
 	}
+
+	return 0;
 }
 public int Native_LogMessage(Handle hPlugin, int iNumParams)
 {
@@ -357,6 +363,8 @@ public int Native_LogMessage(Handle hPlugin, int iNumParams)
 		
 		LogToFile(g_szLogFile, szMessage);
 	}
+
+	return 0;
 }
 
 public int Native_GetClientID(Handle hPlugin, int iNumParams)
@@ -534,7 +542,7 @@ public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
 		if(bSelection)
 		{
 			g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
-			return;
+			return 0;
 		}
 		
 		int iItem = 0;
@@ -542,6 +550,8 @@ public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
 
 		g_hVIPMenu.DisplayAt(iClient, iItem, MENU_TIME_FOREVER);
 	}
+
+	return 0;
 }
 
 public int Native_GiveClientVIP(Handle hPlugin, int iNumParams)
@@ -788,6 +798,8 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 	{
 		ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" already defined/Функция \"%s\" уже существует", szFeature, szFeature);
 	}
+
+	return 0;
 }
 
 public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
@@ -813,6 +825,8 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 	{
 		ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid/Функция \"%s\" не существует", szFeature, szFeature);
 	}
+
+	return 0;
 }
 
 public int Native_UnregisterMe(Handle hPlugin, int iNumParams)
@@ -842,6 +856,8 @@ public int Native_UnregisterMe(Handle hPlugin, int iNumParams)
 			}
 		}
 	}
+
+	return 0;
 }
 
 void UnregisterFeature(const char[] szFeature, ArrayList hArray)

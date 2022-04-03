@@ -37,7 +37,7 @@ void ReadDownloads()
 	}
 }
 
-bool File_AddToDownloadsTable(const char[] szPath)
+void File_AddToDownloadsTable(const char[] szPath)
 {
 	DBG_Download("File_AddToDownloadsTable: '%s'", szPath)
 	
@@ -53,7 +53,7 @@ bool File_AddToDownloadsTable(const char[] szPath)
 	}
 }
 
-bool Dir_AddToDownloadsTable(const char[] szPath)
+void Dir_AddToDownloadsTable(const char[] szPath)
 {
 	DBG_Download("Dir_AddToDownloadsTable: '%s'", szPath)
 	
