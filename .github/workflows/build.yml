@@ -1,0 +1,109 @@
+name: Build
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.sm-version == '1.11.x' }}
+    strategy:
+      matrix:
+        sm-version: [ '1.9.x', '1.10.x', '1.11.x' ]
+        include:
+          - sm-version: "1.11.x" # https://github.com/rumblefrog/setup-sp/issues/5
+            compiler-options: "-i=$includePath"
+
+    name: "Build SM ${{ matrix.sm-version }}"
+    steps:
+      - name: Prepare env
+        shell: bash
+        run: |
+          echo "GITHUB_SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
+          SMVERSION_FULL=${{ matrix.sm-version }}
+          echo "SMVERSION_SHORT=${SMVERSION_FULL:0:-2}" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v2
+
+      - name: Setup SP
+        uses: rumblefrog/setup-sp@master
+        with:
+          version: ${{ matrix.sm-version }}
+
+      - name: Run compiler
+        run: |
+          cd addons/sourcemod
+          mkdir plugins
+          cd scripting
+          spcomp VIP_Core.sp -E -o ../plugins/VIP_Core.smx -iinclude ${{ matrix.compiler-options }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: VIP-Core-${{ env.SMVERSION_SHORT }}-${{ env.GITHUB_SHA_SHORT }}
+          path: |
+            addons
+            LICENSE
+          retention-days: 2
+
+  release:
+    name: Release
+    if: github.ref_type == 'tag'
+    needs: compile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+
+      - name: Find Assets
+        shell: bash
+        run: |
+          echo "artifact-1_9=$(find * -maxdepth 0 -type d -name "*1.9*")" >> $GITHUB_ENV
+          echo "artifact-1_10=$(find * -maxdepth 0 -type d -name "*1.10*")" >> $GITHUB_ENV
+          echo "artifact-1_11=$(find * -maxdepth 0 -type d -name "*1.11*")" >> $GITHUB_ENV
+          
+      - name: Arhive Assets
+        run: |
+          zip -r ${{ env.artifact-1_9 }}.zip ${{ env.artifact-1_9 }}
+          zip -r ${{ env.artifact-1_10 }}.zip ${{ env.artifact-1_10 }}
+          zip -r ${{ env.artifact-1_11 }}.zip ${{ env.artifact-1_11 }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: ${{ github.ref_name }}
+          draft: true
+          prerelease: false
+      
+      - name: Upload Asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.artifact-1_9 }}.zip
+          asset_name: ${{ env.artifact-1_9 }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.artifact-1_10 }}.zip
+          asset_name: ${{ env.artifact-1_10 }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.artifact-1_11 }}.zip
+          asset_name: ${{ env.artifact-1_11 }}.zip
+          asset_content_type: application/zip

@@ -17,7 +17,7 @@ void ShowVipPlayersListMenu(int iClient)
 
 	FormatEx(SZF(szName), "%T\n ", "SHOW_ALL", iClient);
 	hMenu.AddItem("show_all", szName);
-
+	
 	szUserID[0] = 0;
 	for (i = 1; i <= MaxClients; ++i)
 	{

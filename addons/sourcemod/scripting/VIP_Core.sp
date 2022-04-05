@@ -15,15 +15,7 @@
 
 #define USE_MORE_SERVERS	1	// Включить/Отключить режим при котором если ID сервера у игрока 0 - то VIP будет работать на всех серверах
 
-
 #define USE_CLIENTPREFS		0	// Использовать ли стандартные куки для хранения данных игроков
-
-#define CHARSET "utf8mb4"
-#define COLLATION "utf8mb4_unicode_ci"
-
-//#define CHARSET "utf8"
-//#define COLLATION "utf8_unicode_ci"
-
 
 #if USE_CLIENTPREFS 1
 #include <clientprefs>
@@ -40,7 +32,7 @@ public Plugin myinfo =
 	name = "[VIP] Core",
 	author = "R1KO",
 	version = VIP_CORE_VERSION,
-	url = "http://hlmod.ru"
+	url = "https://github.com/R1KO/VIP-Core"
 };
 
 #include "vip/Global.sp"

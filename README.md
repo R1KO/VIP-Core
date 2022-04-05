@@ -1,31 +1,21 @@
-[![Build Status](https://travis-ci.org/R1KO/VIP-Core.svg?branch=master)](https://travis-ci.org/R1KO/VIP-Core)
+[![Build](https://github.com/R1KO/VIP-Core/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/R1KO/VIP-Core/actions/workflows/build.yml)
 
 ## [VIP] Core
 
-Плагин позволяет выдавать игрокам VIP-статус навсегда или на определенный срок.
+RU: Плагин позволяет выдавать игрокам VIP-статус на определенный срок или навсегда.
 Учитывая модульную систему плагина вы всегда имеете возможность расширить функционал плагина.
-Плагин очень гибкий и удобный в настройке.
+Плагин очень гибкий и удобный в настройке, может работать как с SQLite так и с MySQL базой.
 
-Плагин может работать как SQLite так и с MySQL базой.
 
-- Установка -> [F.A.Q. (Общая информация, Установка ядра, Установка модулей)](http://hlmod.ru/threads/f-a-q-obschaja-informacija-ustanovka-jadra-ustanovka-modulej.33986/)
-- [Частые проблемы и их решения](http://hlmod.ru/threads/chastye-problemy-i-ix-reshenija.33988/)
-- [Предложения и пожелания](http://hlmod.ru/threads/predlozhenija-po-uluchsheniju-vip-i-idei-dlja-modulej.26407/)
-- Помочь с переводом на другие языки -> [[VIP] Core](http://translator.mitchdempsey.com/sourcemod_plugins/265), [[VIP] Modules](http://translator.mitchdempsey.com/sourcemod_plugins/272)
+[RU: [VIP] Core Официальная тема на HlMod.ru](http://hlmod.ru/resources/vip-core.245/)
 
-[[VIP] Core Официальная тема на HlMod.ru](http://hlmod.ru/resources/vip-core.245/)
+[RU: Документация](https://r1ko.github.io/VIP-Core/)
 
-English:
 
-This plugin allows you to give VIP status to players permanently or for a certain period of time.
-Given the plugin's modular system, the functionality can always be expanded.
-The plugin is very flexible and easy to configure.
+EN: This plugin allows you to give VIP status to players for a specific period or forever. 
+Given the plugin’s modular system, the functionality can always be expanded. 
+The plugin is very flexible and easy to configure, it can work with both SQLite and MySQL database.
 
-The plugin can work with SQLite or with a MySQL database.
+[EN: [VIP] Core official theme on HlMod.ru](http://hlmod.ru/resources/vip-core.245/)
 
-- Installation -> [F.A.Q. (General information, Installing the kernel, Installing the modules)](http://hlmod.ru/threads/f-a-q-obschaja-informacija-ustanovka-jadra-ustanovka-modulej.33986/)
-- [Frequent problems and their solutions](http://hlmod.ru/threads/chastye-problemy-i-ix-reshenija.33988/)
-- [Suggestions and wishes](http://hlmod.ru/threads/predlozhenija-po-uluchsheniju-vip-i-idei-dlja-modulej.26407/)
-- Help with translation into other languages ​​-> [[VIP] Core](http://translator.mitchdempsey.com/sourcemod_plugins/265), [[VIP] Modules](http://translator.mitchdempsey.com/sourcemod_plugins/272)
-
-[[VIP] Core official theme on HlMod.ru](http://hlmod.ru/resources/vip-core.245/)
+[EN: Documentation](https://r1ko.github.io/VIP-Core/)

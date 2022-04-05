@@ -454,7 +454,7 @@ void ShowGroupsMenu(int iClient, const char[] sTargetGroup = NULL_STRING)
 
 				hMenu.AddItem(szGroup, szGroup);
 			}
-		} while g_hGroups.GotoNextKey();
+		} while (g_hGroups.GotoNextKey());
 	}
 	if (!szGroup[0])
 	{

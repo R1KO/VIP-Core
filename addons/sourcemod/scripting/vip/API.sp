@@ -382,7 +382,7 @@ public int Native_PrintToChatAll(Handle hPlugin, int iNumParams)
 public int Native_LogMessage(Handle hPlugin, int iNumParams)
 {
 	DBG_API("Native_LogMessage(%d)", iNumParams)
-	
+
 	char szMessage[512];
 	SetGlobalTransTarget(LANG_SERVER);
 	FormatNativeString(0, 1, 2, sizeof(szMessage), _, szMessage);
