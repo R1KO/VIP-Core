@@ -1,3 +1,9 @@
+#define  CHARSET "utf8mb4"
+#define  COLLATION "utf8mb4_unicode_ci"
+
+//#define  CHARSET "utf8"
+//#define  COLLATION "utf8_unicode_ci"
+
 void DB_OnPluginStart()
 {
 	DB_Connect();

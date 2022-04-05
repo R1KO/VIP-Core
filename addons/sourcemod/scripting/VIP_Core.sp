@@ -6,7 +6,10 @@
 #include <vip_core>
 #include <clientprefs>
 
-#define VIP_VERSION		"3.0.1 R"
+#if !defined VIP_VERSION
+#define VIP_VERSION		"3.0.2 R"
+#endif
+
 
 #define DEBUG_MODE 		0	// Режим отладки
 
@@ -14,11 +17,6 @@
 
 #define USE_MORE_SERVERS	1	// Включить/Отключить режим при котором если ID сервера у игрока 0 - то VIP будет работать на всех серверах
 
-#define  CHARSET "utf8mb4"
-#define  COLLATION "utf8mb4_unicode_ci"
-
-//#define  CHARSET "utf8"
-//#define  COLLATION "utf8_unicode_ci"
 
 #if USE_ADMINMENU 1
 #undef REQUIRE_PLUGIN
@@ -31,7 +29,7 @@ public Plugin myinfo =
 	name = "[VIP] Core",
 	author = "R1KO",
 	version = VIP_VERSION,
-	url = "http://hlmod.ru"
+	url = "https://github.com/R1KO/VIP-Core"
 };
 
 #include "vip/Global.sp"
