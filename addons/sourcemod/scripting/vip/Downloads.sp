@@ -78,7 +78,7 @@ void Dir_AddToDownloadsTable(const char[] szPath)
 		if (
 			UTIL_StrCmpEx(szDirEntry, ".") || 
 			UTIL_StrCmpEx(szDirEntry, "..") || 
-			UTIL_StrCmpEx(szDirEntry[strlen(szDirEntry)-4], ".bz2")))
+			UTIL_StrCmpEx(szDirEntry[strlen(szDirEntry)-4], ".bz2"))
 		{
 			continue;
 		}

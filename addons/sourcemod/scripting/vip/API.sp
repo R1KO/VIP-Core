@@ -569,7 +569,7 @@ public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
 	if (bSelection)
 	{
 		g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
-		return;
+		return 0;
 	}
 	
 	int iItem = 0;
@@ -981,8 +981,6 @@ void UnregisterFeature(const char[] szFeature, ArrayList hArray)
 
 	CallForward_OnFeatureUnregistered(szFeature);
 	DebugMessage("Feature \"%s\" unregistered", szFeature)
-
-	return 0;
 }
 
 public int Native_IsValidFeature(Handle hPlugin, int iNumParams)
@@ -1193,7 +1191,7 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 		char szValue[PMP];
 		GetNativeString(3, SZF(szValue));
 		
-		if ((IS_CLIENT_VIP(iClient))
+		if (IS_CLIENT_VIP(iClient))
 		{
 			Clients_InitVIPClient(iClient, -1, NULL_STRING, 0);
 			g_hFeatures[iClient].SetValue(KEY_CID, -1);
