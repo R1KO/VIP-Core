@@ -568,14 +568,14 @@ public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
 	
 	if (bSelection)
 	{
-		g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
+		DisplayVipMenu(iClient);
 		return 0;
 	}
 	
 	int iItem = 0;
 	g_hFeatures[iClient].GetValue(KEY_MENUITEM, iItem);
 
-	g_hVIPMenu.DisplayAt(iClient, iItem, MENU_TIME_FOREVER);
+	DisplayVipMenu(iClient, iItem);
 
 	return 0;
 }

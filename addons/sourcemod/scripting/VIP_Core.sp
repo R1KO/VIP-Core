@@ -6,11 +6,7 @@
 #include <vip_core>
 
 #if !defined VIP_CORE_VERSION
-#if defined COMMIT_HASH
-#define VIP_CORE_VERSION	"3.1.0 DEV (#" ... COMMIT_HASH ... ")"
-#else
 #define VIP_CORE_VERSION	"3.1.0 DEV"
-#endif
 #endif
 
 #define DEBUG_MODE 			0	// Режим отладки

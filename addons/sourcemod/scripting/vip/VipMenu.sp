@@ -308,10 +308,11 @@ bool IsTranslationPhraseExists(const char[] szPhrase)
 	return true;
 }
 
-void DisplayVipMenu(int iClient)
+void DisplayVipMenu(int iClient, int iItem = 0)
 {
-	bool bResult = g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
-	if (!bResult) {
+	bool bResult = g_hVIPMenu.DisplayAt(iClient, iItem, MENU_TIME_FOREVER);
+	if (!bResult)
+	{
 		DisplayEmptyFeaturesMenu(iClient);
 	}
 }
