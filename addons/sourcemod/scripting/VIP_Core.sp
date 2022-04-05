@@ -4,23 +4,34 @@
 
 #include <sourcemod>
 #include <vip_core>
-#include <clientprefs>
 
 #if !defined VIP_CORE_VERSION
+#if defined COMMIT_HASH
+#define VIP_CORE_VERSION	"3.1.0 DEV (#" ... COMMIT_HASH ... ")"
+#else
 #define VIP_CORE_VERSION	"3.1.0 DEV"
 #endif
+#endif
 
-#define DEBUG_MODE 		0	// Режим отладки
+#define DEBUG_MODE 			0	// Режим отладки
 
-#define USE_ADMINMENU	1	// Включение админ-меню для управления VIP
+#define USE_ADMINMENU		1	// Включение админ-меню для управления VIP
 
 #define USE_MORE_SERVERS	1	// Включить/Отключить режим при котором если ID сервера у игрока 0 - то VIP будет работать на всех серверах
+
+
+#define USE_CLIENTPREFS		0	// Использовать ли стандартные куки для хранения данных игроков
 
 #define CHARSET "utf8mb4"
 #define COLLATION "utf8mb4_unicode_ci"
 
 //#define CHARSET "utf8"
 //#define COLLATION "utf8_unicode_ci"
+
+
+#if USE_CLIENTPREFS 1
+#include <clientprefs>
+#endif
 
 #if USE_ADMINMENU 1
 #undef REQUIRE_PLUGIN
@@ -41,6 +52,7 @@ public Plugin myinfo =
 #include "vip/Downloads.sp"
 #include "vip/Colors.sp"
 #include "vip/UTIL.sp"
+#include "vip/Storage.sp"
 #include "vip/Features.sp"
 #include "vip/Sounds.sp"
 #include "vip/Info.sp"
@@ -88,6 +100,7 @@ public void OnPluginStart()
 	g_bIsTranslationPhraseExistsAvailable = (CanTestFeatures() && 
 		GetFeatureStatus(FeatureType_Native, "TranslationPhraseExists") == FeatureStatus_Available);
 
+	API_SetupForwards();
 	ReadConfigs();
 
 	VIPMenu_Setup();
@@ -96,7 +109,6 @@ public void OnPluginStart()
 	#endif
 
 	Cvars_Setup();
-	API_SetupForwards();
 
 	HookEvent("player_spawn",			Event_PlayerSpawn);
 	HookEvent("player_death",			Event_PlayerDeath);
@@ -110,10 +122,10 @@ public void OnPluginStart()
 	#if USE_ADMINMENU 1
 	RegConsoleCmd("sm_vipadmin", VIPAdmin_CMD);
 
-	if(LibraryExists("adminmenu"))
+	if (LibraryExists("adminmenu"))
 	{
 		TopMenu hTopMenu = GetAdminTopMenu();
-		if(hTopMenu != null)
+		if (hTopMenu != null)
 		{
 			OnAdminMenuReady(hTopMenu);
 		}
@@ -129,11 +141,11 @@ public void OnAllPluginsLoaded()
 #if USE_ADMINMENU 1
 public Action OnClientSayCommand(int iClient, const char[] szCommand, const char[] szArgs)
 {
-	if(iClient > 0 && iClient <= MaxClients && szArgs[0])
+	if (iClient > 0 && iClient <= MaxClients && szArgs[0])
 	{
-		if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+		if (g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 		{
-			if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+			if (g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
 			{
 				ShowWaitSearchMenu(iClient, szArgs);
 			}
@@ -145,3 +157,20 @@ public Action OnClientSayCommand(int iClient, const char[] szCommand, const char
 	return Plugin_Continue;
 }
 #endif
+
+public void OnMapStart()
+{
+	LoadSounds();
+	ReadDownloads();
+}
+
+public void OnConfigsExecuted()
+{
+	DebugMessage("OnConfigsExecuted: %x", g_hDatabase)
+	CMD_Register();
+
+	if (g_hDatabase  && (GLOBAL_INFO & IS_STARTED))
+	{
+		RemoveExpAndOutPlayers();
+	}
+}

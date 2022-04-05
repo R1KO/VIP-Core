@@ -71,7 +71,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 					{
 						if (!g_hInfo.GotoFirstSubKey())
 						{
-							if(hKeyValues != g_hInfo)
+							if (hKeyValues != g_hInfo)
 							{
 								delete hKeyValues;
 							}
@@ -143,7 +143,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 			}
 		}
 		
-		if(hKeyValues != g_hInfo)
+		if (hKeyValues != g_hInfo)
 		{
 			delete hKeyValues;
 		}
@@ -195,5 +195,5 @@ void ReplaceValues(int iClient, char[] szBuffer, int iBufLen, bool bExt)
 
 public int SelectInfoPanel(Menu hPanel, MenuAction action, int iClient, int iOption)
 {
-	
+	return 0;
 }

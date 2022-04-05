@@ -6,73 +6,86 @@ void ReadDownloads()
 	BuildPath(Path_SM, SZF(szBuffer), "data/vip/modules/downloadlist.txt");
 	File hFile = OpenFile(szBuffer, "r");
 
-	if(hFile != null)
+	if (hFile == null)
 	{
-		DBG_Download("OpenFile('%s')", szBuffer)
-		int iEndPos;
-		while (!hFile.EndOfFile() && hFile.ReadLine(SZF(szBuffer)))
+		return;
+	}
+	DBG_Download("OpenFile('%s')", szBuffer)
+	int iEndPos;
+	while (!hFile.EndOfFile() && hFile.ReadLine(SZF(szBuffer)))
+	{
+		DBG_Download("ReadLine = '%s'", szBuffer)
+		if (!szBuffer[0])
 		{
-			DBG_Download("ReadLine = '%s'", szBuffer)
-			if(szBuffer[0])
-			{
-				iEndPos = StrContains(szBuffer, "//");
-				DBG_Download("iEndPos = %d", iEndPos)
-				if(iEndPos != -1)
-				{
-					szBuffer[iEndPos] = 0;
-				}
-
-				if(szBuffer[0] && IsCharAlpha(szBuffer[0]))
-				{
-					DBG_Download("ReadFileLine: '%s'", szBuffer)
-					
-					TrimString(szBuffer);
-
-					File_AddToDownloadsTable(szBuffer);
-				}
-			}
+			continue;
+		}
+		iEndPos = StrContains(szBuffer, "//");
+		DBG_Download("iEndPos = %d", iEndPos)
+		if (iEndPos != -1)
+		{
+			szBuffer[iEndPos] = 0;
 		}
 
-		delete hFile;
+		if (szBuffer[0] && IsCharAlpha(szBuffer[0]))
+		{
+			DBG_Download("ReadFileLine: '%s'", szBuffer)
+			
+			TrimString(szBuffer);
+
+			File_AddToDownloadsTable(szBuffer);
+		}
 	}
+
+	delete hFile;
 }
 
-bool File_AddToDownloadsTable(const char[] szPath)
+void File_AddToDownloadsTable(const char[] szPath)
 {
 	DBG_Download("File_AddToDownloadsTable: '%s'", szPath)
 	
-	if(FileExists(szPath))
+	if (FileExists(szPath))
 	{
 		DBG_Download("File '%s' Loaded", szPath)
 		
 		AddFileToDownloadsTable(szPath);
+		return;
 	}
-	else if(DirExists(szPath))
+
+	if (DirExists(szPath))
 	{
 		Dir_AddToDownloadsTable(szPath);
 	}
 }
 
-bool Dir_AddToDownloadsTable(const char[] szPath)
+void Dir_AddToDownloadsTable(const char[] szPath)
 {
 	DBG_Download("Dir_AddToDownloadsTable: '%s'", szPath)
 	
-	if(DirExists(szPath))
+	if (!DirExists(szPath))
 	{
-		DirectoryListing hDir = OpenDirectory(szPath);
-		if(hDir != null)
-		{
-			char szDirEntry[PLATFORM_MAX_PATH];
-			while (hDir.GetNext(SZF(szDirEntry)))
-			{
-				if ((UTIL_StrCmpEx(szDirEntry, ".") || UTIL_StrCmpEx(szDirEntry, "..") || UTIL_StrCmpEx(szDirEntry[strlen(szDirEntry)-4], ".bz2")) == false)
-				{
-					Format(SZF(szDirEntry), "%s/%s", szPath, szDirEntry);
-
-					File_AddToDownloadsTable(szDirEntry);
-				}
-			}
-			delete hDir;
-		}
+		return;
 	}
+	
+	DirectoryListing hDir = OpenDirectory(szPath);
+	if (hDir == null)
+	{
+		return;
+	}
+
+	char szDirEntry[PMP];
+	while (hDir.GetNext(SZF(szDirEntry)))
+	{
+		if (
+			UTIL_StrCmpEx(szDirEntry, ".") || 
+			UTIL_StrCmpEx(szDirEntry, "..") || 
+			UTIL_StrCmpEx(szDirEntry[strlen(szDirEntry)-4], ".bz2")))
+		{
+			continue;
+		}
+
+		Format(SZF(szDirEntry), "%s/%s", szPath, szDirEntry);
+		File_AddToDownloadsTable(szDirEntry);
+	}
+
+	delete hDir;
 }

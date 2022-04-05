@@ -56,4 +56,4 @@ deploy:
 
 #Notifications
 notifications:
-    email: false
+    email: true

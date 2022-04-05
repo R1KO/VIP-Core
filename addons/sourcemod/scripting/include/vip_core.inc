@@ -116,6 +116,15 @@ forward void VIP_OnPlayerSpawn(int iClient, int iTeam, bool bIsVIP);
 forward Action VIP_OnShowClientInfo(int iClient, const char[] szEvent, const char[] szType, KeyValues hKeyValues);
 
 /**
+ *	Вызывается когда загружены данные из хранилища игрока
+ *
+ * @param iClient			Индекс игрока.
+ *
+ * @noreturn
+*/
+forward void VIP_OnClientStorageLoaded(int iClient);
+
+/**
  *	Вызывается когда у VIP-игрока изменяется статус функции.
  *
  * @param iClient			Индекс игрока.
@@ -137,6 +146,15 @@ forward Action VIP_OnFeatureToggle(int iClient, const char[] szFeature, VIP_Togg
  * @noreturn
 */
 forward void VIP_OnVIPLoaded();
+
+/**
+ *	Вызывается когда VIP-плагин загрузил настройки.
+ *
+ * @noparams
+ *
+ * @noreturn
+*/
+forward void VIP_OnConfigsLoaded();
 
 /**
  *	Вызывается когда VIP-функция была зарегистрирована.
@@ -271,7 +289,7 @@ native int VIP_GetClientAccessTime(int iClient);
 native bool VIP_SetClientAccessTime(int iClient, int iTime, bool bInDB = true);
 
 /**
- *	Получает VIP-группу игрока.
+ *	Получает группу игрока.
  *
  * @param iClient			Индекс игрока.
  * @param szGroup			Буфер, в который будет помещен результат.
@@ -283,10 +301,10 @@ native bool VIP_SetClientAccessTime(int iClient, int iTime, bool bInDB = true);
 native bool VIP_GetClientVIPGroup(int iClient, char[] szGroup, int iMaxLength);
 
 /**
- *	Устанавливает игроку VIP-группу.
+ *	Устанавливает игроку группу.
  *
  * @param iClient			Индекс игрока.
- * @param szGroup			VIP-группа.
+ * @param szGroup			группа.
  * @param bInDBB			Изменять ли в базе данных.
  *
  * @return					true - Успешно.
@@ -304,14 +322,38 @@ native bool VIP_SetClientVIPGroup(int iClient, const char[] szGroup, bool bInDB 
 native StringMap VIP_GetVIPClientTrie(int iClient);
 
 /**
- *	Проверяет наличие VIP-группы.
+ *	Проверяет наличие группы.
  *
- * @param szGroup			Имя VIP-группы.
+ * @param szGroup			Имя группы.
  *
- * @return					true - VIP-группа существует.
- * 							false -  VIP-группа не существует.
+ * @return					true - группа существует.
+ * 							false - группа не существует.
 */	
+native bool VIP_IsGroupExists(const char[] szGroup);
+
+#pragma deprecated Use VIP_IsGroupExists() instead
 native bool VIP_IsValidVIPGroup(const char[] szGroup);
+
+/**
+ *	Добавляет группу.
+ *
+ * @param szGroup			Имя группы.
+ * @param hFeatures			Параметры группы.
+ *
+ * @return					true - успешно.
+ * 							false - ошибка.
+*/	
+native bool VIP_AddGroup(const char[] szGroup, KeyValues hFeatures);
+
+/**
+ *	Удаляет группу.
+ *
+ * @param szGroup			Имя группы.
+ *
+ * @return					true - успешно.
+ * 							false - ошибка.
+*/	
+native bool VIP_RemoveGroup(const char[] szGroup);
 
 /**
  *	Выводит игроку сообщение в чат с приставкой (фраза в переводе "VIP_CHAT_PREFIX").
@@ -362,7 +404,7 @@ native void VIP_SendClientVIPMenu(int iClient, bool bSelection = false);
  * @param iAdmin			Индекс админа (0 - сервер, -1 - плагин).
  * @param iClient			Индекс игрока.
  * @param iTime				Время в секундах.
- * @param szGroup			Имя VIP-группы.
+ * @param szGroup			Имя группы.
  * @param bAddToDB			Добавлять ли в базу данных.
  *
  * @noreturn
@@ -449,7 +491,7 @@ native void VIP_UnregisterMe();
  * @param szFeature			Уникальное имя ф-и.
  *
  * @return					true - VIP-функция существует.
- * 							false -  VIP-функция не существует.
+ * 							false - VIP-функция не существует.
 */
 native bool VIP_IsValidFeature(const char[] szFeature);
 
@@ -580,6 +622,29 @@ native bool VIP_GiveClientFeature(int iClient, const char[] szFeature, const cha
 */
 native bool VIP_RemoveClientFeature(int iClient, const char[] szFeature);
 
+
+/**
+ *  Сохраняет значение в хранилище игрока
+ *
+ * @param iClient			Индекс игрока.
+ * @param szKey				Ключ
+ * @param szValue			Значение
+ *
+ * @noreturn
+*/
+native void VIP_SetClientStorageValue(int iClient, const char[] szKey, const char[] szValue);
+
+/**
+ *	Получает значение из хранилища игрока
+ *
+ * @param szKey				Ключ
+ * @param szValue			Буфер, в который будет помещен результат.
+ * @param iMaxLength		Размер буфера.
+ *
+ * @noreturn
+*/
+native void VIP_GetClientStorageValue(int iClient, const char[] szKey, char[] szValue, int iMaxLength);
+
 /**
  *	Получает Handle базы данных. После работы необходимо закрыть с помощью CloseHandle() или delete
  *
@@ -700,6 +765,9 @@ public void __pl_vip_core_SetNTVOptional()
 	MarkNativeAsOptional("VIP_GetVIPClientTrie");
 	MarkNativeAsOptional("VIP_SendClientVIPMenu");
 	MarkNativeAsOptional("VIP_IsValidVIPGroup");
+	MarkNativeAsOptional("VIP_IsGroupExists");
+	MarkNativeAsOptional("VIP_AddGroup");
+	MarkNativeAsOptional("VIP_RemoveGroup");
 	MarkNativeAsOptional("VIP_GetClientFeatureStatus");
 	MarkNativeAsOptional("VIP_SetClientFeatureStatus");
 	MarkNativeAsOptional("VIP_IsClientFeatureUse");
@@ -717,5 +785,7 @@ public void __pl_vip_core_SetNTVOptional()
 	MarkNativeAsOptional("VIP_GiveClientVIP");
 	MarkNativeAsOptional("VIP_GiveClientFeature");
 	MarkNativeAsOptional("VIP_RemoveClientFeature");
+	MarkNativeAsOptional("VIP_SetClientStorageValue");
+	MarkNativeAsOptional("VIP_GetClientStorageValue");
 }
 #endif

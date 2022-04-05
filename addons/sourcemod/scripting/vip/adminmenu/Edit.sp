@@ -25,7 +25,7 @@ public int MenuHandler_EditTimeMenu(Menu hMenu, MenuAction action, int iClient, 
 		case MenuAction_End: delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack)
+			if (Item == MenuCancel_ExitBack)
 			{
 				ShowTargetInfoMenu(iClient);
 			}

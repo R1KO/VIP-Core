@@ -1,4 +1,4 @@
-void ShowDeleteVipPlayerMenu(int iClient)
+void ShowConfirmDeleteVipPlayerMenu(int iClient)
 {
 	char szBuffer[128];
 
@@ -13,6 +13,8 @@ void ShowDeleteVipPlayerMenu(int iClient)
 	hMenu.AddItem(NULL_STRING, szBuffer);
 	
 	ReductionMenu(hMenu, 4);
+
+	// TODO: add back button
 	
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
@@ -36,33 +38,15 @@ public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iC
 					g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTargetID);
 
 					int iTarget = 0;
-					if(g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget))
+					if (g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget))
 					{
 						iTarget = CID(iTarget);
-						if (!iTarget && iTargetID != -1)
-						{
-							iTarget = IsClientOnline(iTargetID);
-						}
-
-						if (iTarget)
-						{
-							DB_RemoveClientFromID(iClient, iTarget, _, true);
-							Features_TurnOffAll(iTarget);
-							ResetClient(iTarget);
-							CallForward_OnVIPClientRemoved(iTarget, "Removed by Admin", iClient);
-							DisplayClientInfo(iTarget, "expired_info");
-							BackToAdminMenu(iClient);
-							return 0;
-						}
 					}
-
-					if(iTargetID != -1)
+					if (iTarget)
 					{
-						char szGroup[64], szName[MAX_NAME_LENGTH];
-						g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));
-						g_hClientData[iClient].GetString(DATA_KEY_Group, SZF(szGroup));
-						DB_RemoveClientFromID(iClient, _, iTargetID, true, szName, szGroup);
+						CallForward_OnVIPClientRemoved(iTarget, "Removed by Admin", iClient);
 					}
+					Clients_RemoveVipPlayer(iClient, iTarget, iTargetID, true);
 
 					BackToAdminMenu(iClient);
 				}

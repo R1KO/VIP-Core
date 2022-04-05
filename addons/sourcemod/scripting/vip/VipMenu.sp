@@ -1,8 +1,6 @@
 void VIPMenu_Setup()
 {
 	g_hVIPMenu = new Menu(Handler_VIPMenu, MenuAction_Start | MenuAction_Display | MenuAction_Cancel | MenuAction_Select | MenuAction_DisplayItem | MenuAction_DrawItem);
-	
-	g_hVIPMenu.AddItem("NO_FEATURES", "NO_FEATURES", ITEMDRAW_DISABLED);
 }
 
 void AddFeatureToVIPMenu(const char[] szFeature)
@@ -93,13 +91,14 @@ stock void PrintArray(ArrayList &hArray)
 }
 #endif
 */
+
 public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOption)
 {
-	if((action == MenuAction_Display ||
+	if ((action == MenuAction_Display ||
 		action == MenuAction_DisplayItem ||
 		action == MenuAction_DrawItem ||
 		action == MenuAction_Select) && 
-		(!(g_iClientInfo[iClient] & IS_VIP) || !g_hFeatures[iClient]))
+		(!IS_CLIENT_VIP(iClient) || !g_hFeatures[iClient]))
 		{
 		return 0;
 	}
@@ -122,29 +121,11 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 			g_hFeatures[iClient].Remove(KEY_MENUITEM);
 
 			DebugMessage("MenuAction_Display: Client: %i", iClient)
-			char szTitle[256];
-			int iExp;
-			if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp) && iExp > 0)
+			char szTitle[PMP];
+			if (FormatMenuTitle(iClient, SZF(szTitle)))
 			{
-				int iTime = GetTime();
-				if (iTime < iExp)
-				{
-					char szExpires[64];
-					UTIL_GetTimeFromStamp(SZF(szExpires), iExp - iTime, iClient);
-					FormatEx(SZF(szTitle), "%T\n \n%T: %s\n \n", "VIP_MENU_TITLE", iClient, "EXPIRES_IN", iClient, szExpires);
-				}
-				else
-				{
-					Clients_ExpiredClient(iClient);
-					return 0;
-				}
+				(view_as<Panel>(iOption)).SetTitle(szTitle);
 			}
-			else
-			{
-				FormatEx(SZF(szTitle), "%T\n \n", "VIP_MENU_TITLE", iClient);
-			}
-			
-			(view_as<Panel>(iOption)).SetTitle(szTitle);
 		}
 		
 		case MenuAction_DrawItem:
@@ -189,12 +170,6 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 			DebugMessage("MenuAction_DisplayItem: Client: %i, Feature: %s", iClient, szFeature)
 
 			static char szDisplay[128];
-			if (strcmp(szFeature, "NO_FEATURES") == 0)
-			{
-				FormatEx(SZF(szDisplay), "%T", "NO_FEATURES", iClient);
-				return RedrawMenuItem(szDisplay);
-			}
-
 			if (GLOBAL_TRIE.GetValue(szFeature, hBuffer))
 			{
 				DataPack hDataPack = view_as<DataPack>(hBuffer.Get(FEATURES_MENU_CALLBACKS));
@@ -220,7 +195,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 					}
 				}
 
-				if(IsTranslationPhraseExists(szFeature))
+				if (IsTranslationPhraseExists(szFeature))
 				{
 					FormatEx(SZF(szDisplay), "%T", szFeature, iClient);
 				}
@@ -253,7 +228,6 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 				hPlugin = view_as<Handle>(hBuffer.Get(FEATURES_PLUGIN));
 				if (view_as<VIP_FeatureType>(hBuffer.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 				{
-					char szBuffer[4];
 					VIP_ToggleState eOldStatus, eNewStatus;
 
 					eOldStatus = Features_GetStatus(iClient, szFeature);
@@ -269,8 +243,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 						if (eNewStatus != eOldStatus)
 						{
 							Features_SetStatus(iClient, szFeature, eNewStatus);
-							IntToString(view_as<int>(eNewStatus), SZF(szBuffer));
-							SetClientCookie(iClient, view_as<Handle>(GetArrayCell(hBuffer, FEATURES_COOKIE)), szBuffer);
+							Features_SetStatusToStorage(iClient, szFeature, eNewStatus);
 						}
 					}
 
@@ -290,7 +263,30 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 	return 0;
 }
 
-bool OnVipMenuFlood(int iClient)
+bool FormatMenuTitle(int iClient, char[] szTitle, int iMaxLen)
+{
+	int iExp;
+	if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp) && iExp > 0)
+	{
+		int iTime = GetTime();
+		if (iTime > iExp)
+		{
+			Clients_ExpiredClient(iClient);
+			return false;
+		}
+
+		char szExpires[64];
+		UTIL_GetTimeFromStamp(SZF(szExpires), iExp - iTime, iClient);
+		FormatEx(szTitle, iMaxLen, "%T\n \n%T: %s\n ", "VIP_MENU_TITLE", iClient, "EXPIRES_IN", iClient, szExpires);
+		return true;
+	}
+
+	FormatEx(szTitle, iMaxLen, "%T\n ", "VIP_MENU_TITLE", iClient);
+
+	return true;
+}
+
+bool IsVipMenuFlood(int iClient)
 {
 	static float fLastTime[MAXPLAYERS + 1];
 	if (fLastTime[iClient] > 0.0)
@@ -310,4 +306,43 @@ bool IsTranslationPhraseExists(const char[] szPhrase)
 	}
 
 	return true;
+}
+
+void DisplayVipMenu(int iClient)
+{
+	bool bResult = g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
+	if (!bResult) {
+		DisplayEmptyFeaturesMenu(iClient);
+	}
+}
+
+void DisplayEmptyFeaturesMenu(int iClient)
+{
+	char szBuffer[PMP];
+	if (!FormatMenuTitle(iClient, SZF(szBuffer)))
+	{
+		return;
+	}
+
+	Menu hMenu = new Menu(Handler_EmptyVIPMenu, MenuAction_End);
+
+	hMenu.SetTitle(szBuffer);
+
+	FormatEx(SZF(szBuffer), "%T", "NO_FEATURES", iClient);
+	hMenu.AddItem(NULL_STRING, szBuffer, ITEMDRAW_DISABLED);
+
+	hMenu.Display(iClient, MENU_TIME_FOREVER);
+}
+
+public int Handler_EmptyVIPMenu(Menu hMenu, MenuAction action, int iClient, int iOption)
+{
+	switch (action)
+	{
+		case MenuAction_End:
+		{
+			delete hMenu;
+		}
+	}
+	
+	return 0;
 }

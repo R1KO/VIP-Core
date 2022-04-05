@@ -134,14 +134,14 @@
 	}
 	"ADMIN_VIP_ADD_SUCCESS"
 	{
-		"#format"	"{1:s},{2:d}"
-		"en"		"VIP-player {1} ({2}, ID: {3}) successfully added!"
-		"fi"		"VIP-Pelaaja {1} ({2}, ID: {3}) onnistuneesti lisätty!"
-		"de"		"VIP-Spieler {1} ({2}, ID: {3}) erfolgreich hinzugefügt!"
-		"pt"		"VIP adicionado {1} ({2}, ID: {3}) com sucesso!"
-		"pt_p"		"VIP adicionado {1} ({2}, ID: {3}) com sucesso!"
-		"ru"		"{DEFAULT}VIP-Игрок {GREEN}{1} {DEFAULT}(ID: {GREEN}{2}{DEFAULT}) успешно добавлен!"
-		"ua"		"{DEFAULT}VIP-Гравець {GREEN}{1} {DEFAULT}(ID: {GREEN}{2}{DEFAULT}) успішно доданий!"
+		"#format"	"{1:s},{2:s}"
+		"en"		"{DEFAULT}VIP-player {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}) successfully added!"
+		"fi"		"{DEFAULT}VIP-Pelaaja {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}) onnistuneesti lisätty!"
+		"de"		"{DEFAULT}VIP-Spieler {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}) erfolgreich hinzugefügt!"
+		"pt"		"{DEFAULT}VIP adicionado {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}) com sucesso!"
+		"pt_p"		"{DEFAULT}VIP adicionado {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}) com sucesso!"
+		"ru"		"{DEFAULT}VIP-Игрок {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}) успешно добавлен!"
+		"ua"		"{DEFAULT}VIP-Гравець {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}) успішно доданий!"
 	}
 
 	"LOG_VIP_ADDED"
@@ -351,16 +351,15 @@
 	}
 	"ADMIN_VIP_PLAYER_DELETED"
 	{
-		"#format"	"{1:s},{2:i}"
-		"en"		"VIP-player {1} (ID: {2}) was successfully removed"
-		"fi"		"VIP-Pelaaja {1} (ID: {2}) on onnistuneesti poistettu"
-		"de"		"VIP-Spieler {1} (ID: {2}) wurde erfolgreich gelöscht"
-		"pt"		"VIP do player {1} (ID: {2}) foi removido com sucesso"
-		"pt_p"		"O VIP do jogador {1} (ID: {2}) foi removido com sucesso"
-		"ru"		"VIP-игрок {1} (ID: {2}) успешно удален"
-		"ua"		"VIP-гравець {1} (ID: {2}) успішно видалений"
+		"#format"	"{1:s},{2:s}"
+		"en"		"{DEFAULT}VIP-player {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}) was successfully removed"
+		"fi"		"{DEFAULT}VIP-Pelaaja {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}) on onnistuneesti poistettu"
+		"de"		"{DEFAULT}VIP-Spieler {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}) wurde erfolgreich gelöscht"
+		"pt"		"{DEFAULT}VIP do player {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}) foi removido com sucesso"
+		"pt_p"		"{DEFAULT}O VIP do jogador {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}) foi removido com sucesso"
+		"ru"		"{DEFAULT}VIP-игрок {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}) успешно удален"
+		"ua"		"{DEFAULT}VIP-гравець {GREEN}{1} {DEFAULT}({GREEN}{2}{DEFAULT}) успішно видалений"
 	}
-
 	"LOG_VIP_DELETED"
 	{
 		"#format"	"{1:s},{2:d},{3:s},{4:s}"
