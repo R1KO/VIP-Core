@@ -75,7 +75,7 @@ void Clients_LoadClient(int iClient, bool bNotify)
 	FormatEx(SZF(szQuery), "SELECT `expires`, `group`, `name` \
 										FROM `vip_users` \
 										WHERE `account_id` = %d%s LIMIT 1;",
-										iAccountID, g_szSID);
+										iAccountID, g_szServerID);
 
 	DataPack hDataPack = new DataPack();
 	hDataPack.WriteCell(UID(iClient));

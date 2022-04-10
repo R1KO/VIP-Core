@@ -70,7 +70,7 @@ public void OnDBConnect(Database hDatabase, const char[] szError, int data)
 		}
 	}
 	
-	DebugMessage("OnDBConnect %x, %u - > (MySQL: %b)", g_hDatabase, g_hDatabase, GLOBAL_INFO & IS_MySQL)
+	DebugMessage("OnDBConnect %x, %u - > (MySQL: %b)", g_hDatabase, g_hDatabase, DB_IsMysql())
 	
 	CreateTables();
 }
@@ -79,14 +79,8 @@ void CreateTables()
 {
 	DebugMessage("CreateTables")
 
-	if (GLOBAL_INFO & IS_MySQL)
+	if (DB_IsMysql())
 	{
-		#if USE_MORE_SERVERS 1
-		FormatEx(SZF(g_szSID), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
-		#else
-		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
-		#endif
-		
 		g_hDatabase.Query(SQL_Callback_TableCreate, "CREATE TABLE IF NOT EXISTS `vip_users` (\
 					`account_id` INT NOT NULL, \
 					`name` VARCHAR(64) NOT NULL default 'unknown' COLLATE '" ... COLLATION ... "', \
@@ -108,7 +102,7 @@ void CreateTables()
 	}
 	else
 	{
-		g_szSID[0] = 0;
+		g_szServerID[0] = 0;
 		
 		g_hDatabase.Query(SQL_Callback_TableCreate, "CREATE TABLE IF NOT EXISTS `vip_users` (\
 				`account_id` INTEGER PRIMARY KEY NOT NULL, \
@@ -137,7 +131,7 @@ public void SQL_Callback_TableCreate(Database hOwner, DBResultSet hResult, const
 		return;
 	}
 
-	if (GLOBAL_INFO & IS_MySQL)
+	if (DB_IsMysql())
 	{
 		g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET NAMES '" ... CHARSET ... "'");
 		g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET CHARSET '" ... CHARSET ... "'");
@@ -174,7 +168,7 @@ void RemoveExpAndOutPlayers()
 	if (g_CVAR_iDeleteExpired >= 0)
 	{
 		char szQuery[PMP];
-		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `expires` > 0 AND `expires` < %d%s;", (GetTime() - g_CVAR_iDeleteExpired*86400), g_szSID);
+		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `expires` > 0 AND `expires` < %d%s;", (GetTime() - g_CVAR_iDeleteExpired*86400), g_szServerID);
 
 		DBG_SQL_Query(szQuery)
 		DebugMessage(szQuery)
@@ -184,7 +178,7 @@ void RemoveExpAndOutPlayers()
 	if (g_CVAR_iOutdatedExpired > 0)
 	{
 		char szQuery[PMP];
-		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `lastvisit` > 0 AND `lastvisit` < %d%s;", (GetTime() - g_CVAR_iOutdatedExpired*86400), g_szSID);
+		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `lastvisit` > 0 AND `lastvisit` < %d%s;", (GetTime() - g_CVAR_iOutdatedExpired*86400), g_szServerID);
 
 		DBG_SQL_Query(szQuery)
 		g_hDatabase.Query(SQL_Callback_SelectExpiredAndOutdated, szQuery, REASON_OUTDATED);
@@ -213,11 +207,11 @@ void DB_UpdateClient(int iClient, const char[] szDbName = NULL_STRING)
 		char szName[MNL*2+1];
 		GetClientName(iClient, szQuery, MNL);
 		g_hDatabase.Escape(szQuery, SZF(szName));
-		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `name` = '%s', `lastvisit` = %d WHERE `account_id` = %d%s;", szName, GetTime(), iClientID, g_szSID);
+		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `name` = '%s', `lastvisit` = %d WHERE `account_id` = %d%s;", szName, GetTime(), iClientID, g_szServerID);
 	}
 	else
 	{
-		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `lastvisit` = %d WHERE `account_id` = %d%s;", GetTime(), iClientID, g_szSID);
+		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `lastvisit` = %d WHERE `account_id` = %d%s;", GetTime(), iClientID, g_szServerID);
 	}
 
 	DBG_SQL_Query(szQuery)
@@ -309,7 +303,7 @@ void DB_AddVipPlayer(
 		strcopy(SZF(szName), "unknown");
 	}
 
-	if (GLOBAL_INFO & IS_MySQL)
+	if (DB_IsMysql())
 	{
 		FormatEx(SZF(szQuery), "INSERT INTO `vip_users` (`account_id`, `sid`, `expires`, `group`, `name`, `lastvisit`) VALUES (%d, %d, %d, '%s', '%s', %d) \
 		ON DUPLICATE KEY UPDATE `expires` = %d, `group` = '%s';", iTargetAccountID, g_CVAR_iServerID, iExpires, szGroup, szName, iLastVisit, iExpires, szGroup);
@@ -403,7 +397,7 @@ void DB_RemoveVipPlayer(
 	hDataPack.WriteCell(bNotify);
 
 	char szQuery[512];
-	FormatEx(SZF(szQuery), "SELECT `name`, `group` FROM `vip_users` WHERE `account_id` = %d%s;", iTargetAccountID, g_szSID);
+	FormatEx(SZF(szQuery), "SELECT `name`, `group` FROM `vip_users` WHERE `account_id` = %d%s;", iTargetAccountID, g_szServerID);
 
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_SelectForRemoveClient, szQuery, hDataPack);
@@ -490,7 +484,7 @@ void DB_RemoveVipPlayerByData(
 	hDataPack.WriteCell(bNotify);
 
 	char szQuery[PMP];
-	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iTargetAccountID, g_szSID);
+	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iTargetAccountID, g_szServerID);
 
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_RemoveClient, szQuery, hDataPack);
@@ -629,7 +623,7 @@ void DB_RemoveClientFromID(int iAdmin = 0,
 		return;
 	}
 
-	FormatEx(SZF(szQuery), "SELECT `name`, `group` FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
+	FormatEx(SZF(szQuery), "SELECT `name`, `group` FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szServerID);
 
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_SelectRemoveClient, szQuery, hDataPack);
@@ -672,7 +666,7 @@ public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult
 void DB_RemoveClient(int iClientID, DataPack hDataPack)
 {
 	char szQuery[PMP];
-	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
+	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szServerID);
 
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_RemoveClient, szQuery, hDataPack);
@@ -717,3 +711,7 @@ public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, cons
 	);
 }
 */
+bool DB_IsMysql()
+{
+	return (GLOBAL_INFO & IS_MySQL) == IS_MySQL;
+}

@@ -14,6 +14,11 @@ void Cvars_Setup()
 	g_CVAR_iServerID = hCvar.IntValue;
 	SetupServerID();
 
+	hCvar = CreateConVar("sm_vip_storage_id", "0", "ID группы серверов для хранилища данных игроков", _, true, 0.0);
+	hCvar.AddChangeHook(OnStorageIDChange);
+	g_CVAR_iStorageID = hCvar.IntValue;
+	SetupStorageID();
+
 	hCvar = CreateConVar("sm_vip_auto_open_menu", "0", "Автоматически открывать VIP-меню при входе (0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnAutoOpenMenuChange);
 	g_CVAR_bAutoOpenMenu = hCvar.BoolValue;
@@ -71,17 +76,35 @@ public void OnServerIDChange(ConVar hCvar, const char[] szOldValue, const char[]
 
 void SetupServerID()
 {
-	if (GLOBAL_INFO & IS_MySQL)
+	if (DB_IsMysql())
 	{
 		#if USE_MORE_SERVERS 1
-		FormatEx(SZF(g_szSID), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
+		FormatEx(SZF(g_szServerID), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
 		#else
-		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
+		FormatEx(SZF(g_szServerID), " AND `sid` = %d", g_CVAR_iServerID);
 		#endif
 	}
 	else
 	{
-		g_szSID[0] = 0;
+		g_szServerID[0] = 0;
+	}
+}
+
+public void OnStorageIDChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
+{
+	g_CVAR_iStorageID = hCvar.IntValue;
+	SetupStorageID();
+}
+
+void SetupStorageID()
+{
+	if (DB_IsMysql())
+	{
+		FormatEx(SZF(g_szStorageID), " AND `sid` = %d", g_CVAR_iStorageID);
+	}
+	else
+	{
+		g_szStorageID[0] = 0;
 	}
 }
 

@@ -146,7 +146,7 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 
 	FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` \
 									FROM `vip_users` \
-									WHERE `account_id` = %d%s LIMIT 1;", iAccountID, g_szSID);
+									WHERE `account_id` = %d%s LIMIT 1;", iAccountID, g_szServerID);
 
 	DebugMessage(szQuery)
 	if (iClient)

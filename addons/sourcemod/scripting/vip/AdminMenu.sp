@@ -435,7 +435,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 			g_hClientData[iClient].SetValue(DATA_KEY_Time, iExpires);
 
 			char szQuery[512];
-			FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = '%d' WHERE `account_id` = '%d'%s;", iExpires, iTarget, g_szSID);
+			FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = '%d' WHERE `account_id` = '%d'%s;", iExpires, iTarget, g_szServerID);
 			DBG_SQL_Query(szQuery)
 			g_hDatabase.Query(SQL_Callback_ChangeTime, szQuery, UID(iClient));
 
@@ -539,7 +539,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 					g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));
 					g_hClientData[iClient].GetString(DATA_KEY_Group, SZF(szOldGroup));
 
-					FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iTargetID, g_szSID);
+					FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iTargetID, g_szServerID);
 
 					DBG_SQL_Query(szQuery)
 					g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery);

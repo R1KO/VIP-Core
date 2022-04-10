@@ -35,7 +35,7 @@ void Storage_LoadClient(int iClient)
 	FormatEx(SZF(szQuery), "SELECT `key`, `value` \
 										FROM `vip_storage` \
 										WHERE `account_id` = %d%s;",
-										iAccountID, g_szSID);
+										iAccountID, g_szStorageID);
 
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_OnClientLoadStorage, szQuery, UID(iClient));
@@ -132,13 +132,13 @@ void Storage_SaveClient(int iClient)
 void Storage_SaveClientValue(int iAccountID, const char[] szKey, const char[] szValue, int iUpdated)
 {
 	char szQuery[512];
-	if (GLOBAL_INFO & IS_MySQL)
+	if (DB_IsMysql())
 	{
 		g_hDatabase.Format(SZF(szQuery), "INSERT INTO `vip_storage` (`account_id`, `sid`, `key`, `value`, `updated`) \
 			VALUES (%d, %d, \"%s\", \"%s\", %d)	\
 			ON DUPLICATE KEY UPDATE \
 			`value` = \"%s\", `updated` = %d;",
-			iAccountID, g_CVAR_iServerID, szKey, szValue, iUpdated, szValue, iUpdated);
+			iAccountID, g_CVAR_iStorageID, szKey, szValue, iUpdated, szValue, iUpdated);
 	}
 	else
 	{

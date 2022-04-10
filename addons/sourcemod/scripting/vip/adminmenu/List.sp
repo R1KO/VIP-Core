@@ -212,14 +212,14 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 		}
 	}
 
-	if (GLOBAL_INFO & IS_MySQL)
+	if (DB_IsMysql())
 	{
 		FormatEx(SZF(szQuery), "SELECT `account_id`, \
 										`name` \
 										FROM `vip_users` \
 										WHERE %s%s \ 
 										LIMIT %d, %d;",
-			g_szSID[5], szWhere, iOffset, LIST_OFFSET);
+			g_szServerID[5], szWhere, iOffset, LIST_OFFSET);
 	}
 	else
 	{
@@ -319,7 +319,7 @@ void ShowTargetInfo(int iClient)
 									`account_id` \
 									FROM `vip_users` \
 									WHERE `account_id` = %d%s LIMIT 1;", 
-									iClientID, g_szSID);
+									iClientID, g_szServerID);
 
 	DBG_SQL_Query(szQuery)
 	g_hDatabase.Query(SQL_Callback_SelectVipClientInfo, szQuery, UID(iClient));

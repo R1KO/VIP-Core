@@ -108,6 +108,7 @@ ConVar		g_CVAR_hVIPMenu_CMD;
 
 int 		g_CVAR_iAdminFlag;
 int 		g_CVAR_iServerID;
+int 		g_CVAR_iStorageID;
 int 		g_CVAR_iTimeMode;
 int			g_CVAR_iDeleteExpired;
 int			g_CVAR_iOutdatedExpired;
@@ -120,4 +121,5 @@ bool		g_CVAR_bDefaultStatus;
 EngineVersion	g_EngineVersion;
 bool g_bIsTranslationPhraseExistsAvailable;
 
-char		g_szSID[64];
+char		g_szServerID[64];
+char		g_szStorageID[64];

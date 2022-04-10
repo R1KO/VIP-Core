@@ -453,7 +453,7 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 		{
 			char szQuery[PMP];
-			FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iClientID, g_szSID);
+			FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iClientID, g_szServerID);
 			DBG_SQL_Query(szQuery)
 			g_hDatabase.Query(SQL_Callback_ChangeClientSettings, szQuery, UID(iClient));
 
@@ -509,7 +509,7 @@ public int Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
 				if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 				{
 					char szQuery[PMP];
-					FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = %d WHERE `account_id` = %d%s;", iTime, iClientID, g_szSID);
+					FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = %d WHERE `account_id` = %d%s;", iTime, iClientID, g_szServerID);
 					DBG_SQL_Query(szQuery)
 					g_hDatabase.Query(SQL_Callback_ChangeClientSettings, szQuery, UID(iClient));
 				}
@@ -1324,7 +1324,7 @@ public int Native_GetDatabase(Handle hPlugin, int iNumParams)
 
 public int Native_GetDatabaseType(Handle hPlugin, int iNumParams)
 {
-	return (GLOBAL_INFO & IS_MySQL);
+	return DB_IsMysql();
 }
 
 public int Native_TimeToSeconds(Handle hPlugin, int iNumParams)
