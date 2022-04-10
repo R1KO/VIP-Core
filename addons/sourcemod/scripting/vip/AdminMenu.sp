@@ -1,47 +1,51 @@
-char	DATA_KEY_MenuType[]			= "MenuType";
-char	DATA_KEY_MenuListType[]		= "MenuListType";
-char	DATA_KEY_ThrowMenuType[]	= "ThrowMenuType";
-char	DATA_KEY_TargetID[]			= "TargetID";
-char	DATA_KEY_TargetUID[]		= "TargetUID";
-char	DATA_KEY_TimeType[]			= "TimeType";
-char	DATA_KEY_Time[]				= "Time";
-char	DATA_KEY_Name[]				= "Name";
-char	DATA_KEY_Group[]			= "Group";
-char	DATA_KEY_Auth[]				= "Auth";
-char	DATA_KEY_Offset[]			= "Offset";
-char	DATA_KEY_Search[]			= "Search";
 
-enum
-{
-	DATA_MENU_TYPE = 0,
-	DATA_TARGET_USER_ID,
-	DATA_TARGET_ID,
-	DATA_TIME,
-	DATA_NAME,
-	DATA_GROUP,
-	DATA_OFFSET,
-	DATA_SIZE
-}
+#undef REQUIRE_PLUGIN
+#include <adminmenu>
+#define REQUIRE_PLUGIN
 
-enum
+static TopMenuObject g_eAdminMenuObject = INVALID_TOPMENUOBJECT;
+static TopMenu g_hTopMenu;
+static Menu g_hVIPAdminMenu;
+
+stock const char DATA_KEY_MenuType[] = "MenuType";
+stock const char DATA_KEY_MenuListType[] = "MenuListType";
+stock const char DATA_KEY_ThrowMenuType[] = "ThrowMenuType";
+stock const char DATA_KEY_TargetID[] = "TargetID";
+stock const char DATA_KEY_TargetUID[] = "TargetUID";
+stock const char DATA_KEY_TimeType[] = "TimeType";
+stock const char DATA_KEY_Time[] = "Time";
+stock const char DATA_KEY_Name[] = "Name";
+stock const char DATA_KEY_Group[] = "Group";
+stock const char DATA_KEY_Auth[] = "Auth";
+stock const char DATA_KEY_Offset[] = "Offset";
+stock const char DATA_KEY_Search[] = "Search";
+
+static const char g_szAdminMenuLibrary[] = "adminmenu";
+
+enum AdminMenuType
 {
 	TOP_ADMIN_MENU = 0, 
 	ADMIN_MENU
 }
 
-enum
+enum TimeAction
 {
 	TIME_SET = 0, 
 	TIME_ADD, 
 	TIME_TAKE
 }
 
-enum
+enum AdminMenuItem
 {
 	MENU_TYPE_ADD = 0, 
 	MENU_TYPE_EDIT,
 	MENU_TYPE_ONLINE_LIST,
 	MENU_TYPE_DB_LIST
+}
+
+void DisplayAdminMenu(int iClient)
+{
+	g_hVIPAdminMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
 void BackToAdminMenu(int iClient)
@@ -78,7 +82,7 @@ int IsClientOnline(int ID)
 }
 
 // ************************ ADMIN_MENU ************************
-void VIPAdminMenu_Setup()
+void AdminMenu_Setup()
 {
 	g_hVIPAdminMenu = new Menu(Handler_VIPAdminMenu, MenuAction_Display | MenuAction_Select | MenuAction_DisplayItem);
 
@@ -86,6 +90,15 @@ void VIPAdminMenu_Setup()
 	g_hVIPAdminMenu.AddItem(NULL_STRING, "vip_list");
 	g_hVIPAdminMenu.AddItem(NULL_STRING, "vip_reload_players");
 	g_hVIPAdminMenu.AddItem(NULL_STRING, "vip_reload_settings");
+
+	if(LibraryExists(g_szAdminMenuLibrary))
+	{
+		TopMenu hTopMenu = GetAdminTopMenu();
+		if(hTopMenu != null)
+		{
+			OnAdminMenuReady(hTopMenu);
+		}
+	}
 }
 
 public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int Item)
@@ -95,7 +108,7 @@ public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int 
 		case MenuAction_Display:
 		{
 			char szTitle[128];
-			FormatEx(SZF(szTitle), "%T: \n ", "VIP_ADMIN_MENU_TITLE", iClient);
+			FormatEx(SZF(szTitle), "%T:\n ", "VIP_ADMIN_MENU_TITLE", iClient);
 			(view_as<Panel>(Item)).SetTitle(szTitle);
 		}
 		case MenuAction_DisplayItem:
@@ -152,7 +165,7 @@ public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int 
 // ************************ TOP_ADMIN_MENU ************************
 public void OnLibraryAdded(const char[] szLibraryName)
 {
-	if (strcmp(szLibraryName, "adminmenu") == 0)
+	if (strcmp(szLibraryName, g_szAdminMenuLibrary) == 0)
 	{
 		TopMenu hTopMenu = GetAdminTopMenu();
 		if (hTopMenu != null)
@@ -164,10 +177,10 @@ public void OnLibraryAdded(const char[] szLibraryName)
 
 public void OnLibraryRemoved(const char[] szLibraryName)
 {
-	if (strcmp(szLibraryName, "adminmenu") == 0)
+	if (strcmp(szLibraryName, g_szAdminMenuLibrary) == 0)
 	{
 		g_hTopMenu = null;
-		VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
+		g_eAdminMenuObject = INVALID_TOPMENUOBJECT;
 	}
 }
 
@@ -178,41 +191,36 @@ public void OnAdminMenuReady(Handle aTopMenu)
 	{
 		return;
 	}
-	
+
 	g_hTopMenu = hTopMenu;
-	
-	/*if (g_CVAR_bAddItemToAdminMenu)
-	{
-		AddItemsToTopMenu();
-	}
-	*/
+
 	AddItemsToTopMenu();
 }
-// g_CVAR_iAdminFlag
+
 void AddItemsToTopMenu()
 {
-	if (VIPAdminMenuObject == INVALID_TOPMENUOBJECT)
+	if (g_eAdminMenuObject == INVALID_TOPMENUOBJECT)
 	{
-		VIPAdminMenuObject = g_hTopMenu.AddCategory("vip_admin", Handler_MenuVIPAdmin, "vip_admin", ADMFLAG_ROOT);
+		g_eAdminMenuObject = g_hTopMenu.AddCategory("vip_admin", Handler_MenuAdmin, "sm_vipadmin", ADMFLAG_ROOT);
 	}
 
-	g_hTopMenu.AddItem("vip_add",				Handler_MenuVIPAdd,				VIPAdminMenuObject, "vip_add",				ADMFLAG_ROOT);
-	g_hTopMenu.AddItem("vip_list",				Handler_MenuVIPList,			VIPAdminMenuObject, "vip_list",				ADMFLAG_ROOT);
-	g_hTopMenu.AddItem("vip_reload_players",	Handler_MenuVIPReloadPlayers,	VIPAdminMenuObject, "vip_reload_players",	ADMFLAG_ROOT);
-	g_hTopMenu.AddItem("vip_reload_settings",	Handler_MenuVIPReloadSettings,	VIPAdminMenuObject, "vip_reload_settings",	ADMFLAG_ROOT);
+	g_hTopMenu.AddItem("vip_add", Handler_MenuAdd, g_eAdminMenuObject, "sm_vipadmin", ADMFLAG_ROOT);
+	g_hTopMenu.AddItem("vip_list", Handler_MenuList, g_eAdminMenuObject, "sm_vipadmin", ADMFLAG_ROOT);
+	g_hTopMenu.AddItem("vip_reload_players", Handler_MenuReloadPlayers, g_eAdminMenuObject, "sm_vipadmin", ADMFLAG_ROOT);
+	g_hTopMenu.AddItem("vip_reload_settings", Handler_MenuReloadSettings, g_eAdminMenuObject, "sm_vipadmin", ADMFLAG_ROOT);
 }
 
-public void Handler_MenuVIPAdmin(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] szBuffer, int iMaxLen)
+public void Handler_MenuAdmin(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] szBuffer, int iMaxLen)
 {
 	switch (action)
 	{
 		case TopMenuAction_DisplayOption:	FormatEx(szBuffer, iMaxLen, "%T", "VIP_ADMIN_MENU_TITLE", iClient);
-		case TopMenuAction_DisplayTitle:	FormatEx(szBuffer, iMaxLen, "%T: \n ", "VIP_ADMIN_MENU_TITLE", iClient);
+		case TopMenuAction_DisplayTitle:	FormatEx(szBuffer, iMaxLen, "%T:\n ", "VIP_ADMIN_MENU_TITLE", iClient);
 	}
 }
 
 // ************************ ADD_VIP ************************
-public void Handler_MenuVIPAdd(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] szBuffer, int iMaxLen)
+public void Handler_MenuAdd(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] szBuffer, int iMaxLen)
 {
 	switch (action)
 	{
@@ -229,7 +237,7 @@ public void Handler_MenuVIPAdd(TopMenu hMenu, TopMenuAction action, TopMenuObjec
 
 // ************************ LIST_VIP ************************
 
-public void Handler_MenuVIPList(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] szBuffer, int iMaxLen)
+public void Handler_MenuList(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] szBuffer, int iMaxLen)
 {
 	switch (action)
 	{
@@ -244,7 +252,7 @@ public void Handler_MenuVIPList(TopMenu hMenu, TopMenuAction action, TopMenuObje
 }
 
 // ************************ RELOAD_VIP_PLAYES ************************
-public void Handler_MenuVIPReloadPlayers(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] szBuffer, int iMaxLen)
+public void Handler_MenuReloadPlayers(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] szBuffer, int iMaxLen)
 {
 	switch (action)
 	{
@@ -258,7 +266,7 @@ public void Handler_MenuVIPReloadPlayers(TopMenu hMenu, TopMenuAction action, To
 }
 
 // ************************ RELOAD_VIP_CFG ************************
-public void Handler_MenuVIPReloadSettings(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] szBuffer, int iMaxLen)
+public void Handler_MenuReloadSettings(TopMenu hMenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] szBuffer, int iMaxLen)
 {
 	switch (action)
 	{
@@ -276,7 +284,7 @@ void ShowTimeMenu(int iClient)
 {
 	Menu hMenu = new Menu(MenuHandler_TimeMenu);
 
-	int iMenuType;
+	TimeAction iMenuType;
 	g_hClientData[iClient].GetValue(DATA_KEY_TimeType, iMenuType);
 
 	switch (iMenuType)
@@ -342,7 +350,8 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 		{
 			char szName[64];
 			hMenu.GetItem(Item, SZF(szName));
-			int iMenuType, iTime, iTarget;
+			int iTime, iTarget;
+			AdminMenuItem iMenuType;
 			iTime = S2I(szName);
 			g_hClientData[iClient].GetValue(DATA_KEY_MenuType, iMenuType);
 			
@@ -625,4 +634,22 @@ void ReductionMenu(Menu &hMenu, int iNum)
 	{
 		hMenu.AddItem(NULL_STRING, NULL_STRING, ITEMDRAW_NOTEXT);
 	}
+}
+
+public Action OnClientSayCommand(int iClient, const char[] szCommand, const char[] szArgs)
+{
+	if(iClient > 0 && iClient <= MaxClients && szArgs[0])
+	{
+		if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+		{
+			if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+			{
+				ShowWaitSearchMenu(iClient, szArgs);
+			}
+
+			return Plugin_Handled;
+		}
+	}
+
+	return Plugin_Continue;
 }

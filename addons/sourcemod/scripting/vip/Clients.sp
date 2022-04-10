@@ -329,45 +329,50 @@ void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
 void Clients_LoadFeature(int iClient, const char[] szFeature)
 {
 	static ArrayList hArray;
-	if (GLOBAL_TRIE.GetValue(szFeature, hArray))
+	if (!GLOBAL_TRIE.GetValue(szFeature, hArray))
+		return;
+
+	DebugMessage("LoadClientFeature: %s", szFeature)
+
+	if (!GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), szFeature))
+		return;
+
+	static VIP_ToggleState eStatus;
+	DebugMessage("GetValue: == true")
+	if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 	{
-		DebugMessage("LoadClientFeature: %s", szFeature)
-
-		if (GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), szFeature))
+		static char szBuffer[4];
+		static Handle hCookie;
+		hCookie = view_as<Handle>(hArray.Get(FEATURES_COOKIE));
+		GetClientCookie(iClient, hCookie, SZF(szBuffer));
+		eStatus = view_as<VIP_ToggleState>(StringToInt(szBuffer));
+		DebugMessage("GetFeatureCookie: '%s'", szBuffer)
+		if (szBuffer[0] == '\0' || !Features_IsValidStatus(eStatus))
 		{
-			static VIP_ToggleState	eStatus;
-			DebugMessage("GetValue: == true")
-			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
+			switch(hArray.Get(FEATURES_DEF_STATUS))
 			{
-				static char	 			szBuffer[4];
-				static Handle			hCookie;
-				hCookie = view_as<Handle>(hArray.Get(FEATURES_COOKIE));
-				GetClientCookie(iClient, hCookie, SZF(szBuffer));
-				eStatus = view_as<VIP_ToggleState>(StringToInt(szBuffer));
-				DebugMessage("GetFeatureCookie: '%s'", szBuffer)
-				if (szBuffer[0] == '\0' || (view_as<int>(eStatus) > 2 || view_as<int>(eStatus) < 0))
-				{
-					switch(hArray.Get(FEATURES_DEF_STATUS))
-					{
-						case NO_ACCESS:		eStatus = g_CVAR_bDefaultStatus ? ENABLED:DISABLED;
-						case ENABLED:		eStatus = ENABLED;
-						case DISABLED:		eStatus = DISABLED;
-					}
-
-					IntToString(view_as<int>(eStatus), SZF(szBuffer));
-					SetClientCookie(iClient, hCookie, szBuffer);
-					//	Features_SaveStatus(iClient, szFeature, hCookie, eStatus);
-				}
-			}
-			else
-			{
-				eStatus = ENABLED;
+				case NO_ACCESS:	eStatus = g_CVAR_bDefaultStatus ? ENABLED:DISABLED;
+				case ENABLED:	eStatus = ENABLED;
+				case DISABLED:	eStatus = DISABLED;
 			}
 
-			Features_SetStatus(iClient, szFeature, eStatus);
-			//	Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function:hArray.Get(FEATURES_ITEM_SELECT), iClient, szFeature, NO_ACCESS, ENABLED);
+			IntToString(view_as<int>(eStatus), SZF(szBuffer));
+			SetClientCookie(iClient, hCookie, szBuffer);
+			//	Features_SaveStatus(iClient, szFeature, hCookie, eStatus);
 		}
 	}
+	else
+	{
+		eStatus = ENABLED;
+	}
+
+	Features_SetStatus(iClient, szFeature, eStatus);
+	//	Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function:hArray.Get(FEATURES_ITEM_SELECT), iClient, szFeature, NO_ACCESS, ENABLED);
+}
+
+bool Features_IsValidStatus(VIP_ToggleState eStatus)
+{
+	return (view_as<int>(eStatus) > 2 || view_as<int>(eStatus) < 0);
 }
 
 bool GetValue(int iClient, VIP_ValueType ValueType, const char[] szFeature)

@@ -35,10 +35,10 @@
 #define REASON_EXPIRED	-3
 #define REASON_OUTDATED	-4
 
-char	KEY_CID[]		= "Core->ClientID";
-char	KEY_EXPIRES[]	= "Core->Expires";
-char	KEY_GROUP[]		= "Core->Group";
-char	KEY_MENUITEM[]	= "Core->SelectionItem";
+stock const char KEY_CID[]		= "Core->ClientID";
+stock const char KEY_EXPIRES[]	= "Core->Expires";
+stock const char KEY_GROUP[]	= "Core->Group";
+stock const char KEY_MENUITEM[]	= "Core->SelectionItem";
 
 enum
 {
@@ -62,7 +62,7 @@ enum
 	TIME_MODE_DAYS
 }
 
-char g_szToggleStatus[][] =
+stock const char g_szToggleStatus[][] =
 {
 	"DISABLED",
 	"ENABLED",
@@ -77,11 +77,6 @@ KeyValues	g_hGroups;
 KeyValues	g_hInfo;
 
 Database	g_hDatabase;
-
-#if USE_ADMINMENU 1
-TopMenu		g_hTopMenu;
-Menu		g_hVIPAdminMenu;
-#endif
 
 Menu		g_hVIPMenu;
 
@@ -107,11 +102,6 @@ int			g_CVAR_iDeleteExpired;
 int			g_CVAR_iOutdatedExpired;
 float		g_CVAR_fSpawnDelay;
 bool		g_CVAR_bAutoOpenMenu;
-/*
-#if USE_ADMINMENU 1
-bool		g_CVAR_bAddItemToAdminMenu;
-#endif
-*/
 bool		g_CVAR_bUpdateName;
 bool		g_CVAR_bHideNoAccessItems;
 bool		g_CVAR_bDefaultStatus;
@@ -120,7 +110,3 @@ bool		g_CVAR_bLogsEnable;
 EngineVersion	g_EngineVersion;
 
 char		g_szSID[64];
-
-#if USE_ADMINMENU 1
-TopMenuObject	VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
-#endif
