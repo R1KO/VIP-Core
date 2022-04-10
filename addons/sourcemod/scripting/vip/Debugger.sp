@@ -16,9 +16,9 @@ void DebugMsg(const char[] sMsg, any ...)
 // #define LOG_RESPONSE			// Ответы SQL запросов
 // #define LOG_API					// API
 // #define LOG_FEATURES			// API
-#define LOG_CLIENTS				// API
+// #define LOG_CLIENTS				// API
 // #define LOG_DB					// API
-#define LOG_STORAGE
+// #define LOG_STORAGE
 
 #else
 #define DebugMessage(%0)

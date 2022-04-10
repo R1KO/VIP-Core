@@ -624,7 +624,7 @@ native bool VIP_RemoveClientFeature(int iClient, const char[] szFeature);
 
 
 /**
- *  Сохраняет значение в хранилище игрока
+ *  Сохраняет значение в хранилище игрока (сохраняется при переподключении)
  *
  * @param iClient			Индекс игрока.
  * @param szKey				Ключ
