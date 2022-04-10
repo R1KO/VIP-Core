@@ -224,7 +224,7 @@ void UTIL_GetSteamIDFromAccountID(int iAccountID, char[] szSteamID, int iMaxLen)
 		{
 			int iPart = iAccountID % 2;
 			iAccountID -= iPart;
-			FormatEx(szSteamID, iMaxLen, "STEAM_%d:%d:%d", g_EngineVersion == Engine_CSGO ? 1:0, iPart, iAccountID/2);
+			FormatEx(szSteamID, iMaxLen, "STEAM_%d:%d:%d", g_EngineVersion == Engine_CSGO ? 1 : 0, iPart, iAccountID/2);
 		}
 		
 	}

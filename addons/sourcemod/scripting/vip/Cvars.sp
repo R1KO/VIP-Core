@@ -5,25 +5,13 @@ void Cvars_Setup()
 
 	ConVar hCvar = CreateConVar("sm_vip_admin_flag", "z", "Флаг админа, необходимый чтобы иметь доступ к управлению VIP-игроками.");
 	hCvar.AddChangeHook(OnAdminFlagChange);
-	g_CVAR_iAdminFlag = UTIL_GetConVarAdminFlag(hCvar);
+	OnAdminFlagChange(hCvar, NULL_STRING, NULL_STRING);
 
 	g_CVAR_hVIPMenu_CMD = CreateConVar("sm_vip_menu_commands", "vip;sm_vip;sm_vipmenu", "Команды для вызова VIP-меню (разделять ;)");
 
 	hCvar = CreateConVar("sm_vip_server_id", "0", "ID сервера при приспользовании MySQL базы данных", _, true, 0.0);
 	hCvar.AddChangeHook(OnServerIDChange);
-	g_CVAR_iServerID = hCvar.IntValue;
-	if (GLOBAL_INFO & IS_MySQL)
-	{
-		#if USE_MORE_SERVERS 1
-		FormatEx(SZF(g_szSID), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
-		#else
-		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
-		#endif
-	}
-	else
-	{
-		g_szSID[0] = 0;
-	}
+	OnServerIDChange(hCvar, NULL_STRING, NULL_STRING);
 
 	hCvar = CreateConVar("sm_vip_auto_open_menu", "0", "Автоматически открывать VIP-меню при входе (0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnAutoOpenMenuChange);
@@ -68,16 +56,13 @@ public void OnAdminFlagChange(ConVar hCvar, const char[] szOldValue, const char[
 {
 	g_CVAR_iAdminFlag = UTIL_GetConVarAdminFlag(hCvar);
 
-	#if USE_ADMINMENU 1
-	if(g_hTopMenu)
-	{
-		if(VIPAdminMenuObject != INVALID_TOPMENUOBJECT )
-		{
-			RemoveFromTopMenu(g_hTopMenu, VIPAdminMenuObject);
-		}
+	AddCommandOverride("sm_refresh_vips", Override_Command, g_CVAR_iAdminFlag);
+	AddCommandOverride("sm_reload_vip_cfg", Override_Command, g_CVAR_iAdminFlag);
+	AddCommandOverride("sm_addvip", Override_Command, g_CVAR_iAdminFlag);
+	AddCommandOverride("sm_delvip", Override_Command, g_CVAR_iAdminFlag);
 
-		AddItemsToTopMenu();
-	}
+	#if USE_ADMINMENU 1
+	AddCommandOverride("sm_vipadmin", Override_Command, g_CVAR_iAdminFlag);
 	#endif
 }
 

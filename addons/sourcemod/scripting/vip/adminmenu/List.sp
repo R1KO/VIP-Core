@@ -50,19 +50,19 @@ void ShowVipPlayersListMenu(int iClient)
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iClient, int Item)
+public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iClient, int iItem)
 {
 	switch (action)
 	{
 		case MenuAction_End: delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if (Item == MenuCancel_ExitBack) BackToAdminMenu(iClient);
+			if (iItem == MenuCancel_ExitBack) BackToAdminMenu(iClient);
 		}
 		case MenuAction_Select:
 		{
 			char szUserID[16];
-			hMenu.GetItem(Item, SZF(szUserID));
+			hMenu.GetItem(iItem, SZF(szUserID));
 			
 			if (!strcmp(szUserID, "search")) // Найти игрока
 			{
@@ -150,19 +150,19 @@ void ShowWaitSearchMenu(int iClient, const char[] szSearch = NULL_STRING)
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int iClient, int Item)
+public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int iClient, int iItem)
 {
 	switch (action)
 	{
 		case MenuAction_End: delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if (Item != MenuCancel_Interrupted)
+			if (iItem != MenuCancel_Interrupted)
 			{
 				g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_SEARCH;
 			}
 			
-			if (Item == MenuCancel_ExitBack)
+			if (iItem == MenuCancel_ExitBack)
 			{
 				ShowVipPlayersListMenu(iClient);
 			}
@@ -170,12 +170,12 @@ public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int 
 		case MenuAction_Select:
 		{
 			g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_SEARCH;
-			switch (Item)
+			switch (iItem)
 			{
 				case 0:
 				{
 					char szSearch[32];
-					hMenu.GetItem(Item, SZF(szSearch));
+					hMenu.GetItem(iItem, SZF(szSearch));
 					g_hClientData[iClient].SetString(DATA_KEY_Search, szSearch);
 					ShowVipPlayersFromDBMenu(iClient);
 				}
@@ -448,20 +448,20 @@ void ShowTargetInfoMenu(int iClient)
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iClient, int Item)
+public int MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iClient, int iItem)
 {
 	switch (action)
 	{
 		case MenuAction_End: delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if (Item == MenuCancel_ExitBack)
+			if (iItem == MenuCancel_ExitBack)
 			{
 				DebugMessage("MenuHandler_VipClientInfoMenu->MenuCancel_ExitBack")
-				int iBuffer;
-				g_hClientData[iClient].GetValue(DATA_KEY_MenuListType, iBuffer);
-				DebugMessage("GetValue(%s) = %d", DATA_KEY_MenuListType, iBuffer)
-				switch(iBuffer)
+				AdminMenuItem eItem;
+				g_hClientData[iClient].GetValue(DATA_KEY_MenuListType, eItem);
+				DebugMessage("GetValue(%s) = %d", DATA_KEY_MenuListType, eItem)
+				switch(eItem)
 				{
 					case MENU_TYPE_ONLINE_LIST:
 					{
@@ -478,7 +478,7 @@ public int MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iCli
 		}
 		case MenuAction_Select:
 		{
-			switch (Item)
+			switch (iItem)
 			{
 				case 0:	ShowDeleteVipPlayerMenu(iClient);
 				case 1:	ShowEditTimeMenu(iClient);
