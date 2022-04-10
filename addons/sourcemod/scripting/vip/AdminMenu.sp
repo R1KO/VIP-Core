@@ -28,7 +28,7 @@ enum AdminMenuType
 	ADMIN_MENU
 }
 
-enum TimeAction
+enum TimeActionItem
 {
 	TIME_SET = 0, 
 	TIME_ADD, 
@@ -50,9 +50,9 @@ void DisplayAdminMenu(int iClient)
 
 void BackToAdminMenu(int iClient)
 {
-	int iThrowMenuType;
-	g_hClientData[iClient].GetValue(DATA_KEY_ThrowMenuType, iThrowMenuType);
-	switch (iThrowMenuType)
+	AdminMenuType eThrowMenuType;
+	g_hClientData[iClient].GetValue(DATA_KEY_ThrowMenuType, eThrowMenuType);
+	switch (eThrowMenuType)
 	{
 		case TOP_ADMIN_MENU:	g_hTopMenu.Display(iClient, TopMenuPosition_LastCategory);
 		case ADMIN_MENU:		g_hVIPAdminMenu.Display(iClient, MENU_TIME_FOREVER);
@@ -101,7 +101,7 @@ void AdminMenu_Setup()
 	}
 }
 
-public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int Item)
+public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int iItem)
 {
 	switch (action)
 	{
@@ -109,13 +109,13 @@ public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int 
 		{
 			char szTitle[128];
 			FormatEx(SZF(szTitle), "%T:\n ", "VIP_ADMIN_MENU_TITLE", iClient);
-			(view_as<Panel>(Item)).SetTitle(szTitle);
+			(view_as<Panel>(iItem)).SetTitle(szTitle);
 		}
 		case MenuAction_DisplayItem:
 		{
 			char szDisplay[128];
 			
-			switch (Item)
+			switch (iItem)
 			{
 				case 0:	FormatEx(SZF(szDisplay), "%T", "MENU_ADD_VIP", iClient);
 				case 1:	FormatEx(SZF(szDisplay), "%T", "MENU_LIST_VIP", iClient);
@@ -128,7 +128,7 @@ public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int 
 		
 		case MenuAction_Select:
 		{
-			switch (Item)
+			switch (iItem)
 			{
 				case 0:
 				{
@@ -284,7 +284,7 @@ void ShowTimeMenu(int iClient)
 {
 	Menu hMenu = new Menu(MenuHandler_TimeMenu);
 
-	TimeAction iMenuType;
+	TimeActionItem iMenuType;
 	g_hClientData[iClient].GetValue(DATA_KEY_TimeType, iMenuType);
 
 	switch (iMenuType)
@@ -327,19 +327,19 @@ void ShowTimeMenu(int iClient)
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int Item)
+public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int iItem)
 {
 	switch (action)
 	{
 		case MenuAction_End: delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if (Item == MenuCancel_ExitBack)
+			if (iItem == MenuCancel_ExitBack)
 			{
-				int iMenuType;
-				g_hClientData[iClient].GetValue(DATA_KEY_MenuType, iMenuType);
+				AdminMenuItem eMenuItem;
+				g_hClientData[iClient].GetValue(DATA_KEY_MenuType, eMenuItem);
 
-				switch (iMenuType)
+				switch (eMenuItem)
 				{
 					case MENU_TYPE_ADD: 	ShowAddVIPMenu(iClient);
 					case MENU_TYPE_EDIT:	ShowEditTimeMenu(iClient);
@@ -349,19 +349,19 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 		case MenuAction_Select:
 		{
 			char szName[64];
-			hMenu.GetItem(Item, SZF(szName));
+			hMenu.GetItem(iItem, SZF(szName));
 			int iTime, iTarget;
-			AdminMenuItem iMenuType;
+			AdminMenuItem eMenuItem;
 			iTime = S2I(szName);
-			g_hClientData[iClient].GetValue(DATA_KEY_MenuType, iMenuType);
+			g_hClientData[iClient].GetValue(DATA_KEY_MenuType, eMenuItem);
 			
-			if (iMenuType == MENU_TYPE_ADD)
+			if (eMenuItem == MENU_TYPE_ADD)
 			{
 				g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget);
 				if ((iTarget = GetClientOfUserId(iTarget)))
 				{
 					char szBuffer[64];
-					hMenu.GetItem(Item, SZF(szBuffer));
+					hMenu.GetItem(iItem, SZF(szBuffer));
 					g_hClientData[iClient].SetValue(DATA_KEY_Time, S2I(szBuffer));
 					ShowGroupsMenu(iClient);
 				}
@@ -377,8 +377,9 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 			int iExpires;
 			g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));
 
-			g_hClientData[iClient].GetValue(DATA_KEY_TimeType, iMenuType);
-			switch(iMenuType)
+			TimeActionItem eTimeActionItem;
+			g_hClientData[iClient].GetValue(DATA_KEY_TimeType, eTimeActionItem);
+			switch(eTimeActionItem)
 			{
 				case TIME_SET:
 				{
@@ -498,18 +499,18 @@ void ShowGroupsMenu(int iClient, const char[] sTargetGroup = NULL_STRING)
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, int Item)
+public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, int iItem)
 {
 	switch (action)
 	{
 		case MenuAction_End:delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if (Item == MenuCancel_ExitBack)
+			if (iItem == MenuCancel_ExitBack)
 			{
-				int iBuffer;
-				g_hClientData[iClient].GetValue(DATA_KEY_MenuType, iBuffer);
-				switch(iBuffer)
+				AdminMenuItem eMenuItem;
+				g_hClientData[iClient].GetValue(DATA_KEY_MenuType, eMenuItem);
+				switch(eMenuItem)
 				{
 					case MENU_TYPE_ADD:
 					{
@@ -525,14 +526,14 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 		case MenuAction_Select:
 		{
 			char szGroup[64];
-			hMenu.GetItem(Item, SZF(szGroup));
-			int iBuffer;
-			g_hClientData[iClient].GetValue(DATA_KEY_MenuType, iBuffer);
-			switch(iBuffer)
+			hMenu.GetItem(iItem, SZF(szGroup));
+			AdminMenuItem eMenuItem;
+			g_hClientData[iClient].GetValue(DATA_KEY_MenuType, eMenuItem);
+			switch(eMenuItem)
 			{
 				case MENU_TYPE_ADD:
 				{
-					int iTarget;
+					int iTarget, iBuffer;
 					g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget);
 					iTarget = CID(iTarget);
 					if (iTarget)
@@ -551,7 +552,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 				case MENU_TYPE_EDIT:
 				{
 					char szQuery[256], szName[MNL], szOldGroup[64];
-					hMenu.GetItem(Item, SZF(szGroup));
+					hMenu.GetItem(iItem, SZF(szGroup));
 					int iTargetID;
 					g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTargetID);
 					g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));

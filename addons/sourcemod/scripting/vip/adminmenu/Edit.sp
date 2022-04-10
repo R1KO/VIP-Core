@@ -18,21 +18,21 @@ void ShowEditTimeMenu(int iClient)
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_EditTimeMenu(Menu hMenu, MenuAction action, int iClient, int Item)
+public int MenuHandler_EditTimeMenu(Menu hMenu, MenuAction action, int iClient, int iItem)
 {
 	switch(action)
 	{
 		case MenuAction_End: delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if(Item == MenuCancel_ExitBack)
+			if(iItem == MenuCancel_ExitBack)
 			{
 				ShowTargetInfoMenu(iClient);
 			}
 		}
 		case MenuAction_Select:
 		{
-			g_hClientData[iClient].SetValue(DATA_KEY_TimeType, Item);
+			g_hClientData[iClient].SetValue(DATA_KEY_TimeType, iItem);
 			g_hClientData[iClient].SetValue(DATA_KEY_MenuType, MENU_TYPE_EDIT);
 			ShowTimeMenu(iClient);
 		}

@@ -17,18 +17,18 @@ void ShowDeleteVipPlayerMenu(int iClient)
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iClient, int Item)
+public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iClient, int iItem)
 {
 	switch (action)
 	{
 		case MenuAction_End: CloseHandle(hMenu);
 		case MenuAction_Cancel:
 		{
-			if (Item == MenuCancel_ExitBack) ShowTargetInfoMenu(iClient);
+			if (iItem == MenuCancel_ExitBack) ShowTargetInfoMenu(iClient);
 		}
 		case MenuAction_Select:
 		{
-			switch(Item)
+			switch(iItem)
 			{
 				case 0:
 				{
