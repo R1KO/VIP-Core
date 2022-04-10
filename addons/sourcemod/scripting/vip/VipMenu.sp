@@ -231,7 +231,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 					VIP_ToggleState eOldStatus, eNewStatus;
 
 					eOldStatus = Features_GetStatus(iClient, szFeature);
-					eNewStatus = (eOldStatus == ENABLED) ? DISABLED:ENABLED;
+					eNewStatus = (eOldStatus == ENABLED) ? DISABLED : ENABLED;
 					if (fCallback != INVALID_FUNCTION)
 					{
 						eNewStatus = Function_OnItemToggle(hPlugin, fCallback, iClient, szFeature, eOldStatus, eNewStatus);

@@ -43,10 +43,10 @@
 #define OWNER_SERVER    0
 #define OWNER_PLUGIN    -1
 
-char	KEY_CID[]		= "Core->ClientID";
-char	KEY_EXPIRES[]	= "Core->Expires";
-char	KEY_GROUP[]		= "Core->Group";
-char	KEY_MENUITEM[]	= "Core->SelectionItem";
+stock const char KEY_CID[]		= "Core->ClientID";
+stock const char KEY_EXPIRES[]	= "Core->Expires";
+stock const char KEY_GROUP[]	= "Core->Group";
+stock const char KEY_MENUITEM[]	= "Core->SelectionItem";
 
 enum
 {
@@ -72,7 +72,7 @@ enum
 	TIME_MODE_DAYS
 }
 
-char g_szToggleStatus[][] =
+stock const char g_szToggleStatus[][] =
 {
 	"DISABLED",
 	"ENABLED",
@@ -87,11 +87,6 @@ KeyValues	g_hGroups;
 KeyValues	g_hInfo;
 
 Database	g_hDatabase;
-
-#if USE_ADMINMENU 1
-TopMenu		g_hTopMenu;
-Menu		g_hVIPAdminMenu;
-#endif
 
 Menu		g_hVIPMenu;
 
@@ -126,7 +121,3 @@ EngineVersion	g_EngineVersion;
 bool g_bIsTranslationPhraseExistsAvailable;
 
 char		g_szSID[64];
-
-#if USE_ADMINMENU 1
-TopMenuObject	VIPAdminMenuObject = INVALID_TOPMENUOBJECT;
-#endif

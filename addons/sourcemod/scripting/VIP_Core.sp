@@ -21,12 +21,6 @@
 #include <clientprefs>
 #endif
 
-#if USE_ADMINMENU 1
-#undef REQUIRE_PLUGIN
-#include <adminmenu>
-#define REQUIRE_PLUGIN
-#endif
-
 public Plugin myinfo =
 {
 	name = "[VIP] Core",
@@ -72,9 +66,9 @@ public void OnPluginStart()
 	LoadTranslations("common.phrases");
 	LoadTranslations("core.phrases");
 
-	g_iMaxPageItems		= GetMaxPageItems(GetMenuStyleHandle(MenuStyle_Default));
-	g_hFeaturesArray	= new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
-	GLOBAL_TRIE			= new StringMap();
+	g_iMaxPageItems = GetMaxPageItems(GetMenuStyleHandle(MenuStyle_Default));
+	g_hFeaturesArray = new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
+	GLOBAL_TRIE = new StringMap();
 
 	// Fix DataPack positions in sm 1.10
 	DataPack hDataPack = new DataPack();
@@ -93,72 +87,22 @@ public void OnPluginStart()
 
 	VIPMenu_Setup();
 	#if USE_ADMINMENU 1
-	VIPAdminMenu_Setup();
+	AdminMenu_Setup();
 	#endif
 
 	Cvars_Setup();
 
-	HookEvent("player_spawn",			Event_PlayerSpawn);
-	HookEvent("player_death",			Event_PlayerDeath);
-	HookEvent("round_end",				Event_RoundEnd,			EventHookMode_PostNoCopy);
-	HookEventEx("cs_match_end_restart",	Event_MatchEndRestart,	EventHookMode_PostNoCopy);
+	HookEvent("player_spawn", Event_PlayerSpawn);
+	HookEvent("player_death", Event_PlayerDeath);
+	HookEvent("round_end", Event_RoundEnd, EventHookMode_PostNoCopy);
+	HookEventEx("cs_match_end_restart", Event_MatchEndRestart, EventHookMode_PostNoCopy);
 
 	CMD_Setup();
 
 	g_EngineVersion = GetEngineVersion();
-
-	#if USE_ADMINMENU 1
-	RegConsoleCmd("sm_vipadmin", VIPAdmin_CMD);
-
-	if (LibraryExists("adminmenu"))
-	{
-		TopMenu hTopMenu = GetAdminTopMenu();
-		if (hTopMenu != null)
-		{
-			OnAdminMenuReady(hTopMenu);
-		}
-	}
-	#endif
 }
 
 public void OnAllPluginsLoaded()
 {
 	DB_OnPluginStart();
-}
-
-#if USE_ADMINMENU 1
-public Action OnClientSayCommand(int iClient, const char[] szCommand, const char[] szArgs)
-{
-	if (iClient > 0 && iClient <= MaxClients && szArgs[0])
-	{
-		if (g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
-		{
-			if (g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
-			{
-				ShowWaitSearchMenu(iClient, szArgs);
-			}
-
-			return Plugin_Handled;
-		}
-	}
-
-	return Plugin_Continue;
-}
-#endif
-
-public void OnMapStart()
-{
-	LoadSounds();
-	ReadDownloads();
-}
-
-public void OnConfigsExecuted()
-{
-	DebugMessage("OnConfigsExecuted: %x", g_hDatabase)
-	CMD_Register();
-
-	if (g_hDatabase  && (GLOBAL_INFO & IS_STARTED))
-	{
-		RemoveExpAndOutPlayers();
-	}
 }

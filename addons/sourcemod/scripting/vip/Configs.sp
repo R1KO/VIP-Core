@@ -1,3 +1,20 @@
+public void OnMapStart()
+{
+	LoadSounds();
+	ReadDownloads();
+}
+
+public void OnConfigsExecuted()
+{
+	DebugMessage("OnConfigsExecuted: %x", g_hDatabase)
+	CMD_Register();
+
+	if (g_hDatabase  && (GLOBAL_INFO & IS_STARTED))
+	{
+		RemoveExpAndOutPlayers();
+	}
+}
+
 void OnReadyToStart()
 {
 	DebugMessage("OnReadyToStart")

@@ -369,28 +369,27 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 void Clients_LoadFeatureValue(int iClient, const char[] szFeature)
 {
 	static ArrayList hArray;
-	if (GLOBAL_TRIE.GetValue(szFeature, hArray))
+	if (!GLOBAL_TRIE.GetValue(szFeature, hArray))
+		return;
+
+	DBG_CLIENTS("Clients_LoadFeatureValue: %s", szFeature)
+
+	if (!GetFeatureValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), szFeature))
+		return;
+
+	static VIP_ToggleState eStatus;
+	DBG_CLIENTS("GetValue: == true")
+	if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 	{
-		DBG_CLIENTS("Clients_LoadFeatureValue: %s", szFeature)
-
-		if (GetFeatureValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), szFeature))
-		{
-			static VIP_ToggleState eStatus;
-			DBG_CLIENTS("GetValue: == true")
-			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
-			{
-				eStatus = Features_GetStatusFromStorage(iClient, szFeature, hArray);
-				DBG_CLIENTS("Features_GetStatusFromStorage: '%d'", eStatus)
-			}
-			else
-			{
-				eStatus = ENABLED;
-			}
-
-			Features_SetStatus(iClient, szFeature, eStatus);
-			//	Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function:hArray.Get(FEATURES_ITEM_SELECT), iClient, szFeature, NO_ACCESS, ENABLED);
-		}
+		eStatus = Features_GetStatusFromStorage(iClient, szFeature, hArray);
+		DBG_CLIENTS("Features_GetStatusFromStorage: '%d'", eStatus)
 	}
+	else
+	{
+		eStatus = ENABLED;
+	}
+
+	Features_SetStatus(iClient, szFeature, eStatus);
 }
 
 bool GetFeatureValue(int iClient, VIP_ValueType ValueType, const char[] szFeature)

@@ -5,7 +5,7 @@ void Cvars_Setup()
 
 	ConVar hCvar = CreateConVar("sm_vip_admin_flag", "z", "Флаг админа, необходимый чтобы иметь доступ к управлению VIP-игроками.");
 	hCvar.AddChangeHook(OnAdminFlagChange);
-	g_CVAR_iAdminFlag = UTIL_GetConVarAdminFlag(hCvar);
+	OnAdminFlagChange(hCvar, NULL_STRING, NULL_STRING);
 
 	g_CVAR_hVIPMenu_CMD = CreateConVar("sm_vip_menu_commands", "vip;sm_vip;sm_vipmenu", "Команды для вызова VIP-меню (разделять ;)");
 
@@ -53,16 +53,13 @@ public void OnAdminFlagChange(ConVar hCvar, const char[] szOldValue, const char[
 {
 	g_CVAR_iAdminFlag = UTIL_GetConVarAdminFlag(hCvar);
 
-	#if USE_ADMINMENU 1
-	if (g_hTopMenu)
-	{
-		if (VIPAdminMenuObject != INVALID_TOPMENUOBJECT)
-		{
-			RemoveFromTopMenu(g_hTopMenu, VIPAdminMenuObject);
-		}
+	AddCommandOverride("sm_refresh_vips", Override_Command, g_CVAR_iAdminFlag);
+	AddCommandOverride("sm_reload_vip_cfg", Override_Command, g_CVAR_iAdminFlag);
+	AddCommandOverride("sm_addvip", Override_Command, g_CVAR_iAdminFlag);
+	AddCommandOverride("sm_delvip", Override_Command, g_CVAR_iAdminFlag);
 
-		AddItemsToTopMenu();
-	}
+	#if USE_ADMINMENU 1
+	AddCommandOverride("sm_vipadmin", Override_Command, g_CVAR_iAdminFlag);
 	#endif
 }
 

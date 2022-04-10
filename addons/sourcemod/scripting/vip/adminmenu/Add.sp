@@ -36,14 +36,14 @@ void ShowAddVIPMenu(int iClient)
 	hMenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
-public int MenuHandler_AddVip_PlayerList(Menu hMenu, MenuAction action, int iClient, int Item)
+public int MenuHandler_AddVip_PlayerList(Menu hMenu, MenuAction action, int iClient, int iItem)
 {
 	switch (action)
 	{
 		case MenuAction_End:delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if (Item == MenuCancel_ExitBack)
+			if (iItem == MenuCancel_ExitBack)
 			{
 				BackToAdminMenu(iClient);
 			}
@@ -51,7 +51,7 @@ public int MenuHandler_AddVip_PlayerList(Menu hMenu, MenuAction action, int iCli
 		case MenuAction_Select:
 		{
 			char szUserID[16];
-			hMenu.GetItem(Item, SZF(szUserID));
+			hMenu.GetItem(iItem, SZF(szUserID));
 			int UserID = StringToInt(szUserID);
 			if (!CID(UserID))
 			{

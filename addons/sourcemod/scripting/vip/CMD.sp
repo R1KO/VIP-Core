@@ -1,12 +1,16 @@
 void CMD_Setup()
 {
-	RegConsoleCmd("sm_refresh_vips",	ReloadVIPPlayers_CMD);
-	RegConsoleCmd("sm_reload_vip_cfg",	ReloadVIPCfg_CMD);
-	RegConsoleCmd("sm_addvip",			AddVIP_CMD);
-	RegConsoleCmd("sm_delvip",			DelVIP_CMD);
+	RegAdminCmd("sm_refresh_vips", ReloadVIPPlayers_CMD, ADMFLAG_ROOT);
+	RegAdminCmd("sm_reload_vip_cfg", ReloadVIPCfg_CMD, ADMFLAG_ROOT);
+	RegAdminCmd("sm_addvip", AddVIP_CMD, ADMFLAG_ROOT);
+	RegAdminCmd("sm_delvip", DelVIP_CMD, ADMFLAG_ROOT);
+
+	#if USE_ADMINMENU 1
+	RegAdminCmd("sm_vipadmin", VIPAdmin_CMD, ADMFLAG_ROOT);
+	#endif
 
 	#if DEBUG_MODE 1
-	RegConsoleCmd("sm_vip_dump_features",	DumpFeatures_CMD);
+	RegAdminCmd("sm_vip_dump_features", DumpFeatures_CMD, ADMFLAG_ROOT);
 	#endif
 }
 
@@ -16,26 +20,17 @@ public void CMD_Register()
 	if (bIsRegistered == false)
 	{
 		UTIL_LoadVipCmd(g_CVAR_hVIPMenu_CMD, VIPMenu_CMD);
-		
+
 		bIsRegistered = true;
 	}
 }
-
-#define CHECK_ACCESS(%0) if (%0 && !(GetUserFlagBits(%0) & g_CVAR_iAdminFlag)) \
-						{ \
-							ReplyToCommand(%0, "[VIP] %t", "COMMAND_NO_ACCESS"); \
-							return Plugin_Handled; \
-						}
 
 #if USE_ADMINMENU 1
 public Action VIPAdmin_CMD(int iClient, int iArgs)
 {
 	if (iClient)
 	{
-		CHECK_ACCESS(iClient)
-		
-	//	g_hTopMenu.Display(iClient, TopMenuPosition_Start); //g_hTopMenu.Display(iClient, MENU_TIME_FOREVER);
-		g_hVIPAdminMenu.Display(iClient, MENU_TIME_FOREVER);
+		DisplayAdminMenu(iClient);
 	}
 	
 	return Plugin_Handled;
@@ -44,8 +39,6 @@ public Action VIPAdmin_CMD(int iClient, int iArgs)
 
 public Action ReloadVIPPlayers_CMD(int iClient, int iArgs)
 {
-	CHECK_ACCESS(iClient)
-	
 	Clients_ReloadVipPlayers(iClient, true);
 	
 	return Plugin_Handled;
@@ -53,8 +46,6 @@ public Action ReloadVIPPlayers_CMD(int iClient, int iArgs)
 
 public Action ReloadVIPCfg_CMD(int iClient, int iArgs)
 {
-	CHECK_ACCESS(iClient)
-	
 	ReadConfigs();
 	Clients_ReloadVipPlayers(iClient, false);
 	UTIL_Reply(iClient, "%t", "VIP_CFG_REFRESHED");
@@ -64,8 +55,6 @@ public Action ReloadVIPCfg_CMD(int iClient, int iArgs)
 
 public Action AddVIP_CMD(int iClient, int iArgs)
 {
-	CHECK_ACCESS(iClient)
-
 	if (iArgs != 3)
 	{
 		ReplyToCommand(iClient, "[VIP] %t!\nSyntax: sm_addvip <#steam_id|#name|#userid> <group> <time>", "INCORRECT_USAGE");
@@ -139,8 +128,6 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 
 public Action DelVIP_CMD(int iClient, int iArgs)
 {
-	CHECK_ACCESS(iClient)
-
 	if (iArgs != 1)
 	{
 		ReplyToCommand(iClient, "%t!\nSyntax: sm_delvip <identity>", "INCORRECT_USAGE");
@@ -224,8 +211,6 @@ public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hResu
 #if DEBUG_MODE 1
 public Action DumpFeatures_CMD(int iClient, int iArgs)
 {
-	CHECK_ACCESS(iClient)
-	
 	int iFeatures = g_hFeaturesArray.Length;
 	if (iFeatures != 0)
 	{
@@ -235,14 +220,14 @@ public Action DumpFeatures_CMD(int iClient, int iArgs)
 
 		if (hFile != null)
 		{
-			char				szPluginName[64];
-			char				szPluginPath[PLATFORM_MAX_PATH];
-			char				szPluginVersion[32];
-			char				szFeature[FEATURE_NAME_LENGTH];
-			char				szFeatureType[32];
-			char				szFeatureValType[32];
-			ArrayList			hArray;
-			Handle				hPlugin;
+			char szPluginName[64];
+			char szPluginPath[PLATFORM_MAX_PATH];
+			char szPluginVersion[32];
+			char szFeature[FEATURE_NAME_LENGTH];
+			char szFeatureType[32];
+			char szFeatureValType[32];
+			ArrayList hArray;
+			Handle hPlugin;
 
 			for(int i = 0; i < iFeatures; ++i)
 			{
