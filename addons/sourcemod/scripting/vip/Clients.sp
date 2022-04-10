@@ -351,7 +351,7 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 		{
 			switch(hArray.Get(FEATURES_DEF_STATUS))
 			{
-				case NO_ACCESS:	eStatus = g_CVAR_bDefaultStatus ? ENABLED:DISABLED;
+				case NO_ACCESS:	eStatus = g_CVAR_bDefaultStatus ? ENABLED : DISABLED;
 				case ENABLED:	eStatus = ENABLED;
 				case DISABLED:	eStatus = DISABLED;
 			}
@@ -372,7 +372,11 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 
 bool Features_IsValidStatus(VIP_ToggleState eStatus)
 {
-	return (view_as<int>(eStatus) > 2 || view_as<int>(eStatus) < 0);
+	return (
+		eStatus == NO_ACCESS ||
+		eStatus == ENABLED ||
+		eStatus == DISABLED
+	);
 }
 
 bool GetValue(int iClient, VIP_ValueType ValueType, const char[] szFeature)
