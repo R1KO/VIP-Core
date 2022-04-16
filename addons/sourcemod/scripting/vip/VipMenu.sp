@@ -232,6 +232,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 
 					eOldStatus = Features_GetStatus(iClient, szFeature);
 					eNewStatus = (eOldStatus == ENABLED) ? DISABLED : ENABLED;
+					eNewStatus = CallForward_OnFeatureToggle(iClient, szFeature, eOldStatus, eNewStatus);
 					if (fCallback != INVALID_FUNCTION)
 					{
 						eNewStatus = Function_OnItemToggle(hPlugin, fCallback, iClient, szFeature, eOldStatus, eNewStatus);
@@ -239,12 +240,8 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 
 					if (eNewStatus != eOldStatus)
 					{
-						eNewStatus = CallForward_OnFeatureToggle(iClient, szFeature, eOldStatus, eNewStatus);
-						if (eNewStatus != eOldStatus)
-						{
-							Features_SetStatus(iClient, szFeature, eNewStatus);
-							Features_SetStatusToStorage(iClient, szFeature, eNewStatus);
-						}
+						Features_SetStatus(iClient, szFeature, eNewStatus);
+						Features_SetStatusToStorage(iClient, szFeature, eNewStatus);
 					}
 
 					hMenu.DisplayAt(iClient, hMenu.Selection, MENU_TIME_FOREVER);
