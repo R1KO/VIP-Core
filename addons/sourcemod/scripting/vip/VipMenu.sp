@@ -286,7 +286,9 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 					VIP_ToggleState eOldStatus, eNewStatus;
 
 					eOldStatus = Features_GetStatus(iClient, szItemInfo);
-					eNewStatus = (eOldStatus == ENABLED) ? DISABLED:ENABLED;
+					eNewStatus = (eOldStatus == ENABLED) ? DISABLED : ENABLED;
+					eNewStatus = CreateForward_OnFeatureToggle(iClient, szItemInfo, eOldStatus, eNewStatus);
+					
 					if (fCallback != INVALID_FUNCTION)
 					{
 						eNewStatus = Function_OnItemToggle(hPlugin, fCallback, iClient, szItemInfo, eOldStatus, eNewStatus);
@@ -294,13 +296,9 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 
 					if (eNewStatus != eOldStatus)
 					{
-						eNewStatus = CreateForward_OnFeatureToggle(iClient, szItemInfo, eOldStatus, eNewStatus);
-						if (eNewStatus != eOldStatus)
-						{
-							Features_SetStatus(iClient, szItemInfo, eNewStatus);
-							IntToString(view_as<int>(eNewStatus), SZF(szBuffer));
-							SetClientCookie(iClient, view_as<Handle>(GetArrayCell(hBuffer, FEATURES_COOKIE)), szBuffer);
-						}
+						Features_SetStatus(iClient, szItemInfo, eNewStatus);
+						IntToString(view_as<int>(eNewStatus), SZF(szBuffer));
+						SetClientCookie(iClient, view_as<Handle>(GetArrayCell(hBuffer, FEATURES_COOKIE)), szBuffer);
 					}
 
 					hMenu.DisplayAt(iClient, hMenu.Selection, MENU_TIME_FOREVER);
