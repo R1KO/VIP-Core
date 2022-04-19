@@ -72,6 +72,7 @@ public void OnDBConnect(Database hDatabase, const char[] szError, int data)
 	
 	DebugMessage("OnDBConnect %x, %u - > (MySQL: %b)", g_hDatabase, g_hDatabase, DB_IsMysql())
 	
+	SetupServerID();
 	CreateTables();
 }
 
