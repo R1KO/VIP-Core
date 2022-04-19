@@ -1,4 +1,3 @@
-
 void CMD_Setup()
 {
 	RegAdminCmd("sm_refresh_vips", ReloadVIPPlayers_CMD, ADMFLAG_ROOT);
@@ -15,7 +14,7 @@ void CMD_Setup()
 	#endif
 }
 
-public void OnConfigsExecuted()
+public void CMD_Register()
 {
 	static bool bIsRegistered;
 	if (bIsRegistered == false)
@@ -40,7 +39,7 @@ public Action VIPAdmin_CMD(int iClient, int iArgs)
 
 public Action ReloadVIPPlayers_CMD(int iClient, int iArgs)
 {
-	UTIL_ReloadVIPPlayers(iClient, true);
+	Clients_ReloadVipPlayers(iClient, true);
 	
 	return Plugin_Handled;
 }
@@ -48,7 +47,7 @@ public Action ReloadVIPPlayers_CMD(int iClient, int iArgs)
 public Action ReloadVIPCfg_CMD(int iClient, int iArgs)
 {
 	ReadConfigs();
-	UTIL_ReloadVIPPlayers(iClient, false);
+	Clients_ReloadVipPlayers(iClient, false);
 	UTIL_Reply(iClient, "%t", "VIP_CFG_REFRESHED");
 	
 	return Plugin_Handled;
@@ -69,7 +68,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 	bool bIsMulti;
 	int iTargets, iAccountID = 0;
 
-	if((iTargets = ProcessTargetString(
+	if ((iTargets = ProcessTargetString(
 			szBuffer,
 			iClient, 
 			iTargetList, 
@@ -79,7 +78,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 			bIsMulti)) < 1)
 	{
 		iAccountID = UTIL_GetAccountIDFromSteamID(szBuffer);
-		if(!iAccountID)
+		if (!iAccountID)
 		{
 			ReplyToTargetError(iClient, iTargets);
 			return Plugin_Handled;
@@ -103,26 +102,26 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 		return Plugin_Handled;
 	}
 
-	if(iTargets > 0)
+	if (iTargets > 0)
 	{
 		for(int i = 0; i < iTargets; ++i)
 		{
-			if(IsClientInGame(iTargetList[i]))
+			if (IsClientInGame(iTargetList[i]))
 			{
-				if (g_iClientInfo[iTargetList[i]] & IS_VIP)
+				if (IS_CLIENT_VIP(iTargetList[i]))
 				{
 					ReplyToCommand(iClient, "[VIP] %t", "ALREADY_HAS_VIP");
 					continue;
 				}
 				
-				UTIL_ADD_VIP_PLAYER(iClient, iTargetList[i], _, UTIL_TimeToSeconds(iTime), szGroup);
+				Clients_AddVipPlayer(iClient, iTargetList[i], _, UTIL_TimeToSeconds(iTime), szGroup);
 			}
 		}
 	
 		return Plugin_Handled;
 	}
 	
-	UTIL_ADD_VIP_PLAYER(iClient, _, iAccountID, UTIL_TimeToSeconds(iTime), szGroup);
+	Clients_AddVipPlayer(iClient, _, iAccountID, UTIL_TimeToSeconds(iTime), szGroup);
 
 	return Plugin_Handled;
 }
@@ -139,7 +138,7 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 	GetCmdArg(1, SZF(szAuth));
 	
 	int iAccountID = UTIL_GetAccountIDFromSteamID(szAuth);
-	if(!iAccountID)
+	if (!iAccountID)
 	{
 		ReplyToTargetError(iClient, COMMAND_TARGET_NONE);
 		return Plugin_Handled;
@@ -147,7 +146,7 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 
 	FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` \
 									FROM `vip_users` \
-									WHERE `account_id` = %d%s LIMIT 1;", iAccountID, g_szSID);
+									WHERE `account_id` = %d%s LIMIT 1;", iAccountID, g_szServerID);
 
 	DebugMessage(szQuery)
 	if (iClient)
@@ -177,14 +176,31 @@ public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hResu
 	
 	if (hResult.FetchRow())
 	{
-		DBG_SQL_Response("hResult.FetchRow()")
-		int iAccountID = hResult.FetchInt(0);
-		DBG_SQL_Response("hResult.FetchInt(0) = %d", iAccountID)
-		char szName[MNL], szGroup[64];
+		int iAccountID;
+		char szName[MNL*2], szGroup[64], szAdminInfo[128], szTargetInfo[128], szAuth[32];
+		UTIL_GetClientInfo(iClient, SZF(szTargetInfo));
+		FormatEx(SZF(szAdminInfo), "%T %s", "BY_ADMIN", LANG_SERVER, szTargetInfo);
+
+		iAccountID = hResult.FetchInt(0);
 		hResult.FetchString(1, SZF(szName));
 		hResult.FetchString(2, SZF(szGroup));
-		DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
-		DB_RemoveClientFromID(iClient, _, iAccountID, true, szName, szGroup);
+
+		DBG_SQL_Response("hResult.FetchInt(0) = %d", iAccountID)
+		DBG_SQL_Response("hResult.FetchString(1) = '%s'", szName)
+		DBG_SQL_Response("hResult.FetchString(2) = '%s'", szGroup)
+
+		UTIL_GetSteamIDFromAccountID(iAccountID, SZF(szAuth));
+		FormatEx(SZF(szTargetInfo), "%s (%s, unknown)", szName, szAuth);
+
+		DB_RemoveVipPlayerByData(
+			iClient,
+			szAdminInfo,
+			0,
+			iAccountID,
+			szTargetInfo,
+			szGroup,
+			true
+		);
 	}
 	else
 	{
@@ -196,13 +212,13 @@ public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hResu
 public Action DumpFeatures_CMD(int iClient, int iArgs)
 {
 	int iFeatures = g_hFeaturesArray.Length;
-	if(iFeatures != 0)
+	if (iFeatures != 0)
 	{
 		char szBuffer[PLATFORM_MAX_PATH];
 		BuildPath(Path_SM, SZF(szBuffer), "data/vip/features_dump.txt");
 		File hFile = OpenFile(szBuffer, "w");
 
-		if(hFile != null)
+		if (hFile != null)
 		{
 			char szPluginName[64];
 			char szPluginPath[PLATFORM_MAX_PATH];
@@ -216,7 +232,7 @@ public Action DumpFeatures_CMD(int iClient, int iArgs)
 			for(int i = 0; i < iFeatures; ++i)
 			{
 				g_hFeaturesArray.GetString(i, SZF(szFeature));
-				if(GLOBAL_TRIE.GetValue(szFeature, hArray))
+				if (GLOBAL_TRIE.GetValue(szFeature, hArray))
 				{
 					hPlugin = view_as<Handle>(hArray.Get(FEATURES_PLUGIN));
 					GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
@@ -253,24 +269,17 @@ public Action DumpFeatures_CMD(int iClient, int iArgs)
 
 public Action VIPMenu_CMD(int iClient, int iArgs)
 {
-	if (iClient)
+	if (iClient && !IsVipMenuFlood(iClient))
 	{
-		if (OnVipMenuFlood(iClient) == false)
+		if (!IS_CLIENT_VIP(iClient))
 		{
-			if (g_iClientInfo[iClient] & IS_VIP)
-			{
-				g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
-			}
-			else
-			{
-				/*
-				PrintToChat(iClient, "%t%t", "VIP_CHAT_PREFIX", "COMMAND_NO_ACCESS");
-				*/
-				
-				PlaySound(iClient, NO_ACCESS_SOUND);
-				DisplayClientInfo(iClient, "no_access_info");
-			}
+			PlaySound(iClient, NO_ACCESS_SOUND);
+			DisplayClientInfo(iClient, "no_access_info");
+			return Plugin_Handled;
 		}
+
+		DisplayVipMenu(iClient);
 	}
+
 	return Plugin_Handled;
 }

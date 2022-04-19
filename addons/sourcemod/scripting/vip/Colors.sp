@@ -142,16 +142,16 @@ void Colors_RemoveColors(char[] szBuffer)
 
     for(; i < iLen; ++i)
     {
-        if(bIgnore)
+        if (bIgnore)
         {
-            if(szTemp[i] == '}')
+            if (szTemp[i] == '}')
             {
                 bIgnore = false;
             }
             continue;
         }
 
-        if(szTemp[i] == '{')
+        if (szTemp[i] == '{')
         {
             bIgnore = true;
             continue;

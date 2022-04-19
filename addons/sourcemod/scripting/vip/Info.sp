@@ -30,7 +30,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 	{
 		KeyValues hKeyValues = new KeyValues(szType);
 		KvCopySubkeys(g_hInfo, hKeyValues);
-		switch(CreateForward_OnShowClientInfo(iClient, szEvent, szType, hKeyValues))
+		switch(CallForward_OnShowClientInfo(iClient, szEvent, szType, hKeyValues))
 		{
 			case Plugin_Stop, Plugin_Handled:
 			{
@@ -71,7 +71,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 					{
 						if (!g_hInfo.GotoFirstSubKey())
 						{
-							if(hKeyValues != g_hInfo)
+							if (hKeyValues != g_hInfo)
 							{
 								delete hKeyValues;
 							}
@@ -143,7 +143,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 			}
 		}
 		
-		if(hKeyValues != g_hInfo)
+		if (hKeyValues != g_hInfo)
 		{
 			delete hKeyValues;
 		}

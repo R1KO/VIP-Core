@@ -71,16 +71,6 @@ void InitiateDataMap(int iClient)
 	}
 }
 
-int IsClientOnline(int ID)
-{
-	int iClientID;
-	for (int i = 1; i <= MaxClients; ++i)
-	{
-		if (IsClientInGame(i) && g_hFeatures[i] != null && g_hFeatures[i].GetValue(KEY_CID, iClientID) && iClientID == ID) return i;
-	}
-	return 0;
-}
-
 // ************************ ADMIN_MENU ************************
 void AdminMenu_Setup()
 {
@@ -310,7 +300,7 @@ void ShowTimeMenu(int iClient)
 
 			if (iMenuType != TIME_SET && szTime[0] == '0') continue;
 
-			hKv.GetString(szClientLang, SZF(szBuffer), "LangError");
+			hKv.GetString(szClientLang, SZF(szBuffer));
 			if (!szBuffer[0])
 			{
 				hKv.GetString(szServerLang, SZF(szBuffer), "LangError");
@@ -395,10 +385,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 					FormatTime(SZF(szTime), "%d/%m/%Y - %H:%M", iExpires);
 					VIP_PrintToChatClient(iClient, "%t", "ADMIN_SET_EXPIRATION", szName, szTime);
 					
-					if (g_CVAR_bLogsEnable)
-					{
-						LogToFile(g_szLogFile, "%T", "LOG_ADMIN_SET_EXPIRATION", LANG_SERVER, iClient, szName, szTime);
-					}
+					LogToFile(g_szLogFile, "%T", "LOG_ADMIN_SET_EXPIRATION", LANG_SERVER, iClient, szName, szTime);
 				}
 				case TIME_ADD:
 				{
@@ -415,10 +402,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 					UTIL_GetTimeFromStamp(SZF(szTime), iTime, iClient);
 					VIP_PrintToChatClient(iClient, "%t", "ADMIN_EXTENDED", szName, szTime);
 
-					if (g_CVAR_bLogsEnable)
-					{
-						LogToFile(g_szLogFile, "%T", "LOG_ADMIN_EXTENDED", LANG_SERVER, iClient, szName, szTime);
-					}
+					LogToFile(g_szLogFile, "%T", "LOG_ADMIN_EXTENDED", LANG_SERVER, iClient, szName, szTime);
 				}
 				case TIME_TAKE:
 				{
@@ -443,10 +427,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 
 					VIP_PrintToChatClient(iClient, "%t", "ADMIN_REDUCED", szName, szTime);
 					
-					if (g_CVAR_bLogsEnable)
-					{
-						LogToFile(g_szLogFile, "%T", "LOG_ADMIN_REDUCED", LANG_SERVER, iClient, szName, szTime);
-					}
+					LogToFile(g_szLogFile, "%T", "LOG_ADMIN_REDUCED", LANG_SERVER, iClient, szName, szTime);
 				}
 			}
 
@@ -454,7 +435,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 			g_hClientData[iClient].SetValue(DATA_KEY_Time, iExpires);
 
 			char szQuery[512];
-			FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = '%d' WHERE `account_id` = '%d'%s;", iExpires, iTarget, g_szSID);
+			FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = '%d' WHERE `account_id` = '%d'%s;", iExpires, iTarget, g_szServerID);
 			DBG_SQL_Query(szQuery)
 			g_hDatabase.Query(SQL_Callback_ChangeTime, szQuery, UID(iClient));
 
@@ -479,7 +460,7 @@ void ShowGroupsMenu(int iClient, const char[] sTargetGroup = NULL_STRING)
 		{
 			if (g_hGroups.GetSectionName(SZF(szGroup)))
 			{
-				if(sTargetGroup[0] && !strcmp(sTargetGroup, szGroup))
+				if (sTargetGroup[0] && !strcmp(sTargetGroup, szGroup))
 				{
 					Format(SZF(szGroup), "%s [X]", szGroup);
 					hMenu.AddItem(szGroup, szGroup, ITEMDRAW_DISABLED);
@@ -540,7 +521,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 					{
 						g_hClientData[iClient].GetValue(DATA_KEY_Time, iBuffer);
 						g_hClientData[iClient].Clear();
-						UTIL_ADD_VIP_PLAYER(iClient, iTarget, _, iBuffer, szGroup);
+						Clients_AddVipPlayer(iClient, iTarget, _, iBuffer, szGroup);
 					}
 					else
 					{
@@ -551,14 +532,14 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 				}
 				case MENU_TYPE_EDIT:
 				{
-					char szQuery[256], szName[MNL], szOldGroup[64];
+					char szQuery[PMP], szName[MNL], szOldGroup[64];
 					hMenu.GetItem(iItem, SZF(szGroup));
 					int iTargetID;
 					g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTargetID);
 					g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));
 					g_hClientData[iClient].GetString(DATA_KEY_Group, SZF(szOldGroup));
 
-					FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iTargetID, g_szSID);
+					FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iTargetID, g_szServerID);
 
 					DBG_SQL_Query(szQuery)
 					g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery);
@@ -568,24 +549,23 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 					iTarget = CID(iTarget);
 					if (!iTarget)
 					{
-						iTarget = IsClientOnline(iTargetID);
+						iTarget = UTIL_GetVipClientByAccountID(iTargetID);
 					}
 
 					if (iTarget)
 					{
-						ResetClient(iTarget);
-						CreateForward_OnVIPClientRemoved(iTarget, "VIP-Group Changed", iClient);
+						//Clients_ResetClient(iTarget);
+						//SET_BIT(g_iClientInfo[iTarget], IS_LOADED);
+						//CallForward_OnVIPClientRemoved(iTarget, "VIP-Group Changed", iClient);
 						Clients_CheckVipAccess(iTarget, false);
 					}
 	
 					VIP_PrintToChatClient(iClient, "%t", "ADMIN_SET_GROUP", szName, szGroup);
-					if (g_CVAR_bLogsEnable)
-					{
-						char szAdmin[256], szAdminInfo[128];
-						UTIL_GetClientInfo(iClient, SZF(szAdminInfo));
-						FormatEx(SZF(szAdmin), "%T %s", "BY_ADMIN", LANG_SERVER, szAdminInfo);
-						LogToFile(g_szLogFile, "%T", "LOG_CHANGE_GROUP", LANG_SERVER, szName, iTargetID, szOldGroup, szGroup, szAdmin);
-					}
+					
+					char szAdmin[PMP], szAdminInfo[128];
+					UTIL_GetClientInfo(iClient, SZF(szAdminInfo));
+					FormatEx(SZF(szAdmin), "%T %s", "BY_ADMIN", LANG_SERVER, szAdminInfo);
+					LogToFile(g_szLogFile, "%T", "LOG_CHANGE_GROUP", LANG_SERVER, szName, iTargetID, szOldGroup, szGroup, szAdmin);
 
 					ShowTargetInfo(iClient);
 				}
@@ -615,10 +595,10 @@ public void SQL_Callback_ChangeTime(Database hOwner, DBResultSet hResult, const 
 			int iTarget;
 			g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget);
 			iTarget = CID(iTarget);
-			if(!iTarget)
+			if (!iTarget)
 			{
 				g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTarget);
-				iTarget = IsClientOnline(iTarget);
+				iTarget = UTIL_GetVipClientByAccountID(iTarget);
 			}
 
 			if (iTarget)

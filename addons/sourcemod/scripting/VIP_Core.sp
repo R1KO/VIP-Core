@@ -4,33 +4,37 @@
 
 #include <sourcemod>
 #include <vip_core>
-#include <clientprefs>
 
-#if !defined VIP_VERSION
-#define VIP_VERSION		"3.0.3 R"
+#if !defined VIP_CORE_VERSION
+#define VIP_CORE_VERSION	"3.1.0 DEV"
 #endif
 
-
-#define DEBUG_MODE			0	// Режим отладки
+#define DEBUG_MODE 			0	// Режим отладки
 
 #define USE_ADMINMENU		1	// Включение админ-меню для управления VIP
 
 #define USE_MORE_SERVERS	1	// Включить/Отключить режим при котором если ID сервера у игрока 0 - то VIP будет работать на всех серверах
 
+#define USE_CLIENTPREFS		0	// Использовать ли стандартные куки для хранения данных игроков
+
+#if USE_CLIENTPREFS 1
+#include <clientprefs>
+#endif
 
 public Plugin myinfo =
 {
 	name = "[VIP] Core",
 	author = "R1KO",
-	version = VIP_VERSION,
+	version = VIP_CORE_VERSION,
 	url = "https://github.com/R1KO/VIP-Core"
 };
 
 #include "vip/Global.sp"
-#include "vip/Debug.sp"
+#include "vip/Debugger.sp"
 #include "vip/Downloads.sp"
 #include "vip/Colors.sp"
 #include "vip/UTIL.sp"
+#include "vip/Storage.sp"
 #include "vip/Features.sp"
 #include "vip/Sounds.sp"
 #include "vip/Info.sp"
@@ -74,6 +78,11 @@ public void OnPluginStart()
 	ITEM_DRAW = hDataPack.Position;
 	delete hDataPack;
 
+
+	g_bIsTranslationPhraseExistsAvailable = (CanTestFeatures() && 
+		GetFeatureStatus(FeatureType_Native, "TranslationPhraseExists") == FeatureStatus_Available);
+
+	API_SetupForwards();
 	ReadConfigs();
 
 	VIPMenu_Setup();
@@ -82,7 +91,6 @@ public void OnPluginStart()
 	#endif
 
 	Cvars_Setup();
-	API_SetupForwards();
 
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_death", Event_PlayerDeath);

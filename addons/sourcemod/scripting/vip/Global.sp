@@ -20,20 +20,28 @@
 #define SET_BIT(%0,%1) 		%0 |= %1
 #define UNSET_BIT(%0,%1) 	%0 &= ~%1
 
-#define IS_VIP						(1<<0)	// VIP ли игрок
-#define IS_LOADED					(1<<1)	// Загружен ли игрок
-#define IS_WAIT_CHAT_PASS			(1<<2)	// Ожидается ввод пароля в чат
-#define IS_WAIT_CHAT_SEARCH			(1<<3)	// Ожидается ввод значения для поиска в чат
-#define IS_SPAWNED					(1<<4)	// Игрок возродился
-#define IS_MENU_OPEN				(1<<5)	// VIP-меню открыто
+#define IS_VIP						(1<<0) // VIP ли игрок
+#define IS_LOADED					(1<<1) // Загружен ли игрок
+#define IS_WAIT_CHAT_PASS			(1<<2) // Ожидается ввод пароля в чат
+#define IS_WAIT_CHAT_SEARCH			(1<<3) // Ожидается ввод значения для поиска в чат
+#define IS_SPAWNED					(1<<4) // Игрок возродился
+#define IS_MENU_OPEN				(1<<5) // VIP-меню открыто
+
+#define IS_CLIENT_VIP(%0)			(g_iClientInfo[%0] & IS_VIP == IS_VIP)
+#define IS_CLIENT_LOADED(%0)		(g_iClientInfo[%0] & IS_LOADED == IS_LOADED)
 
 #define IS_STARTED					(1<<0)
 #define IS_MySQL					(1<<1)
 #define IS_LOADING					(1<<2)
 
-#define REASON_PLUGIN	-2
-#define REASON_EXPIRED	-3
-#define REASON_OUTDATED	-4
+#define REASON_SERVER	 0
+#define REASON_PLUGIN	-1
+#define REASON_EXPIRED	-2
+#define REASON_OUTDATED	-3
+
+
+#define OWNER_SERVER    0
+#define OWNER_PLUGIN    -1
 
 stock const char KEY_CID[]		= "Core->ClientID";
 stock const char KEY_EXPIRES[]	= "Core->Expires";
@@ -48,6 +56,8 @@ enum
 	FEATURES_COOKIE,
 	FEATURES_MENU_CALLBACKS,
 	FEATURES_DEF_STATUS
+	// TODO
+	// FEATURES_STORAGE_KEY,
 }
 
 DataPackPos ITEM_SELECT = view_as<DataPackPos>(0);
@@ -85,6 +95,7 @@ ArrayList	g_hSortArray;
 
 StringMap	g_hFeatures[MAXPLAYERS+1];
 StringMap	g_hFeatureStatus[MAXPLAYERS+1];
+StringMap	g_hCache[MAXPLAYERS+1];
 
 StringMap	g_hClientData[MAXPLAYERS+1];
 
@@ -97,6 +108,7 @@ ConVar		g_CVAR_hVIPMenu_CMD;
 
 int 		g_CVAR_iAdminFlag;
 int 		g_CVAR_iServerID;
+int 		g_CVAR_iStorageID;
 int 		g_CVAR_iTimeMode;
 int			g_CVAR_iDeleteExpired;
 int			g_CVAR_iOutdatedExpired;
@@ -105,8 +117,9 @@ bool		g_CVAR_bAutoOpenMenu;
 bool		g_CVAR_bUpdateName;
 bool		g_CVAR_bHideNoAccessItems;
 bool		g_CVAR_bDefaultStatus;
-bool		g_CVAR_bLogsEnable;
 
 EngineVersion	g_EngineVersion;
+bool g_bIsTranslationPhraseExistsAvailable;
 
-char		g_szSID[64];
+char		g_szServerID[64];
+char		g_szStorageID[64];

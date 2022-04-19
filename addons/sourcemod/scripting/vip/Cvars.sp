@@ -1,7 +1,7 @@
 
 void Cvars_Setup()
 {
-	CreateConVar("sm_vip_core_version", VIP_VERSION, "VIP-CORE VERSION", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_CHEAT|FCVAR_DONTRECORD);
+	CreateConVar("sm_vip_core_version", VIP_CORE_VERSION, "VIP-CORE VERSION", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_CHEAT|FCVAR_DONTRECORD);
 
 	ConVar hCvar = CreateConVar("sm_vip_admin_flag", "z", "Флаг админа, необходимый чтобы иметь доступ к управлению VIP-игроками.");
 	hCvar.AddChangeHook(OnAdminFlagChange);
@@ -11,7 +11,13 @@ void Cvars_Setup()
 
 	hCvar = CreateConVar("sm_vip_server_id", "0", "ID сервера при приспользовании MySQL базы данных", _, true, 0.0);
 	hCvar.AddChangeHook(OnServerIDChange);
-	OnServerIDChange(hCvar, NULL_STRING, NULL_STRING);
+	g_CVAR_iServerID = hCvar.IntValue;
+	SetupServerID();
+
+	hCvar = CreateConVar("sm_vip_storage_id", "0", "ID группы серверов для хранилища данных игроков", _, true, 0.0);
+	hCvar.AddChangeHook(OnStorageIDChange);
+	g_CVAR_iStorageID = hCvar.IntValue;
+	SetupStorageID();
 
 	hCvar = CreateConVar("sm_vip_auto_open_menu", "0", "Автоматически открывать VIP-меню при входе (0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnAutoOpenMenuChange);
@@ -21,11 +27,11 @@ void Cvars_Setup()
 	hCvar.AddChangeHook(OnTimeModeChange);
 	g_CVAR_iTimeMode = hCvar.IntValue;
 
-	hCvar = CreateConVar("sm_vip_delete_expired", "1", "Удалять VIP-игроков у которых истек срок (-1 - Не удалять, 0 - Удалять сразу, > 0 - Количество дней, по истечению которых удалять)", _, true, -1.0, true, 365.0);
+	hCvar = CreateConVar("sm_vip_delete_expired", "1", "Удалять VIP-игроков у которых истек срок и они не заходили на сервер (-1 - Не удалять, 0 - Удалять сразу, > 0 - Количество дней, по истечению которых удалять)", _, true, -1.0, true, 365.0);
 	hCvar.AddChangeHook(OnDeleteExpiredChange);
 	g_CVAR_iDeleteExpired = hCvar.IntValue;
 
-	hCvar = CreateConVar("sm_vip_delete_outdated", "-1", "Удалять VIP-игроков которые не заходили на сервер X дней (-1 - Не удалять, > 0 - Количество дней, по истечению которых удалять (минимум 3 суток))", _, true, -1.0, true, 365.0);
+	hCvar = CreateConVar("sm_vip_delete_outdated", "-1", "Удалять VIP-игроков которые не заходили на сервер X дней (-1 или 0 - Не удалять, > 0 - Количество дней, по истечению которых удалять (минимум 3 суток))", _, true, -1.0, true, 365.0);
 	hCvar.AddChangeHook(OnDeleteOutdatedChange);
 	g_CVAR_iOutdatedExpired = hCvar.IntValue;
 
@@ -44,10 +50,6 @@ void Cvars_Setup()
 	hCvar = CreateConVar("sm_vip_features_default_status", "1", "Статус функций по-умолчанию (0 - Выключены, 1 - Включены)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnDefaultStatusChange);
 	g_CVAR_bDefaultStatus = hCvar.BoolValue;
-	
-	hCvar = CreateConVar("sm_vip_logs_enable", "1", "Вести ли лог logs/VIP_Logs.log (0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
-	hCvar.AddChangeHook(OnLogsEnableChange);
-	g_CVAR_bLogsEnable = hCvar.BoolValue;
 
 	AutoExecConfig(true, "VIP_Core", "vip");
 }
@@ -69,17 +71,40 @@ public void OnAdminFlagChange(ConVar hCvar, const char[] szOldValue, const char[
 public void OnServerIDChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_iServerID = hCvar.IntValue;
-	if (GLOBAL_INFO & IS_MySQL)
+	SetupServerID();
+}
+
+void SetupServerID()
+{
+	if (DB_IsMysql())
 	{
 		#if USE_MORE_SERVERS 1
-		FormatEx(SZF(g_szSID), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
+		FormatEx(SZF(g_szServerID), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
 		#else
-		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
+		FormatEx(SZF(g_szServerID), " AND `sid` = %d", g_CVAR_iServerID);
 		#endif
 	}
 	else
 	{
-		g_szSID[0] = 0;
+		g_szServerID[0] = 0;
+	}
+}
+
+public void OnStorageIDChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
+{
+	g_CVAR_iStorageID = hCvar.IntValue;
+	SetupStorageID();
+}
+
+void SetupStorageID()
+{
+	if (DB_IsMysql())
+	{
+		FormatEx(SZF(g_szStorageID), " AND `sid` = %d", g_CVAR_iStorageID);
+	}
+	else
+	{
+		g_szStorageID[0] = 0;
 	}
 }
 
@@ -96,25 +121,24 @@ public void OnTimeModeChange(ConVar hCvar, const char[] szOldValue, const char[]
 public void OnDeleteExpiredChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_iDeleteExpired = hCvar.IntValue;
-	if(g_CVAR_iDeleteExpired < -1)
+	if (g_CVAR_iDeleteExpired < -1)
 	{
 		g_CVAR_iDeleteExpired = -1;
-		return;
 	}
 }
 
 public void OnDeleteOutdatedChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_iOutdatedExpired = hCvar.IntValue;
-	if(g_CVAR_iOutdatedExpired != -1)
+	if (g_CVAR_iOutdatedExpired != -1)
 	{
-		if(g_CVAR_iOutdatedExpired < 1)
+		if (g_CVAR_iOutdatedExpired < 1)
 		{
 			g_CVAR_iOutdatedExpired = -1;
 			return;
 		}
 
-		if(g_CVAR_iOutdatedExpired < 3)
+		if (g_CVAR_iOutdatedExpired < 3)
 		{
 			g_CVAR_iOutdatedExpired = 3;
 		}
@@ -139,9 +163,4 @@ public void OnHideNoAccessItemsChange(ConVar hCvar, const char[] szOldValue, con
 public void OnDefaultStatusChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
 {
 	g_CVAR_bDefaultStatus = hCvar.BoolValue;
-}
-
-public void OnLogsEnableChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
-{
-	g_CVAR_bLogsEnable = hCvar.BoolValue;
 }

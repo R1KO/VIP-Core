@@ -2,8 +2,14 @@ public void OnMapStart()
 {
 	LoadSounds();
 	ReadDownloads();
+}
 
-	if (g_hDatabase && (g_CVAR_iDeleteExpired != -1 || g_CVAR_iOutdatedExpired != -1))
+public void OnConfigsExecuted()
+{
+	DebugMessage("OnConfigsExecuted: %x", g_hDatabase)
+	CMD_Register();
+
+	if (g_hDatabase  && (GLOBAL_INFO & IS_STARTED))
 	{
 		RemoveExpAndOutPlayers();
 	}
@@ -16,7 +22,7 @@ void OnReadyToStart()
 	{
 		GLOBAL_INFO |= IS_STARTED;
 		
-		CreateForward_OnVIPLoaded();
+		CallForward_OnVIPLoaded();
 		
 		for (int iClient = 1; iClient <= MaxClients; ++iClient)
 		{
@@ -71,6 +77,8 @@ void ReadConfigs()
 
 	g_hGroups = CreateConfig("data/vip/cfg/groups.ini", "VIP_GROUPS");
 	g_hInfo = CreateConfig("data/vip/cfg/info.ini", "VIP_INFO");
+
+	CallForward_OnConfigsLoaded();
 }
 
 KeyValues CreateConfig(const char[] szFile, const char[] szKvName)
