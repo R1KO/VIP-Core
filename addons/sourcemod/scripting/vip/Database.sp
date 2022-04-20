@@ -12,8 +12,8 @@ void DB_OnPluginStart()
 void DB_Connect()
 {
 	//	DebugMessage("DB_Connect: %b", g_bIsVIPLoaded)
-	DebugMessage("DB_Connect")
-	
+	DBG_Database("DB_Connect")
+
 	if (GLOBAL_INFO & IS_LOADING)
 	{
 		return;
@@ -70,14 +70,14 @@ public void OnDBConnect(Database hDatabase, const char[] szError, any data)
 		}
 	}
 	
-	DebugMessage("OnDBConnect %x, %u - > (MySQL: %b)", g_hDatabase, g_hDatabase, GLOBAL_INFO & IS_MySQL)
+	DBG_Database("OnDBConnect %x, %u - > (MySQL: %b)", g_hDatabase, g_hDatabase, GLOBAL_INFO & IS_MySQL)
 	
 	CreateTables();
 }
 
 void CreateTables()
 {
-	DebugMessage("CreateTables")
+	DBG_Database("CreateTables")
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{

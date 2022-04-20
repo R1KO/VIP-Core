@@ -43,28 +43,6 @@ stock int UTIL_ReplaceChars(char[] szBuffer, int InChar, int OutChar)
 	return iNum;
 }
 
-bool UTIL_StrCmpEx(const char[] szString1, const char[] szString2)
-{
-	int iLen = strlen(szString1);
-	if (iLen != strlen(szString2))
-	{
-		// i don't see any reason, why we should compare strings,
-		// if length is different because this fact means: they
-		// different too.
-		return false;
-	}
-
-	for (int i = 0; i < iLen; i++)
-	{
-		if (szString1[i] != szString2[i])
-		{
-			return false;
-		}
-	}
-	
-	return true;
-}
-
 int UTIL_TimeToSeconds(int iTime)
 {
 	switch (g_CVAR_iTimeMode)

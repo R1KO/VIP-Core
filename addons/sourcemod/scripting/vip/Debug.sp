@@ -11,13 +11,14 @@ void DebugMsg(const char[] sMsg, any ...)
 #define DebugMessage(%0) DebugMsg(%0);
 
 // Детальность логов
-// #define LOG_DOWNLOADS				// SQL Запросы
-#define LOG_QUERIES				// SQL Запросы
-#define LOG_RESPONSE			// Ответы SQL запросов
-//	#define LOG_API					// API
-//	#define LOG_FEATURES			// API
-//	#define LOG_CLIENTS				// API
-//	#define LOG_DB					// API
+// #define LOG_DOWNLOADS	// SQL Запросы
+// #define LOG_CONFIGS		// Configs
+// #define LOG_QUERIES		// SQL Запросы
+// #define LOG_RESPONSE		// Ответы SQL запросов
+// #define LOG_API			// API
+// #define LOG_FEATURES		// FEATURES
+// #define LOG_CLIENTS		// CLIENTS
+// #define LOG_DB			// DB
 
 #else
 #define DebugMessage(%0)
@@ -27,6 +28,18 @@ void DebugMsg(const char[] sMsg, any ...)
 #define DBG_Download(%0) DebugMsg("Download: " ... %0);
 #else
 #define DBG_Download(%0)
+#endif
+
+#if defined LOG_CONFIGS
+#define DBG_Config(%0) DebugMsg("Config: " ... %0);
+#else
+#define DBG_Config(%0)
+#endif
+
+#if defined LOG_CLIENTS
+#define DBG_Clients(%0) DebugMsg("Clients: " ... %0);
+#else
+#define DBG_Clients(%0)
 #endif
 
 #if defined LOG_QUERIES
@@ -45,4 +58,10 @@ void DebugMsg(const char[] sMsg, any ...)
 #define DBG_API(%0) DebugMsg("API: " ... %0);
 #else
 #define DBG_API(%0)
+#endif
+
+#if defined LOG_DB
+#define DBG_Database(%0) DebugMsg("Database: " ... %0);
+#else
+#define DBG_Database(%0)
 #endif

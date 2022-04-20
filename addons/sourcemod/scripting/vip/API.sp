@@ -736,7 +736,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 	#if DEBUG_MODE
 	char sPluginName[FEATURE_NAME_LENGTH];
 	GetPluginFilename(hPlugin, sPluginName, FEATURE_NAME_LENGTH);
-	DebugMessage("Register feature \"%s\" (%s)", szFeature, sPluginName)
+	DBG_API("Register feature \"%s\" (%s)", szFeature, sPluginName)
 	#endif
 	
 	if (IsValidFeature(szFeature) == false)
@@ -747,10 +747,10 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 		}
 
 		g_hFeaturesArray.PushString(szFeature);
-		DebugMessage("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature))
+		DBG_API("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature))
 
 		VIP_FeatureType eType = view_as<VIP_FeatureType>(GetNativeCell(3));
-		DebugMessage("FeatureType -> %i", eType)
+		DBG_API("FeatureType -> %i", eType)
 
 		ArrayList hArray = new ArrayList();
 		GLOBAL_TRIE.SetValue(szFeature, hArray);

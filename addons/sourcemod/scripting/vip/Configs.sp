@@ -30,47 +30,52 @@ void OnReadyToStart()
 
 void ReadConfigs()
 {
-	DebugMessage("ReadConfigs")
+	DBG_Config("ReadConfigs")
 
-	if (g_hSortArray != null)
-	{
-		delete g_hSortArray;
-		g_hSortArray = null;
-	}
-	
-	char szFeature[255];
-	BuildPath(Path_SM, SZF(szFeature), "data/vip/cfg/sort_menu.ini");
-	File hFile = OpenFile(szFeature, "r");
-	if (hFile != null)
-	{
-		g_hSortArray = new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
-		
-		while (!hFile.EndOfFile() && hFile.ReadLine(szFeature, FEATURE_NAME_LENGTH))
-		{
-			DebugMessage("ReadFileLine: %s", szFeature)
-			TrimString(szFeature);
-			if (szFeature[0])
-			{
-				g_hSortArray.PushString(szFeature);
-				DebugMessage("PushArrayString: %s (%i)", szFeature, g_hSortArray.FindString(szFeature))
-			}
-		}
-		
-		delete hFile;
-		
-		DebugMessage("GetArraySize: %i", (g_hSortArray).Length)
-		
-		if ((g_hSortArray).Length == 0)
-		{
-			delete g_hSortArray;
-			g_hSortArray = null;
-		}
-	}
+	ReadSortingMenu();
 
 	UTIL_CloseHandleEx(g_hGroups);
 
 	g_hGroups = CreateConfig("data/vip/cfg/groups.ini", "VIP_GROUPS");
 	g_hInfo = CreateConfig("data/vip/cfg/info.ini", "VIP_INFO");
+}
+
+void ReadSortingMenu()
+{
+	if (g_hSortArray != null)
+	{
+		delete g_hSortArray;
+		g_hSortArray = null;
+	}
+
+	char szFeature[PMP];
+	BuildPath(Path_SM, SZF(szFeature), "data/vip/cfg/sort_menu.ini");
+	File hFile = OpenFile(szFeature, "r");
+	if (!hFile)
+		return;
+
+	g_hSortArray = new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
+
+	while (!hFile.EndOfFile() && hFile.ReadLine(szFeature, FEATURE_NAME_LENGTH))
+	{
+		DBG_Config("ReadFileLine: %s", szFeature)
+		TrimString(szFeature);
+		if (szFeature[0])
+		{
+			g_hSortArray.PushString(szFeature);
+			DBG_Config("PushString: %s (%i)", szFeature, g_hSortArray.FindString(szFeature))
+		}
+	}
+
+	delete hFile;
+
+	DBG_Config("g_hSortArray.Length: %i", g_hSortArray.Length)
+
+	if (g_hSortArray.Length == 0)
+	{
+		delete g_hSortArray;
+		g_hSortArray = null;
+	}
 }
 
 KeyValues CreateConfig(const char[] szFile, const char[] szKvName)

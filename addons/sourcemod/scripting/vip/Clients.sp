@@ -10,7 +10,7 @@ void ResetClient(int iClient)
 public void OnClientPutInServer(int iClient)
 {
 	//	g_iClientInfo[iClient] = 0;
-	DebugMessage("OnClientPutInServer %N (%d): %b", iClient, iClient, g_iClientInfo[iClient])
+	DBG_Clients("OnClientPutInServer %N (%d): %b", iClient, iClient, g_iClientInfo[iClient])
 	
 	if(!IsFakeClient(iClient) && !IsClientSourceTV(iClient))
 	{
@@ -49,7 +49,7 @@ void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = f
 	if (IsFakeClient(iClient) == false && (GLOBAL_INFO & IS_STARTED) && g_hDatabase)
 	{
 		Clients_LoadClient(iClient, bNotify);
-		//	DebugMessage("Clients_CheckVipAccess %N:\tИгрок %sявляется VIP игроком", iClient, g_bIsClientVIP[iClient] ? "":"не ")
+		//	DBG_Clients("Clients_CheckVipAccess %N:\tИгрок %sявляется VIP игроком", iClient, g_bIsClientVIP[iClient] ? "":"не ")
 	}
 	else
 	{
@@ -64,7 +64,7 @@ void Clients_LoadClient(int iClient, bool bNotify)
 	
 	int iAccountID = GetSteamAccountID(iClient);
 
-	DebugMessage("Clients_LoadClient %N (%d), %b: - > %x, %u", iClient, iClient, g_iClientInfo[iClient], g_hDatabase, g_hDatabase)
+	DBG_Clients("Clients_LoadClient %N (%d), %b: - > %x, %u", iClient, iClient, g_iClientInfo[iClient], g_hDatabase, g_hDatabase)
 
 	char szWhere[64];
 	if(g_szSID[0])
@@ -108,7 +108,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 	bool bNotify = view_as<bool>(hDataPack.ReadCell());
 	delete hDataPack;
 
-	DebugMessage("SQL_Callback_OnClientAuthorized: %d", iClient)
+	DBG_Clients("SQL_Callback_OnClientAuthorized: %d", iClient)
 	if (!iClient || !IsClientInGame(iClient))
 	{
 		return;
@@ -133,7 +133,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 						LogToFile(g_szLogFile, "%T", "REMOVING_PLAYER", LANG_SERVER, iClient);
 					}
 
-					DebugMessage("Clients_LoadClient %N (%d):\tDelete", iClient, iClient)
+					DBG_Clients("Clients_LoadClient %N (%d):\tDelete", iClient, iClient)
 
 					char szGroup[64];
 					hResult.FetchString(1, SZF(szGroup));
@@ -216,17 +216,17 @@ void Clients_CreateClientVIPSettings(int iClient, int iExp)
 #if DEBUG_MODE 1
 public void OnClientCookiesCached(int iClient)
 {
-	DebugMessage("OnClientCookiesCached %d %N", iClient, iClient)
+	DBG_Clients("OnClientCookiesCached %d %N", iClient, iClient)
 	
-	DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
+	DBG_Clients("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
 }
 #endif
 
 void Clients_LoadVIPFeaturesPre(int iClient, const char[] szFeature = NULL_STRING)
 {
-	DebugMessage("Clients_LoadVIPFeaturesPre %N", iClient)
+	DBG_Clients("Clients_LoadVIPFeaturesPre %N", iClient)
 
-	DebugMessage("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
+	DBG_Clients("AreClientCookiesCached %b", AreClientCookiesCached(iClient))
 
 	if (!AreClientCookiesCached(iClient))
 	{
@@ -259,7 +259,7 @@ public Action Timer_CheckCookies(Handle hTimer, Handle hDP)
 	hDataPack.Reset();
 	int iClient = CID(hDataPack.ReadCell());
 	
-	DebugMessage("Timer_CheckCookies -> iClient: %N (%d), IsClientVIP: %b,", iClient, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP))
+	DBG_Clients("Timer_CheckCookies -> iClient: %N (%d), IsClientVIP: %b,", iClient, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP))
 	if (iClient && g_iClientInfo[iClient] & IS_VIP)
 	{
 		char szFeature[FEATURE_NAME_LENGTH];
@@ -279,10 +279,10 @@ public Action Timer_CheckCookies(Handle hTimer, Handle hDP)
 
 void Clients_LoadVIPFeatures(int iClient)
 {
-	DebugMessage("LoadVIPFeatures %N", iClient)
+	DBG_Clients("LoadVIPFeatures %N", iClient)
 
 	int iFeatures = g_hFeaturesArray.Length;
-	DebugMessage("FeaturesArraySize: %d", iFeatures)
+	DBG_Clients("FeaturesArraySize: %d", iFeatures)
 	if (iFeatures > 0)
 	{
 		char szFeature[FEATURE_NAME_LENGTH];
@@ -298,17 +298,17 @@ void Clients_LoadVIPFeatures(int iClient)
 		}
 	}
 
-	DebugMessage("Clients_OnVIPClientLoaded: %d %N", iClient, iClient)
+	DBG_Clients("Clients_OnVIPClientLoaded: %d %N", iClient, iClient)
 
 	Clients_OnVIPClientLoaded(iClient);
 }
 
 void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
 {
-	DebugMessage("LoadVIPFeature %N", iClient)
+	DBG_Clients("LoadVIPFeature %N", iClient)
 
 	int iFeatures = g_hFeaturesArray.Length;
-	DebugMessage("FeaturesArraySize: %d", iFeatures)
+	DBG_Clients("FeaturesArraySize: %d", iFeatures)
 	if (iFeatures > 0)
 	{
 		char szGroup[FEATURE_NAME_LENGTH];
@@ -320,7 +320,7 @@ void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
 		}
 	}
 /*
-	DebugMessage("Clients_OnVIPClientLoaded: %d %N", iClient, iClient)
+	DBG_Clients("Clients_OnVIPClientLoaded: %d %N", iClient, iClient)
 
 	Clients_OnVIPClientLoaded(iClient);
 	*/
@@ -332,13 +332,13 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 	if (!GLOBAL_TRIE.GetValue(szFeature, hArray))
 		return;
 
-	DebugMessage("LoadClientFeature: %s", szFeature)
+	DBG_Clients("LoadClientFeature: %s", szFeature)
 
 	if (!GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), szFeature))
 		return;
 
 	static VIP_ToggleState eStatus;
-	DebugMessage("GetValue: == true")
+	DBG_Clients("GetValue: == true")
 	if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 	{
 		static char szBuffer[4];
@@ -346,7 +346,7 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 		hCookie = view_as<Handle>(hArray.Get(FEATURES_COOKIE));
 		GetClientCookie(iClient, hCookie, SZF(szBuffer));
 		eStatus = view_as<VIP_ToggleState>(StringToInt(szBuffer));
-		DebugMessage("GetFeatureCookie: '%s'", szBuffer)
+		DBG_Clients("GetFeatureCookie: '%s'", szBuffer)
 		if (szBuffer[0] == '\0' || !Features_IsValidStatus(eStatus))
 		{
 			switch(hArray.Get(FEATURES_DEF_STATUS))
@@ -381,7 +381,7 @@ bool Features_IsValidStatus(VIP_ToggleState eStatus)
 
 bool GetValue(int iClient, VIP_ValueType ValueType, const char[] szFeature)
 {
-	DebugMessage("GetValue: %d - %s", ValueType, szFeature)
+	DBG_Clients("GetValue: %d - %s", ValueType, szFeature)
 	switch (ValueType)
 	{
 		case VIP_NULL:
@@ -392,7 +392,7 @@ bool GetValue(int iClient, VIP_ValueType ValueType, const char[] szFeature)
 		{
 			if (g_hGroups.GetNum(szFeature))
 			{
-				DebugMessage("value: 1")
+				DBG_Clients("value: 1")
 				return g_hFeatures[iClient].SetValue(szFeature, true);
 			}
 			return false;
@@ -403,7 +403,7 @@ bool GetValue(int iClient, VIP_ValueType ValueType, const char[] szFeature)
 			iValue = g_hGroups.GetNum(szFeature);
 			if (iValue != 0)
 			{
-				DebugMessage("value: %d", iValue)
+				DBG_Clients("value: %d", iValue)
 				return g_hFeatures[iClient].SetValue(szFeature, iValue);
 			}
 			return false;
@@ -414,7 +414,7 @@ bool GetValue(int iClient, VIP_ValueType ValueType, const char[] szFeature)
 			fValue = g_hGroups.GetFloat(szFeature);
 			if (fValue != 0.0)
 			{
-				DebugMessage("value: %f", fValue)
+				DBG_Clients("value: %f", fValue)
 				return g_hFeatures[iClient].SetValue(szFeature, fValue);
 			}
 			
@@ -426,7 +426,7 @@ bool GetValue(int iClient, VIP_ValueType ValueType, const char[] szFeature)
 			g_hGroups.GetString(szFeature, SZF(szBuffer));
 			if (szBuffer[0])
 			{
-				DebugMessage("value: %s", szBuffer)
+				DBG_Clients("value: %s", szBuffer)
 				return g_hFeatures[iClient].SetString(szFeature, szBuffer);
 			}
 			return false;
@@ -440,13 +440,13 @@ void Clients_CreateExpiredTimer(int iClient, int iExp, int iTime)
 {
 	int iTimeLeft;
 	GetMapTimeLeft(iTimeLeft);
-	DebugMessage("Clients_CreateExpiredTimer %N (%d):\tiTimeLeft: %d", iClient, iClient, iTimeLeft)
+	DBG_Clients("Clients_CreateExpiredTimer %N (%d):\tiTimeLeft: %d", iClient, iClient, iTimeLeft)
 	if (iTimeLeft > 0)
 	{
-		DebugMessage("Clients_CreateExpiredTimer %N (%d):\tiTimeLeft+iTime: %d", iClient, iClient, iTimeLeft + iTime)
+		DBG_Clients("Clients_CreateExpiredTimer %N (%d):\tiTimeLeft+iTime: %d", iClient, iClient, iTimeLeft + iTime)
 		if ((iTimeLeft + iTime) > iExp)
 		{
-			DebugMessage("Clients_CreateExpiredTimer %N (%d):\tTimerDealy: %f", iClient, iClient, float((iExp - iTime) + 3))
+			DBG_Clients("Clients_CreateExpiredTimer %N (%d):\tTimerDealy: %f", iClient, iClient, float((iExp - iTime) + 3))
 			
 			CreateTimer(float((iExp - iTime) + 3), Timer_VIP_Expired, UID(iClient), TIMER_FLAG_NO_MAPCHANGE);
 		}
@@ -465,7 +465,7 @@ public void Event_PlayerSpawn(Event hEvent, const char[] sEvName, bool bDontBroa
 {
 	int UserID = hEvent.GetInt("userid");
 	int iClient = CID(UserID);
-	DebugMessage("Event_PlayerSpawn: %N (%d)", iClient, iClient)
+	DBG_Clients("Event_PlayerSpawn: %N (%d)", iClient, iClient)
 	if (!(g_iClientInfo[iClient] & IS_SPAWNED))
 	{
 		CreateTimer(g_CVAR_fSpawnDelay, Timer_OnPlayerSpawn, UserID, TIMER_FLAG_NO_MAPCHANGE);
@@ -475,7 +475,7 @@ public void Event_PlayerSpawn(Event hEvent, const char[] sEvName, bool bDontBroa
 public void Event_PlayerDeath(Event hEvent, const char[] sEvName, bool bDontBroadcast)
 {
 	int iClient = CID(hEvent.GetInt("userid"));
-	DebugMessage("Event_PlayerDeath: %N (%d)", iClient, iClient)
+	DBG_Clients("Event_PlayerDeath: %N (%d)", iClient, iClient)
 	g_iClientInfo[iClient] &= ~IS_SPAWNED;
 }
 
@@ -487,7 +487,7 @@ public Action Timer_OnPlayerSpawn(Handle hTimer, any UserID)
 		int iTeam = GetClientTeam(iClient);
 		if (iTeam > 1 && IsPlayerAlive(iClient))
 		{
-			DebugMessage("Timer_OnPlayerSpawn: %N (%d)", iClient, iClient)
+			DBG_Clients("Timer_OnPlayerSpawn: %N (%d)", iClient, iClient)
 			
 			if (g_iClientInfo[iClient] & IS_VIP)
 			{
@@ -507,7 +507,7 @@ public Action Timer_OnPlayerSpawn(Handle hTimer, any UserID)
 
 public void Event_RoundEnd(Event hEvent, const char[] sEvName, bool bDontBroadcast)
 {
-	DebugMessage("Event_RoundEnd")
+	DBG_Clients("Event_RoundEnd")
 	int iTime, iExp, i;
 	iTime = GetTime();
 	for (i = 1; i <= MaxClients; ++i)
@@ -525,7 +525,7 @@ public void Event_RoundEnd(Event hEvent, const char[] sEvName, bool bDontBroadca
 
 public Action Timer_VIP_Expired(Handle hTimer, any UserID)
 {
-	DebugMessage("Timer_VIP_Expired %d:", UserID)
+	DBG_Clients("Timer_VIP_Expired %d:", UserID)
 	
 	int iClient = CID(UserID);
 	if (iClient && g_iClientInfo[iClient] & IS_VIP)
@@ -533,7 +533,7 @@ public Action Timer_VIP_Expired(Handle hTimer, any UserID)
 		int iExp;
 		if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp) && iExp > 0 && iExp < GetTime())
 		{
-			DebugMessage("Timer_VIP_Expired %N:", iClient)
+			DBG_Clients("Timer_VIP_Expired %N:", iClient)
 			
 			Clients_ExpiredClient(iClient);
 		}
@@ -544,7 +544,7 @@ public Action Timer_VIP_Expired(Handle hTimer, any UserID)
 
 void Clients_ExpiredClient(int iClient)
 {
-	DebugMessage("Clients_ExpiredClient %N:", iClient)
+	DBG_Clients("Clients_ExpiredClient %N:", iClient)
 	Features_TurnOffAll(iClient);
 	
 	int iClientID;
