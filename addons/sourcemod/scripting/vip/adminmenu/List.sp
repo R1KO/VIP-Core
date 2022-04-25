@@ -192,7 +192,6 @@ public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int 
 
 void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 {
-	LogMessage("ShowVipPlayersFromDBMenu");
 	g_hClientData[iClient].SetValue(DATA_KEY_MenuListType, MENU_TYPE_DB_LIST);
 	g_hClientData[iClient].SetValue(DATA_KEY_Offset, iOffset);
 
