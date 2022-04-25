@@ -669,7 +669,7 @@
 	}
 	"FIND_THE_ID_FAIL"
 	{
-		"en"		"Synax: sm_delvip <VIP-ID>"
+		"en"		"Syntax: sm_delvip <VIP-ID>"
 		"fi"		"Käyttö: sm_delvip <vip-tunnus>"
 		"de"		"Synax: sm_delvip <VIP-ID>"
 		"pt"		"Sintaxe: sm_delvip <VIP-ID>"
@@ -729,17 +729,17 @@
 		"ua"		"Зазначена VIP-група не існує!"
 	}
 	"FIND_PLAYER"
-    	{
-    		"en"		"Search for a player"
-        	"pt"		"Buscar por um jogador"
+	{
+		"en"		"Search for a player"
+		"pt"		"Buscar por um jogador"
 		"ru"		"Найти игрока"
-    	}
-    	"SHOW_ALL"
-    	{
-    		"en"		"Show all players"
-        	"pt"		"Mostrar todos jogadores"
+	}
+	"SHOW_ALL"
+	{
+		"en"		"Show all players"
+		"pt"		"Mostrar todos jogadores"
 		"ru"		"Показать всех"
-    	}
+	}
 	"y."
 	{
 		"en"		"y."
