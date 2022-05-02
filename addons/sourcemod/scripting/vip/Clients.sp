@@ -11,7 +11,7 @@ public void OnClientPutInServer(int iClient)
 {
 	//	g_iClientInfo[iClient] = 0;
 	DBG_Clients("OnClientPutInServer %N (%d): %b", iClient, iClient, g_iClientInfo[iClient])
-	
+
 	if(!IsFakeClient(iClient) && !IsClientSourceTV(iClient))
 	{
 		Clients_CheckVipAccess(iClient, true, true);
