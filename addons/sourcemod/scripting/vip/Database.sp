@@ -94,7 +94,7 @@ void CreateTables()
 					`group` VARCHAR(64) NOT NULL, \
 					`expires` INT UNSIGNED NOT NULL default 0, \
 					CONSTRAINT pk_PlayerID PRIMARY KEY (`account_id`, `sid`) \
-					) DEFAULT CHARSET=" ... CHARSET ... ";");
+					) DEFAULT CHARSET=" ... CHARSET ... ";", _, DBPrio_High);
 	}
 	else
 	{
@@ -104,7 +104,7 @@ void CreateTables()
 				`name` VARCHAR(64) NOT NULL default 'unknown', \
 				`lastvisit` INTEGER UNSIGNED NOT NULL default 0, \
 				`group` VARCHAR(64) NOT NULL, \
-				`expires` INTEGER UNSIGNED NOT NULL default 0);");
+				`expires` INTEGER UNSIGNED NOT NULL default 0);", _, DBPrio_High);
 	}
 }
 
@@ -120,8 +120,8 @@ public void SQL_Callback_TableCreate(Database hOwner, DBResultSet hResult, const
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET NAMES '" ... CHARSET ... "'");
-		g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET CHARSET '" ... CHARSET ... "'");
+		g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET NAMES '" ... CHARSET ... "'", _, DBPrio_High);
+		g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET CHARSET '" ... CHARSET ... "'", _, DBPrio_High);
 
 		g_hDatabase.SetCharset(CHARSET);
 	}
@@ -146,7 +146,7 @@ void RemoveExpAndOutPlayers()
 		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `expires` > 0 AND `expires` < %d%s;", GetTime() - (g_CVAR_iDeleteExpired == 0 ? 1:g_CVAR_iDeleteExpired)*86400, g_szSID);
 
 		DBG_SQL_Query(szQuery)
-		g_hDatabase.Query(SQL_Callback_SelectExpiredAndOutdated, szQuery, REASON_EXPIRED);
+		g_hDatabase.Query(SQL_Callback_SelectExpiredAndOutdated, szQuery, REASON_EXPIRED, DBPrio_Low);
 	}
 
 	if (g_CVAR_iOutdatedExpired > 0)
@@ -155,7 +155,7 @@ void RemoveExpAndOutPlayers()
 		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `lastvisit` > 0 AND `lastvisit` < %d%s;", (GetTime() - g_CVAR_iOutdatedExpired*86400), g_szSID);
 
 		DBG_SQL_Query(szQuery)
-		g_hDatabase.Query(SQL_Callback_SelectExpiredAndOutdated, szQuery, REASON_OUTDATED);
+		g_hDatabase.Query(SQL_Callback_SelectExpiredAndOutdated, szQuery, REASON_OUTDATED, DBPrio_Low);
 	}
 }
 
@@ -189,7 +189,7 @@ void DB_UpdateClient(int iClient, const char[] szDbName = NULL_STRING)
 	}
 
 	DBG_SQL_Query(szQuery)
-	g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery);
+	g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery, DBPrio_Low);
 }
 
 void DB_RemoveClientFromID(int iAdmin = 0,
@@ -273,7 +273,7 @@ void DB_RemoveClientFromID(int iAdmin = 0,
 	FormatEx(SZF(szQuery), "SELECT `name`, `group` FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
 
 	DBG_SQL_Query(szQuery)
-	g_hDatabase.Query(SQL_Callback_SelectRemoveClient, szQuery, hDataPack);
+	g_hDatabase.Query(SQL_Callback_SelectRemoveClient, szQuery, hDataPack, DBPrio_Low);
 }
 
 public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, DataPack hPack)
@@ -313,7 +313,7 @@ void DB_RemoveClient(DataPack hDataPack, int iClientID)
 	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
 
 	DBG_SQL_Query(szQuery)
-	g_hDatabase.Query(SQL_Callback_RemoveClient, szQuery, hDataPack);
+	g_hDatabase.Query(SQL_Callback_RemoveClient, szQuery, hDataPack, DBPrio_Low);
 }
 
 public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, DataPack hPack)
