@@ -760,14 +760,17 @@ void Clients_OnVipPlayerRemoved(
 
 	DebugMessage("Clients_OnVipPlayerRemoved(iAdmin: %d, szAdminInfo: %s, iTarget: %d, iTargetAccountID: %d, szTargetInfo: %s", iAdmin, szAdminInfo, iTarget, iTargetAccountID, szTargetInfo)
 
-	if (iTarget)
+	if (iTarget > 0)
 	{
 		if (g_iClientInfo[iTarget] & IS_MENU_OPEN)
 		{
 			CancelClientMenu(iTarget);
 		}
 
-		Features_TurnOffAll(iTarget);
+		if (g_hFeatureStatus[iTarget])
+		{
+			Features_TurnOffAll(iTarget);
+		}
 		Clients_ResetClient(iTarget);
 		SET_BIT(g_iClientInfo[iTarget], IS_LOADED);
 

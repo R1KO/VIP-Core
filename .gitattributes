@@ -1,2 +1,3 @@
 *.sp gitlab-language=cpp
 *.inc gitlab-language=cpp
+* text eol=lf

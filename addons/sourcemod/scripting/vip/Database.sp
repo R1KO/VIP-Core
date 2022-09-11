@@ -436,7 +436,7 @@ public void SQL_Callback_SelectForRemoveClient(Database hOwner, DBResultSet hRes
 	char szGroup[64];
 	hResult.FetchString(1, SZF(szGroup));
 
-	if (iTarget)
+	if (iTarget > 0)
 	{
 		UTIL_GetClientInfo(iTarget, SZF(szTargetInfo));
 	}
