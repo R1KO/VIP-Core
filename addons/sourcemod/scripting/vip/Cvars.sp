@@ -9,7 +9,7 @@ void Cvars_Setup()
 
 	g_CVAR_hVIPMenu_CMD = CreateConVar("sm_vip_menu_commands", "vip;sm_vip;sm_vipmenu", "Команды для вызова VIP-меню (разделять ;)");
 
-	hCvar = CreateConVar("sm_vip_server_id", "0", "ID сервера при приспользовании MySQL базы данных", _, true, 0.0);
+	hCvar = CreateConVar("sm_vip_server_id", "0", "ID сервера при использовании MySQL базы данных", _, true, 0.0);
 	hCvar.AddChangeHook(OnServerIDChange);
 	OnServerIDChange(hCvar, NULL_STRING, NULL_STRING);
 
