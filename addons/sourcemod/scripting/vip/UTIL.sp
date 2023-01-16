@@ -414,7 +414,7 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 
 	delete hDataPack;
 
-	if (iTarget)
+	if (iTarget > 0)
 	{
 		Clients_CheckVipAccess(iTarget, true);
 		CreateForward_OnVIPClientAdded(iTarget, iAdmin);
