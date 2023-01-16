@@ -1,5 +1,6 @@
 [![Build](https://github.com/R1KO/VIP-Core/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/R1KO/VIP-Core/actions/workflows/build.yml)
 
+Download latest vesrion [https://github.com/R1KO/VIP-Core/releases](Releases)
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://vshymanskyy.github.io/StandWithUkraine/)
 
