@@ -1173,7 +1173,7 @@ public int Native_RemoveClientFeature(Handle hPlugin, int iNumParams)
 	if (CheckValidClient(iClient))
 	{
 		char szFeature[64];
-		GetNativeString(1, SZF(szFeature));
+		GetNativeString(2, SZF(szFeature));
 		ArrayList hArray;
 		if (!IsValidFeature(szFeature) || !GLOBAL_TRIE.GetValue(szFeature, hArray))
 		{
