@@ -23,7 +23,7 @@ void API_SetupForwards()
 	g_hGlobalForward_OnVIPClientRemoved = CreateGlobalForward("VIP_OnVIPClientRemoved", ET_Ignore, Param_Cell, Param_String, Param_Cell);
 	g_hGlobalForward_OnPlayerSpawn = CreateGlobalForward("VIP_OnPlayerSpawn", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
 	g_hGlobalForward_OnShowClientInfo = CreateGlobalForward("VIP_OnShowClientInfo", ET_Hook, Param_Cell, Param_String, Param_String, Param_Cell);
-	g_hGlobalForward_OnFeatureToggle = CreateGlobalForward("VIP_OnFeatureToggle", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
+	g_hGlobalForward_OnFeatureToggle = CreateGlobalForward("VIP_OnFeatureToggle", ET_Hook, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
 	g_hGlobalForward_OnFeatureRegistered = CreateGlobalForward("VIP_OnFeatureRegistered", ET_Ignore, Param_String);
 	g_hGlobalForward_OnFeatureUnregistered = CreateGlobalForward("VIP_OnFeatureUnregistered", ET_Ignore, Param_String);
 	g_hGlobalForward_OnClientDisconnect = CreateGlobalForward("VIP_OnClientDisconnect", ET_Ignore, Param_Cell, Param_Cell);
