@@ -19,6 +19,7 @@ void DebugMsg(const char[] sMsg, any ...)
 // #define LOG_FEATURES		// FEATURES
 // #define LOG_CLIENTS		// CLIENTS
 // #define LOG_DB			// DB
+// #define LOG_INFO			// INFO
 
 #else
 #define DebugMessage(%0)
@@ -64,4 +65,11 @@ void DebugMsg(const char[] sMsg, any ...)
 #define DBG_Database(%0) DebugMsg("Database: " ... %0);
 #else
 #define DBG_Database(%0)
+#endif
+
+
+#if defined LOG_INFO
+#define DBG_Info(%0) DebugMsg("Info: " ... %0);
+#else
+#define DBG_Info(%0)
 #endif
