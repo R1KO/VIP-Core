@@ -98,7 +98,7 @@ jobs:
           asset_name: ${{ env.artifact-1_11 }}.zip
           asset_content_type: application/zip
 
-          - name: Upload Asset
+      - name: Upload Asset
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -107,4 +107,3 @@ jobs:
           asset_path: ${{ env.artifact-1_12 }}.zip
           asset_name: ${{ env.artifact-1_12 }}.zip
           asset_content_type: application/zip
-          
