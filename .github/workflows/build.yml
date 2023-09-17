@@ -32,7 +32,7 @@ jobs:
           mkdir plugins
           cd scripting
           spcomp VIP_Core.sp -E -o ../plugins/VIP_Core.smx -iinclude ${{ matrix.compiler-options }}
-
+          
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -41,7 +41,7 @@ jobs:
             addons
             LICENSE
           retention-days: 2
-
+          
   release:
     name: Release
     if: github.ref_type == 'tag'
@@ -57,7 +57,7 @@ jobs:
           echo "artifact-1_10=$(find * -maxdepth 0 -type d -name "*1.10*")" >> $GITHUB_ENV
           echo "artifact-1_11=$(find * -maxdepth 0 -type d -name "*1.11*")" >> $GITHUB_ENV
           echo "artifact-1_12=$(find * -maxdepth 0 -type d -name "*1.12*")" >> $GITHUB_ENV
-          
+
       - name: Arhive Assets
         run: |
           zip -r ${{ env.artifact-1_10 }}.zip ${{ env.artifact-1_10 }}
@@ -104,4 +104,3 @@ jobs:
           asset_path: ${{ env.artifact-1_12 }}.zip
           asset_name: ${{ env.artifact-1_12 }}.zip
           asset_content_type: application/zip
-          
