@@ -5,13 +5,10 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   compile:
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.sm-version == '1.11.x' }}
+    continue-on-error: ${{ matrix.sm-version == '1.12.x' }}
     strategy:
       matrix:
         sm-version: [ '1.10.x', '1.11.x', '1.12.x' ]
-        include:
-          - sm-version: "1.11.x" # https://github.com/rumblefrog/setup-sp/issues/5
-            compiler-options: "-i=$includePath"
 
     name: "Build SM ${{ matrix.sm-version }}"
     steps:
@@ -60,7 +57,7 @@ jobs:
           echo "artifact-1_10=$(find * -maxdepth 0 -type d -name "*1.10*")" >> $GITHUB_ENV
           echo "artifact-1_11=$(find * -maxdepth 0 -type d -name "*1.11*")" >> $GITHUB_ENV
           echo "artifact-1_12=$(find * -maxdepth 0 -type d -name "*1.12*")" >> $GITHUB_ENV
-
+          
       - name: Arhive Assets
         run: |
           zip -r ${{ env.artifact-1_10 }}.zip ${{ env.artifact-1_10 }}
@@ -78,7 +75,7 @@ jobs:
           draft: true
           prerelease: false
 
-      - name: Upload Asset
+      - name: Upload Asset 1.10
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -88,7 +85,7 @@ jobs:
           asset_name: ${{ env.artifact-1_10 }}.zip
           asset_content_type: application/zip
 
-      - name: Upload Asset
+      - name: Upload Asset 1.11
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -98,7 +95,7 @@ jobs:
           asset_name: ${{ env.artifact-1_11 }}.zip
           asset_content_type: application/zip
 
-      - name: Upload Asset
+      - name: Upload Asset 1.12
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -107,3 +104,4 @@ jobs:
           asset_path: ${{ env.artifact-1_12 }}.zip
           asset_name: ${{ env.artifact-1_12 }}.zip
           asset_content_type: application/zip
+          
