@@ -5,13 +5,10 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   compile:
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.sm-version == '1.11.x' }}
+    continue-on-error: ${{ matrix.sm-version == '1.12.x' }}
     strategy:
       matrix:
-        sm-version: [ '1.9.x', '1.10.x', '1.11.x' ]
-        include:
-          - sm-version: "1.11.x" # https://github.com/rumblefrog/setup-sp/issues/5
-            compiler-options: "-i=$includePath"
+        sm-version: [ '1.10.x', '1.11.x', '1.12.x' ]
 
     name: "Build SM ${{ matrix.sm-version }}"
     steps:
@@ -35,7 +32,7 @@ jobs:
           mkdir plugins
           cd scripting
           spcomp VIP_Core.sp -E -o ../plugins/VIP_Core.smx -iinclude ${{ matrix.compiler-options }}
-
+          
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -44,7 +41,7 @@ jobs:
             addons
             LICENSE
           retention-days: 2
-
+          
   release:
     name: Release
     if: github.ref_type == 'tag'
@@ -57,15 +54,15 @@ jobs:
       - name: Find Assets
         shell: bash
         run: |
-          echo "artifact-1_9=$(find * -maxdepth 0 -type d -name "*1.9*")" >> $GITHUB_ENV
           echo "artifact-1_10=$(find * -maxdepth 0 -type d -name "*1.10*")" >> $GITHUB_ENV
           echo "artifact-1_11=$(find * -maxdepth 0 -type d -name "*1.11*")" >> $GITHUB_ENV
-          
+          echo "artifact-1_12=$(find * -maxdepth 0 -type d -name "*1.12*")" >> $GITHUB_ENV
+
       - name: Arhive Assets
         run: |
-          zip -r ${{ env.artifact-1_9 }}.zip ${{ env.artifact-1_9 }}
           zip -r ${{ env.artifact-1_10 }}.zip ${{ env.artifact-1_10 }}
           zip -r ${{ env.artifact-1_11 }}.zip ${{ env.artifact-1_11 }}
+          zip -r ${{ env.artifact-1_12 }}.zip ${{ env.artifact-1_12 }}
 
       - name: Create Release
         id: create_release
@@ -77,18 +74,8 @@ jobs:
           release_name: ${{ github.ref_name }}
           draft: true
           prerelease: false
-      
-      - name: Upload Asset
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.artifact-1_9 }}.zip
-          asset_name: ${{ env.artifact-1_9 }}.zip
-          asset_content_type: application/zip
 
-      - name: Upload Asset
+      - name: Upload Asset 1.10
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -98,7 +85,7 @@ jobs:
           asset_name: ${{ env.artifact-1_10 }}.zip
           asset_content_type: application/zip
 
-      - name: Upload Asset
+      - name: Upload Asset 1.11
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -106,4 +93,14 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ env.artifact-1_11 }}.zip
           asset_name: ${{ env.artifact-1_11 }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Asset 1.12
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.artifact-1_12 }}.zip
+          asset_name: ${{ env.artifact-1_12 }}.zip
           asset_content_type: application/zip
