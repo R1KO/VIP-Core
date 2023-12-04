@@ -329,7 +329,11 @@ public int Native_PrintToChatClient(Handle hPlugin, int iNumParams)
 		SetGlobalTransTarget(iClient);
 		FormatNativeString(0, 2, 3, sizeof(szMessage), _, szMessage);
 
+		#if GAME == 1
 		Colors_Print(iClient, szMessage);
+		#else
+		CPrintToChat(iClient, szMessage);
+		#endif
 	}
 
 	return 0;
@@ -346,7 +350,12 @@ public int Native_PrintToChatAll(Handle hPlugin, int iNumParams)
 		{
 			SetGlobalTransTarget(i);
 			FormatNativeString(0, 1, 2, sizeof(szMessage), _, szMessage);
+
+			#if GAME == 1
 			Colors_Print(i, szMessage);
+			#else
+			CPrintToChat(i, szMessage);
+			#endif
 		}
 	}
 
