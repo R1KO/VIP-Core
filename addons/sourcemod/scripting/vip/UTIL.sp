@@ -310,6 +310,12 @@ void UTIL_ADD_VIP_PLAYER(int iAdmin = 0,
 		FormatEx(SZF(szTargetInfo), "unknown (%s, unknown)", szQuery);
 	}
 
+	if (iAccountID == 0)
+	{
+		UTIL_Reply(iAdmin, "%t", "ADMIN_VIP_ADD_FAILED");
+		return;
+	}
+
 	DataPack hDataPack = new DataPack();
 
 	// Admin
