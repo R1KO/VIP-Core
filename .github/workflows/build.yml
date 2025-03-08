@@ -8,7 +8,7 @@ jobs:
     continue-on-error: ${{ matrix.sm-version == '1.12.x' }}
     strategy:
       matrix:
-        sm-version: [ '1.10.x', '1.11.x', '1.12.x' ]
+        sm-version: [ '1.11.x', '1.12.x' ]
 
     name: "Build SM ${{ matrix.sm-version }}"
     steps:
@@ -54,13 +54,11 @@ jobs:
       - name: Find Assets
         shell: bash
         run: |
-          echo "artifact_1_10=$(find * -maxdepth 0 -type d -name '*1.10*')" >> $GITHUB_ENV
           echo "artifact_1_11=$(find * -maxdepth 0 -type d -name '*1.11*')" >> $GITHUB_ENV
           echo "artifact_1_12=$(find * -maxdepth 0 -type d -name '*1.12*')" >> $GITHUB_ENV
           
       - name: Archive Assets
         run: |
-          zip -r ${{ env.artifact_1_10 }}.zip ${{ env.artifact_1_10 }}
           zip -r ${{ env.artifact_1_11 }}.zip ${{ env.artifact_1_11 }}
           zip -r ${{ env.artifact_1_12 }}.zip ${{ env.artifact_1_12 }}
 
@@ -74,16 +72,6 @@ jobs:
           release_name: ${{ github.ref_name }}
           draft: true
           prerelease: false
-
-      - name: Upload Asset 1.10
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.artifact_1_10 }}.zip
-          asset_name: ${{ env.artifact_1_10 }}.zip
-          asset_content_type: application/zip
 
       - name: Upload Asset 1.11
         uses: actions/upload-release-asset@v1.0.1
