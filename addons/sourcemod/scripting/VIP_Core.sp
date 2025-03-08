@@ -37,7 +37,7 @@ public Plugin myinfo =
 #include "vip/Database.sp"
 #include "vip/Configs.sp"
 #include "vip/Cvars.sp"
-#if USE_ADMINMENU 1
+#if USE_ADMINMENU
 #include "vip/AdminMenu.sp"
 #include "vip/adminmenu/Add.sp"
 #include "vip/adminmenu/List.sp"
@@ -51,7 +51,7 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
-	#if DEBUG_MODE 1
+	#if DEBUG_MODE
 	BuildPath(Path_SM, SZF(g_szDebugLogFile), "logs/VIP_Debug.log");
 	#endif
 
@@ -77,7 +77,7 @@ public void OnPluginStart()
 	ReadConfigs();
 
 	VIPMenu_Setup();
-	#if USE_ADMINMENU 1
+	#if USE_ADMINMENU
 	AdminMenu_Setup();
 	#endif
 

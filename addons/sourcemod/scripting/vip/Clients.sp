@@ -69,7 +69,7 @@ void Clients_LoadClient(int iClient, bool bNotify)
 	char szWhere[64];
 	if(g_szSID[0])
 	{
-		#if USE_MORE_SERVERS 1
+		#if USE_MORE_SERVERS
 		FormatEx(SZF(szWhere), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
 		#else
 		strcopy(SZF(szWhere), g_szSID);
@@ -213,7 +213,7 @@ void Clients_CreateClientVIPSettings(int iClient, int iExp)
 	g_hFeatures[iClient].SetValue(KEY_EXPIRES, iExp);
 }
 
-#if DEBUG_MODE 1
+#if DEBUG_MODE
 public void OnClientCookiesCached(int iClient)
 {
 	DBG_Clients("OnClientCookiesCached %d %N", iClient, iClient)

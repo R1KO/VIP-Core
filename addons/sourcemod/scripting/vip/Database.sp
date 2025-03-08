@@ -81,7 +81,7 @@ void CreateTables()
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		#if USE_MORE_SERVERS 1
+		#if USE_MORE_SERVERS
 		FormatEx(SZF(g_szSID), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
 		#else
 		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);

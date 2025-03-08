@@ -6,11 +6,11 @@ void CMD_Setup()
 	RegAdminCmd("sm_addvip", AddVIP_CMD, ADMFLAG_ROOT);
 	RegAdminCmd("sm_delvip", DelVIP_CMD, ADMFLAG_ROOT);
 
-	#if USE_ADMINMENU 1
+	#if USE_ADMINMENU
 	RegAdminCmd("sm_vipadmin", VIPAdmin_CMD, ADMFLAG_ROOT);
 	#endif
 
-	#if DEBUG_MODE 1
+	#if DEBUG_MODE
 	RegAdminCmd("sm_vip_dump_features", DumpFeatures_CMD, ADMFLAG_ROOT);
 	#endif
 }
@@ -26,7 +26,7 @@ public void OnConfigsExecuted()
 	}
 }
 
-#if USE_ADMINMENU 1
+#if USE_ADMINMENU
 public Action VIPAdmin_CMD(int iClient, int iArgs)
 {
 	if (iClient)
@@ -192,7 +192,7 @@ public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hResu
 	}
 }
 
-#if DEBUG_MODE 1
+#if DEBUG_MODE
 public Action DumpFeatures_CMD(int iClient, int iArgs)
 {
 	int iFeatures = g_hFeaturesArray.Length;
