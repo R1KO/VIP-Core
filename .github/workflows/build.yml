@@ -31,7 +31,7 @@ jobs:
           cd addons/sourcemod
           mkdir plugins
           cd scripting
-          spcomp VIP_Core.sp -E -o ../plugins/VIP_Core.smx
+          spcomp VIP_Core.sp -E -o ../plugins/VIP_Core.smx -i./include
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
