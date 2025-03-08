@@ -34,7 +34,7 @@ jobs:
           spcomp VIP_Core.sp -E -o ../plugins/VIP_Core.smx
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: VIP-Core-${{ env.SMVERSION_SHORT }}-${{ env.GITHUB_SHA_SHORT }}
           path: |
