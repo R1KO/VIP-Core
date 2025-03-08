@@ -61,7 +61,7 @@ public void OnAdminFlagChange(ConVar hCvar, const char[] szOldValue, const char[
 	AddCommandOverride("sm_addvip", Override_Command, g_CVAR_iAdminFlag);
 	AddCommandOverride("sm_delvip", Override_Command, g_CVAR_iAdminFlag);
 
-	#if USE_ADMINMENU 1
+	#if USE_ADMINMENU
 	AddCommandOverride("sm_vipadmin", Override_Command, g_CVAR_iAdminFlag);
 	#endif
 }
@@ -71,7 +71,7 @@ public void OnServerIDChange(ConVar hCvar, const char[] szOldValue, const char[]
 	g_CVAR_iServerID = hCvar.IntValue;
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		#if USE_MORE_SERVERS 1
+		#if USE_MORE_SERVERS
 		FormatEx(SZF(g_szSID), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
 		#else
 		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);

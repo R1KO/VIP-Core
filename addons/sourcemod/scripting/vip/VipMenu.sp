@@ -47,7 +47,7 @@ void ResortFeaturesArray()
 	int i, x, iSize, index;
 	iSize = g_hSortArray.Length;
 	
-	/*#if DEBUG_MODE 1
+	/*#if DEBUG_MODE
 	PrintArray(g_hSortArray);
 	PrintArray(g_hFeaturesArray);
 	#endif*/
@@ -66,7 +66,7 @@ void ResortFeaturesArray()
 			{
 				DebugMessage("SwapArrayItems")
 				g_hFeaturesArray.SwapAt(index, x);
-				/*#if DEBUG_MODE 1
+				/*#if DEBUG_MODE
 				PrintArray(g_hFeaturesArray);
 				#endif*/
 			}
@@ -76,7 +76,7 @@ void ResortFeaturesArray()
 	}
 }
 /*
-#if DEBUG_MODE 1
+#if DEBUG_MODE
 stock void PrintArray(ArrayList &hArray)
 {
 	DebugMessage("PrintArray")

@@ -1,14 +1,18 @@
-
-#if DEBUG_MODE 1
+#if DEBUG_MODE
 char g_szDebugLogFile[PLATFORM_MAX_PATH];
 
-void DebugMsg(const char[] sMsg, any ...)
+public void DebugMsg(const char[] sMsg, any ...)
 {
-	static char szBuffer[512];
-	VFormat(SZF(szBuffer), sMsg, 2);
-	LogToFile(g_szDebugLogFile, szBuffer);
+    static char szBuffer[512];
+    VFormat(SZF(szBuffer), sMsg, 2);
+    LogToFile(g_szDebugLogFile, szBuffer);
 }
-#define DebugMessage(%0) DebugMsg(%0);
+
+// Función alias para DebugMsg
+public void DebugMessage(const char[] sMsg, any ...)
+{
+    DebugMsg(sMsg, ...);
+}
 
 // Детальность логов
 // #define LOG_DOWNLOADS	// SQL Запросы
@@ -20,48 +24,88 @@ void DebugMsg(const char[] sMsg, any ...)
 // #define LOG_CLIENTS		// CLIENTS
 // #define LOG_DB			// DB
 
-#else
-#define DebugMessage(%0)
-#endif
-
 #if defined LOG_DOWNLOADS
-#define DBG_Download(%0) DebugMsg("Download: " ... %0);
+public void DBG_Download(const char[] sMsg, any ...)
+{
+    static char buffer[512];
+    Format(buffer, sizeof(buffer), "Download: %s", sMsg);
+    DebugMsg(buffer, ...);
+}
 #else
-#define DBG_Download(%0)
+public void DBG_Download(const char[] sMsg, any ...) {}
 #endif
 
 #if defined LOG_CONFIGS
-#define DBG_Config(%0) DebugMsg("Config: " ... %0);
+public void DBG_Config(const char[] sMsg, any ...)
+{
+    static char buffer[512];
+    Format(buffer, sizeof(buffer), "Config: %s", sMsg);
+    DebugMsg(buffer, ...);
+}
 #else
-#define DBG_Config(%0)
+public void DBG_Config(const char[] sMsg, any ...) {}
 #endif
 
 #if defined LOG_CLIENTS
-#define DBG_Clients(%0) DebugMsg("Clients: " ... %0);
+public void DBG_Clients(const char[] sMsg, any ...)
+{
+    static char buffer[512];
+    Format(buffer, sizeof(buffer), "Clients: %s", sMsg);
+    DebugMsg(buffer, ...);
+}
 #else
-#define DBG_Clients(%0)
+public void DBG_Clients(const char[] sMsg, any ...) {}
 #endif
 
 #if defined LOG_QUERIES
-#define DBG_SQL_Query(%0) DebugMsg("SQL_Query: %s", %0);
+public void DBG_SQL_Query(const char[] sMsg, any ...)
+{
+    DebugMsg("SQL_Query: %s", sMsg);
+}
 #else
-#define DBG_SQL_Query(%0)
+public void DBG_SQL_Query(const char[] sMsg, any ...) {}
 #endif
 
 #if defined LOG_RESPONSE
-#define DBG_SQL_Response(%0) DebugMsg("SQL_Response: " ... %0);
+public void DBG_SQL_Response(const char[] sMsg, any ...)
+{
+    static char buffer[512];
+    Format(buffer, sizeof(buffer), "SQL_Response: %s", sMsg);
+    DebugMsg(buffer, ...);
+}
 #else
-#define DBG_SQL_Response(%0)
+public void DBG_SQL_Response(const char[] sMsg, any ...) {}
 #endif
 
 #if defined LOG_API
-#define DBG_API(%0) DebugMsg("API: " ... %0);
+public void DBG_API(const char[] sMsg, any ...)
+{
+    static char buffer[512];
+    Format(buffer, sizeof(buffer), "API: %s", sMsg);
+    DebugMsg(buffer, ...);
+}
 #else
-#define DBG_API(%0)
+public void DBG_API(const char[] sMsg, any ...) {}
 #endif
 
 #if defined LOG_DB
-#define DBG_Database(%0) DebugMsg("Database: " ... %0);
+public void DBG_Database(const char[] sMsg, any ...)
+{
+    static char buffer[512];
+    Format(buffer, sizeof(buffer), "Database: %s", sMsg);
+    DebugMsg(buffer, ...);
+}
 #else
-#define DBG_Database(%0)
+public void DBG_Database(const char[] sMsg, any ...) {}
+#endif
+
+#else  // Si DEBUG_MODE no está definido, se generan funciones vacías
+public void DebugMessage(const char[] sMsg, any ...) {}
+public void DBG_Download(const char[] sMsg, any ...) {}
+public void DBG_Config(const char[] sMsg, any ...) {}
+public void DBG_Clients(const char[] sMsg, any ...) {}
+public void DBG_SQL_Query(const char[] sMsg, any ...) {}
+public void DBG_SQL_Response(const char[] sMsg, any ...) {}
+public void DBG_API(const char[] sMsg, any ...) {}
+public void DBG_Database(const char[] sMsg, any ...) {}
 #endif

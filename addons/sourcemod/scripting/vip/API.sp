@@ -730,77 +730,87 @@ public int Native_IsVIPLoaded(Handle hPlugin, int iNumParams)
 
 public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 {
-	char szFeature[FEATURE_NAME_LENGTH];
-	GetNativeString(1, SZF(szFeature));
-	
-	#if DEBUG_MODE
-	char sPluginName[FEATURE_NAME_LENGTH];
-	GetPluginFilename(hPlugin, sPluginName, FEATURE_NAME_LENGTH);
-	DBG_API("Register feature \"%s\" (%s)", szFeature, sPluginName)
-	#endif
-	
-	if (IsValidFeature(szFeature) == false)
-	{
-		if (g_hFeaturesArray.Length == 0)
-		{
-			g_hVIPMenu.RemoveItem(0);
-		}
+    char szFeature[FEATURE_NAME_LENGTH];
+    GetNativeString(1, SZF(szFeature));
 
-		g_hFeaturesArray.PushString(szFeature);
-		DBG_API("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature))
+    #if DEBUG_MODE
+    char sPluginName[FEATURE_NAME_LENGTH];
+    GetPluginFilename(hPlugin, sPluginName, FEATURE_NAME_LENGTH);
+    DBG_API("Register feature \"%s\" (%s)", szFeature, sPluginName);
+    #endif
 
-		VIP_FeatureType eType = view_as<VIP_FeatureType>(GetNativeCell(3));
-		DBG_API("FeatureType -> %i", eType)
+    if (!IsValidFeature(szFeature))
+    {
+        if (g_hFeaturesArray.Length == 0)
+        {
+            g_hVIPMenu.RemoveItem(0);
+        }
 
-		ArrayList hArray = new ArrayList();
-		GLOBAL_TRIE.SetValue(szFeature, hArray);
-		
-		hArray.Push(hPlugin);
-		hArray.Push(GetNativeCell(2));
-		hArray.Push(eType);
+        g_hFeaturesArray.PushString(szFeature);
+        DBG_API("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature));
 
-		if (eType != HIDE)
-		{
-			Handle hCookie = null;
-			if (eType == TOGGLABLE || (eType == SELECTABLE && iNumParams > 7 && GetNativeCell(8)))
-			{
-				hCookie = RegClientCookie(szFeature, szFeature, CookieAccess_Private);
-			}
+        VIP_ValueType eValueType = GetNativeCell(2);
+        VIP_FeatureType eFeatureType = GetNativeCell(3);
+        DBG_API("FeatureType -> %i", eFeatureType);
 
-			hArray.Push(hCookie);
+        int iCallbackSelect  = GetNativeCell(4);
+        int iCallbackDisplay = GetNativeCell(5);
+        int iCallbackDraw    = GetNativeCell(6);
 
-			DataPack hDataPack = new DataPack();
-			hDataPack.WriteFunction(GetNativeCell(4));
-			hDataPack.WriteFunction(GetNativeCell(5));
-			hDataPack.WriteFunction(GetNativeCell(6));
-			hArray.Push(hDataPack);
+        ArrayList hArray = new ArrayList();
+        GLOBAL_TRIE.SetValue(szFeature, hArray);
 
-			if(eType == TOGGLABLE)
-			{
-				hArray.Push(iNumParams > 6 ? GetNativeCell(7):NO_ACCESS);
-			}
+        hArray.Push(hPlugin);
+        hArray.Push(eValueType);
+        hArray.Push(eFeatureType);
 
-			AddFeatureToVIPMenu(szFeature);
-		}
+        if (eFeatureType != HIDE)
+        {
+            Handle hCookie = null;
+            bool bRegisterCookie = (eFeatureType == SELECTABLE && iNumParams > 7 && (GetNativeCell(8) != 0));
+            if (eFeatureType == TOGGLABLE || bRegisterCookie)
+            {
+                hCookie = RegClientCookie(szFeature, szFeature, CookieAccess_Private);
+            }
+            hArray.Push(hCookie);
 
-		for (int iClient = 1; iClient <= MaxClients; ++iClient)
-		{
-			if (IsClientInGame(iClient) && g_iClientInfo[iClient] & IS_VIP)
-			{
-				Clients_LoadVIPFeaturesPre(iClient, szFeature);
-			}
-		}
+            DataPack hDataPack = new DataPack();
+            // Utilizamos WriteCell para escribir los callback cells.
+            hDataPack.WriteCell(iCallbackSelect);
+            hDataPack.WriteCell(iCallbackDisplay);
+            hDataPack.WriteCell(iCallbackDraw);
+            hArray.Push(hDataPack);
 
-		CreateForward_OnFeatureRegistered(szFeature);
-		DebugMessage("Feature \"%s\" registered", szFeature)
-	}
-	else
-	{
-		ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" already defined/Функция \"%s\" уже существует", szFeature, szFeature);
-	}
+            if (eFeatureType == TOGGLABLE)
+            {
+                VIP_ToggleState eDefaultStatus = (iNumParams > 6 ? GetNativeCell(7) : NO_ACCESS);
+                hArray.Push(eDefaultStatus);
+            }
 
-	return 0;
+            AddFeatureToVIPMenu(szFeature);
+        }
+
+        for (int iClient = 1; iClient <= MaxClients; ++iClient)
+        {
+            if (IsClientInGame(iClient) && (g_iClientInfo[iClient] & IS_VIP))
+            {
+                Clients_LoadVIPFeaturesPre(iClient, szFeature);
+            }
+        }
+
+        CreateForward_OnFeatureRegistered(szFeature);
+        DebugMessage("Feature \"%s\" registered", szFeature);
+    }
+    else
+    {
+        ThrowNativeError(SP_ERROR_NATIVE,
+            "Feature \"%s\" already defined/Функция \"%s\" уже существует", szFeature, szFeature);
+    }
+
+    return 0;
 }
+
+
 
 public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 {
