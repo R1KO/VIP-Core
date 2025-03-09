@@ -731,7 +731,7 @@ public int Native_IsVIPLoaded(Handle hPlugin, int iNumParams)
 public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 {
     char szFeature[FEATURE_NAME_LENGTH];
-    GetNativeString(1, SZF(szFeature));
+    GetNativeString(1, szFeature, sizeof(szFeature));
 
     #if DEBUG_MODE
     char sPluginName[FEATURE_NAME_LENGTH];
@@ -747,45 +747,51 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
         }
 
         g_hFeaturesArray.PushString(szFeature);
-        DBG_API("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature));
+		VIP_ValueType eValType = view_as<VIP_ValueType>(GetNativeCell(2));
+		VIP_FeatureType eType = view_as<VIP_FeatureType>(GetNativeCell(3));
+		Function ItemSelectCallback = GetNativeFunction(4);
+		Function ItemDisplayCallback = GetNativeFunction(5);
+		Function ItemDrawCallback = GetNativeFunction(6);
+		VIP_ToggleState eDefStatus = view_as<VIP_ToggleState>(GetNativeCell(7));
+		bool bCookie = view_as<bool>(GetNativeCell(8));
 
-        VIP_ValueType eValueType = GetNativeCell(2);
-        VIP_FeatureType eFeatureType = GetNativeCell(3);
-        DBG_API("FeatureType -> %i", eFeatureType);
+		DBG_API("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature));
+		DBG_API("VIP_ValueType -> %s", VIP_ValueTypeToString(eValType));
+		DBG_API("VIP_FeatureType -> %s", VIP_FeatureTypeToString(eType));
+		DBG_API("ItemSelectCallback -> %s", ItemSelectCallback == INVALID_FUNCTION ? "INVALID_FUNCTION":"VALID_FUNCTION");
+		DBG_API("ItemDisplayCallback -> %s", ItemDisplayCallback == INVALID_FUNCTION ? "INVALID_FUNCTION":"VALID_FUNCTION");
+		DBG_API("ItemDrawCallback -> %s", ItemDrawCallback == INVALID_FUNCTION ? "INVALID_FUNCTION":"VALID_FUNCTION");
+		DBG_API("VIP_ToggleState -> %s", VIP_ToggleStateToString(eDefStatus));
+		DBG_API("Cookie -> %s", bCookie ? "true":"false");
 
-        int iCallbackSelect  = GetNativeCell(4);
-        int iCallbackDisplay = GetNativeCell(5);
-        int iCallbackDraw    = GetNativeCell(6);
+		ArrayList hArray = new ArrayList();
+		GLOBAL_TRIE.SetValue(szFeature, hArray);
+		
+		hArray.Push(hPlugin);
+		hArray.Push(eValType);
+		hArray.Push(eType);
 
-        ArrayList hArray = new ArrayList();
-        GLOBAL_TRIE.SetValue(szFeature, hArray);
+		if (eType != HIDE)
+		{
+			Handle hCookie = null;
+            bool bRegisterCookie = (eType == SELECTABLE && iNumParams > 7 && (bCookie != false));
+            if (eType == TOGGLABLE || bRegisterCookie)
+			{
+				hCookie = RegClientCookie(szFeature, szFeature, CookieAccess_Private);
+			}
 
-        hArray.Push(hPlugin);
-        hArray.Push(eValueType);
-        hArray.Push(eFeatureType);
+			hArray.Push(hCookie);
 
-        if (eFeatureType != HIDE)
-        {
-            Handle hCookie = null;
-            bool bRegisterCookie = (eFeatureType == SELECTABLE && iNumParams > 7 && (GetNativeCell(8) != 0));
-            if (eFeatureType == TOGGLABLE || bRegisterCookie)
-            {
-                hCookie = RegClientCookie(szFeature, szFeature, CookieAccess_Private);
-            }
-            hArray.Push(hCookie);
+			DataPack hDataPack = new DataPack();
+			hDataPack.WriteFunction(ItemSelectCallback);
+			hDataPack.WriteFunction(ItemDisplayCallback);
+			hDataPack.WriteFunction(ItemDrawCallback);
+			hArray.Push(hDataPack);
 
-            DataPack hDataPack = new DataPack();
-            // Utilizamos WriteCell para escribir los callback cells.
-            hDataPack.WriteCell(iCallbackSelect);
-            hDataPack.WriteCell(iCallbackDisplay);
-            hDataPack.WriteCell(iCallbackDraw);
-            hArray.Push(hDataPack);
-
-            if (eFeatureType == TOGGLABLE)
-            {
-                VIP_ToggleState eDefaultStatus = (iNumParams > 6 ? GetNativeCell(7) : NO_ACCESS);
-                hArray.Push(eDefaultStatus);
-            }
+			if(eType == TOGGLABLE)
+			{
+				hArray.Push(iNumParams > 6 ? eDefStatus:NO_ACCESS);
+			}
 
             AddFeatureToVIPMenu(szFeature);
         }
@@ -803,8 +809,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
     }
     else
     {
-        ThrowNativeError(SP_ERROR_NATIVE,
-            "Feature \"%s\" already defined/Функция \"%s\" уже существует", szFeature, szFeature);
+		ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" already exists", szFeature, szFeature);
     }
 
     return 0;
@@ -1311,4 +1316,59 @@ bool CheckValidClient(const int &iClient, bool bCheckVIP = true)
 	}
 	
 	return true;
+}
+
+char[] VIP_ValueTypeToString(VIP_ValueType eValType)
+{
+	char szBuffer[64];
+    switch (eValType)
+    {
+        case VIP_NULL:
+		Format(szBuffer, sizeof(szBuffer), "VIP_NULL");
+        case INT:
+		Format(szBuffer, sizeof(szBuffer), "INT");
+        case FLOAT:
+		Format(szBuffer, sizeof(szBuffer), "FLOAT");
+        case BOOL:
+		Format(szBuffer, sizeof(szBuffer), "BOOL");
+        case STRING:
+		Format(szBuffer, sizeof(szBuffer), "STRING");
+        default:
+		Format(szBuffer, sizeof(szBuffer), "UNKNOWN");
+    }
+	return szBuffer;
+}
+
+char[] VIP_FeatureTypeToString(VIP_FeatureType eType)
+{
+	char szBuffer[64];
+    switch (eType)
+    {
+        case TOGGLABLE:
+		Format(szBuffer, sizeof(szBuffer), "TOGGLABLE");
+        case SELECTABLE:
+		Format(szBuffer, sizeof(szBuffer), "SELECTABLE");
+        case HIDE:
+		Format(szBuffer, sizeof(szBuffer), "HIDE");
+        default:
+		Format(szBuffer, sizeof(szBuffer), "UNKNOWN");
+    }
+	return szBuffer;
+}
+
+char[] VIP_ToggleStateToString(VIP_ToggleState eState)
+{
+	char szBuffer[64];
+    switch (eState)
+    {
+        case DISABLED:
+		Format(szBuffer, sizeof(szBuffer), "DISABLED");
+        case ENABLED:
+		Format(szBuffer, sizeof(szBuffer), "ENABLED");
+        case NO_ACCESS:
+		Format(szBuffer, sizeof(szBuffer), "NO_ACCESS");
+        default:
+		Format(szBuffer, sizeof(szBuffer), "UNKNOWN");
+    }
+	return szBuffer;
 }
