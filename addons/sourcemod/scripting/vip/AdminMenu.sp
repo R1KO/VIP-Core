@@ -1,4 +1,3 @@
-
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
 #define REQUIRE_PLUGIN
@@ -459,7 +458,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 
 			char szQuery[512];
 			FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = '%d' WHERE `account_id` = '%d'%s;", iExpires, iTarget, g_szSID);
-			DBG_SQL_Query(szQuery)
+			DBG_SQL_Query(szQuery);
 			g_hDatabase.Query(SQL_Callback_ChangeTime, szQuery, UID(iClient));
 
 			ShowTargetInfoMenu(iClient);
@@ -564,7 +563,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 
 					FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iTargetID, g_szSID);
 
-					DBG_SQL_Query(szQuery)
+					DBG_SQL_Query(szQuery);
 					g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery);
 
 					int iTarget = 0;
