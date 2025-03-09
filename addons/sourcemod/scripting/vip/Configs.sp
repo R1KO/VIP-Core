@@ -11,7 +11,7 @@ public void OnMapStart()
 
 void OnReadyToStart()
 {
-	DebugMessage("OnReadyToStart")
+	DebugMessage("OnReadyToStart");
 	if (!(GLOBAL_INFO & IS_STARTED))
 	{
 		GLOBAL_INFO |= IS_STARTED;
@@ -30,7 +30,7 @@ void OnReadyToStart()
 
 void ReadConfigs()
 {
-	DBG_Config("ReadConfigs")
+	DBG_Config("ReadConfigs");
 
 	ReadSortingMenu();
 
@@ -58,18 +58,18 @@ void ReadSortingMenu()
 
 	while (!hFile.EndOfFile() && hFile.ReadLine(szFeature, FEATURE_NAME_LENGTH))
 	{
-		DBG_Config("ReadFileLine: %s", szFeature)
+		DBG_Config("ReadFileLine: %s", szFeature);
 		TrimString(szFeature);
 		if (szFeature[0])
 		{
 			g_hSortArray.PushString(szFeature);
-			DBG_Config("PushString: %s (%i)", szFeature, g_hSortArray.FindString(szFeature))
+			DBG_Config("PushString: %s (%i)", szFeature, g_hSortArray.FindString(szFeature));
 		}
 	}
 
 	delete hFile;
 
-	DBG_Config("g_hSortArray.Length: %i", g_hSortArray.Length)
+	DBG_Config("g_hSortArray.Length: %i", g_hSortArray.Length);
 
 	if (g_hSortArray.Length == 0)
 	{
@@ -92,4 +92,4 @@ KeyValues CreateConfig(const char[] szFile, const char[] szKvName)
 	hKeyValues.Rewind();
 	
 	return hKeyValues;
-} 
+}

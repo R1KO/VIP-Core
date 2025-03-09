@@ -9,14 +9,14 @@ void ReadDownloads()
 	if(!hFile)
 		return;
 
-	DBG_Download("OpenFile('%s')", szBuffer)
+	DBG_Download("OpenFile('%s')", szBuffer);
 	int iPos;
 	while (!hFile.EndOfFile() && hFile.ReadLine(SZF(szBuffer)))
 	{
-		DBG_Download("ReadLine = '%s'", szBuffer)
+		DBG_Download("ReadLine = '%s'", szBuffer);
 
 		iPos = StrContains(szBuffer, "//");
-		DBG_Download("iPos = %d", iPos)
+		DBG_Download("iPos = %d", iPos);
 		if(iPos == 0)
 			continue;
 
@@ -28,7 +28,7 @@ void ReadDownloads()
 		if(!szBuffer[0] || !IsCharAlpha(szBuffer[0]))
 			continue;
 
-		DBG_Download("ReadFileLine: '%s'", szBuffer)
+		DBG_Download("ReadFileLine: '%s'", szBuffer);
 
 		iPos = strlen(szBuffer) - 1;
 		if (szBuffer[iPos] == '/' || szBuffer[iPos] == '\\')
@@ -44,12 +44,12 @@ void ReadDownloads()
 
 void DownloadPath(const char[] szPath)
 {
-	DBG_Download("DownloadPath: '%s'", szPath)
+	DBG_Download("DownloadPath: '%s'", szPath);
 	
 	if(DownloadFile(szPath))
 		return;
 
-	DBG_Download("DirExists: %d", DirExists(szPath))
+	DBG_Download("DirExists: %d", DirExists(szPath));
 	if(DirExists(szPath))
 	{
 		DownloadDirectory(szPath);
@@ -58,7 +58,7 @@ void DownloadPath(const char[] szPath)
 
 void DownloadDirectory(const char[] szPath)
 {
-	DBG_Download("DownloadDirectory: '%s'", szPath)
+	DBG_Download("DownloadDirectory: '%s'", szPath);
 
 	DirectoryListing hDir = OpenDirectory(szPath);
 	if(!hDir)
@@ -68,12 +68,12 @@ void DownloadDirectory(const char[] szPath)
 	FileType type;
 	while (hDir.GetNext(SZF(szEntry), type))
 	{
-		DBG_Download("GetNext: '%s' %d", szEntry, type)
+		DBG_Download("GetNext: '%s' %d", szEntry, type);
 		if (type == FileType_Directory && (!strcmp(szEntry, ".") || !strcmp(szEntry, "..")))
 			continue;
 
 		FormatEx(SZF(szNewPath), "%s/%s", szPath, szEntry);
-		DBG_Download("szNewPath: '%s'", szNewPath)
+		DBG_Download("szNewPath: '%s'", szNewPath);
 
 		switch (type)
 		{
@@ -87,8 +87,8 @@ void DownloadDirectory(const char[] szPath)
 
 bool DownloadFile(const char[] szPath)
 {
-	DBG_Download("DownloadFile: '%s'", szPath)
-	DBG_Download("FileExists: %d", FileExists(szPath))
+	DBG_Download("DownloadFile: '%s'", szPath);
+	DBG_Download("FileExists: %d", FileExists(szPath));
 	if(FileExists(szPath))
 	{
 		AddFileToDownloadsTable(szPath);
