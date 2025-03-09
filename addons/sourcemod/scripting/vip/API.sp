@@ -1,4 +1,3 @@
-
 static Handle g_hGlobalForward_OnVIPLoaded;
 static Handle g_hGlobalForward_OnClientPreLoad;
 static Handle g_hGlobalForward_OnClientLoaded;
@@ -32,26 +31,26 @@ void		  API_SetupForwards()
 // Global Forwards
 void CreateForward_OnVIPLoaded()
 {
-	DBG_API("CreateForward_OnVIPLoaded()")
+	DBG_API("CreateForward_OnVIPLoaded()");
 	Call_StartForward(g_hGlobalForward_OnVIPLoaded);
 	Call_Finish();
 }
 
 bool CreateForward_OnClientPreLoad(int iClient)
 {
-	DBG_API("g_hGlobalForward_OnClientPreLoad(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP)
+	DBG_API("g_hGlobalForward_OnClientPreLoad(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP);
 	bool bResult = true;
 	Call_StartForward(g_hGlobalForward_OnClientPreLoad);
 	Call_PushCell(iClient);
 	Call_Finish(bResult);
-	DBG_API("g_hGlobalForward_OnClientPreLoad = %b", bResult)
+	DBG_API("g_hGlobalForward_OnClientPreLoad = %b", bResult);
 
 	return bResult;
 }
 
 void CreateForward_OnClientLoaded(int iClient)
 {
-	DBG_API("CreateForward_OnClientLoaded(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP)
+	DBG_API("CreateForward_OnClientLoaded(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP);
 	Call_StartForward(g_hGlobalForward_OnClientLoaded);
 	Call_PushCell(iClient);
 	Call_PushCell(g_iClientInfo[iClient] & IS_VIP);
@@ -60,7 +59,7 @@ void CreateForward_OnClientLoaded(int iClient)
 
 void CreateForward_OnVIPClientLoaded(int iClient)
 {
-	DBG_API("CreateForward_OnVIPClientLoaded(%N (%d))", iClient, iClient)
+	DBG_API("CreateForward_OnVIPClientLoaded(%N (%d))", iClient, iClient);
 	Call_StartForward(g_hGlobalForward_OnVIPClientLoaded);
 	Call_PushCell(iClient);
 	Call_Finish();
@@ -68,7 +67,7 @@ void CreateForward_OnVIPClientLoaded(int iClient)
 
 void CreateForward_OnClientDisconnect(int iClient)
 {
-	DBG_API("CreateForward_OnClientDisconnect(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP)
+	DBG_API("CreateForward_OnClientDisconnect(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP);
 	Call_StartForward(g_hGlobalForward_OnClientDisconnect);
 	Call_PushCell(iClient);
 	Call_PushCell(g_iClientInfo[iClient] & IS_VIP);
@@ -77,7 +76,7 @@ void CreateForward_OnClientDisconnect(int iClient)
 
 void CreateForward_OnVIPClientAdded(int iClient, int iAdmin = 0)
 {
-	DBG_API("CreateForward_OnVIPClientAdded(%N (%d), %d)", iClient, iClient, iAdmin)
+	DBG_API("CreateForward_OnVIPClientAdded(%N (%d), %d)", iClient, iClient, iAdmin);
 	Call_StartForward(g_hGlobalForward_OnVIPClientAdded);
 	Call_PushCell(iClient);
 	Call_PushCell(iAdmin);
@@ -86,7 +85,7 @@ void CreateForward_OnVIPClientAdded(int iClient, int iAdmin = 0)
 
 void CreateForward_OnVIPClientRemoved(int iClient, const char[] sReason, int iAdmin = 0)
 {
-	DBG_API("CreateForward_OnVIPClientRemoved(%N (%d), %d, '%s')", iClient, iClient, iAdmin, sReason)
+	DBG_API("CreateForward_OnVIPClientRemoved(%N (%d), %d, '%s')", iClient, iClient, iAdmin, sReason);
 	Call_StartForward(g_hGlobalForward_OnVIPClientRemoved);
 	Call_PushCell(iClient);
 	Call_PushString(sReason);
@@ -96,7 +95,7 @@ void CreateForward_OnVIPClientRemoved(int iClient, const char[] sReason, int iAd
 
 void CreateForward_OnPlayerSpawn(int iClient, int iTeam)
 {
-	DBG_API("CreateForward_OnPlayerSpawn(%N (%d), %d, %b)", iClient, iClient, iTeam, g_iClientInfo[iClient] & IS_VIP)
+	DBG_API("CreateForward_OnPlayerSpawn(%N (%d), %d, %b)", iClient, iClient, iTeam, g_iClientInfo[iClient] & IS_VIP);
 	Call_StartForward(g_hGlobalForward_OnPlayerSpawn);
 	Call_PushCell(iClient);
 	Call_PushCell(iTeam);
@@ -106,7 +105,7 @@ void CreateForward_OnPlayerSpawn(int iClient, int iTeam)
 
 Action CreateForward_OnShowClientInfo(int iClient, const char[] szEvent, const char[] szType, KeyValues hKeyValues)
 {
-	DBG_API("CreateForward_OnShowClientInfo(%N (%d), '%s', '%s')", iClient, iClient, szEvent, szType)
+	DBG_API("CreateForward_OnShowClientInfo(%N (%d), '%s', '%s')", iClient, iClient, szEvent, szType);
 	Action eResult = Plugin_Continue;
 	Call_StartForward(g_hGlobalForward_OnShowClientInfo);
 	Call_PushCell(iClient);
@@ -114,14 +113,14 @@ Action CreateForward_OnShowClientInfo(int iClient, const char[] szEvent, const c
 	Call_PushString(szType);
 	Call_PushCell(hKeyValues);
 	Call_Finish(eResult);
-	DBG_API("CreateForward_OnShowClientInfo = %b", eResult)
+	DBG_API("CreateForward_OnShowClientInfo = %b", eResult);
 
 	return eResult;
 }
 
 VIP_ToggleState CreateForward_OnFeatureToggle(int iClient, const char[] szFeature, VIP_ToggleState eOldStatus, VIP_ToggleState eNewStatus)
 {
-	DBG_API("CreateForward_OnFeatureToggle(%N (%d), '%s', %d, %d)", iClient, iClient, szFeature, eOldStatus, eNewStatus)
+	DBG_API("CreateForward_OnFeatureToggle(%N (%d), '%s', %d, %d)", iClient, iClient, szFeature, eOldStatus, eNewStatus);
 	Action			aResult		  = Plugin_Continue;
 	VIP_ToggleState eResultStatus = eNewStatus;
 
@@ -131,7 +130,7 @@ VIP_ToggleState CreateForward_OnFeatureToggle(int iClient, const char[] szFeatur
 	Call_PushCell(eOldStatus);
 	Call_PushCellRef(eResultStatus);
 	Call_Finish(aResult);
-	DBG_API("CreateForward_OnFeatureToggle = %b", aResult)
+	DBG_API("CreateForward_OnFeatureToggle = %b", aResult);
 
 	switch (aResult)
 	{
@@ -154,7 +153,7 @@ VIP_ToggleState CreateForward_OnFeatureToggle(int iClient, const char[] szFeatur
 
 void CreateForward_OnFeatureRegistered(const char[] szFeature)
 {
-	DBG_API("CreateForward_OnFeatureRegistered('%s')", szFeature)
+	DBG_API("CreateForward_OnFeatureRegistered('%s')", szFeature);
 	Call_StartForward(g_hGlobalForward_OnFeatureRegistered);
 	Call_PushString(szFeature);
 	Call_Finish();
@@ -162,7 +161,7 @@ void CreateForward_OnFeatureRegistered(const char[] szFeature)
 
 void CreateForward_OnFeatureUnregistered(const char[] szFeature)
 {
-	DBG_API("CreateForward_OnFeatureUnregistered('%s')", szFeature)
+	DBG_API("CreateForward_OnFeatureUnregistered('%s')", szFeature);
 	Call_StartForward(g_hGlobalForward_OnFeatureUnregistered);
 	Call_PushString(szFeature);
 	Call_Finish();
@@ -292,9 +291,9 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 
 public int Native_CheckClient(Handle hPlugin, int iNumParams)
 {
-	DBG_API("Native_CheckClient(%d)", iNumParams)
+	DBG_API("Native_CheckClient(%d)", iNumParams);
 	int iClient = GetNativeCell(1);
-	DBG_API("iClient = %d", iClient)
+	DBG_API("iClient = %d", iClient);
 	if (CheckValidClient(iClient, false))
 	{
 		Clients_CheckVipAccess(iClient, view_as<bool>(GetNativeCell(2)), view_as<bool>(GetNativeCell(3)));
@@ -305,12 +304,12 @@ public int Native_CheckClient(Handle hPlugin, int iNumParams)
 
 public int Native_IsClientVIP(Handle hPlugin, int iNumParams)
 {
-	DBG_API("Native_IsClientVIP(%d)", iNumParams)
+	DBG_API("Native_IsClientVIP(%d)", iNumParams);
 	int iClient = GetNativeCell(1);
-	DBG_API("iClient = %d", iClient)
+	DBG_API("iClient = %d", iClient);
 	if (CheckValidClient(iClient, false))
 	{
-		DBG_API("IS_VIP = %b", (g_iClientInfo[iClient] & IS_VIP))
+		DBG_API("IS_VIP = %b", (g_iClientInfo[iClient] & IS_VIP));
 		return view_as<bool>(g_iClientInfo[iClient] & IS_VIP);
 	}
 
@@ -319,9 +318,9 @@ public int Native_IsClientVIP(Handle hPlugin, int iNumParams)
 
 public int Native_PrintToChatClient(Handle hPlugin, int iNumParams)
 {
-	DBG_API("Native_PrintToChatClient(%d)", iNumParams)
+	DBG_API("Native_PrintToChatClient(%d)", iNumParams);
 	int iClient = GetNativeCell(1);
-	DBG_API("iClient = %d", iClient)
+	DBG_API("iClient = %d", iClient);
 	if (CheckValidClient(iClient, false))
 	{
 		char szMessage[256];
@@ -336,7 +335,7 @@ public int Native_PrintToChatClient(Handle hPlugin, int iNumParams)
 
 public int Native_PrintToChatAll(Handle hPlugin, int iNumParams)
 {
-	DBG_API("Native_PrintToChatAll(%d)", iNumParams)
+	DBG_API("Native_PrintToChatAll(%d)", iNumParams);
 	char szMessage[256];
 
 	for (int i = 1; i <= MCL; ++i)
@@ -354,7 +353,7 @@ public int Native_PrintToChatAll(Handle hPlugin, int iNumParams)
 
 public int Native_LogMessage(Handle hPlugin, int iNumParams)
 {
-	DBG_API("Native_LogMessage(%d)", iNumParams)
+	DBG_API("Native_LogMessage(%d)", iNumParams);
 	if (g_CVAR_bLogsEnable)
 	{
 		char szMessage[512];
@@ -369,16 +368,16 @@ public int Native_LogMessage(Handle hPlugin, int iNumParams)
 
 public int Native_GetClientID(Handle hPlugin, int iNumParams)
 {
-	DBG_API("Native_LogMessage(%d)", iNumParams)
+	DBG_API("Native_LogMessage(%d)", iNumParams);
 	int iClient = GetNativeCell(1);
-	DBG_API("iClient = %d", iClient)
+	DBG_API("iClient = %d", iClient);
 	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
-		DBG_API("VIP_CLIENT")
+		DBG_API("VIP_CLIENT");
 		int iClientID;
 		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID))
 		{
-			DBG_API("GetValue(%s) = %d", KEY_CID, iClientID)
+			DBG_API("GetValue(%s) = %d", KEY_CID, iClientID);
 			return iClientID;
 		}
 	}
@@ -424,8 +423,8 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 					{
 						char szQuery[256];
 						FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iClientID, g_szSID);
-						DBG_SQL_Query(szQuery)
-							g_hDatabase.Query(SQL_Callback_ChangeClientSettings, szQuery, UID(iClient));
+						DBG_SQL_Query(szQuery);
+						g_hDatabase.Query(SQL_Callback_ChangeClientSettings, szQuery, UID(iClient));
 
 						if (g_CVAR_bLogsEnable)
 						{
@@ -488,8 +487,8 @@ public int Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
 				{
 					char szQuery[256];
 					FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = %d WHERE `account_id` = %d%s;", iTime, iClientID, g_szSID);
-					DBG_SQL_Query(szQuery)
-						g_hDatabase.Query(SQL_Callback_ChangeClientSettings, szQuery, UID(iClient));
+					DBG_SQL_Query(szQuery);
+					g_hDatabase.Query(SQL_Callback_ChangeClientSettings, szQuery, UID(iClient));
 				}
 			}
 
@@ -508,9 +507,9 @@ public void SQL_Callback_ChangeClientSettings(Database hOwner, DBResultSet hResu
 		LogError("SQL_Callback_ChangeClientSettings: %s", szError);
 	}
 
-	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows)
+	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows);
 
-		if ((iClient = CID(iClient)) && hResult.AffectedRows)
+	if ((iClient = CID(iClient)) && hResult.AffectedRows)
 	{
 		Clients_CheckVipAccess(iClient, false);
 	}
@@ -919,7 +918,7 @@ void UnregisterFeature(const char[] szFeature, ArrayList hArray)
 	}
 
 	CreateForward_OnFeatureUnregistered(szFeature);
-	DebugMessage("Feature \"%s\" unregistered", szFeature)
+	DebugMessage("Feature \"%s\" unregistered", szFeature);
 }
 
 public int Native_IsValidFeature(Handle hPlugin, int iNumParams)
