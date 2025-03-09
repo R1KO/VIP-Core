@@ -1,4 +1,3 @@
-
 void CMD_Setup()
 {
 	RegAdminCmd("sm_refresh_vips", ReloadVIPPlayers_CMD, ADMFLAG_ROOT);
@@ -149,13 +148,13 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 									FROM `vip_users` \
 									WHERE `account_id` = %d%s LIMIT 1;", iAccountID, g_szSID);
 
-	DebugMessage(szQuery)
+	DebugMessage(szQuery);
 	if (iClient)
 	{
 		iClient = UID(iClient);
 	}
 
-	DBG_SQL_Query(szQuery)
+	DBG_SQL_Query(szQuery);
 	g_hDatabase.Query(SQL_Callback_OnSelectRemoveClient, szQuery, iClient);
 
 	return Plugin_Handled;
@@ -163,7 +162,7 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 
 public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, any iClient)
 {
-	DBG_SQL_Response("SQL_Callback_OnSelectRemoveClient")
+	DBG_SQL_Response("SQL_Callback_OnSelectRemoveClient");
 
 	if (hResult == null || szError[0])
 	{
@@ -177,13 +176,13 @@ public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hResu
 	
 	if (hResult.FetchRow())
 	{
-		DBG_SQL_Response("hResult.FetchRow()")
+		DBG_SQL_Response("hResult.FetchRow()");
 		int iAccountID = hResult.FetchInt(0);
-		DBG_SQL_Response("hResult.FetchInt(0) = %d", iAccountID)
+		DBG_SQL_Response("hResult.FetchInt(0) = %d", iAccountID);
 		char szName[MNL], szGroup[64];
 		hResult.FetchString(1, SZF(szName));
 		hResult.FetchString(2, SZF(szGroup));
-		DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
+		DBG_SQL_Response("hResult.FetchString(1) = '%s", szName);
 		DB_RemoveClientFromID(iClient, _, iAccountID, true, szName, szGroup);
 	}
 	else

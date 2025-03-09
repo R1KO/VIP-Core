@@ -984,7 +984,7 @@ public int Native_IsClientFeatureUse(Handle hPlugin, int iNumParams)
 		GetNativeString(2, SZF(szFeature));
 
 		DebugMessage("Native_IsClientFeatureUse: %N (%i) - %s -> %i", iClient, iClient, szFeature, Features_GetStatus(iClient, szFeature));
-			return (Features_GetStatus(iClient, szFeature) == ENABLED);
+		return (Features_GetStatus(iClient, szFeature) == ENABLED);
 	}
 
 	return false;
