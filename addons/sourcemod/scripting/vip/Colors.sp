@@ -1,6 +1,6 @@
 void Colors_Print(int iClient, const char[] szFormat)
 {
-	char szMessage[512];
+	char szMessage[1024];
 	FormatEx(SZF(szMessage), g_EngineVersion == Engine_CSGO ? " \x01%t %s":"\x01%t %s", "VIP_CHAT_PREFIX", szFormat);
 
 	ReplaceString(SZF(szMessage), "\\n", "\n");
@@ -9,21 +9,18 @@ void Colors_Print(int iClient, const char[] szFormat)
 	
 	switch (g_EngineVersion)
 	{
-	case Engine_SourceSDK2006, Engine_Left4Dead, Engine_Left4Dead2:
+		case Engine_SourceSDK2006, Engine_Left4Dead, Engine_Left4Dead2:
 		{
 			ReplaceString(SZF(szMessage), "{LIGHTGREEN}", "\x03");
 			int iColor = Colors_ReplaceColors(SZF(szMessage));
 			switch (iColor)
 			{
-			case -1:	Colors_SayText2(iClient, 0, szMessage);
-			case 0:		Colors_SayText2(iClient, iClient, szMessage);
-			default:
-				{
-					Colors_SayText2(iClient, Colors_FindPlayerByTeam(iColor), szMessage);
-				}
+				case -1:	Colors_SayText2(iClient, 0, szMessage);
+				case 0:		Colors_SayText2(iClient, iClient, szMessage);
+				default:	Colors_SayText2(iClient, Colors_FindPlayerByTeam(iColor), szMessage);
 			}
 		}
-	case Engine_CSS, Engine_TF2, Engine_DODS, Engine_HL2DM:
+		case Engine_CSS, Engine_TF2, Engine_DODS, Engine_HL2DM:
 		{
 			ReplaceString(SZF(szMessage), "#", "\x07");
 			if (ReplaceString(SZF(szMessage), "{TEAM}", "\x03"))
@@ -36,7 +33,7 @@ void Colors_Print(int iClient, const char[] szFormat)
 				Colors_SayText2(iClient, 0, szMessage);
 			}
 		}
-	case Engine_CSGO:
+		case Engine_CSGO:
 		{
 			static const char szColorName[][] = 
 			{
@@ -69,30 +66,45 @@ void Colors_Print(int iClient, const char[] szFormat)
 			{
 				ReplaceString(SZF(szMessage), szColorName[i], szColorCode[i]);
 			}
-			
+
+			int iSender = 0, iLastStart = 0, i = 0;
 			if (ReplaceString(SZF(szMessage), "{TEAM}", "\x03"))
 			{
-				Colors_SayText2(iClient, iClient, szMessage);
+				iSender = iClient;
 			}
-			else
+
+			char szText[512];
+			while(szMessage[i])
 			{
-				Colors_SayText2(iClient, 0, szMessage);
+				if (szMessage[i] == '\n')
+				{
+					szMessage[i] = 0;
+					FormatEx(SZF(szText), " %s", szMessage[iLastStart]);
+					Colors_SayText2(iClient, iSender, szText);
+					iLastStart = i+1;
+				}
+
+				i++;
 			}
+
+			FormatEx(SZF(szText), " %s", szMessage[iLastStart]);
+			Colors_SayText2(iClient, iSender, szText);
 		}
-	default:
+		default:
 		{
 			ReplaceString(SZF(szMessage), "{TEAM}", "\x03");
+			PrintToChat(iClient, szMessage);
 		}
 	}
 }
 
 int Colors_ReplaceColors(char[] sMsg, int MaxLength)
 {
-	if (ReplaceString(sMsg, MaxLength, "{TEAM}", "\x03"))return 0;
+	if (ReplaceString(sMsg, MaxLength, "{TEAM}", "\x03")) return 0;
 	
-	if (ReplaceString(sMsg, MaxLength, "{BLUE}", "\x03"))return 3;
-	if (ReplaceString(sMsg, MaxLength, "{RED}", "\x03"))return 2;
-	if (ReplaceString(sMsg, MaxLength, "{GRAY}", "\x03"))return 1;
+	if (ReplaceString(sMsg, MaxLength, "{BLUE}", "\x03")) return 3;
+	if (ReplaceString(sMsg, MaxLength, "{RED}", "\x03")) return 2;
+	if (ReplaceString(sMsg, MaxLength, "{GRAY}", "\x03")) return 1;
 	
 	return -1;
 }
@@ -101,7 +113,8 @@ int Colors_FindPlayerByTeam(int iTeam)
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsClientInGame(i) && GetClientTeam(i) == iTeam)return i;
+		if (IsClientInGame(i) && GetClientTeam(i) == iTeam)
+			return i;
 	}
 	
 	return 0;

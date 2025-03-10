@@ -23,6 +23,7 @@ public void DebugMessage(const char[] sMsg, any ...)
 // #define LOG_FEATURES		// FEATURES
 // #define LOG_CLIENTS		// CLIENTS
 // #define LOG_DB			// DB
+// #define LOG_INFO			// INFO
 
 #if defined LOG_DOWNLOADS
 public void DBG_Download(const char[] sMsg, any ...)
@@ -108,4 +109,11 @@ public void DBG_SQL_Query(const char[] sMsg, any ...) {}
 public void DBG_SQL_Response(const char[] sMsg, any ...) {}
 public void DBG_API(const char[] sMsg, any ...) {}
 public void DBG_Database(const char[] sMsg, any ...) {}
+#endif
+
+
+#if defined LOG_INFO
+#define DBG_Info(%0) DebugMsg("Info: " ... %0);
+#else
+#define DBG_Info(%0)
 #endif
