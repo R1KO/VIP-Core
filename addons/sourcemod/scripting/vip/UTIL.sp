@@ -1,5 +1,3 @@
-
-
 int GET_UID(int iClient)
 {
 	return iClient > 0 ? UID(iClient):iClient;
@@ -357,20 +355,20 @@ void UTIL_ADD_VIP_PLAYER(int iAdmin = 0,
 	{
 		FormatEx(SZF(szQuery), "INSERT INTO `vip_users` (`account_id`, `sid`, `expires`, `group`, `name`, `lastvisit`) VALUES (%d, %d, %d, '%s', '%s', %d) \
 		ON DUPLICATE KEY UPDATE `expires` = %d, `group` = '%s';", iAccountID, g_CVAR_iServerID, iExpires, szGroup, szName, iLastVisit, iExpires, szGroup);
-		DBG_SQL_Query(szQuery)
+		DBG_SQL_Query(szQuery);
 		g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hDataPack);
 
 		return;
 	}
 
 	FormatEx(SZF(szQuery), "INSERT OR REPLACE INTO `vip_users` (`account_id`, `name`, `expires`, `group`, `lastvisit`) VALUES (%d, '%s', %d, '%s', %d);", iAccountID, szName, iExpires, szGroup, iLastVisit);
-	DBG_SQL_Query(szQuery)
+	DBG_SQL_Query(szQuery);
 	g_hDatabase.Query(SQL_Callback_OnVIPClientAdded, szQuery, hDataPack);
 }
 
 public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, const char[] szError, any hPack)
 {
-	DBG_SQL_Response("SQL_Callback_OnVIPClientAdded")
+	DBG_SQL_Response("SQL_Callback_OnVIPClientAdded");
 	DataPack hDataPack = view_as<DataPack>(hPack);
 	hDataPack.Reset();
 
@@ -390,7 +388,7 @@ public void SQL_Callback_OnVIPClientAdded(Database hOwner, DBResultSet hResult, 
 		return;
 	}
 	
-	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows)
+	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows);
 
 	if (!hResult.AffectedRows)
 	{

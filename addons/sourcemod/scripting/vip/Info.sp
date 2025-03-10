@@ -1,21 +1,21 @@
 void DisplayClientInfo(int iClient, const char[] szEvent)
 {
-	DebugMessage("DisplayClientInfo: Client: %N (%i) -> '%s'", iClient, iClient, szEvent)
+	DebugMessage("DisplayClientInfo: Client: %N (%i) -> '%s'", iClient, iClient, szEvent);
 	
 	static char szServLang[4];
 	if (!szServLang[0])
 	{
 		GetLanguageInfo(GetServerLanguage(), SZF(szServLang));
 	}
-	DebugMessage("szServLang = '%s'", szServLang)
+	DebugMessage("szServLang = '%s'", szServLang);
 	
 	g_hInfo.Rewind();
 	if (g_hInfo.JumpToKey(szEvent))
 	{
-		DebugMessage("KvJumpToKey: %s", szEvent)
+		DebugMessage("KvJumpToKey: %s", szEvent);
 		static char szClientLang[4], szBuffer[1028];
 		GetLanguageInfo(GetClientLanguage(iClient), SZF(szClientLang));
-		DebugMessage("szClientLang = '%s'", szClientLang)
+		DebugMessage("szClientLang = '%s'", szClientLang);
 		DisplayInfo(iClient, szEvent, "chat", SZF(szBuffer), szClientLang, szServLang);
 		DisplayInfo(iClient, szEvent, "menu", SZF(szBuffer), szClientLang, szServLang);
 		DisplayInfo(iClient, szEvent, "url", SZF(szBuffer), szClientLang, szServLang);
@@ -24,7 +24,7 @@ void DisplayClientInfo(int iClient, const char[] szEvent)
 
 void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] szBuffer, int iBufLen, char[] szClientLang, char[] szServLang)
 {
-	DebugMessage("DisplayInfo: Client: %N (%i) -> '%s', '%s', '%s', '%s'", iClient, iClient, szEvent, szType, szClientLang, szServLang)
+	DebugMessage("DisplayInfo: Client: %N (%i) -> '%s', '%s', '%s', '%s'", iClient, iClient, szEvent, szType, szClientLang, szServLang);
 	g_hInfo.Rewind();
 	if (g_hInfo.JumpToKey(szEvent) && g_hInfo.JumpToKey(szType))
 	{
@@ -43,15 +43,15 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 			}
 		}
 
-		DebugMessage("KvJumpToKey: %s", szType)
+		DebugMessage("KvJumpToKey: %s", szType);
 		switch (szType[0])
 		{
 			case 'c':
 			{
-				DebugMessage("case 'c'")
+				DebugMessage("case 'c'");
 				if (KvGetLangString(szBuffer, iBufLen, szClientLang, szServLang))
 				{
-					DebugMessage("KvGetLangString: (%s, %s) = '%s'", szClientLang, szServLang, szBuffer)
+					DebugMessage("KvGetLangString: (%s, %s) = '%s'", szClientLang, szServLang, szBuffer);
 					ReplaceString(szBuffer, iBufLen, "\\n", " \n");
 					if (szEvent[0] == 'c')
 					{
@@ -62,7 +62,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 			}
 			case 'm':
 			{
-				DebugMessage("case 'm'")
+				DebugMessage("case 'm'");
 				
 				int iTime = g_hInfo.GetNum("time", 0);
 				if (!g_hInfo.JumpToKey(szClientLang))
@@ -80,10 +80,10 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 					}
 				}
 				
-				DebugMessage("KvJumpToKey: (%s|%s)", szClientLang, szServLang)
+				DebugMessage("KvJumpToKey: (%s|%s)", szClientLang, szServLang);
 				if (g_hInfo.GotoFirstSubKey(false))
 				{
-					DebugMessage("KvGotoFirstSubKey")
+					DebugMessage("KvGotoFirstSubKey");
 					Panel hPanel = new Panel();
 					do
 					{
@@ -94,7 +94,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 						}
 
 						g_hInfo.GetString(NULL_STRING, szBuffer, 128);
-						DebugMessage("KvGetString = '%s'", szBuffer)
+						DebugMessage("KvGetString = '%s'", szBuffer);
 						if (szBuffer[0])
 						{
 							if (!strcmp(szBuffer, "SPACER"))
@@ -126,12 +126,12 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 			}
 			case 'u':
 			{
-				DebugMessage("case 'u'")
+				DebugMessage("case 'u'");
 				if (g_EngineVersion != Engine_CSGO)	
 				{
 					if (KvGetLangString(szBuffer, iBufLen, szClientLang, szServLang))
 					{
-						DebugMessage("KvGetLangString: (%s, %s) = '%s'", szClientLang, szServLang, szBuffer)
+						DebugMessage("KvGetLangString: (%s, %s) = '%s'", szClientLang, szServLang, szBuffer);
 						if (strncmp(szBuffer, "http://", 7, true) != 0)
 						{
 							Format(szBuffer, 256, "http://%s", szBuffer);
@@ -152,13 +152,13 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 
 bool KvGetLangString(char[] szBuffer, int iBufLen, char[] szClientLang, char[] szServLang)
 {
-	DebugMessage("KvGetLangString: '%s', '%s'", szClientLang, szServLang)
+	DebugMessage("KvGetLangString: '%s', '%s'", szClientLang, szServLang);
 	g_hInfo.GetString(szClientLang, szBuffer, iBufLen);
-	DebugMessage("KvGetString (%s) = '%s'", szClientLang, szBuffer)
+	DebugMessage("KvGetString (%s) = '%s'", szClientLang, szBuffer);
 	if (!szBuffer[0])
 	{
 		g_hInfo.GetString(szServLang, szBuffer, iBufLen);
-		DebugMessage("KvGetString (%s) = '%s'", szServLang, szBuffer)
+		DebugMessage("KvGetString (%s) = '%s'", szServLang, szBuffer);
 		if (!szBuffer[0])
 		{
 			return false;
@@ -178,9 +178,9 @@ void ReplaceValues(int iClient, char[] szBuffer, int iBufLen, bool bExt)
 	{
 		int iExpires;
 		g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExpires);
-		DebugMessage("GetValue(%s) = %d", KEY_EXPIRES, iExpires)
-		DebugMessage("GetTime() = %d", GetTime())
-		DebugMessage("TIMELEFT = %d", iExpires - GetTime())
+		DebugMessage("GetValue(%s) = %d", KEY_EXPIRES, iExpires);
+		DebugMessage("GetTime() = %d", GetTime());
+		DebugMessage("TIMELEFT = %d", iExpires - GetTime());
 		char szExpires[64];
 		FormatTime(SZF(szExpires), "%d/%m/%Y - %H:%M", iExpires);
 		ReplaceString(szBuffer, iBufLen, "{EXPIRES}", szExpires);

@@ -11,8 +11,8 @@ void DB_OnPluginStart()
 
 void DB_Connect()
 {
-	//	DebugMessage("DB_Connect: %b", g_bIsVIPLoaded)
-	DBG_Database("DB_Connect")
+	//	DebugMessage("DB_Connect: %b", g_bIsVIPLoaded);
+	DBG_Database("DB_Connect");
 
 	if (GLOBAL_INFO & IS_LOADING)
 	{
@@ -70,14 +70,14 @@ public void OnDBConnect(Database hDatabase, const char[] szError, any data)
 		}
 	}
 	
-	DBG_Database("OnDBConnect %x, %u - > (MySQL: %b)", g_hDatabase, g_hDatabase, GLOBAL_INFO & IS_MySQL)
+	DBG_Database("OnDBConnect %x, %u - > (MySQL: %b)", g_hDatabase, g_hDatabase, GLOBAL_INFO & IS_MySQL);
 	
 	CreateTables();
 }
 
 void CreateTables()
 {
-	DBG_Database("CreateTables")
+	DBG_Database("CreateTables");
 
 	if (GLOBAL_INFO & IS_MySQL)
 	{
@@ -110,7 +110,7 @@ void CreateTables()
 
 public void SQL_Callback_TableCreate(Database hOwner, DBResultSet hResult, const char[] szError, any data)
 {
-	DBG_SQL_Response("SQL_Callback_TableCreate")
+	DBG_SQL_Response("SQL_Callback_TableCreate");
 
 	if (szError[0])
 	{
@@ -145,7 +145,7 @@ void RemoveExpAndOutPlayers()
 		char szQuery[256];
 		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `expires` > 0 AND `expires` < %d%s;", GetTime() - (g_CVAR_iDeleteExpired == 0 ? 1:g_CVAR_iDeleteExpired)*86400, g_szSID);
 
-		DBG_SQL_Query(szQuery)
+		DBG_SQL_Query(szQuery);
 		g_hDatabase.Query(SQL_Callback_SelectExpiredAndOutdated, szQuery, REASON_EXPIRED, DBPrio_Low);
 	}
 
@@ -154,14 +154,14 @@ void RemoveExpAndOutPlayers()
 		char szQuery[256];
 		FormatEx(SZF(szQuery), "SELECT `account_id`, `name`, `group` FROM `vip_users` WHERE `lastvisit` > 0 AND `lastvisit` < %d%s;", (GetTime() - g_CVAR_iOutdatedExpired*86400), g_szSID);
 
-		DBG_SQL_Query(szQuery)
+		DBG_SQL_Query(szQuery);
 		g_hDatabase.Query(SQL_Callback_SelectExpiredAndOutdated, szQuery, REASON_OUTDATED, DBPrio_Low);
 	}
 }
 
 public void SQL_Callback_ErrorCheck(Database hOwner, DBResultSet hResult, const char[] szError, any data)
 {
-	DBG_SQL_Response("SQL_Callback_ErrorCheck")
+	DBG_SQL_Response("SQL_Callback_ErrorCheck");
 
 	if (szError[0])
 	{
@@ -188,7 +188,7 @@ void DB_UpdateClient(int iClient, const char[] szDbName = NULL_STRING)
 		FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `lastvisit` = %d WHERE `account_id` = %d%s;", GetTime(), iClientID, g_szSID);
 	}
 
-	DBG_SQL_Query(szQuery)
+	DBG_SQL_Query(szQuery);
 	g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery, DBPrio_Low);
 }
 
@@ -272,13 +272,13 @@ void DB_RemoveClientFromID(int iAdmin = 0,
 
 	FormatEx(SZF(szQuery), "SELECT `name`, `group` FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
 
-	DBG_SQL_Query(szQuery)
+	DBG_SQL_Query(szQuery);
 	g_hDatabase.Query(SQL_Callback_SelectRemoveClient, szQuery, hDataPack, DBPrio_Low);
 }
 
 public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, DataPack hPack)
 {
-	DBG_SQL_Response("SQL_Callback_SelectRemoveClient")
+	DBG_SQL_Response("SQL_Callback_SelectRemoveClient");
 
 	if (szError[0])
 	{
@@ -289,7 +289,7 @@ public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult
 
 	if (hResult.FetchRow())
 	{
-		DBG_SQL_Response("hResult.FetchRow()")
+		DBG_SQL_Response("hResult.FetchRow()");
 		hPack.Reset();
 		int iClientID = hPack.ReadCell();
 		hPack.ReadCell();
@@ -297,10 +297,10 @@ public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult
 		char szName[MAX_NAME_LENGTH*2+1];
 		hPack.ReadString(SZF(szName));
 		hResult.FetchString(0, SZF(szName));
-		DBG_SQL_Response("hResult.FetchString(0) = '%s", szName)
+		DBG_SQL_Response("hResult.FetchString(0) = '%s", szName);
 		hPack.WriteString(szName);
 		hResult.FetchString(1, SZF(szName));
-		DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
+		DBG_SQL_Response("hResult.FetchString(1) = '%s", szName);
 		hPack.WriteString(szName);
 
 		DB_RemoveClient(hPack, iClientID);
@@ -312,13 +312,13 @@ void DB_RemoveClient(DataPack hDataPack, int iClientID)
 	char szQuery[256];
 	FormatEx(SZF(szQuery), "DELETE FROM `vip_users` WHERE `account_id` = %d%s;", iClientID, g_szSID);
 
-	DBG_SQL_Query(szQuery)
+	DBG_SQL_Query(szQuery);
 	g_hDatabase.Query(SQL_Callback_RemoveClient, szQuery, hDataPack, DBPrio_Low);
 }
 
 public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, DataPack hPack)
 {
-	DBG_SQL_Response("SQL_Callback_SelectRemoveClient")
+	DBG_SQL_Response("SQL_Callback_SelectRemoveClient");
 
 	if (szError[0])
 	{
@@ -327,7 +327,7 @@ public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, cons
 		return;
 	}
 
-	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows)
+	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows);
 
 	if (hResult.AffectedRows)
 	{
@@ -362,7 +362,7 @@ public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, cons
 
 public void SQL_Callback_SelectExpiredAndOutdated(Database hOwner, DBResultSet hResult, const char[] szError, int iReason)
 {
-	DBG_SQL_Response("SQL_Callback_SelectExpiredAndOutdated")
+	DBG_SQL_Response("SQL_Callback_SelectExpiredAndOutdated");
 
 	if (szError[0])
 	{
@@ -370,7 +370,7 @@ public void SQL_Callback_SelectExpiredAndOutdated(Database hOwner, DBResultSet h
 		return;
 	}
 	
-	DBG_SQL_Response("hResult.RowCount = %d", hResult.RowCount)
+	DBG_SQL_Response("hResult.RowCount = %d", hResult.RowCount);
 
 	if (hResult.RowCount)
 	{
@@ -378,13 +378,13 @@ public void SQL_Callback_SelectExpiredAndOutdated(Database hOwner, DBResultSet h
 		char szName[MNL*2], szGroup[64];
 		while (hResult.FetchRow())
 		{
-			DBG_SQL_Response("hResult.FetchRow()")
+			DBG_SQL_Response("hResult.FetchRow()");
 			iClientID = hResult.FetchInt(0);
-			DBG_SQL_Response("hResult.FetchInt(0) = %d", iClientID)
+			DBG_SQL_Response("hResult.FetchInt(0) = %d", iClientID);
 			hResult.FetchString(1, SZF(szName));
-			DBG_SQL_Response("hResult.FetchString(1) = '%s'", szName)
+			DBG_SQL_Response("hResult.FetchString(1) = '%s'", szName);
 			hResult.FetchString(2, SZF(szGroup));
-			DBG_SQL_Response("hResult.FetchString(2) = '%s'", szGroup)
+			DBG_SQL_Response("hResult.FetchString(2) = '%s'", szGroup);
 			DB_RemoveClientFromID(iReason, _, iClientID, false, szName, szGroup);
 		}
 	}
