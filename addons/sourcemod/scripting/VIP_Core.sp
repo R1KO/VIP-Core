@@ -10,6 +10,8 @@
 #define VIP_VERSION		"3.0.6 R"
 #endif
 
+// VIP Colors - 1, Multicolors - 2
+#define GAME 1
 
 #define DEBUG_MODE			0	// Режим отладки
 
@@ -29,7 +31,13 @@ public Plugin myinfo =
 #include "vip/Global.sp"
 #include "vip/Debug.sp"
 #include "vip/Downloads.sp"
+
+#if GAME == 1
 #include "vip/Colors.sp"
+#else
+#include <multicolors>
+#endif
+
 #include "vip/UTIL.sp"
 #include "vip/Features.sp"
 #include "vip/Sounds.sp"
