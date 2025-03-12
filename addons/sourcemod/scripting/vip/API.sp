@@ -11,7 +11,7 @@ static Handle g_hGlobalForward_OnFeatureRegistered;
 static Handle g_hGlobalForward_OnFeatureUnregistered;
 static Handle g_hGlobalForward_OnClientDisconnect;
 
-void		  API_SetupForwards()
+void API_SetupForwards()
 {
 	// Global Forwards
 	g_hGlobalForward_OnClientPreLoad	   = CreateGlobalForward("VIP_OnClientPreLoad", ET_Hook, Param_Cell);
@@ -121,7 +121,7 @@ Action CreateForward_OnShowClientInfo(int iClient, const char[] szEvent, const c
 VIP_ToggleState CreateForward_OnFeatureToggle(int iClient, const char[] szFeature, VIP_ToggleState eOldStatus, VIP_ToggleState eNewStatus)
 {
 	DBG_API("CreateForward_OnFeatureToggle(%N (%d), '%s', %d, %d)", iClient, iClient, szFeature, eOldStatus, eNewStatus);
-	Action			aResult		  = Plugin_Continue;
+	Action aResult = Plugin_Continue;
 	VIP_ToggleState eResultStatus = eNewStatus;
 
 	Call_StartForward(g_hGlobalForward_OnFeatureToggle);
@@ -170,7 +170,7 @@ void CreateForward_OnFeatureUnregistered(const char[] szFeature)
 VIP_ToggleState Function_OnItemToggle(Handle hPlugin, Function FuncToggle, int iClient, const char[] szFeature, const VIP_ToggleState eOldStatus, const VIP_ToggleState eNewStatus)
 {
 	VIP_ToggleState eResultStatus = eNewStatus;
-	Action			aResult;
+	Action aResult;
 	Call_StartFunction(hPlugin, FuncToggle);
 	Call_PushCell(iClient);
 	Call_PushString(szFeature);
@@ -302,7 +302,7 @@ public int Native_CheckClient(Handle hPlugin, int iNumParams)
 	return 0;
 }
 
-public int Native_IsClientVIP(Handle hPlugin, int iNumParams)
+public any Native_IsClientVIP(Handle hPlugin, int iNumParams)
 {
 	DBG_API("Native_IsClientVIP(%d)", iNumParams);
 	int iClient = GetNativeCell(1);
@@ -578,12 +578,7 @@ public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
 	return API_GiveClientVIP(hPlugin, REASON_PLUGIN, iClient, iTime, szGroup, bAddToDB);
 }
 
-int API_GiveClientVIP(Handle hPlugin,
-					  int	 iAdmin,
-					  int	 iClient,
-					  int	 iTime,
-					  const char[] szGroup,
-					  bool bAddToDB)
+int API_GiveClientVIP(Handle hPlugin, int iAdmin, int iClient, int iTime, const char[] szGroup, bool bAddToDB)
 {
 	if (CheckValidClient(iClient, false) && (iAdmin < 1 || CheckValidClient(iAdmin, false)))
 	{
@@ -755,12 +750,12 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 		bool			bCookie				= view_as<bool>(GetNativeCell(8));
 
 		DBG_API("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature));
-		DBG_API("VIP_ValueType -> %s", VIP_ValueTypeToString(eValType));
-		DBG_API("VIP_FeatureType -> %s", VIP_FeatureTypeToString(eType));
+		DBG_API("VIP_ValueType -> %s", sValueType[eValType]);
+		DBG_API("VIP_FeatureType -> %s", sFeatureType[eType]);
 		DBG_API("ItemSelectCallback -> %s", ItemSelectCallback == INVALID_FUNCTION ? "INVALID_FUNCTION" : "VALID_FUNCTION");
 		DBG_API("ItemDisplayCallback -> %s", ItemDisplayCallback == INVALID_FUNCTION ? "INVALID_FUNCTION" : "VALID_FUNCTION");
 		DBG_API("ItemDrawCallback -> %s", ItemDrawCallback == INVALID_FUNCTION ? "INVALID_FUNCTION" : "VALID_FUNCTION");
-		DBG_API("VIP_ToggleState -> %s", VIP_ToggleStateToString(eDefStatus));
+		DBG_API("VIP_ToggleState -> %s", sToggleState[eDefStatus]);
 		DBG_API("Cookie -> %s", bCookie ? "true" : "false");
 
 		ArrayList hArray = new ArrayList();
@@ -1318,59 +1313,4 @@ bool CheckValidClient(const int &iClient, bool bCheckVIP = true)
 	}
 
 	return true;
-}
-
-char[] VIP_ValueTypeToString(VIP_ValueType eValType)
-{
-	char szBuffer[64];
-	switch (eValType)
-	{
-		case VIP_NULL:
-			Format(szBuffer, sizeof(szBuffer), "VIP_NULL");
-		case INT:
-			Format(szBuffer, sizeof(szBuffer), "INT");
-		case FLOAT:
-			Format(szBuffer, sizeof(szBuffer), "FLOAT");
-		case BOOL:
-			Format(szBuffer, sizeof(szBuffer), "BOOL");
-		case STRING:
-			Format(szBuffer, sizeof(szBuffer), "STRING");
-		default:
-			Format(szBuffer, sizeof(szBuffer), "UNKNOWN");
-	}
-	return szBuffer;
-}
-
-char[] VIP_FeatureTypeToString(VIP_FeatureType eType)
-{
-	char szBuffer[64];
-	switch (eType)
-	{
-		case TOGGLABLE:
-			Format(szBuffer, sizeof(szBuffer), "TOGGLABLE");
-		case SELECTABLE:
-			Format(szBuffer, sizeof(szBuffer), "SELECTABLE");
-		case HIDE:
-			Format(szBuffer, sizeof(szBuffer), "HIDE");
-		default:
-			Format(szBuffer, sizeof(szBuffer), "UNKNOWN");
-	}
-	return szBuffer;
-}
-
-char[] VIP_ToggleStateToString(VIP_ToggleState eState)
-{
-	char szBuffer[64];
-	switch (eState)
-	{
-		case DISABLED:
-			Format(szBuffer, sizeof(szBuffer), "DISABLED");
-		case ENABLED:
-			Format(szBuffer, sizeof(szBuffer), "ENABLED");
-		case NO_ACCESS:
-			Format(szBuffer, sizeof(szBuffer), "NO_ACCESS");
-		default:
-			Format(szBuffer, sizeof(szBuffer), "UNKNOWN");
-	}
-	return szBuffer;
 }
