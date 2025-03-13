@@ -1,4 +1,3 @@
-
 void CMD_Setup()
 {
 	RegAdminCmd("sm_refresh_vips", ReloadVIPPlayers_CMD, ADMFLAG_ROOT);
@@ -149,13 +148,13 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 									FROM `vip_users` \
 									WHERE `account_id` = %d%s LIMIT 1;", iAccountID, g_szSID);
 
-	DebugMessage(szQuery)
+	DebugMessage(szQuery);
 	if (iClient)
 	{
 		iClient = UID(iClient);
 	}
 
-	DBG_SQL_Query(szQuery)
+	DBG_SQL_Query(szQuery);
 	g_hDatabase.Query(SQL_Callback_OnSelectRemoveClient, szQuery, iClient);
 
 	return Plugin_Handled;
@@ -163,7 +162,7 @@ public Action DelVIP_CMD(int iClient, int iArgs)
 
 public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hResult, const char[] szError, any iClient)
 {
-	DBG_SQL_Response("SQL_Callback_OnSelectRemoveClient")
+	DBG_SQL_Response("SQL_Callback_OnSelectRemoveClient");
 
 	if (hResult == null || szError[0])
 	{
@@ -177,13 +176,13 @@ public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hResu
 	
 	if (hResult.FetchRow())
 	{
-		DBG_SQL_Response("hResult.FetchRow()")
+		DBG_SQL_Response("hResult.FetchRow()");
 		int iAccountID = hResult.FetchInt(0);
-		DBG_SQL_Response("hResult.FetchInt(0) = %d", iAccountID)
+		DBG_SQL_Response("hResult.FetchInt(0) = %d", iAccountID);
 		char szName[MNL], szGroup[64];
 		hResult.FetchString(1, SZF(szName));
 		hResult.FetchString(2, SZF(szGroup));
-		DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
+		DBG_SQL_Response("hResult.FetchString(1) = '%s", szName);
 		DB_RemoveClientFromID(iClient, _, iAccountID, true, szName, szGroup);
 	}
 	else
@@ -223,21 +222,8 @@ public Action DumpFeatures_CMD(int iClient, int iArgs)
 					GetPluginInfo(hPlugin, PlInfo_Version, SZF(szPluginVersion));
 					GetPluginFilename(hPlugin, SZF(szPluginPath));
 					
-					switch(view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)))
-					{
-						case TOGGLABLE:		strcopy(SZF(szFeatureType), "TOGGLABLE");
-						case SELECTABLE:	strcopy(SZF(szFeatureType), "SELECTABLE");
-						case HIDE:			strcopy(SZF(szFeatureType), "HIDE");
-					}
-					
-					switch(view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)))
-					{
-						case VIP_NULL:		strcopy(SZF(szFeatureValType), "VIP_NULL");
-						case INT:			strcopy(SZF(szFeatureValType), "INT");
-						case FLOAT:			strcopy(SZF(szFeatureValType), "FLOAT");
-						case BOOL:			strcopy(SZF(szFeatureValType), "BOOL");
-						case STRING:		strcopy(SZF(szFeatureValType), "STRING");
-					}
+					strcopy(SZF(szFeatureType), g_szFeatureType[view_as<int>(hArray.Get(FEATURES_ITEM_TYPE))]);
+					strcopy(SZF(szFeatureValType), g_szValueType[view_as<int>(hArray.Get(FEATURES_VALUE_TYPE))]);
 					
 					hFile.WriteLine("%d. %-32s %-16s %-16s %-64s %-32s %-256s", i, szFeature, szFeatureType, szFeatureValType, szPluginName, szPluginVersion, szPluginPath);
 				}

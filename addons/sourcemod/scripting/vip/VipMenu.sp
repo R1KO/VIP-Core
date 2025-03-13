@@ -239,11 +239,11 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 					{
 						if(!TranslationPhraseExists(szItemInfo))
 						{
-							FormatEx(SZF(szDisplay), "%s [%T]", szItemInfo, g_szToggleStatus[view_as<int>(Features_GetStatus(iClient, szItemInfo))], iClient);
+							FormatEx(SZF(szDisplay), "%s [%T]", szItemInfo, g_szToggleState[view_as<int>(Features_GetStatus(iClient, szItemInfo))], iClient);
 							return RedrawMenuItem(szDisplay);
 						}
 					}
-					FormatEx(SZF(szDisplay), "%T [%T]", szItemInfo, iClient, g_szToggleStatus[view_as<int>(Features_GetStatus(iClient, szItemInfo))], iClient);
+					FormatEx(SZF(szDisplay), "%T [%T]", szItemInfo, iClient, g_szToggleState[view_as<int>(Features_GetStatus(iClient, szItemInfo))], iClient);
 					return RedrawMenuItem(szDisplay);
 				}
 				
