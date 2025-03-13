@@ -222,21 +222,8 @@ public Action DumpFeatures_CMD(int iClient, int iArgs)
 					GetPluginInfo(hPlugin, PlInfo_Version, SZF(szPluginVersion));
 					GetPluginFilename(hPlugin, SZF(szPluginPath));
 					
-					switch(view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)))
-					{
-						case TOGGLABLE:		strcopy(SZF(szFeatureType), "TOGGLABLE");
-						case SELECTABLE:	strcopy(SZF(szFeatureType), "SELECTABLE");
-						case HIDE:			strcopy(SZF(szFeatureType), "HIDE");
-					}
-					
-					switch(view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)))
-					{
-						case VIP_NULL:		strcopy(SZF(szFeatureValType), "VIP_NULL");
-						case INT:			strcopy(SZF(szFeatureValType), "INT");
-						case FLOAT:			strcopy(SZF(szFeatureValType), "FLOAT");
-						case BOOL:			strcopy(SZF(szFeatureValType), "BOOL");
-						case STRING:		strcopy(SZF(szFeatureValType), "STRING");
-					}
+					strcopy(SZF(szFeatureType), g_szFeatureType[view_as<int>(hArray.Get(FEATURES_ITEM_TYPE))]);
+					strcopy(SZF(szFeatureValType), g_szValueType[view_as<int>(hArray.Get(FEATURES_VALUE_TYPE))]);
 					
 					hFile.WriteLine("%d. %-32s %-16s %-16s %-64s %-32s %-256s", i, szFeature, szFeatureType, szFeatureValType, szPluginName, szPluginVersion, szPluginPath);
 				}

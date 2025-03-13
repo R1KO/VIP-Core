@@ -750,12 +750,12 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 		bool			bCookie				= view_as<bool>(GetNativeCell(8));
 
 		DBG_API("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature));
-		DBG_API("VIP_ValueType -> %s", szValueType[eValType]);
-		DBG_API("VIP_FeatureType -> %s", szFeatureType[eType]);
+		DBG_API("VIP_ValueType -> %s", g_szValueType[view_as<int>(eValType)]);
+		DBG_API("VIP_FeatureType -> %s", g_szFeatureType[view_as<int>(eType)]);
 		DBG_API("ItemSelectCallback -> %s", ItemSelectCallback == INVALID_FUNCTION ? "INVALID_FUNCTION" : "VALID_FUNCTION");
 		DBG_API("ItemDisplayCallback -> %s", ItemDisplayCallback == INVALID_FUNCTION ? "INVALID_FUNCTION" : "VALID_FUNCTION");
 		DBG_API("ItemDrawCallback -> %s", ItemDrawCallback == INVALID_FUNCTION ? "INVALID_FUNCTION" : "VALID_FUNCTION");
-		DBG_API("VIP_ToggleState -> %s", szToggleState[eDefStatus]);
+		DBG_API("VIP_ToggleState -> %s", g_szToggleState[view_as<int>(eDefStatus)]);
 		DBG_API("Cookie -> %s", bCookie ? "true" : "false");
 
 		ArrayList hArray = new ArrayList();
@@ -1275,7 +1275,7 @@ public int Native_AddStringToggleStatus(Handle hPlugin, int iNumParams)
 		int iSize		= GetNativeCell(3);
 		char[] szBuffer = new char[iSize];	  // char szBuffer[iSize];
 		GetNativeString(1, szBuffer, iSize);
-		Format(szBuffer, iSize, "%s [%T]", szBuffer, g_szToggleStatus[view_as<int>(Features_GetStatus(iClient, szFeature))], iClient);
+		Format(szBuffer, iSize, "%s [%T]", szBuffer, g_szToggleState[view_as<int>(Features_GetStatus(iClient, szFeature))], iClient);
 		SetNativeString(2, szBuffer, iSize, true);
 	}
 
