@@ -102,26 +102,6 @@ public void DBG_Database(const char[] szMsg, any ...)
 public void DBG_Database(const char[] szMsg, any ...) {}
 #endif
 
-char sValueType[][] = {
-	"VIP_NULL",
-	"INT",
-	"FLOAT",
-	"BOOL",
-	"STRING"
-};
-
-char sFeatureType[][] = {
-	"TOGGLABLE",
-	"SELECTABLE",
-	"HIDE"
-};
-
-char sToggleState[][] = {
-	"DISABLED",
-	"ENABLED",
-	"NO_ACCESS"
-};
-
 #else
 public void DebugMessage(const char[] szMsg, any ...) {}
 public void DBG_Download(const char[] szMsg, any ...) {}
@@ -131,7 +111,24 @@ public void DBG_SQL_Query(const char[] szMsg, any ...) {}
 public void DBG_SQL_Response(const char[] szMsg, any ...) {}
 public void DBG_API(const char[] szMsg, any ...) {}
 public void DBG_Database(const char[] szMsg, any ...) {}
-char sValueType[VIP_ValueType][] = { "", "", "", "", "" };
-char sFeatureType[VIP_FeatureType][] = { "", "", "" };
-char sToggleState[VIP_ToggleState][] = { "", "", "" };
 #endif
+
+char szValueType[][] = {
+	"VIP_NULL",
+	"INT",
+	"FLOAT",
+	"BOOL",
+	"STRING"
+};
+
+char szFeatureType[][] = {
+	"TOGGLABLE",
+	"SELECTABLE",
+	"HIDE"
+};
+
+char szToggleState[][] = {
+	"DISABLED",
+	"ENABLED",
+	"NO_ACCESS"
+};

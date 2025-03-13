@@ -750,12 +750,12 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 		bool			bCookie				= view_as<bool>(GetNativeCell(8));
 
 		DBG_API("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature));
-		DBG_API("VIP_ValueType -> %s", sValueType[eValType]);
-		DBG_API("VIP_FeatureType -> %s", sFeatureType[eType]);
+		DBG_API("VIP_ValueType -> %s", szValueType[eValType]);
+		DBG_API("VIP_FeatureType -> %s", szFeatureType[eType]);
 		DBG_API("ItemSelectCallback -> %s", ItemSelectCallback == INVALID_FUNCTION ? "INVALID_FUNCTION" : "VALID_FUNCTION");
 		DBG_API("ItemDisplayCallback -> %s", ItemDisplayCallback == INVALID_FUNCTION ? "INVALID_FUNCTION" : "VALID_FUNCTION");
 		DBG_API("ItemDrawCallback -> %s", ItemDrawCallback == INVALID_FUNCTION ? "INVALID_FUNCTION" : "VALID_FUNCTION");
-		DBG_API("VIP_ToggleState -> %s", sToggleState[eDefStatus]);
+		DBG_API("VIP_ToggleState -> %s", szToggleState[eDefStatus]);
 		DBG_API("Cookie -> %s", bCookie ? "true" : "false");
 
 		ArrayList hArray = new ArrayList();
