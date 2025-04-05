@@ -1,0 +1,16 @@
+project:
+  sourceknight: 0.2
+  name: VIP_Core
+  dependencies:
+    - name: sourcemod
+      type: tar
+      version: 1.13.0-git7223
+      location: https://sm.alliedmods.net/smdrop/1.13/sourcemod-1.13.0-git7223-linux.tar.gz
+      unpack:
+      - source: /addons
+        dest: /addons
+
+  root: /
+  output: /addons/sourcemod/plugins
+  targets:
+    - VIP_Core
