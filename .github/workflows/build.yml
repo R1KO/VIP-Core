@@ -28,7 +28,7 @@ jobs:
           SMVERSION_FULL=${{ matrix.sm-version }}
           echo "SMVERSION_SHORT=${SMVERSION_FULL:0:-2}" >> $GITHUB_ENV
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup SP
         uses: rumblefrog/setup-sp@master
