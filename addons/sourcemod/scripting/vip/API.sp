@@ -983,13 +983,10 @@ public int Native_UnregisterMe(Handle hPlugin, int iNumParams)
 void UnregisterFeature(const char[] szFeature, ArrayList hArray)
 {
 	VIP_FeatureType eType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
-	if (eType == TOGGLABLE)
-	{
-		delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
-	}
-
 	if (eType != HIDE)
 	{
+		// TOGGLABLE and SELECTABLE (bCookie) features own a cookie handle, others store null
+		delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
 		delete view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
 	}
 
