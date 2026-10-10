@@ -319,7 +319,7 @@ void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
 		}
 	}
 /*
-	DBG_Clients("Clients_OnVIPClientLoaded: %d %N", iClient, iClient)
+	DBG_Clients("Clients_OnVIPClientLoaded: %d %N", iClient, iClient);
 
 	Clients_OnVIPClientLoaded(iClient);
 	*/
