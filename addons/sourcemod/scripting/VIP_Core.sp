@@ -74,6 +74,7 @@ public void OnPluginStart()
 	ITEM_DRAW = hDataPack.Position;
 	delete hDataPack;
 
+	API_SetupForwards();
 	ReadConfigs();
 
 	VIPMenu_Setup();
@@ -82,7 +83,6 @@ public void OnPluginStart()
 	#endif
 
 	Cvars_Setup();
-	API_SetupForwards();
 
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_death", Event_PlayerDeath);
