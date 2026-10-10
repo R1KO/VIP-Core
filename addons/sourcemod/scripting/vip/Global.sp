@@ -1,7 +1,6 @@
 #define UID(%0) 			GetClientUserId(%0)
 #define CID(%0) 			GetClientOfUserId(%0)
 #define SZF(%0) 			%0, sizeof(%0)
-#define SZFA(%0,%1)         %0[%1], sizeof(%0[])
 
 
 #define I2S(%0,%1) 			IntToString(%0, SZF(%1))
@@ -11,11 +10,7 @@
 
 #define PMP                 PLATFORM_MAX_PATH
 #define MNL                	MAX_NAME_LENGTH
-#define MPL                 MAXPLAYERS
 #define MCL                 MaxClients
-
-#define SET_BIT(%0,%1) 		%0 |= %1
-#define UNSET_BIT(%0,%1) 	%0 &= ~%1
 
 #define REASON_PLUGIN	-2
 #define REASON_EXPIRED	-3
