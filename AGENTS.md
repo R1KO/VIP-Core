@@ -47,4 +47,4 @@
 - `GLOBAL_TRIE` / `GLOBAL_INFO` are index `[0]` of per-client arrays — slot 0 = global, not a player.
 - Use methodmaps (`StringMap`, `Cookie`, `KeyValues`, `delete`), not legacy procedural calls (`CreateTrie`, `SetClientCookie`, `CloseHandle`, `Kv*`).
 - Debug logging via `DBG_*` / `DebugMessage` functions from `Debug.sp` (empty unless `DEBUG_MODE 1`); calls still need a trailing `;`.
-- English only in code, comments, cvar descriptions, log/error strings and docs. Other languages live only in `translations/*.phrases.txt` and the per-language values of `data/vip/cfg/*.ini`. Any new user-facing text → new phrase in `vip_core.phrases.txt` with at least `en` and `ru`. Bump `VIP_VERSION` in `VIP_Core.sp` only when asked; changelog lives in `updates.md`.
+- English only in code, comments, cvar descriptions, log/error strings and docs. Other languages live only in `translations/*.phrases.txt` and the per-language values of `data/vip/cfg/*.ini`. Any new user-facing text → new phrase in `vip_core.phrases.txt` with at least `en` and `ru`. Bump `VIP_VERSION` in `VIP_Core.sp` only when asked; changelog lives in GitHub Releases (release notes).

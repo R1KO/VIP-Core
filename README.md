@@ -18,4 +18,4 @@ The plugin is very flexible and easy to configure, it can work with both SQLite 
 ### Guides
 - [Module update guide](docs/update_modules.md)
 - [Issue labels](docs/issue_labels.md)
-- [Changelog](updates.md)
+- [Changelog](https://github.com/R1KO/VIP-Core/releases)
