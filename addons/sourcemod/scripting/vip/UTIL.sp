@@ -155,7 +155,12 @@ stock int UTIL_SearchCharInString(const char[] szBuffer, int c)
 	iNum = 0;
 	iLen = strlen(szBuffer);
 	for (i = 0; i < iLen; ++i)
-	if (szBuffer[i] == c)iNum++;
+	{
+		if (szBuffer[i] == c)
+		{
+			iNum++;
+		}
+	}
 	
 	return iNum;
 }
