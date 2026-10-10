@@ -23,6 +23,16 @@ public void OnClientPutInServer(int iClient)
 	}
 }
 
+// Steam authorized the player after OnClientPutInServer: storage and the VIP check were skipped then (no account id yet)
+public void OnClientAuthorized(int iClient, const char[] szAuth)
+{
+	if (IsClientInGame(iClient) && !IsFakeClient(iClient) && !IsClientSourceTV(iClient))
+	{
+		Storage_LoadClient(iClient);
+		Clients_CheckVipAccess(iClient, true, true);
+	}
+}
+
 public void OnClientDisconnect(int iClient)
 {
 	/*	if (g_bIsClientVIP[iClient])
@@ -76,6 +86,13 @@ void Clients_LoadClient(int iClient, bool bNotify)
 	int iAccountID = GetSteamAccountID(iClient);
 
 	DBG_Clients("Clients_LoadClient %N (%d), %b: - > %x, %u", iClient, iClient, g_iClientInfo[iClient], g_hDatabase, g_hDatabase);
+
+	// Not authorized yet: loaded as non-VIP for now, checked again from OnClientAuthorized
+	if (!iAccountID)
+	{
+		Clients_SetLoaded(iClient);
+		return;
+	}
 
 	char szWhere[64];
 	if(g_szSID[0])

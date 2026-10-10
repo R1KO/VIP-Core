@@ -54,14 +54,6 @@ void Storage_LoadClient(int iClient)
 	g_hDatabase.Query(SQL_Callback_OnClientLoadStorage, szQuery, hDataPack);
 }
 
-public void OnClientAuthorized(int iClient, const char[] szAuth)
-{
-	if (IsClientInGame(iClient) && !IsFakeClient(iClient))
-	{
-		Storage_LoadClient(iClient);
-	}
-}
-
 public void SQL_Callback_OnClientLoadStorage(Database hOwner, DBResultSet hResult, const char[] szError, any hPack)
 {
 	DBG_SQL_Response("SQL_Callback_OnClientLoadStorage");
