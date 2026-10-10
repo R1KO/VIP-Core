@@ -3,7 +3,8 @@
 #endif
 #define _vip_core_included
 
-#define VIP_CORE_INTERFACE 310
+// API version of this include; bumped whenever natives or forwards are added. See VIP_GetCurrentVersionInterface().
+#define VIP_CORE_INTERFACE 320
 
 /* VIP feature data types */
 enum VIP_ValueType
@@ -155,6 +156,20 @@ forward void VIP_OnConfigsLoaded();
  * @noreturn
 */
 forward void VIP_OnClientStorageLoaded(int iClient);
+
+/**
+ *	Called when a value in the player's storage has changed (VIP_SetClientStorageValue,
+ *	including toggle statuses saved by the core under "FeatureStatus-<feature>" keys).
+ *	Not called when the value is set to what it already was.
+ *	Requires VIP_CORE_INTERFACE 320 (see VIP_GetCurrentVersionInterface).
+ *
+ * @param iClient			Client index.
+ * @param szKey				Key.
+ * @param szValue			New value.
+ *
+ * @noreturn
+*/
+forward void VIP_OnClientStorageUpdate(int iClient, const char[] szKey, const char[] szValue);
 
 /**
  *	Called when a VIP feature has been registered.
@@ -481,6 +496,18 @@ native bool VIP_RemoveClientVIP(int iClient, bool bInDB, bool bNotify);
 native bool VIP_IsVIPLoaded();
 
 /**
+ *	Gets the API version of the running core (its VIP_CORE_INTERFACE), so a module can tell
+ *	which natives and forwards are available, e.g. VIP_GetCurrentVersionInterface() >= 320.
+ *	Cores before 3.2 don't have this native: check it first with
+ *	GetFeatureStatus(FeatureType_Native, "VIP_GetCurrentVersionInterface") == FeatureStatus_Available.
+ *
+ * @noparams
+ *
+ * @return					API version of the running core.
+*/
+native int VIP_GetCurrentVersionInterface();
+
+/**
  *	Registers a new VIP feature.
  *
  * @param szFeature				Unique feature name.
@@ -741,6 +768,7 @@ public SharedPlugin __pl_vip_core=
 public void __pl_vip_core_SetNTVOptional()
 {
 	MarkNativeAsOptional("VIP_IsVIPLoaded");
+	MarkNativeAsOptional("VIP_GetCurrentVersionInterface");
 	MarkNativeAsOptional("VIP_GetDatabase");
 	MarkNativeAsOptional("VIP_GetDatabaseType");
 	MarkNativeAsOptional("VIP_RegisterFeature");

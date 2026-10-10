@@ -12,6 +12,7 @@ static GlobalForward g_hGlobalForward_OnFeatureUnregistered;
 static GlobalForward g_hGlobalForward_OnClientDisconnect;
 static GlobalForward g_hGlobalForward_OnConfigsLoaded;
 static GlobalForward g_hGlobalForward_OnClientStorageLoaded;
+static GlobalForward g_hGlobalForward_OnClientStorageUpdate;
 
 void API_SetupForwards()
 {
@@ -30,6 +31,7 @@ void API_SetupForwards()
 	g_hGlobalForward_OnClientDisconnect	   = new GlobalForward("VIP_OnClientDisconnect", ET_Ignore, Param_Cell, Param_Cell);
 	g_hGlobalForward_OnConfigsLoaded	   = new GlobalForward("VIP_OnConfigsLoaded", ET_Ignore);
 	g_hGlobalForward_OnClientStorageLoaded = new GlobalForward("VIP_OnClientStorageLoaded", ET_Ignore, Param_Cell);
+	g_hGlobalForward_OnClientStorageUpdate = new GlobalForward("VIP_OnClientStorageUpdate", ET_Ignore, Param_Cell, Param_String, Param_String);
 }
 
 // Global Forwards
@@ -52,6 +54,16 @@ void CreateForward_OnClientStorageLoaded(int iClient)
 	DBG_API("CreateForward_OnClientStorageLoaded(%N (%d))", iClient, iClient);
 	Call_StartForward(g_hGlobalForward_OnClientStorageLoaded);
 	Call_PushCell(iClient);
+	Call_Finish();
+}
+
+void CreateForward_OnClientStorageUpdate(int iClient, const char[] szKey, const char[] szValue)
+{
+	DBG_API("CreateForward_OnClientStorageUpdate(%N (%d), '%s', '%s')", iClient, iClient, szKey, szValue);
+	Call_StartForward(g_hGlobalForward_OnClientStorageUpdate);
+	Call_PushCell(iClient);
+	Call_PushString(szKey);
+	Call_PushString(szValue);
 	Call_Finish();
 }
 
@@ -233,6 +245,7 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 {
 	// Global
 	RegNative(IsVIPLoaded);
+	RegNative(GetCurrentVersionInterface);
 
 	RegNative(GetDatabase);
 	RegNative(GetDatabaseType);
@@ -830,6 +843,11 @@ public int Native_GetClientStorageValue(Handle hPlugin, int iNumParams)
 public int Native_IsVIPLoaded(Handle hPlugin, int iNumParams)
 {
 	return (g_bStarted && g_hDatabase);
+}
+
+public int Native_GetCurrentVersionInterface(Handle hPlugin, int iNumParams)
+{
+	return VIP_CORE_INTERFACE;
 }
 
 public int Native_RegisterFeature(Handle hPlugin, int iNumParams)

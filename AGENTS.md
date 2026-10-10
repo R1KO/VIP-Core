@@ -22,6 +22,7 @@
 - Third-party modules depend on it: never change existing native/forward signatures or semantics. Add new params with defaults or add new natives. Deprecate via `#pragma deprecated`, don't delete (see `docs/update_modules.md`).
 - New native: implement `Native_X` in API.sp, `RegNative(X)` in `AskPluginLoad2`, declare in `.inc`, add `MarkNativeAsOptional("VIP_X")` in `__pl_vip_core_SetNTVOptional`.
 - New forward: `static GlobalForward` field + `new GlobalForward(...)` in `API_SetupForwards` + `CreateForward_*` wrapper + `forward` declaration with doc comment in `.inc`.
+- Any added native/forward: bump `VIP_CORE_INTERFACE` in `.inc` once per release (3.2 → 320) and note "Requires VIP_CORE_INTERFACE N" in its doc comment; modules check it via `VIP_GetCurrentVersionInterface()`.
 
 ## Database
 - Config name `vip_core` in databases.cfg → MySQL; otherwise falls back to local SQLite. Every query must work on BOTH.
