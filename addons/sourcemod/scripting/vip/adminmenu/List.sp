@@ -218,31 +218,9 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 		}
 	}
 
-	if (GLOBAL_INFO & IS_MySQL)
-	{
-		FormatEx(SZF(szQuery), "SELECT `account_id`, \
-										`name` \
-										FROM `vip_users` \
-										WHERE %s%s \ 
-										LIMIT %d, %d;",
-			g_szSID[5], szWhere, iOffset, LIST_OFFSET);
-	}
-	else
-	{
-		if(szWhere[0])
-		{
-			FormatEx(SZF(szQuery), "SELECT `account_id`, `name` \
-									FROM `vip_users` \
-									WHERE %s LIMIT %d, %d;", 
-			szWhere[5], iOffset, LIST_OFFSET);
-		}
-		else
-		{
-			FormatEx(SZF(szQuery), "SELECT `account_id`, `name` \
-									FROM `vip_users` LIMIT %d, %d;", 
-			iOffset, LIST_OFFSET);
-		}
-	}
+	// WHERE 1 lets every filter start with " AND ", on both MySQL and SQLite
+	FormatEx(SZF(szQuery), "SELECT `account_id`, `name` FROM `vip_users` WHERE 1%s%s LIMIT %d, %d;",
+		g_szSID, szWhere, iOffset, LIST_OFFSET);
 
 	DBG_SQL_Query(szQuery);
 

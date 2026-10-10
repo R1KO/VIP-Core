@@ -75,17 +75,29 @@ public void OnDBConnect(Database hDatabase, const char[] szError, any data)
 	CreateTables();
 }
 
+void DB_UpdateServerFilter()
+{
+	if (!(GLOBAL_INFO & IS_MySQL))
+	{
+		g_szSID[0] = 0;
+		return;
+	}
+
+	#if USE_MORE_SERVERS
+	FormatEx(SZF(g_szSID), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
+	#else
+	FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
+	#endif
+}
+
 void CreateTables()
 {
 	DBG_Database("CreateTables");
 
+	DB_UpdateServerFilter();
+
 	if (GLOBAL_INFO & IS_MySQL)
 	{
-		#if USE_MORE_SERVERS
-		FormatEx(SZF(g_szSID), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
-		#else
-		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
-		#endif
 		g_hDatabase.Query(SQL_Callback_StorageTableCreate, "CREATE TABLE IF NOT EXISTS `vip_storage` (\
 					`account_id` INT NOT NULL, \
 					`sid` INT UNSIGNED NOT NULL, \
@@ -106,7 +118,6 @@ void CreateTables()
 	}
 	else
 	{
-		g_szSID[0] = 0;
 		g_hDatabase.Query(SQL_Callback_StorageTableCreate, "CREATE TABLE IF NOT EXISTS `vip_storage` (\
 				`account_id` INTEGER NOT NULL, \
 				`key` VARCHAR(128) NOT NULL, \

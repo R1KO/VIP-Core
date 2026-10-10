@@ -106,20 +106,10 @@ void Clients_LoadClient(int iClient, bool bNotify)
 		return;
 	}
 
-	char szWhere[64];
-	if(g_szSID[0])
-	{
-		#if USE_MORE_SERVERS
-		FormatEx(SZF(szWhere), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
-		#else
-		strcopy(SZF(szWhere), g_szSID);
-		#endif
-	}
-
 	FormatEx(SZF(szQuery), "SELECT `expires`, `group`, `name` \
 										FROM `vip_users` \
 										WHERE `account_id` = %d%s LIMIT 1;",
-										iAccountID, szWhere);
+										iAccountID, g_szSID);
 
 	DataPack hDataPack = new DataPack();
 	hDataPack.WriteCell(UID(iClient));
