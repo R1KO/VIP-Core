@@ -589,7 +589,7 @@ public int Native_GiveClientVIP(Handle hPlugin, int iNumParams)
 	char szGroup[64];
 	GetNativeString(4, SZF(szGroup));
 
-	return API_GiveClientVIP(hPlugin, iAdmin, iClient, iTime, szGroup, bAddToDB);
+	return API_GiveClientVIP(hPlugin, API_GetAdminOrPlugin(iAdmin), iClient, iTime, szGroup, bAddToDB);
 }
 
 public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
@@ -687,7 +687,13 @@ public int Native_RemoveClientVIP2(Handle hPlugin, int iNumParams)
 	bool bInDB	 = GetNativeCell(3);
 	bool bNotify = GetNativeCell(4);
 
-	return API_RemoveClientVIP(hPlugin, iAdmin, iClient, bInDB, bNotify);
+	return API_RemoveClientVIP(hPlugin, API_GetAdminOrPlugin(iAdmin), iClient, bInDB, bNotify);
+}
+
+// The .inc documents -1 as "plugin" while the core uses REASON_PLUGIN (-2): accept any negative value
+int API_GetAdminOrPlugin(int iAdmin)
+{
+	return iAdmin < 0 ? REASON_PLUGIN : iAdmin;
 }
 
 int API_RemoveClientVIP(Handle hPlugin,
@@ -698,7 +704,7 @@ int API_RemoveClientVIP(Handle hPlugin,
 {
 	if (CheckValidClient(iClient))
 	{
-		if (iAdmin)
+		if (iAdmin > 0)
 		{
 			CheckValidClient(iAdmin, false);
 		}
