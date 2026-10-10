@@ -3,11 +3,15 @@
 [VIP] Core — SourceMod (SourcePawn) plugin that grants players VIP status (timed or permanent). Extended by separate "module" plugins via natives/forwards. No tests; correctness = clean compile.
 
 ## Build
-- CI (`.github/workflows/build.yml`) compiles against SM 1.11 (must pass) and 1.12 (allowed to fail):
+- CI (`.github/workflows/build.yml`) compiles against SM 1.10 and 1.11 (must pass) and 1.12 (allowed to fail):
   `cd addons/sourcemod/scripting && mkdir -p ../plugins && spcomp VIP_Core.sp -E -o ../plugins/VIP_Core.smx -i./include`
-- `-E` = warnings are errors. Fix every warning, including deprecation ones.
-- Alt: `sourceknight build` (`sourceknight.yaml`, SM 1.13). Neither tool is installed locally by default.
+- `-E` = warnings are errors. Fix every warning, including deprecation ones. SM 1.10 is the strictest parser (e.g. missing `;`), so code must build there too.
+- Alt: `sourceknight build` (`sourceknight.yaml`, SM 1.13). It ignores spcomp's exit code — check output for `error`.
 - Never commit `*.smx`, `plugins/`, `.sourceknight`.
+
+## Git
+- `dev` is the integration branch: branch from `dev`, merge back into `dev`. `master` is for releases.
+- LF line endings only (enforced by `.gitattributes`); don't introduce CRLF.
 
 ## Layout
 - `scripting/VIP_Core.sp` — entry point; `#include`s every `vip/*.sp` into ONE compilation unit (order matters: Global → Debug → ... → API → CMD → Clients). New file = add `#include` there.
@@ -22,7 +26,7 @@
 ## Public API rules (vip_core.inc)
 - Third-party modules depend on it: never change existing native/forward signatures or semantics. Add new params with defaults or add new natives.
 - New native: implement `Native_X` in API.sp, `RegNative(X)` in `AskPluginLoad2`, declare in `.inc`, add `MarkNativeAsOptional("VIP_X")` in `__pl_vip_core_SetNTVOptional`.
-- New forward: `CreateGlobalForward` in `API_SetupForwards` + `CreateForward_*` wrapper + `forward` declaration with doc comment in `.inc`.
+- New forward: `static GlobalForward` field + `new GlobalForward(...)` in `API_SetupForwards` + `CreateForward_*` wrapper + `forward` declaration with doc comment in `.inc`.
 - Deprecate via `#pragma deprecated`, don't delete (see `update_modules.md`).
 
 ## Database
@@ -35,7 +39,8 @@
 - `#pragma semicolon 1`, `#pragma newdecls required`. Tabs. Hungarian-ish names: `iClient`, `szName`, `hMenu`, `bFlag`, globals `g_*`, cvars `g_CVAR_*`.
 - Pass client across async boundaries as userid (`UID`/`CID`), never raw index.
 - `GLOBAL_TRIE` / `GLOBAL_INFO` are index `[0]` of per-client arrays — slot 0 = global, not a player.
-- Debug logging via `DBG_*` macros from `Debug.sp` (no-ops unless `DEBUG_MODE 1`).
+- Use methodmaps (`StringMap`, `Cookie`, `KeyValues`, `delete`), not legacy procedural calls (`CreateTrie`, `SetClientCookie`, `CloseHandle`, `Kv*`).
+- Debug logging via `DBG_*` / `DebugMessage` functions from `Debug.sp` (empty unless `DEBUG_MODE 1`); calls still need a trailing `;`.
 - Any new user-facing text → new phrase in `vip_core.phrases.txt` with at least `en` and `ru`.
 - Comments and cvar descriptions are mostly Russian; either language is fine, keep the surrounding style.
 - Bump `VIP_VERSION` in `VIP_Core.sp` only when asked; changelog lives in `updates.md`.
