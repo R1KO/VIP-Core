@@ -134,9 +134,10 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 					if (KvGetLangString(hKeyValues, szBuffer, iBufLen, szClientLang, szServLang))
 					{
 						DebugMessage("KvGetLangString: (%s, %s) = '%s'", szClientLang, szServLang, szBuffer);
-						if (strncmp(szBuffer, "http://", 7, true) != 0)
+						// Only add a scheme when there is none (keeps https:// links intact)
+						if (StrContains(szBuffer, "://") == -1)
 						{
-							Format(szBuffer, 256, "http://%s", szBuffer);
+							Format(szBuffer, iBufLen, "http://%s", szBuffer);
 						}
 
 						ShowMOTDPanel(iClient, "VIP_INFO", szBuffer, MOTDPANEL_TYPE_URL);
