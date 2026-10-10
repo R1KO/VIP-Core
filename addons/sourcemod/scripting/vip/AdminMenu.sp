@@ -588,7 +588,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 
 					if (iTarget)
 					{
-						ResetClient(iTarget);
+						Clients_RemoveVIPStatus(iTarget);
 						CreateForward_OnVIPClientRemoved(iTarget, "VIP-Group Changed", iClient);
 						Clients_CheckVipAccess(iTarget, false);
 					}

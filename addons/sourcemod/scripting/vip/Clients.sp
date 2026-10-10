@@ -11,6 +11,13 @@ void ResetClient(int iClient)
 	delete g_hFeatureStatus[iClient];
 }
 
+// Takes the VIP status away from a player in game: modules get their features toggled off first
+void Clients_RemoveVIPStatus(int iClient)
+{
+	Features_TurnOffAll(iClient);
+	ResetClient(iClient);
+}
+
 public void OnClientPutInServer(int iClient)
 {
 	//	g_iClientInfo[iClient] = 0;
@@ -59,7 +66,7 @@ void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = f
 		return;
 	}
 
-	ResetClient(iClient);
+	Clients_RemoveVIPStatus(iClient);
 	g_iClientInfo[iClient] &= ~IS_LOADED;
 	
 	if (IsFakeClient(iClient) == false && (GLOBAL_INFO & IS_STARTED) && g_hDatabase)
@@ -590,7 +597,6 @@ public Action Timer_VIP_Expired(Handle hTimer, any UserID)
 void Clients_ExpiredClient(int iClient)
 {
 	DBG_Clients("Clients_ExpiredClient %N:", iClient);
-	Features_TurnOffAll(iClient);
 	
 	int iClientID;
 	g_hFeatures[iClient].GetValue(KEY_EXPIRES, iClientID);
@@ -612,7 +618,7 @@ void Clients_ExpiredClient(int iClient)
 		CancelClientMenu(iClient);
 	}
 
-	ResetClient(iClient);
+	Clients_RemoveVIPStatus(iClient);
 	
 	CreateForward_OnVIPClientRemoved(iClient, "Expired");
 	

@@ -614,7 +614,7 @@ int API_GiveClientVIP(Handle hPlugin, int iAdmin, int iClient, int iTime, const 
 			g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
 			if (iClientID == -1 && bAddToDB)
 			{
-				ResetClient(iClient);
+				Clients_RemoveVIPStatus(iClient);
 
 				CreateForward_OnVIPClientRemoved(iClient, "Removed for VIP-status change", iAdmin);
 			}
@@ -725,8 +725,7 @@ int API_RemoveClientVIP(Handle hPlugin,
 			CancelClientMenu(iClient);
 		}
 
-		Features_TurnOffAll(iClient);
-		ResetClient(iClient);
+		Clients_RemoveVIPStatus(iClient);
 
 		char szBuffer[PMP];
 		FormatEx(SZF(szBuffer), "Removed by %s", szPluginName);
