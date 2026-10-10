@@ -87,7 +87,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 
 	char szGroup[64];
 	GetCmdArg(3, SZF(szGroup));
-	// Duration in seconds; the expiry date (now + duration) must fit into an int too
+	// The expiry date (now + duration) must fit into an int too
 	int iTime = UTIL_TimeToSeconds(StringToInt(szGroup));
 	if (iTime < 0 || iTime > cellmax - GetTime())
 	{

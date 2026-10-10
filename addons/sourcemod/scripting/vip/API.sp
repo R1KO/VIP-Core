@@ -272,7 +272,6 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 	RegNative(AddGroup);
 	RegNative(RemoveGroup);
 
-	// Storage
 	RegNative(SetClientStorageValue);
 	RegNative(GetClientStorageValue);
 

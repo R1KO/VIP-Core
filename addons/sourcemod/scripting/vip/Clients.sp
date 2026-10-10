@@ -263,7 +263,7 @@ public void OnClientCookiesCached(int iClient)
 }
 #endif
 
-// ponytail: fixed retry window, statuses fall back to defaults if the store isn't ready by then
+// Fixed retry window: if the store isn't ready by then, statuses fall back to defaults
 #define STATUS_STORE_WAIT_ATTEMPTS	120	// x 0.5s
 
 void Clients_LoadVIPFeaturesPre(int iClient, const char[] szFeature = NULL_STRING)
