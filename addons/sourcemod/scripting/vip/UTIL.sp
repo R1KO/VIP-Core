@@ -127,11 +127,11 @@ void UTIL_LoadVipCmd(ConVar &hCvar, ConCmd Call_CMD)
 		if (szPart[0])
 		{
 			RegConsoleCmd(szPart, Call_CMD);
-			
-			if (iPos == -1)
-			{
-				return;
-			}
+		}
+
+		if (iPos == -1)
+		{
+			return;
 		}
 	}
 }
