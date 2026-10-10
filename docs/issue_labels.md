@@ -1,14 +1,14 @@
-# Issues labels | Метки проблем
-
-  - `Приоритет (Priority)` - это атрибут, указывающий на очередность выполнения задачи или устранения дефекта.
-    - `Высокий приоритет P1 (High)` - Ошибка должна быть исправлена как можно быстрее, т.к. ее наличие является критической для проекта. 
-    - `Средний приоритет P2 (Medium)` - Ошибка должна быть исправлена, ее наличие не является критичной, но требует обязательного решения. 
-    - `Низкий приоритет P3 (Low)` - Ошибка должна быть исправлена, ее наличие не является критичной, и не требует срочного решения.
-  - `Серьезность (Severity)` - это атрибут, характеризующий влияние дефекта на работоспособность приложения.
-    - `Блокирующая ошибка S1 (Blocker)` - Блокирующая ошибка, приводящая приложение в нерабочее состояние, в результате которого дальнейшая работа с тестируемой системой или ее ключевыми функциями становится невозможна. Решение проблемы необходимо для дальнейшего функционирования системы.
-    - `Критическая ошибка S2 (Critical)` - Критическая ошибка, неправильно работающая ключевая логика, дыра в системе безопасности, проблема, приведшая к временному падению сервера или приводящая в нерабочее состояние некоторую часть системы, без возможности решения проблемы, используя другие входные точки. Решение проблемы необходимо для дальнейшей работы с ключевыми функциями системы.
-    - `Значительная ошибка S3 (Major)` - Значительная ошибка, часть основной логики работает некорректно. Ошибка не критична или есть возможность для работы с тестируемой функцией, используя другие входные точки.
-    - `Незначительная ошибка S4 (Minor)` - Незначительная ошибка, не нарушающая логику части приложения, очевидная проблема пользовательского интерфейса.
-    - `Тривиальная ошибка S5 (Trivial)` - Тривиальная ошибка, не касающаяся логики приложения, плохо воспроизводимая проблема, малозаметная посредствам пользовательского интерфейса, проблема сторонних библиотек или сервисов, проблема, не оказывающая никакого влияния на общее качество продукта.
-  - `Вопрос`
-  - `Предложение`
+# Issue labels
+- Issue
+  - `Priority` - the order in which a task should be done or a defect fixed.
+    - `P1 (High)` - Must be fixed as soon as possible, the defect is critical for the project.
+    - `P2 (Medium)` - Must be fixed; not critical, but requires a solution.
+    - `P3 (Low)` - Must be fixed; not critical and not urgent.
+  - `Severity` - how much the defect affects the application.
+    - `S1 (Blocker)` - The application doesn't work; further work with the system or its key features is impossible. Must be fixed for the system to function.
+    - `S2 (Critical)` - Key logic works incorrectly, a security hole, a server crash, or part of the system is broken with no workaround. Must be fixed to keep working with the key features.
+    - `S3 (Major)` - Part of the main logic works incorrectly. Not critical, or there is a workaround.
+    - `S4 (Minor)` - Doesn't break the logic; an obvious UI problem.
+    - `S5 (Trivial)` - Doesn't affect the logic; a hard-to-reproduce or barely visible UI problem, a third-party library/service problem, no effect on overall quality.
+  - `Question`
+  - `Suggestion`

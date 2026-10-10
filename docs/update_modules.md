@@ -1,22 +1,22 @@
-# Мануал по обновлению модулей
+# Module update guide
 
-Обновление позволяет решить такие проблемы:
-1. Адекватная загрузка/выгрузка модуля средствами SourceMod (`sm plugins load/reload/unload`)
-2. Исправление события возрождения игрока:
-	- Фатальная ошибка при запуске модуля: `Native "VIP_HookClientSpawn" was not found`
-	- Предупреждение при компиляции модуля: `warning 234: symbol "VIP_HookClientSpawn" is marked as deprecated: Use VIP_OnPlayerSpawn`
-	- Фатальная ошибка при компиляции модуля: ` error 017: undefined symbol "VIP_HookClientSpawn"`
+The update solves the following problems:
+1. Proper loading/unloading of a module with SourceMod tools (`sm plugins load/reload/unload`)
+2. Fixing the player spawn event:
+	- Fatal error when starting the module: `Native "VIP_HookClientSpawn" was not found`
+	- Warning when compiling the module: `warning 234: symbol "VIP_HookClientSpawn" is marked as deprecated: Use VIP_OnPlayerSpawn`
+	- Fatal error when compiling the module: ` error 017: undefined symbol "VIP_HookClientSpawn"`
 
-Для примера будет использован следующий код:
+The following code is used as an example:
 ```cpp
-// Это уникальное имя ф-и. Оно разное в каждом модуле
+// This is the unique feature name. It is different in every module
 #define VIP_MODULE		"module1"
-// Может выглядеть так
+// It may also look like this
 new const String:g_sFeature[] = "module1";
 
 public OnPluginStart() 
 {
-	// код
+	// code
 }
 
 public VIP_OnVIPLoaded()
@@ -24,45 +24,45 @@ public VIP_OnVIPLoaded()
 	VIP_RegisterFeature(VIP_MODULE,		BOOL);
 }
 ```
-1. Если уникальное имя ф-и выглядит так:
+1. If the unique feature name looks like this:
 ```cpp
 #define VIP_MODULE		"module1"
 ```
-То меняем на
+Change it to
 ```cpp
 new const String:g_sFeature[] = "module1";
 ```
-Или для нового синтаксиса
+Or, for the new syntax
 ```cpp
 static const char g_sFeature[] = "module1";
 ```
-2. Затем заменяем все `VIP_MODULE` (может быть другим) на `g_sFeature`
-3. Ищем функцию
+2. Then replace every `VIP_MODULE` (it may be named differently) with `g_sFeature`
+3. Find the function
 ```cpp
 public OnPluginStart() 
 {
-	// код
+	// code
 }
 ```
-И добавляем в её конце
+And add the following at its end
 ```cpp
 if(VIP_IsVIPLoaded())
 {
 	VIP_OnVIPLoaded();
 }
 ```
-Должно получиться так:
+It should look like this:
 ```cpp
 public OnPluginStart() 
 {
-	// код
+	// code
 	if(VIP_IsVIPLoaded())
 	{
 		VIP_OnVIPLoaded();
 	}
 }
 ```
-Если же функции `OnPluginStart()` нет то дописываем её:
+If there is no `OnPluginStart()` function, add it:
 ```cpp
 public OnPluginStart() 
 {
@@ -72,18 +72,18 @@ public OnPluginStart()
 	}
 }
 ```
-4. Дальше ищем функцию
+4. Next, find the function
 ```cpp
 public OnPluginEnd() 
 {
-	// код
+	// code
 }
 ```
-Чаще всего её нет. Поэтом добавляем её:
+Most often it does not exist, so add it:
 ```cpp
 public OnPluginEnd() 
 {
-	// код (если он был)
+	// code (if there was any)
 	if(CanTestFeatures() && GetFeatureStatus(FeatureType_Native, "VIP_UnregisterFeature") == FeatureStatus_Available)
 	{
 		VIP_UnregisterFeature(g_sFeature);
@@ -91,13 +91,13 @@ public OnPluginEnd()
 }
 ```
 
-После этого проблема `#1` будет решена.
+After this, problem `#1` is solved.
 
-Еще 1 пример для модулей с 2-я функциями (на подобии скинов, трейлов и т.д.):
-- Функция вкл/выкл
-- Функция настройки
+One more example, for modules with 2 features (like skins, trails, etc.):
+- A toggle (on/off) feature
+- A settings feature
 
-Выглядят они примерно так:
+They look roughly like this:
 ```cpp
 #define VIP_SKINS		"Skins"
 #define VIP_SKINS_MENU		"Skins_Menu"
@@ -108,37 +108,37 @@ public VIP_OnVIPLoaded()
 	VIP_RegisterFeature(VIP_SKINS_MENU, _, SELECTABLE, OnSelectItem, _, OnDrawItem);
 }
 ```
-Для обновления такого типа модулей делаем так:
-1. Заменяем объявление ф-й
+To update this type of module, do the following:
+1. Replace the feature declarations
 ```cpp
 #define VIP_SKINS		"Skins"
 #define VIP_SKINS_MENU		"Skins_Menu"
 ```
-на
+with
 ```cpp
 static const String:g_sFeature[][] = {"Skins", "Skins_Menu"};
 ```
-Или для нового синтаксиса
+Or, for the new syntax
 ```cpp
 static const char g_sFeature[][] = {"Skins", "Skins_Menu"};
 ```
-2. Заменяем все `VIP_SKINS` на `g_sFeature[0]` и `VIP_SKINS_MENU` на `g_sFeature[1]`
-3. Изменяем/добавляем `OnPluginStart()`
+2. Replace every `VIP_SKINS` with `g_sFeature[0]` and `VIP_SKINS_MENU` with `g_sFeature[1]`
+3. Modify/add `OnPluginStart()`
 ```cpp
 public OnPluginStart() 
 {
-	// Код если был
+	// Code, if there was any
 	if(VIP_IsVIPLoaded())
 	{
 		VIP_OnVIPLoaded();
 	}
 }
 ```
-4. Изменяем/добавляем `OnPluginEnd()`
+4. Modify/add `OnPluginEnd()`
 ```cpp
 public OnPluginEnd() 
 {
-	// код (если он был)
+	// code (if there was any)
 	if(CanTestFeatures() && GetFeatureStatus(FeatureType_Native, "VIP_UnregisterFeature") == FeatureStatus_Available)
 	{
 		VIP_UnregisterFeature(g_sFeature[0]);
@@ -147,19 +147,19 @@ public OnPluginEnd()
 }
 ```
 
-Главное соблюдать закономерность:
->Для каждой ```VIP_RegisterFeature``` в ```VIP_OnVIPLoaded()``` должна быть ```VIP_UnregisterFeature``` в ```OnPluginEnd()```
+The main thing is to follow this rule:
+>Every ```VIP_RegisterFeature``` in ```VIP_OnVIPLoaded()``` must have a matching ```VIP_UnregisterFeature``` in ```OnPluginEnd()```
 
-Больше примеров можете посмотреть в уже обновлённых модулях.
+You can find more examples in the modules that have already been updated.
 
-Для решения проблемы `#2`:
-1. В `OnPluginStart()` ищем `VIP_HookClientSpawn(OnPlayerSpawn);`
-2. Удаляем эту строку
-3. Далее ищем:
+To solve problem `#2`:
+1. In `OnPluginStart()` find `VIP_HookClientSpawn(OnPlayerSpawn);`
+2. Delete this line
+3. Then find:
 ```cpp
 public OnPlayerSpawn(iClient, iTeam, bool:bIsVIP)
 ```
-и заменяем на
+and replace it with
 ```cpp
 public VIP_OnPlayerSpawn(iClient, iTeam, bool:bIsVIP)
 ```
