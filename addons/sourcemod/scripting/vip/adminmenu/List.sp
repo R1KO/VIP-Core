@@ -115,6 +115,8 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 				
 			}
 
+			// Picked from the DB list: forget a player picked earlier from the online list
+			g_hClientData[iClient].Remove(DATA_KEY_TargetUID);
 			g_hClientData[iClient].SetValue(DATA_KEY_TargetID, S2I(szUserID));
 
 			ShowTargetInfo(iClient);
