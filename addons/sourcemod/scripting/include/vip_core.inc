@@ -3,6 +3,8 @@
 #endif
 #define _vip_core_included
 
+#define VIP_CORE_INTERFACE 310
+
 /* Типы данных VIP-функций */
 enum VIP_ValueType
 {
@@ -135,6 +137,15 @@ forward Action VIP_OnFeatureToggle(int iClient, const char[] szFeature, VIP_Togg
  * @noreturn
 */
 forward void VIP_OnVIPLoaded();
+
+/**
+ *	Вызывается когда VIP-плагин загрузил настройки (при старте и при перезагрузке конфигов).
+ *
+ * @noparams
+ *
+ * @noreturn
+*/
+forward void VIP_OnConfigsLoaded();
 
 /**
  *	Вызывается когда VIP-функция была зарегистрирована.
@@ -303,13 +314,16 @@ native bool VIP_SetClientVIPGroup(int iClient, const char[] szGroup, bool bInDB 
 native StringMap VIP_GetVIPClientTrie(int iClient);
 
 /**
- *	Проверяет наличие VIP-группы.
+ *	Проверяет наличие группы.
  *
- * @param szGroup			Имя VIP-группы.
+ * @param szGroup			Имя группы.
  *
- * @return					true - VIP-группа существует.
- * 							false -  VIP-группа не существует.
+ * @return					true - группа существует.
+ * 							false - группа не существует.
 */	
+native bool VIP_IsGroupExists(const char[] szGroup);
+
+#pragma deprecated Use VIP_IsGroupExists() instead
 native bool VIP_IsValidVIPGroup(const char[] szGroup);
 
 /**
@@ -679,6 +693,7 @@ public void __pl_vip_core_SetNTVOptional()
 	MarkNativeAsOptional("VIP_GetVIPClientTrie");
 	MarkNativeAsOptional("VIP_SendClientVIPMenu");
 	MarkNativeAsOptional("VIP_IsValidVIPGroup");
+	MarkNativeAsOptional("VIP_IsGroupExists");
 	MarkNativeAsOptional("VIP_GetClientFeatureStatus");
 	MarkNativeAsOptional("VIP_SetClientFeatureStatus");
 	MarkNativeAsOptional("VIP_IsClientFeatureUse");

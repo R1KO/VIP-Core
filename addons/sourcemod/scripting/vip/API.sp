@@ -10,6 +10,7 @@ static GlobalForward g_hGlobalForward_OnFeatureToggle;
 static GlobalForward g_hGlobalForward_OnFeatureRegistered;
 static GlobalForward g_hGlobalForward_OnFeatureUnregistered;
 static GlobalForward g_hGlobalForward_OnClientDisconnect;
+static GlobalForward g_hGlobalForward_OnConfigsLoaded;
 
 void API_SetupForwards()
 {
@@ -26,6 +27,7 @@ void API_SetupForwards()
 	g_hGlobalForward_OnFeatureRegistered   = new GlobalForward("VIP_OnFeatureRegistered", ET_Ignore, Param_String);
 	g_hGlobalForward_OnFeatureUnregistered = new GlobalForward("VIP_OnFeatureUnregistered", ET_Ignore, Param_String);
 	g_hGlobalForward_OnClientDisconnect	   = new GlobalForward("VIP_OnClientDisconnect", ET_Ignore, Param_Cell, Param_Cell);
+	g_hGlobalForward_OnConfigsLoaded	   = new GlobalForward("VIP_OnConfigsLoaded", ET_Ignore);
 }
 
 // Global Forwards
@@ -33,6 +35,13 @@ void CreateForward_OnVIPLoaded()
 {
 	DBG_API("CreateForward_OnVIPLoaded()");
 	Call_StartForward(g_hGlobalForward_OnVIPLoaded);
+	Call_Finish();
+}
+
+void CreateForward_OnConfigsLoaded()
+{
+	DBG_API("CreateForward_OnConfigsLoaded()");
+	Call_StartForward(g_hGlobalForward_OnConfigsLoaded);
 	Call_Finish();
 }
 
@@ -249,6 +258,7 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 	RegNative(SendClientVIPMenu);
 
 	RegNative(IsValidVIPGroup);
+	RegNative(IsGroupExists);
 
 	RegNative(GetClientFeatureStatus);
 	RegNative(SetClientFeatureStatus);
@@ -712,6 +722,13 @@ int API_RemoveClientVIP(Handle hPlugin,
 }
 
 public int Native_IsValidVIPGroup(Handle hPlugin, int iNumParams)
+{
+	char szGroup[64];
+	GetNativeString(1, SZF(szGroup));
+	return UTIL_CheckValidVIPGroup(szGroup);
+}
+
+public int Native_IsGroupExists(Handle hPlugin, int iNumParams)
 {
 	char szGroup[64];
 	GetNativeString(1, SZF(szGroup));
