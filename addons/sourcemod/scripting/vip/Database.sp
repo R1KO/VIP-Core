@@ -329,6 +329,10 @@ public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult
 
 		DB_RemoveClient(hPack, iClientID);
 	}
+	else
+	{
+		delete hPack;
+	}
 }
 
 void DB_RemoveClient(DataPack hDataPack, int iClientID)
@@ -365,11 +369,7 @@ public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, cons
 		hPack.ReadString(SZF(szName));
 		hPack.ReadString(SZF(szGroup));
 
-		if(iAdmin == -1)
-		{
-			return;
-		}
-
+		// iAdmin is -1 when the admin left before the query finished: still log, just don't reply
 		if (g_CVAR_bLogsEnable)
 		{
 			LogToFile(g_szLogFile, "%T", "LOG_VIP_DELETED", LANG_SERVER, szName, iClientID, szGroup, szAdmin);

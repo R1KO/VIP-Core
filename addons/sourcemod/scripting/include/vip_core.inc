@@ -428,7 +428,7 @@ native void VIP_SendClientVIPMenu(int iClient, bool bSelection = false);
 /**
  *	Выдает игроку VIP-права.
  *
- * @param iAdmin			Индекс админа (0 - сервер, -1 - плагин).
+ * @param iAdmin			Индекс админа (0 - сервер, -1 или любое отрицательное - плагин).
  * @param iClient			Индекс игрока.
  * @param iTime				Время в секундах.
  * @param szGroup			Имя VIP-группы.
@@ -444,7 +444,7 @@ native bool VIP_SetClientVIP(int iClient, int iTime, any AuthType, const char[] 
 /**
  *	Отнимает у игрока VIP-права.
  *
- * @param iAdmin			Индекс админа (0 - сервер, -1 - плагин).
+ * @param iAdmin			Индекс админа (0 - сервер, -1 или любое отрицательное - плагин).
  * @param iClient			Индекс игрока.
  * @param bInDB				Удалять ли из базы данных.
  * @param bNotify			Уведомление игрока (true - уведомить/false - не уведомлять).

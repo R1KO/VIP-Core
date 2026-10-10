@@ -15,7 +15,7 @@ public void DebugMessage(const char[] szMsg, any ...)
 {
     static char szBuffer[512];
     VFormat(szBuffer, sizeof(szBuffer), szMsg, 2);
-    LogToFile(g_szDebugLogFile, szBuffer);
+    LogToFile(g_szDebugLogFile, "%s", szBuffer);
 }
 
 #if defined LOG_DOWNLOADS
@@ -24,7 +24,7 @@ public void DBG_Download(const char[] szMsg, any ...)
     static char szBuffer[512];
     Format(szBuffer, sizeof(szBuffer), "Download: %s", szMsg);
     VFormat(szBuffer, sizeof(szBuffer), szMsg, 2);
-    LogToFile(g_szDebugLogFile, szBuffer);
+    LogToFile(g_szDebugLogFile, "%s", szBuffer);
 }
 #else
 public void DBG_Download(const char[] szMsg, any ...) {}
@@ -36,7 +36,7 @@ public void DBG_Config(const char[] szMsg, any ...)
     static char szBuffer[512];
     Format(szBuffer, sizeof(szBuffer), "Config: %s", szMsg);
     VFormat(szBuffer, sizeof(szBuffer), szMsg, 2);
-    LogToFile(g_szDebugLogFile, szBuffer);
+    LogToFile(g_szDebugLogFile, "%s", szBuffer);
 }
 #else
 public void DBG_Config(const char[] szMsg, any ...) {}
@@ -48,7 +48,7 @@ public void DBG_Clients(const char[] szMsg, any ...)
     static char szBuffer[512];
     Format(szBuffer, sizeof(szBuffer), "Clients: %s", szMsg);
     VFormat(szBuffer, sizeof(szBuffer), szMsg, 2);
-    LogToFile(g_szDebugLogFile, szBuffer);
+    LogToFile(g_szDebugLogFile, "%s", szBuffer);
 }
 #else
 public void DBG_Clients(const char[] szMsg, any ...) {}
@@ -60,7 +60,7 @@ public void DBG_SQL_Query(const char[] szMsg, any ...)
     static char szBuffer[512];
     Format(szBuffer, sizeof(szBuffer), "SQL_Query: %s", szMsg);
     VFormat(szBuffer, sizeof(szBuffer), szMsg, 2);
-    LogToFile(g_szDebugLogFile, szBuffer);
+    LogToFile(g_szDebugLogFile, "%s", szBuffer);
 }
 #else
 public void DBG_SQL_Query(const char[] szMsg, any ...) {}
@@ -72,7 +72,7 @@ public void DBG_SQL_Response(const char[] szMsg, any ...)
     static char szBuffer[512];
     Format(szBuffer, sizeof(szBuffer), "SQL_Response: %s", szMsg);
     VFormat(szBuffer, sizeof(szBuffer), szMsg, 2);
-    LogToFile(g_szDebugLogFile, szBuffer);
+    LogToFile(g_szDebugLogFile, "%s", szBuffer);
 }
 #else
 public void DBG_SQL_Response(const char[] szMsg, any ...) {}
@@ -84,7 +84,7 @@ public void DBG_API(const char[] szMsg, any ...)
     static char szBuffer[512];
     Format(szBuffer, sizeof(szBuffer), "API: %s", szMsg);
     VFormat(szBuffer, sizeof(szBuffer), szMsg, 2);
-    LogToFile(g_szDebugLogFile, szBuffer);
+    LogToFile(g_szDebugLogFile, "%s", szBuffer);
 }
 #else
 public void DBG_API(const char[] szMsg, any ...) {}
@@ -96,7 +96,7 @@ public void DBG_Database(const char[] szMsg, any ...)
     static char szBuffer[512];
     Format(szBuffer, sizeof(szBuffer), "Database: %s", szMsg);
     VFormat(szBuffer, sizeof(szBuffer), szMsg, 2);
-    LogToFile(g_szDebugLogFile, szBuffer);
+    LogToFile(g_szDebugLogFile, "%s", szBuffer);
 }
 #else
 public void DBG_Database(const char[] szMsg, any ...) {}

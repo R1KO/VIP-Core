@@ -386,7 +386,7 @@ public int Native_LogMessage(Handle hPlugin, int iNumParams)
 		SetGlobalTransTarget(LANG_SERVER);
 		FormatNativeString(0, 1, 2, sizeof(szMessage), _, szMessage);
 
-		LogToFile(g_szLogFile, szMessage);
+		LogToFile(g_szLogFile, "%s", szMessage);
 	}
 
 	return 0;
@@ -440,6 +440,8 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 		GetNativeString(2, SZF(szGroup));
 		if (UTIL_CheckValidVIPGroup(szGroup))
 		{
+			char szOldGroup[64];
+			g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szOldGroup));
 			if (g_hFeatures[iClient].SetString(KEY_GROUP, szGroup))
 			{
 				if (view_as<bool>(GetNativeCell(3)))
@@ -454,12 +456,10 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 
 						if (g_CVAR_bLogsEnable)
 						{
-							char szName[MNL], szAdmin[128], szPluginName[128], szOldGroup[64];
+							char szName[MNL], szAdmin[128], szPluginName[128];
 							GetClientName(iClient, SZF(szName));
 							GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
 							FormatEx(SZF(szAdmin), "%T %s", "BY_PLUGIN", LANG_SERVER, szPluginName);
-							g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szOldGroup));
-							g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
 							LogToFile(g_szLogFile, "%T", "LOG_CHANGE_GROUP", LANG_SERVER, szName, iClientID, szOldGroup, szGroup, szAdmin);
 						}
 					}
@@ -589,7 +589,7 @@ public int Native_GiveClientVIP(Handle hPlugin, int iNumParams)
 	char szGroup[64];
 	GetNativeString(4, SZF(szGroup));
 
-	return API_GiveClientVIP(hPlugin, iAdmin, iClient, iTime, szGroup, bAddToDB);
+	return API_GiveClientVIP(hPlugin, API_GetAdminOrPlugin(iAdmin), iClient, iTime, szGroup, bAddToDB);
 }
 
 public int Native_SetClientVIP(Handle hPlugin, int iNumParams)
@@ -687,7 +687,13 @@ public int Native_RemoveClientVIP2(Handle hPlugin, int iNumParams)
 	bool bInDB	 = GetNativeCell(3);
 	bool bNotify = GetNativeCell(4);
 
-	return API_RemoveClientVIP(hPlugin, iAdmin, iClient, bInDB, bNotify);
+	return API_RemoveClientVIP(hPlugin, API_GetAdminOrPlugin(iAdmin), iClient, bInDB, bNotify);
+}
+
+// The .inc documents -1 as "plugin" while the core uses REASON_PLUGIN (-2): accept any negative value
+int API_GetAdminOrPlugin(int iAdmin)
+{
+	return iAdmin < 0 ? REASON_PLUGIN : iAdmin;
 }
 
 int API_RemoveClientVIP(Handle hPlugin,
@@ -698,7 +704,7 @@ int API_RemoveClientVIP(Handle hPlugin,
 {
 	if (CheckValidClient(iClient))
 	{
-		if (iAdmin)
+		if (iAdmin > 0)
 		{
 			CheckValidClient(iAdmin, false);
 		}
