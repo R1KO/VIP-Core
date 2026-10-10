@@ -386,7 +386,7 @@ public int Native_LogMessage(Handle hPlugin, int iNumParams)
 		SetGlobalTransTarget(LANG_SERVER);
 		FormatNativeString(0, 1, 2, sizeof(szMessage), _, szMessage);
 
-		LogToFile(g_szLogFile, szMessage);
+		LogToFile(g_szLogFile, "%s", szMessage);
 	}
 
 	return 0;

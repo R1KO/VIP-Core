@@ -260,12 +260,12 @@ void UTIL_Reply(int iClient, const char[] szMsg, any ...)
 	VFormat(SZF(szMessage), szMsg, 3);
 	if (iClient)
 	{
-		VIP_PrintToChatClient(iClient, szMessage);
+		VIP_PrintToChatClient(iClient, "%s", szMessage);
 	}
 	else
 	{
 		Colors_RemoveColors(szMessage);
-		PrintToServer(szMessage);
+		PrintToServer("%s", szMessage);
 	}
 }
 

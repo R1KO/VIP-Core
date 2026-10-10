@@ -57,7 +57,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 					{
 						ReplaceValues(iClient, szBuffer, iBufLen, (szEvent[13] == 't'));
 					}
-					VIP_PrintToChatClient(iClient, szBuffer);
+					VIP_PrintToChatClient(iClient, "%s", szBuffer);
 				}
 			}
 			case 'm':
