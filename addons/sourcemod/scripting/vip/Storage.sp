@@ -30,7 +30,7 @@ bool Storage_GetClientValue(int iClient, const char[] szKey, char[] szValue, int
 
 void Storage_LoadClient(int iClient)
 {
-	if (!g_hDatabase || !(GLOBAL_INFO & IS_STARTED) || Storage_IsClientLoaded(iClient))
+	if (!g_hDatabase || !g_bStarted || Storage_IsClientLoaded(iClient))
 	{
 		return;
 	}
@@ -98,7 +98,6 @@ void Storage_SaveClient(int iClient, bool bSync = false)
 		return;
 	}
 
-	bool bMySQL = view_as<bool>(GLOBAL_INFO & IS_MySQL);
 	int iUpdated = GetTime();
 	char szKey[STORAGE_KEY_LENGTH], szValue[STORAGE_VALUE_LENGTH], szQuery[1024];
 
@@ -119,7 +118,7 @@ void Storage_SaveClient(int iClient, bool bSync = false)
 		g_hStorage[iClient].GetString(szKey, SZF(szValue));
 
 		// Database.Format escapes %s
-		if (bMySQL)
+		if (g_bMySQL)
 		{
 			g_hDatabase.Format(SZF(szQuery), "INSERT INTO `vip_storage` (`account_id`, `sid`, `key`, `value`, `updated`) \
 				VALUES (%d, %d, '%s', '%s', %d) \
@@ -183,7 +182,7 @@ void Storage_ResetClient(int iClient)
 static void Storage_GetServerFilter(char[] szFilter, int iMaxLength)
 {
 	szFilter[0] = 0;
-	if (GLOBAL_INFO & IS_MySQL)
+	if (g_bMySQL)
 	{
 		FormatEx(szFilter, iMaxLength, " AND `sid` = %d", g_CVAR_iStorageID);
 	}

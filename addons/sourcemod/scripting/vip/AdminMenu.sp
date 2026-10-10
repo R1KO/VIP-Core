@@ -50,7 +50,7 @@ void DisplayAdminMenu(int iClient)
 void BackToAdminMenu(int iClient)
 {
 	AdminMenuType eThrowMenuType;
-	g_hClientData[iClient].GetValue(DATA_KEY_ThrowMenuType, eThrowMenuType);
+	g_ePlayer[iClient].hData.GetValue(DATA_KEY_ThrowMenuType, eThrowMenuType);
 	switch (eThrowMenuType)
 	{
 		case TOP_ADMIN_MENU:	g_hTopMenu.Display(iClient, TopMenuPosition_LastCategory);
@@ -60,13 +60,13 @@ void BackToAdminMenu(int iClient)
 
 void InitiateDataMap(int iClient)
 {
-	if (g_hClientData[iClient] == null)
+	if (g_ePlayer[iClient].hData == null)
 	{
-		g_hClientData[iClient] = new StringMap();
+		g_ePlayer[iClient].hData = new StringMap();
 	}
 	else
 	{
-		g_hClientData[iClient].Clear();
+		g_ePlayer[iClient].hData.Clear();
 	}
 }
 
@@ -75,7 +75,7 @@ int IsClientOnline(int ID)
 	int iClientID;
 	for (int i = 1; i <= MaxClients; ++i)
 	{
-		if (IsClientInGame(i) && g_hFeatures[i] != null && g_hFeatures[i].GetValue(KEY_CID, iClientID) && iClientID == ID)
+		if (IsClientInGame(i) && g_ePlayer[i].hFeatures != null && g_ePlayer[i].hFeatures.GetValue(KEY_CID, iClientID) && iClientID == ID)
 		{
 			return i;
 		}
@@ -135,14 +135,14 @@ public int Handler_VIPAdminMenu(Menu hMenu, MenuAction action, int iClient, int 
 				case 0:
 				{
 					InitiateDataMap(iClient);
-					g_hClientData[iClient].SetValue(DATA_KEY_MenuType, MENU_TYPE_ADD);
-					g_hClientData[iClient].SetValue(DATA_KEY_ThrowMenuType, ADMIN_MENU);
+					g_ePlayer[iClient].hData.SetValue(DATA_KEY_MenuType, MENU_TYPE_ADD);
+					g_ePlayer[iClient].hData.SetValue(DATA_KEY_ThrowMenuType, ADMIN_MENU);
 					ShowAddVIPMenu(iClient);
 				}
 				case 1:
 				{
 					InitiateDataMap(iClient);
-					g_hClientData[iClient].SetValue(DATA_KEY_ThrowMenuType, ADMIN_MENU);
+					g_ePlayer[iClient].hData.SetValue(DATA_KEY_ThrowMenuType, ADMIN_MENU);
 					ShowVipPlayersListMenu(iClient);
 				}
 				case 2:
@@ -230,8 +230,8 @@ public void Handler_MenuAdd(TopMenu hMenu, TopMenuAction action, TopMenuObject o
 		case TopMenuAction_SelectOption:
 		{
 			InitiateDataMap(iClient);
-			g_hClientData[iClient].SetValue(DATA_KEY_MenuType, MENU_TYPE_ADD);
-			g_hClientData[iClient].SetValue(DATA_KEY_ThrowMenuType, TOP_ADMIN_MENU);
+			g_ePlayer[iClient].hData.SetValue(DATA_KEY_MenuType, MENU_TYPE_ADD);
+			g_ePlayer[iClient].hData.SetValue(DATA_KEY_ThrowMenuType, TOP_ADMIN_MENU);
 			ShowAddVIPMenu(iClient);
 		}
 	}
@@ -247,7 +247,7 @@ public void Handler_MenuList(TopMenu hMenu, TopMenuAction action, TopMenuObject 
 		case TopMenuAction_SelectOption:
 		{
 			InitiateDataMap(iClient);
-			g_hClientData[iClient].SetValue(DATA_KEY_ThrowMenuType, TOP_ADMIN_MENU);
+			g_ePlayer[iClient].hData.SetValue(DATA_KEY_ThrowMenuType, TOP_ADMIN_MENU);
 			ShowVipPlayersListMenu(iClient);
 		}
 	}
@@ -287,7 +287,7 @@ void ShowTimeMenu(int iClient)
 	Menu hMenu = new Menu(MenuHandler_TimeMenu);
 
 	TimeActionItem iMenuType;
-	g_hClientData[iClient].GetValue(DATA_KEY_TimeType, iMenuType);
+	g_ePlayer[iClient].hData.GetValue(DATA_KEY_TimeType, iMenuType);
 
 	switch (iMenuType)
 	{
@@ -346,7 +346,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 			if (iItem == MenuCancel_ExitBack)
 			{
 				AdminMenuItem eMenuItem;
-				g_hClientData[iClient].GetValue(DATA_KEY_MenuType, eMenuItem);
+				g_ePlayer[iClient].hData.GetValue(DATA_KEY_MenuType, eMenuItem);
 
 				switch (eMenuItem)
 				{
@@ -362,16 +362,16 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 			int iTime, iTarget;
 			AdminMenuItem eMenuItem;
 			iTime = S2I(szName);
-			g_hClientData[iClient].GetValue(DATA_KEY_MenuType, eMenuItem);
+			g_ePlayer[iClient].hData.GetValue(DATA_KEY_MenuType, eMenuItem);
 			
 			if (eMenuItem == MENU_TYPE_ADD)
 			{
-				g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget);
+				g_ePlayer[iClient].hData.GetValue(DATA_KEY_TargetUID, iTarget);
 				if ((iTarget = GetClientOfUserId(iTarget)))
 				{
 					char szBuffer[64];
 					hMenu.GetItem(iItem, SZF(szBuffer));
-					g_hClientData[iClient].SetValue(DATA_KEY_Time, S2I(szBuffer));
+					g_ePlayer[iClient].hData.SetValue(DATA_KEY_Time, S2I(szBuffer));
 					ShowGroupsMenu(iClient);
 				}
 				else
@@ -384,10 +384,10 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 
 			char szTime[64];
 			int iExpires;
-			g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));
+			g_ePlayer[iClient].hData.GetString(DATA_KEY_Name, SZF(szName));
 
 			TimeActionItem eTimeActionItem;
-			g_hClientData[iClient].GetValue(DATA_KEY_TimeType, eTimeActionItem);
+			g_ePlayer[iClient].hData.GetValue(DATA_KEY_TimeType, eTimeActionItem);
 			switch(eTimeActionItem)
 			{
 				case TIME_SET:
@@ -411,7 +411,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 				}
 				case TIME_ADD:
 				{
-					g_hClientData[iClient].GetValue(DATA_KEY_Time, iExpires);
+					g_ePlayer[iClient].hData.GetValue(DATA_KEY_Time, iExpires);
 					if (iExpires <= 0)
 					{
 						VIP_PrintToChatClient(iClient, "%t", "UNABLE_TO_EXTENDED");
@@ -431,7 +431,7 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 				}
 				case TIME_TAKE:
 				{
-					g_hClientData[iClient].GetValue(DATA_KEY_Time, iExpires);
+					g_ePlayer[iClient].hData.GetValue(DATA_KEY_Time, iExpires);
 					if (iExpires <= 0)
 					{
 						VIP_PrintToChatClient(iClient, "%t", "UNABLE_TO_REDUCE");
@@ -459,8 +459,8 @@ public int MenuHandler_TimeMenu(Menu hMenu, MenuAction action, int iClient, int 
 				}
 			}
 
-			g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTarget);
-			g_hClientData[iClient].SetValue(DATA_KEY_Time, iExpires);
+			g_ePlayer[iClient].hData.GetValue(DATA_KEY_TargetID, iTarget);
+			g_ePlayer[iClient].hData.SetValue(DATA_KEY_Time, iExpires);
 
 			char szQuery[512];
 			FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = '%d' WHERE `account_id` = '%d'%s;", iExpires, iTarget, g_szSID);
@@ -518,7 +518,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 			if (iItem == MenuCancel_ExitBack)
 			{
 				AdminMenuItem eMenuItem;
-				g_hClientData[iClient].GetValue(DATA_KEY_MenuType, eMenuItem);
+				g_ePlayer[iClient].hData.GetValue(DATA_KEY_MenuType, eMenuItem);
 				switch(eMenuItem)
 				{
 					case MENU_TYPE_ADD:
@@ -537,23 +537,23 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 			char szGroup[64];
 			hMenu.GetItem(iItem, SZF(szGroup));
 			AdminMenuItem eMenuItem;
-			g_hClientData[iClient].GetValue(DATA_KEY_MenuType, eMenuItem);
+			g_ePlayer[iClient].hData.GetValue(DATA_KEY_MenuType, eMenuItem);
 			switch(eMenuItem)
 			{
 				case MENU_TYPE_ADD:
 				{
 					int iTarget, iBuffer;
-					g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget);
+					g_ePlayer[iClient].hData.GetValue(DATA_KEY_TargetUID, iTarget);
 					iTarget = CID(iTarget);
 					if (iTarget)
 					{
-						g_hClientData[iClient].GetValue(DATA_KEY_Time, iBuffer);
+						g_ePlayer[iClient].hData.GetValue(DATA_KEY_Time, iBuffer);
 
 						// Keep the menu to return to (BackToAdminMenu below)
 						AdminMenuType eThrowMenuType;
-						g_hClientData[iClient].GetValue(DATA_KEY_ThrowMenuType, eThrowMenuType);
-						g_hClientData[iClient].Clear();
-						g_hClientData[iClient].SetValue(DATA_KEY_ThrowMenuType, eThrowMenuType);
+						g_ePlayer[iClient].hData.GetValue(DATA_KEY_ThrowMenuType, eThrowMenuType);
+						g_ePlayer[iClient].hData.Clear();
+						g_ePlayer[iClient].hData.SetValue(DATA_KEY_ThrowMenuType, eThrowMenuType);
 
 						UTIL_ADD_VIP_PLAYER(iClient, iTarget, _, iBuffer, szGroup);
 					}
@@ -569,9 +569,9 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 					char szQuery[256], szName[MNL], szOldGroup[64];
 					hMenu.GetItem(iItem, SZF(szGroup));
 					int iTargetID;
-					g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTargetID);
-					g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));
-					g_hClientData[iClient].GetString(DATA_KEY_Group, SZF(szOldGroup));
+					g_ePlayer[iClient].hData.GetValue(DATA_KEY_TargetID, iTargetID);
+					g_ePlayer[iClient].hData.GetString(DATA_KEY_Name, SZF(szName));
+					g_ePlayer[iClient].hData.GetString(DATA_KEY_Group, SZF(szOldGroup));
 
 					FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iTargetID, g_szSID);
 
@@ -579,7 +579,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 					g_hDatabase.Query(SQL_Callback_ErrorCheck, szQuery);
 
 					int iTarget = 0;
-					g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget);
+					g_ePlayer[iClient].hData.GetValue(DATA_KEY_TargetUID, iTarget);
 					iTarget = CID(iTarget);
 					if (!iTarget)
 					{
@@ -628,11 +628,11 @@ public void SQL_Callback_ChangeTime(Database hOwner, DBResultSet hResult, const 
 		if (iClient)
 		{
 			int iTarget;
-			g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget);
+			g_ePlayer[iClient].hData.GetValue(DATA_KEY_TargetUID, iTarget);
 			iTarget = CID(iTarget);
 			if(!iTarget)
 			{
-				g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iTarget);
+				g_ePlayer[iClient].hData.GetValue(DATA_KEY_TargetID, iTarget);
 				iTarget = IsClientOnline(iTarget);
 			}
 
@@ -656,9 +656,9 @@ public Action OnClientSayCommand(int iClient, const char[] szCommand, const char
 {
 	if(iClient > 0 && iClient <= MaxClients && szArgs[0])
 	{
-		if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+		if (g_ePlayer[iClient].bWaitChatSearch)
 		{
-			if(g_iClientInfo[iClient] & IS_WAIT_CHAT_SEARCH)
+			if (g_ePlayer[iClient].bWaitChatSearch)
 			{
 				ShowWaitSearchMenu(iClient, szArgs);
 			}

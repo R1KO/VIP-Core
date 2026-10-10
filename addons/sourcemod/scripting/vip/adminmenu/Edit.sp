@@ -32,8 +32,8 @@ public int MenuHandler_EditTimeMenu(Menu hMenu, MenuAction action, int iClient, 
 		}
 		case MenuAction_Select:
 		{
-			g_hClientData[iClient].SetValue(DATA_KEY_TimeType, iItem);
-			g_hClientData[iClient].SetValue(DATA_KEY_MenuType, MENU_TYPE_EDIT);
+			g_ePlayer[iClient].hData.SetValue(DATA_KEY_TimeType, iItem);
+			g_ePlayer[iClient].hData.SetValue(DATA_KEY_MenuType, MENU_TYPE_EDIT);
 			ShowTimeMenu(iClient);
 		}
 	}

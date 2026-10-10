@@ -6,7 +6,7 @@ bool Features_Get(const char[] szFeature, Feature eFeature)
 void Features_TurnOffAll(int iClient)
 {
 	DebugMessage("Features_TurnOffAll %N (%i)", iClient, iClient);
-	if (!(g_iClientInfo[iClient] & IS_VIP))
+	if (!g_ePlayer[iClient].bVIP)
 	{
 		return;
 	}
@@ -68,13 +68,13 @@ void Features_TurnOnAll(int iClient)
 void Features_SetStatus(int iClient, const char[] szFeature, VIP_ToggleState eStatus)
 {
 	DebugMessage("Features_SetStatus: %N (%i) -> Feature: %s, eStatus: %i", iClient, iClient, szFeature, eStatus);
-	g_hFeatureStatus[iClient].SetValue(szFeature, eStatus);
+	g_ePlayer[iClient].hFeatureStatus.SetValue(szFeature, eStatus);
 }
 
 VIP_ToggleState Features_GetStatus(const int &iClient, const char[] szFeature)
 {
 	static VIP_ToggleState eStatus;
-	if(g_hFeatureStatus[iClient].GetValue(szFeature, eStatus))
+	if (g_ePlayer[iClient].hFeatureStatus.GetValue(szFeature, eStatus))
 	{
 		DebugMessage("Features_GetStatus: %N (%i) -> Feature: %s, eStatus: %i", iClient, iClient, szFeature, eStatus);
 		return eStatus;

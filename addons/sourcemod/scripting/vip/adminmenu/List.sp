@@ -2,8 +2,8 @@ static const int LIST_OFFSET = 60;
 
 void ShowVipPlayersListMenu(int iClient)
 {
-	g_hClientData[iClient].SetValue(DATA_KEY_MenuListType, MENU_TYPE_ONLINE_LIST);
-	g_hClientData[iClient].Remove(DATA_KEY_Search);
+	g_ePlayer[iClient].hData.SetValue(DATA_KEY_MenuListType, MENU_TYPE_ONLINE_LIST);
+	g_ePlayer[iClient].hData.Remove(DATA_KEY_Search);
 
 	char szUserID[16], szName[128];
 	int i, iClientID;
@@ -21,9 +21,9 @@ void ShowVipPlayersListMenu(int iClient)
 	szUserID[0] = 0;
 	for (i = 1; i <= MaxClients; ++i)
 	{
-		if (IsClientInGame(i) && (g_iClientInfo[i] & IS_VIP) && !IsFakeClient(i) && GetClientName(i, SZF(szName)))
+		if (IsClientInGame(i) && g_ePlayer[i].bVIP && !IsFakeClient(i) && GetClientName(i, SZF(szName)))
 		{
-			g_hFeatures[i].GetValue(KEY_CID, iClientID);
+			g_ePlayer[i].hFeatures.GetValue(KEY_CID, iClientID);
 			FormatEx(SZF(szUserID), "u%d", UID(i));
 			if (iClientID == -1)
 			{
@@ -76,7 +76,7 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 
 			if (!strcmp(szUserID, "show_all")) // Show all
 			{
-				g_hClientData[iClient].Remove(DATA_KEY_Search);
+				g_ePlayer[iClient].hData.Remove(DATA_KEY_Search);
 				ShowVipPlayersFromDBMenu(iClient);
 				
 				return 0;
@@ -85,7 +85,7 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 			if (!strcmp(szUserID, "more")) // Show more
 			{
 				int iOffset;
-				g_hClientData[iClient].GetValue(DATA_KEY_Offset, iOffset);
+				g_ePlayer[iClient].hData.GetValue(DATA_KEY_Offset, iOffset);
 				ShowVipPlayersFromDBMenu(iClient, iOffset + LIST_OFFSET);
 
 				return 0;
@@ -97,9 +97,9 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 				int iTarget = CID(UserID);
 				if (iTarget)
 				{
-					g_hClientData[iClient].SetValue(DATA_KEY_TargetUID, UserID);
-					g_hFeatures[iTarget].GetValue(KEY_CID, UserID);
-					g_hClientData[iClient].SetValue(DATA_KEY_TargetID, UserID);
+					g_ePlayer[iClient].hData.SetValue(DATA_KEY_TargetUID, UserID);
+					g_ePlayer[iTarget].hFeatures.GetValue(KEY_CID, UserID);
+					g_ePlayer[iClient].hData.SetValue(DATA_KEY_TargetID, UserID);
 					
 					if(UserID == -1)
 					{
@@ -119,8 +119,8 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 			}
 
 			// Picked from the DB list: forget a player picked earlier from the online list
-			g_hClientData[iClient].Remove(DATA_KEY_TargetUID);
-			g_hClientData[iClient].SetValue(DATA_KEY_TargetID, S2I(szUserID));
+			g_ePlayer[iClient].hData.Remove(DATA_KEY_TargetUID);
+			g_ePlayer[iClient].hData.SetValue(DATA_KEY_TargetID, S2I(szUserID));
 
 			ShowTargetInfo(iClient);
 		}
@@ -138,12 +138,12 @@ void ShowWaitSearchMenu(int iClient, const char[] szSearch = NULL_STRING)
 	FormatEx(SZF(szBuffer), "%T", "CONFIRM", iClient);
 	if (szSearch[0])
 	{
-		//	g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_SEARCH;
+		//	g_ePlayer[iClient].bWaitChatSearch = false;
 		hMenu.AddItem(szSearch, szBuffer);
 	}
 	else
 	{
-		g_iClientInfo[iClient] |= IS_WAIT_CHAT_SEARCH;
+		g_ePlayer[iClient].bWaitChatSearch = true;
 		hMenu.AddItem(NULL_STRING, szBuffer, ITEMDRAW_DISABLED);
 	}
 	
@@ -164,7 +164,7 @@ public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int 
 		{
 			if (iItem != MenuCancel_Interrupted)
 			{
-				g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_SEARCH;
+				g_ePlayer[iClient].bWaitChatSearch = false;
 			}
 			
 			if (iItem == MenuCancel_ExitBack)
@@ -174,14 +174,14 @@ public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int 
 		}
 		case MenuAction_Select:
 		{
-			g_iClientInfo[iClient] &= ~IS_WAIT_CHAT_SEARCH;
+			g_ePlayer[iClient].bWaitChatSearch = false;
 			switch (iItem)
 			{
 				case 0:
 				{
 					char szSearch[32];
 					hMenu.GetItem(iItem, SZF(szSearch));
-					g_hClientData[iClient].SetString(DATA_KEY_Search, szSearch);
+					g_ePlayer[iClient].hData.SetString(DATA_KEY_Search, szSearch);
 					ShowVipPlayersFromDBMenu(iClient);
 				}
 				case 1:
@@ -198,13 +198,13 @@ public int MenuHandler_SearchPlayersListMenu(Menu hMenu, MenuAction action, int 
 void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 {
 	LogMessage("ShowVipPlayersFromDBMenu");
-	g_hClientData[iClient].SetValue(DATA_KEY_MenuListType, MENU_TYPE_DB_LIST);
-	g_hClientData[iClient].SetValue(DATA_KEY_Offset, iOffset);
+	g_ePlayer[iClient].hData.SetValue(DATA_KEY_MenuListType, MENU_TYPE_DB_LIST);
+	g_ePlayer[iClient].hData.SetValue(DATA_KEY_Offset, iOffset);
 
 	char szQuery[1024], szSearch[64], szWhere[128];
 	szSearch[0] = 0;
 	szWhere[0] = 0;
-	if(g_hClientData[iClient].GetString(DATA_KEY_Search, SZF(szSearch)) && szSearch[0])
+	if (g_ePlayer[iClient].hData.GetString(DATA_KEY_Search, SZF(szSearch)) && szSearch[0])
 	{
 		int iAccountID = UTIL_GetAccountIDFromSteamID(szSearch);
 		if(iAccountID)
@@ -243,7 +243,7 @@ public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, 
 		Menu hMenu = new Menu(MenuHandler_VipPlayersListMenu);
 		hMenu.ExitBackButton = true;
 		szSearch[0] = 0;
-		g_hClientData[iClient].GetString(DATA_KEY_Search, SZF(szSearch));
+		g_ePlayer[iClient].hData.GetString(DATA_KEY_Search, SZF(szSearch));
 		if(szSearch[0])
 		{
 			hMenu.SetTitle("%T:\n%T:\n ", "MENU_LIST_VIP", iClient, "MENU_SEARCH", iClient, szSearch, hResult.RowCount);
@@ -295,7 +295,7 @@ public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, 
 void ShowTargetInfo(int iClient)
 {
 	int iClientID;
-	g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iClientID);
+	g_ePlayer[iClient].hData.GetValue(DATA_KEY_TargetID, iClientID);
 
 	char szQuery[512];
 	FormatEx(SZF(szQuery), "SELECT `group`, \
@@ -334,19 +334,19 @@ public void SQL_Callback_SelectVipClientInfo(Database hOwner, DBResultSet hResul
 		char szGroup[64], szName[32];
 
 		hResult.FetchString(0, SZF(szGroup)); // GROUP
-		g_hClientData[iClient].SetString(DATA_KEY_Group, szGroup);
+		g_ePlayer[iClient].hData.SetString(DATA_KEY_Group, szGroup);
 		DBG_SQL_Response("hResult.FetchString(0) = '%s", szGroup);
 
 		int iExpires = hResult.FetchInt(1); // Expires
-		g_hClientData[iClient].SetValue(DATA_KEY_Time, iExpires);
+		g_ePlayer[iClient].hData.SetValue(DATA_KEY_Time, iExpires);
 		DBG_SQL_Response("hResult.FetchInt(1) = %d", iExpires);
 
 		hResult.FetchString(2, SZF(szName)); // Name
-		g_hClientData[iClient].SetString(DATA_KEY_Name, szName);
+		g_ePlayer[iClient].hData.SetString(DATA_KEY_Name, szName);
 		DBG_SQL_Response("hResult.FetchString(2) = '%s", szName);
 
 		int iAccountID = hResult.FetchInt(3); // Auth
-		g_hClientData[iClient].SetValue(DATA_KEY_Auth, iAccountID);
+		g_ePlayer[iClient].hData.SetValue(DATA_KEY_Auth, iAccountID);
 		DBG_SQL_Response("hResult.FetchInt(3) = %d", iAccountID);
 
 		ShowTargetInfoMenu(iClient);
@@ -357,7 +357,7 @@ void ShowTemporaryTargetInfo(int iClient)
 {
 	char szGroup[64], szName[32];
 	int iTarget;
-	g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget);
+	g_ePlayer[iClient].hData.GetValue(DATA_KEY_TargetUID, iTarget);
 	iTarget = CID(iTarget);
 	if(!iTarget)
 	{
@@ -366,17 +366,17 @@ void ShowTemporaryTargetInfo(int iClient)
 		return;
 	}
 
-	g_hFeatures[iTarget].GetString(KEY_GROUP, SZF(szGroup));
-	g_hClientData[iClient].SetString(DATA_KEY_Group, szGroup);
+	g_ePlayer[iTarget].hFeatures.GetString(KEY_GROUP, SZF(szGroup));
+	g_ePlayer[iClient].hData.SetString(DATA_KEY_Group, szGroup);
 
 	int iExpires, iAccountID;
-	g_hFeatures[iTarget].GetValue(KEY_EXPIRES, iExpires);
-	g_hClientData[iClient].SetValue(DATA_KEY_Time, iExpires);
+	g_ePlayer[iTarget].hFeatures.GetValue(KEY_EXPIRES, iExpires);
+	g_ePlayer[iClient].hData.SetValue(DATA_KEY_Time, iExpires);
 	GetClientName(iTarget, SZF(szName));
 	iAccountID = GetSteamAccountID(iTarget);
 
-	g_hClientData[iClient].SetString(DATA_KEY_Name, szName);
-	g_hClientData[iClient].SetValue(DATA_KEY_Auth, iAccountID);
+	g_ePlayer[iClient].hData.SetString(DATA_KEY_Name, szName);
+	g_ePlayer[iClient].hData.SetValue(DATA_KEY_Auth, iAccountID);
 
 	ShowTargetInfoMenu(iClient);
 }
@@ -384,13 +384,13 @@ void ShowTemporaryTargetInfo(int iClient)
 void ShowTargetInfoMenu(int iClient)
 {
 	char szGroup[64], szName[32], szAuth[32], szBuffer[128];
-	g_hClientData[iClient].GetString(DATA_KEY_Group, SZF(szGroup));
-	g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));
+	g_ePlayer[iClient].hData.GetString(DATA_KEY_Group, SZF(szGroup));
+	g_ePlayer[iClient].hData.GetString(DATA_KEY_Name, SZF(szName));
 	int iExpires, iClientID, iAccountID;
-	g_hClientData[iClient].GetValue(DATA_KEY_Time, iExpires);
+	g_ePlayer[iClient].hData.GetValue(DATA_KEY_Time, iExpires);
 	DebugMessage("GetValue(%s) = %d", DATA_KEY_Time, iExpires);
-	g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iClientID);
-	g_hClientData[iClient].GetValue(DATA_KEY_Auth, iAccountID);
+	g_ePlayer[iClient].hData.GetValue(DATA_KEY_TargetID, iClientID);
+	g_ePlayer[iClient].hData.GetValue(DATA_KEY_Auth, iAccountID);
 	UTIL_GetSteamIDFromAccountID(iAccountID, SZF(szAuth));
 
 	if (iExpires > 0)
@@ -444,7 +444,7 @@ public int MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iCli
 			{
 				DebugMessage("MenuHandler_VipClientInfoMenu->MenuCancel_ExitBack");
 				AdminMenuItem eItem;
-				g_hClientData[iClient].GetValue(DATA_KEY_MenuListType, eItem);
+				g_ePlayer[iClient].hData.GetValue(DATA_KEY_MenuListType, eItem);
 				DebugMessage("GetValue(%s) = %d", DATA_KEY_MenuListType, eItem);
 				switch(eItem)
 				{
@@ -455,7 +455,7 @@ public int MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iCli
 					case MENU_TYPE_DB_LIST:
 					{
 						int iOffset;
-						g_hClientData[iClient].GetValue(DATA_KEY_Offset, iOffset);
+						g_ePlayer[iClient].hData.GetValue(DATA_KEY_Offset, iOffset);
 						ShowVipPlayersFromDBMenu(iClient, iOffset);
 					}
 				}
@@ -469,9 +469,9 @@ public int MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iCli
 				case 1:	ShowEditTimeMenu(iClient);
 				case 2:
 				{
-					g_hClientData[iClient].SetValue(DATA_KEY_MenuType, MENU_TYPE_EDIT);
+					g_ePlayer[iClient].hData.SetValue(DATA_KEY_MenuType, MENU_TYPE_EDIT);
 					char szGroup[64];
-					g_hClientData[iClient].GetString(DATA_KEY_Group, SZF(szGroup));
+					g_ePlayer[iClient].hData.GetString(DATA_KEY_Group, SZF(szGroup));
 					ShowGroupsMenu(iClient, szGroup);
 				}
 			}
