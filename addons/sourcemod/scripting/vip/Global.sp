@@ -1,5 +1,3 @@
-#define GLOBAL_INFO			g_iClientInfo[0]
-
 #define UID(%0) 			GetClientUserId(%0)
 #define CID(%0) 			GetClientOfUserId(%0)
 #define SZF(%0) 			%0, sizeof(%0)
@@ -18,17 +16,6 @@
 
 #define SET_BIT(%0,%1) 		%0 |= %1
 #define UNSET_BIT(%0,%1) 	%0 &= ~%1
-
-#define IS_VIP						(1<<0)	// Player is a VIP
-#define IS_LOADED					(1<<1)	// Player is loaded
-#define IS_WAIT_CHAT_PASS			(1<<2)	// Waiting for a password in chat
-#define IS_WAIT_CHAT_SEARCH			(1<<3)	// Waiting for a search value in chat
-#define IS_SPAWNED					(1<<4)	// Player has spawned
-#define IS_MENU_OPEN				(1<<5)	// VIP menu is open
-
-#define IS_STARTED					(1<<0)
-#define IS_MySQL					(1<<1)
-#define IS_LOADING					(1<<2)
 
 #define REASON_PLUGIN	-2
 #define REASON_EXPIRED	-3
@@ -94,12 +81,33 @@ ArrayList	g_hFeaturesArray;		// Feature names in registration order
 StringMap	g_hFeatureRegistry;		// Feature name -> Feature
 ArrayList	g_hSortArray;
 
-StringMap	g_hFeatures[MAXPLAYERS+1];
-StringMap	g_hFeatureStatus[MAXPLAYERS+1];
+enum struct PlayerData
+{
+	bool		bVIP;
+	bool		bLoaded;			// VIP check finished (VIP or not)
+	bool		bSpawned;
+	bool		bMenuOpen;
+	bool		bWaitChatSearch;	// Admin menu waits for a search value in chat
 
-StringMap	g_hClientData[MAXPLAYERS+1];
+	StringMap	hFeatures;			// Feature values, plus KEY_CID / KEY_EXPIRES / KEY_GROUP / KEY_MENUITEM
+	StringMap	hFeatureStatus;		// Feature name -> VIP_ToggleState
+	StringMap	hData;				// Admin menu state (DATA_KEY_*)
 
-int			g_iClientInfo[MAXPLAYERS+1];
+	void ClearFlags()
+	{
+		this.bVIP = false;
+		this.bLoaded = false;
+		this.bSpawned = false;
+		this.bMenuOpen = false;
+		this.bWaitChatSearch = false;
+	}
+}
+
+PlayerData	g_ePlayer[MAXPLAYERS+1];
+
+bool		g_bStarted;		// Connected and VIP_OnVIPLoaded fired
+bool		g_bMySQL;
+bool		g_bConnecting;	// DB_Connect is in progress
 
 int			g_iMaxPageItems;
 

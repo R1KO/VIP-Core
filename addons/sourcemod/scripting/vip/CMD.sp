@@ -109,7 +109,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 		{
 			if(IsClientInGame(iTargetList[i]))
 			{
-				if (g_iClientInfo[iTargetList[i]] & IS_VIP)
+				if (g_ePlayer[iTargetList[i]].bVIP)
 				{
 					ReplyToCommand(iClient, "[VIP] %t", "ALREADY_HAS_VIP");
 					continue;
@@ -243,7 +243,7 @@ public Action VIPMenu_CMD(int iClient, int iArgs)
 	{
 		if (OnVipMenuFlood(iClient) == false)
 		{
-			if (g_iClientInfo[iClient] & IS_VIP)
+			if (g_ePlayer[iClient].bVIP)
 			{
 				g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
 			}

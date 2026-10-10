@@ -57,7 +57,7 @@ void CreateForward_OnClientStorageLoaded(int iClient)
 
 bool CreateForward_OnClientPreLoad(int iClient)
 {
-	DBG_API("g_hGlobalForward_OnClientPreLoad(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP);
+	DBG_API("g_hGlobalForward_OnClientPreLoad(%N (%d), %b)", iClient, iClient, g_ePlayer[iClient].bVIP);
 	bool bResult = true;
 	Call_StartForward(g_hGlobalForward_OnClientPreLoad);
 	Call_PushCell(iClient);
@@ -69,10 +69,10 @@ bool CreateForward_OnClientPreLoad(int iClient)
 
 void CreateForward_OnClientLoaded(int iClient)
 {
-	DBG_API("CreateForward_OnClientLoaded(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP);
+	DBG_API("CreateForward_OnClientLoaded(%N (%d), %b)", iClient, iClient, g_ePlayer[iClient].bVIP);
 	Call_StartForward(g_hGlobalForward_OnClientLoaded);
 	Call_PushCell(iClient);
-	Call_PushCell(g_iClientInfo[iClient] & IS_VIP);
+	Call_PushCell(g_ePlayer[iClient].bVIP);
 	Call_Finish();
 }
 
@@ -86,10 +86,10 @@ void CreateForward_OnVIPClientLoaded(int iClient)
 
 void CreateForward_OnClientDisconnect(int iClient)
 {
-	DBG_API("CreateForward_OnClientDisconnect(%N (%d), %b)", iClient, iClient, g_iClientInfo[iClient] & IS_VIP);
+	DBG_API("CreateForward_OnClientDisconnect(%N (%d), %b)", iClient, iClient, g_ePlayer[iClient].bVIP);
 	Call_StartForward(g_hGlobalForward_OnClientDisconnect);
 	Call_PushCell(iClient);
-	Call_PushCell(g_iClientInfo[iClient] & IS_VIP);
+	Call_PushCell(g_ePlayer[iClient].bVIP);
 	Call_Finish();
 }
 
@@ -114,11 +114,11 @@ void CreateForward_OnVIPClientRemoved(int iClient, const char[] sReason, int iAd
 
 void CreateForward_OnPlayerSpawn(int iClient, int iTeam)
 {
-	DBG_API("CreateForward_OnPlayerSpawn(%N (%d), %d, %b)", iClient, iClient, iTeam, g_iClientInfo[iClient] & IS_VIP);
+	DBG_API("CreateForward_OnPlayerSpawn(%N (%d), %d, %b)", iClient, iClient, iTeam, g_ePlayer[iClient].bVIP);
 	Call_StartForward(g_hGlobalForward_OnPlayerSpawn);
 	Call_PushCell(iClient);
 	Call_PushCell(iTeam);
-	Call_PushCell(g_iClientInfo[iClient] & IS_VIP);
+	Call_PushCell(g_ePlayer[iClient].bVIP);
 	Call_Finish();
 }
 
@@ -312,7 +312,7 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 	return APLRes_Success;
 }
 
-#define VIP_CLIENT(%0)	(g_hFeatures[%0] && (g_iClientInfo[%0] & IS_VIP))
+#define VIP_CLIENT(%0)	(g_ePlayer[%0].hFeatures && g_ePlayer[%0].bVIP)
 
 public int Native_CheckClient(Handle hPlugin, int iNumParams)
 {
@@ -334,8 +334,8 @@ public any Native_IsClientVIP(Handle hPlugin, int iNumParams)
 	DBG_API("iClient = %d", iClient);
 	if (CheckValidClient(iClient, false))
 	{
-		DBG_API("IS_VIP = %b", (g_iClientInfo[iClient] & IS_VIP));
-		return view_as<bool>(g_iClientInfo[iClient] & IS_VIP);
+		DBG_API("IS_VIP = %b", g_ePlayer[iClient].bVIP);
+		return g_ePlayer[iClient].bVIP;
 	}
 
 	return false;
@@ -400,7 +400,7 @@ public int Native_GetClientID(Handle hPlugin, int iNumParams)
 	{
 		DBG_API("VIP_CLIENT");
 		int iClientID;
-		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID))
+		if (g_ePlayer[iClient].hFeatures.GetValue(KEY_CID, iClientID))
 		{
 			DBG_API("GetValue(%s) = %d", KEY_CID, iClientID);
 			return iClientID;
@@ -419,7 +419,7 @@ public int Native_GetClientVIPGroup(Handle hPlugin, int iNumParams)
 
 		szGroup[0] = 0;
 
-		if (g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szGroup)))
+		if (g_ePlayer[iClient].hFeatures.GetString(KEY_GROUP, SZF(szGroup)))
 		{
 			SetNativeString(2, szGroup, GetNativeCell(3), true);
 			return true;
@@ -440,13 +440,13 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 		if (UTIL_CheckValidVIPGroup(szGroup))
 		{
 			char szOldGroup[64];
-			g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szOldGroup));
-			if (g_hFeatures[iClient].SetString(KEY_GROUP, szGroup))
+			g_ePlayer[iClient].hFeatures.GetString(KEY_GROUP, SZF(szOldGroup));
+			if (g_ePlayer[iClient].hFeatures.SetString(KEY_GROUP, szGroup))
 			{
 				if (view_as<bool>(GetNativeCell(3)))
 				{
 					int iClientID;
-					if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
+					if (g_ePlayer[iClient].hFeatures.GetValue(KEY_CID, iClientID) && iClientID != -1)
 					{
 						char szQuery[256];
 						FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `group` = '%s' WHERE `account_id` = %d%s;", szGroup, iClientID, g_szSID);
@@ -481,7 +481,7 @@ public int Native_GetClientAccessTime(Handle hPlugin, int iNumParams)
 	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
 		int iExp;
-		if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp))
+		if (g_ePlayer[iClient].hFeatures.GetValue(KEY_EXPIRES, iExp))
 		{
 			return iExp;
 		}
@@ -503,12 +503,12 @@ public int Native_SetClientAccessTime(Handle hPlugin, int iNumParams)
 			return false;
 		}
 
-		if (g_hFeatures[iClient].SetValue(KEY_EXPIRES, iTime))
+		if (g_ePlayer[iClient].hFeatures.SetValue(KEY_EXPIRES, iTime))
 		{
 			if (view_as<bool>(GetNativeCell(3)))
 			{
 				int iClientID;
-				if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
+				if (g_ePlayer[iClient].hFeatures.GetValue(KEY_CID, iClientID) && iClientID != -1)
 				{
 					char szQuery[256];
 					FormatEx(SZF(szQuery), "UPDATE `vip_users` SET `expires` = %d WHERE `account_id` = %d%s;", iTime, iClientID, g_szSID);
@@ -545,7 +545,7 @@ public int Native_GetVIPClientTrie(Handle hPlugin, int iNumParams)
 	int iClient = GetNativeCell(1);
 	if (CheckValidClient(iClient, false) && VIP_CLIENT(iClient))
 	{
-		return view_as<int>(g_hFeatures[iClient]);
+		return view_as<int>(g_ePlayer[iClient].hFeatures);
 	}
 
 	return 0;
@@ -570,7 +570,7 @@ public int Native_SendClientVIPMenu(Handle hPlugin, int iNumParams)
 		}
 
 		int iItem = 0;
-		g_hFeatures[iClient].GetValue(KEY_MENUITEM, iItem);
+		g_ePlayer[iClient].hFeatures.GetValue(KEY_MENUITEM, iItem);
 
 		g_hVIPMenu.DisplayAt(iClient, iItem, MENU_TIME_FOREVER);
 	}
@@ -607,10 +607,10 @@ int API_GiveClientVIP(Handle hPlugin, int iAdmin, int iClient, int iTime, const 
 {
 	if (CheckValidClient(iClient, false) && (iAdmin < 1 || CheckValidClient(iAdmin, false)))
 	{
-		if (g_iClientInfo[iClient] & IS_VIP)
+		if (g_ePlayer[iClient].bVIP)
 		{
 			int iClientID;
-			g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
+			g_ePlayer[iClient].hFeatures.GetValue(KEY_CID, iClientID);
 			if (iClientID == -1 && bAddToDB)
 			{
 				Clients_RemoveVIPStatus(iClient);
@@ -651,10 +651,10 @@ int API_GiveClientVIP(Handle hPlugin, int iAdmin, int iClient, int iTime, const 
 			Clients_CreateExpiredTimer(iClient, iTime + iCurrentTime, iCurrentTime);
 		}
 
-		g_hFeatures[iClient].SetString(KEY_GROUP, szGroup);
-		g_hFeatures[iClient].SetValue(KEY_CID, -1);
-		g_iClientInfo[iClient] |= IS_VIP;
-		g_iClientInfo[iClient] |= IS_LOADED;
+		g_ePlayer[iClient].hFeatures.SetString(KEY_GROUP, szGroup);
+		g_ePlayer[iClient].hFeatures.SetValue(KEY_CID, -1);
+		g_ePlayer[iClient].bVIP = true;
+		g_ePlayer[iClient].bLoaded = true;
 
 		Clients_LoadVIPFeatures(iClient);
 
@@ -713,13 +713,13 @@ int API_RemoveClientVIP(Handle hPlugin,
 		if (bInDB)
 		{
 			int iClientID;
-			if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
+			if (g_ePlayer[iClient].hFeatures.GetValue(KEY_CID, iClientID) && iClientID != -1)
 			{
 				DB_RemoveClientFromID(REASON_PLUGIN, iClient, _, true, _, _, szPluginName);
 			}
 		}
 
-		if (g_iClientInfo[iClient] & IS_MENU_OPEN)
+		if (g_ePlayer[iClient].bMenuOpen)
 		{
 			CancelClientMenu(iClient);
 		}
@@ -829,7 +829,7 @@ public int Native_GetClientStorageValue(Handle hPlugin, int iNumParams)
 
 public int Native_IsVIPLoaded(Handle hPlugin, int iNumParams)
 {
-	return ((GLOBAL_INFO & IS_STARTED) && g_hDatabase);
+	return (g_bStarted && g_hDatabase);
 }
 
 public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
@@ -891,7 +891,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 
 		for (int iClient = 1; iClient <= MaxClients; ++iClient)
 		{
-			if (IsClientInGame(iClient) && (g_iClientInfo[iClient] & IS_VIP))
+			if (IsClientInGame(iClient) && g_ePlayer[iClient].bVIP)
 			{
 				Clients_LoadVIPFeaturesPre(iClient, szFeature);
 			}
@@ -992,10 +992,10 @@ void UnregisterFeature(const char[] szFeature, Feature eFeature)
 
 	for (int j = 1; j <= MaxClients; ++j)
 	{
-		if (IsClientInGame(j) && g_iClientInfo[j] & IS_VIP)
+		if (IsClientInGame(j) && g_ePlayer[j].bVIP)
 		{
-			g_hFeatures[j].Remove(szFeature);
-			g_hFeatureStatus[j].Remove(szFeature);
+			g_ePlayer[j].hFeatures.Remove(szFeature);
+			g_ePlayer[j].hFeatureStatus.Remove(szFeature);
 		}
 	}
 
@@ -1133,7 +1133,7 @@ public int Native_GetClientFeatureInt(Handle hPlugin, int iNumParams)
 		int	 iValue;
 		GetNativeString(2, SZF(szFeature));
 
-		if (g_hFeatures[iClient].GetValue(szFeature, iValue) && iValue != 0)
+		if (g_ePlayer[iClient].hFeatures.GetValue(szFeature, iValue) && iValue != 0)
 		{
 			return iValue;
 		}
@@ -1151,7 +1151,7 @@ public int Native_GetClientFeatureFloat(Handle hPlugin, int iNumParams)
 		float fValue;
 		GetNativeString(2, SZF(szFeature));
 
-		if (g_hFeatures[iClient].GetValue(szFeature, fValue) && fValue != 0.0)
+		if (g_ePlayer[iClient].hFeatures.GetValue(szFeature, fValue) && fValue != 0.0)
 		{
 			return view_as<int>(fValue);
 		}
@@ -1169,7 +1169,7 @@ public int Native_GetClientFeatureBool(Handle hPlugin, int iNumParams)
 		GetNativeString(2, SZF(szFeature));
 
 		// VIP_GiveClientFeature can store false, so the key existing is not enough
-		return g_hFeatures[iClient].GetValue(szFeature, bValue) && bValue;
+		return g_ePlayer[iClient].hFeatures.GetValue(szFeature, bValue) && bValue;
 	}
 
 	return false;
@@ -1184,7 +1184,7 @@ public int Native_GetClientFeatureString(Handle hPlugin, int iNumParams)
 		char szFeature[64], szBuffer[256];
 		GetNativeString(2, SZF(szFeature));
 
-		if (g_hFeatures[iClient].GetString(szFeature, SZF(szBuffer)))
+		if (g_ePlayer[iClient].hFeatures.GetString(szFeature, SZF(szBuffer)))
 		{
 			SetNativeString(3, szBuffer, iLen, true);
 			return true;
@@ -1212,30 +1212,31 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 		char szValue[256];
 		GetNativeString(3, SZF(szValue));
 
-		if (!(g_iClientInfo[iClient] & IS_VIP))
+		if (!g_ePlayer[iClient].bVIP)
 		{
 			Clients_CreateClientVIPSettings(iClient, 0);
-			g_hFeatures[iClient].SetValue(KEY_CID, -1);
-			g_iClientInfo[iClient] |= IS_VIP | IS_LOADED;
+			g_ePlayer[iClient].hFeatures.SetValue(KEY_CID, -1);
+			g_ePlayer[iClient].bVIP = true;
+			g_ePlayer[iClient].bLoaded = true;
 		}
 
 		switch (eFeature.eValType)
 		{
 			case BOOL:
 			{
-				g_hFeatures[iClient].SetValue(szFeature, view_as<bool>(StringToInt(szValue)));
+				g_ePlayer[iClient].hFeatures.SetValue(szFeature, view_as<bool>(StringToInt(szValue)));
 			}
 			case INT:
 			{
-				g_hFeatures[iClient].SetValue(szFeature, StringToInt(szValue));
+				g_ePlayer[iClient].hFeatures.SetValue(szFeature, StringToInt(szValue));
 			}
 			case FLOAT:
 			{
-				g_hFeatures[iClient].SetValue(szFeature, StringToFloat(szValue));
+				g_ePlayer[iClient].hFeatures.SetValue(szFeature, StringToFloat(szValue));
 			}
 			case STRING:
 			{
-				g_hFeatures[iClient].SetString(szFeature, szValue);
+				g_ePlayer[iClient].hFeatures.SetString(szFeature, szValue);
 			}
 		}
 
@@ -1272,10 +1273,10 @@ public int Native_RemoveClientFeature(Handle hPlugin, int iNumParams)
 
 		VIP_ToggleState eToggleState = Features_GetStatus(iClient, szFeature);
 
-		g_hFeatures[iClient].Remove(szFeature);
-		g_hFeatureStatus[iClient].Remove(szFeature);
+		g_ePlayer[iClient].hFeatures.Remove(szFeature);
+		g_ePlayer[iClient].hFeatureStatus.Remove(szFeature);
 
-		if (!g_hFeatures[iClient].Size)
+		if (!g_ePlayer[iClient].hFeatures.Size)
 		{
 			ResetClient(iClient);
 		}
@@ -1308,7 +1309,7 @@ public int Native_GetDatabase(Handle hPlugin, int iNumParams)
 
 public int Native_GetDatabaseType(Handle hPlugin, int iNumParams)
 {
-	return (GLOBAL_INFO & IS_MySQL);
+	return g_bMySQL;
 }
 
 public int Native_TimeToSeconds(Handle hPlugin, int iNumParams)
@@ -1375,20 +1376,7 @@ bool CheckValidClient(const int &iClient, bool bCheckVIP = true)
 	}
 	if (bCheckVIP)
 	{
-		/*
-		if (!(g_iClientInfo[iClient] & IS_LOADED))
-		{
-			ThrowNativeError(SP_ERROR_NATIVE, "Client %i is not loaded", iClient);
-			return false;
-		}
-		if (!(g_iClientInfo[iClient] & IS_VIP) || !(g_iClientInfo[iClient] & IS_AUTHORIZED))
-		{
-			ThrowNativeError(SP_ERROR_NATIVE, "Client %i is not VIP", iClient);
-			return false;
-		}
-		*/
-
-		return view_as<bool>(g_iClientInfo[iClient] & IS_VIP);
+		return g_ePlayer[iClient].bVIP;
 	}
 
 	return true;

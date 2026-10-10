@@ -175,12 +175,12 @@ void ReplaceValues(int iClient, char[] szBuffer, int iBufLen, bool bExt)
 	char szName[MAX_NAME_LENGTH]; char szGroup[64];
 	GetClientName(iClient, SZF(szName));
 	ReplaceString(szBuffer, iBufLen, "{NAME}", szName);
-	g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szGroup));
+	g_ePlayer[iClient].hFeatures.GetString(KEY_GROUP, SZF(szGroup));
 	ReplaceString(szBuffer, iBufLen, "{GROUP}", szGroup);
 	if (bExt)
 	{
 		int iExpires;
-		g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExpires);
+		g_ePlayer[iClient].hFeatures.GetValue(KEY_EXPIRES, iExpires);
 		DebugMessage("GetValue(%s) = %d", KEY_EXPIRES, iExpires);
 		DebugMessage("GetTime() = %d", GetTime());
 		DebugMessage("TIMELEFT = %d", iExpires - GetTime());

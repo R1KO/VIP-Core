@@ -12,9 +12,9 @@ public void OnMapStart()
 void OnReadyToStart()
 {
 	DebugMessage("OnReadyToStart");
-	if (!(GLOBAL_INFO & IS_STARTED))
+	if (!g_bStarted)
 	{
-		GLOBAL_INFO |= IS_STARTED;
+		g_bStarted = true;
 		
 		CreateForward_OnVIPLoaded();
 		

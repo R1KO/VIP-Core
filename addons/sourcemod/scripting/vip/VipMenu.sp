@@ -101,7 +101,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 		action == MenuAction_DrawItem ||
 		action == MenuAction_Select)
 	{
-		if(!(g_iClientInfo[iClient] & IS_VIP) || !g_hFeatures[iClient])
+		if (!g_ePlayer[iClient].bVIP || !g_ePlayer[iClient].hFeatures)
 		{
 			return 0;
 		}
@@ -113,7 +113,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 	{
 		case MenuAction_Display, MenuAction_DrawItem, MenuAction_DisplayItem, MenuAction_Select:
 		{
-			if (!(g_iClientInfo[iClient] & IS_VIP))
+			if (!g_ePlayer[iClient].bVIP)
 			{
 				(g_hVIPMenu).Cancel();
 				DisplayClientInfo(iClient, "expired_info");
@@ -126,18 +126,18 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 	{
 		case MenuAction_Cancel:
 		{
-			UNSET_BIT(g_iClientInfo[iClient], IS_MENU_OPEN);
+			g_ePlayer[iClient].bMenuOpen = false;
 		}
 		case MenuAction_Display:
 		{
-			SET_BIT(g_iClientInfo[iClient], IS_MENU_OPEN);
+			g_ePlayer[iClient].bMenuOpen = true;
 
-			g_hFeatures[iClient].Remove(KEY_MENUITEM);
+			g_ePlayer[iClient].hFeatures.Remove(KEY_MENUITEM);
 
 			DebugMessage("MenuAction_Display: Client: %i", iClient);
 			char szTitle[256];
 			int iExp;
-			if (g_hFeatures[iClient].GetValue(KEY_EXPIRES, iExp) && iExp > 0)
+			if (g_ePlayer[iClient].hFeatures.GetValue(KEY_EXPIRES, iExp) && iExp > 0)
 			{
 				int iTime = GetTime();
 				if (iTime < iExp)
@@ -290,7 +290,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 					return 0;
 				}
 				
-				g_hFeatures[iClient].SetValue(KEY_MENUITEM, hMenu.Selection);
+				g_ePlayer[iClient].hFeatures.SetValue(KEY_MENUITEM, hMenu.Selection);
 				if (Function_OnItemSelect(eFeature.hPlugin, eFeature.fnSelect, iClient, szItemInfo))
 				{
 					hMenu.DisplayAt(iClient, hMenu.Selection, MENU_TIME_FOREVER);
