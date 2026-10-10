@@ -327,6 +327,28 @@ native bool VIP_IsGroupExists(const char[] szGroup);
 native bool VIP_IsValidVIPGroup(const char[] szGroup);
 
 /**
+ *	Добавляет группу (только в памяти, groups.ini не изменяется).
+ *	Группы сбрасываются при перезагрузке конфигов — добавляйте их заново в VIP_OnConfigsLoaded().
+ *
+ * @param szGroup			Имя группы.
+ * @param hFeatures			Параметры группы (ключи с текущей позиции копируются в группу).
+ *
+ * @return					true - успешно.
+ * 							false - группа уже существует.
+*/	
+native bool VIP_AddGroup(const char[] szGroup, KeyValues hFeatures);
+
+/**
+ *	Удаляет группу (только в памяти, groups.ini не изменяется).
+ *
+ * @param szGroup			Имя группы.
+ *
+ * @return					true - успешно.
+ * 							false - группа не существует.
+*/	
+native bool VIP_RemoveGroup(const char[] szGroup);
+
+/**
  *	Выводит игроку сообщение в чат с приставкой (фраза в переводе "VIP_CHAT_PREFIX").
  *
  * @param iClient			Индекс игрока.
@@ -694,6 +716,8 @@ public void __pl_vip_core_SetNTVOptional()
 	MarkNativeAsOptional("VIP_SendClientVIPMenu");
 	MarkNativeAsOptional("VIP_IsValidVIPGroup");
 	MarkNativeAsOptional("VIP_IsGroupExists");
+	MarkNativeAsOptional("VIP_AddGroup");
+	MarkNativeAsOptional("VIP_RemoveGroup");
 	MarkNativeAsOptional("VIP_GetClientFeatureStatus");
 	MarkNativeAsOptional("VIP_SetClientFeatureStatus");
 	MarkNativeAsOptional("VIP_IsClientFeatureUse");
