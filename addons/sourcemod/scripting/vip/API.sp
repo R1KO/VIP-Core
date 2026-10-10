@@ -851,14 +851,16 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 			g_hVIPMenu.RemoveItem(0);
 		}
 
-		g_hFeaturesArray.PushString(szFeature);
 		VIP_ValueType	eValType			= view_as<VIP_ValueType>(GetNativeCell(2));
 		VIP_FeatureType eType				= view_as<VIP_FeatureType>(GetNativeCell(3));
 		Function		ItemSelectCallback	= GetNativeFunction(4);
 		Function		ItemDisplayCallback = GetNativeFunction(5);
 		Function		ItemDrawCallback	= GetNativeFunction(6);
-		VIP_ToggleState eDefStatus			= view_as<VIP_ToggleState>(GetNativeCell(7));
-		bool			bCookie				= view_as<bool>(GetNativeCell(8));
+		// Modules built against an older include pass fewer params
+		VIP_ToggleState eDefStatus			= iNumParams > 6 ? view_as<VIP_ToggleState>(GetNativeCell(7)) : NO_ACCESS;
+		bool			bCookie				= iNumParams > 7 && view_as<bool>(GetNativeCell(8));
+
+		g_hFeaturesArray.PushString(szFeature);
 
 		DBG_API("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature));
 		DBG_API("VIP_ValueType -> %s", g_szValueType[view_as<int>(eValType)]);
@@ -879,7 +881,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 		if (eType != HIDE)
 		{
 			Cookie hCookie		   = null;
-			bool   bRegisterCookie = (eType == SELECTABLE && iNumParams > 7 && (bCookie != false));
+			bool   bRegisterCookie = (eType == SELECTABLE && bCookie);
 			if (eType == TOGGLABLE || bRegisterCookie)
 			{
 				hCookie = new Cookie(szFeature, szFeature, CookieAccess_Private);
@@ -895,7 +897,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 
 			if (eType == TOGGLABLE)
 			{
-				hArray.Push(iNumParams > 6 ? eDefStatus : NO_ACCESS);
+				hArray.Push(eDefStatus);
 			}
 
 			AddFeatureToVIPMenu(szFeature);
