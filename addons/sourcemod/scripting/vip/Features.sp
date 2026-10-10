@@ -47,7 +47,7 @@ void Features_TurnOnAll(int iClient)
 
 	for(int i = 0; i < iFeatures; ++i)
 	{
-		GetArrayString(g_hFeaturesArray, i, SZF(szFeature));
+		g_hFeaturesArray.GetString(i, SZF(szFeature));
 		if(!GLOBAL_TRIE.GetValue(szFeature, hArray))
 			continue;
 
@@ -71,7 +71,7 @@ void Features_TurnOnAll(int iClient)
 void Features_SetStatus(int iClient, const char[] szFeature, VIP_ToggleState eStatus)
 {
 	DebugMessage("Features_SetStatus: %N (%i) -> Feature: %s, eStatus: %i", iClient, iClient, szFeature, eStatus);
-	SetTrieValue(g_hFeatureStatus[iClient], szFeature, eStatus);
+	g_hFeatureStatus[iClient].SetValue(szFeature, eStatus);
 }
 
 VIP_ToggleState Features_GetStatus(const int &iClient, const char[] szFeature)

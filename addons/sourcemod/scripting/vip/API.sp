@@ -1,31 +1,31 @@
-static Handle g_hGlobalForward_OnVIPLoaded;
-static Handle g_hGlobalForward_OnClientPreLoad;
-static Handle g_hGlobalForward_OnClientLoaded;
-static Handle g_hGlobalForward_OnVIPClientLoaded;
-static Handle g_hGlobalForward_OnVIPClientAdded;
-static Handle g_hGlobalForward_OnVIPClientRemoved;
-static Handle g_hGlobalForward_OnPlayerSpawn;
-static Handle g_hGlobalForward_OnShowClientInfo;
-static Handle g_hGlobalForward_OnFeatureToggle;
-static Handle g_hGlobalForward_OnFeatureRegistered;
-static Handle g_hGlobalForward_OnFeatureUnregistered;
-static Handle g_hGlobalForward_OnClientDisconnect;
+static GlobalForward g_hGlobalForward_OnVIPLoaded;
+static GlobalForward g_hGlobalForward_OnClientPreLoad;
+static GlobalForward g_hGlobalForward_OnClientLoaded;
+static GlobalForward g_hGlobalForward_OnVIPClientLoaded;
+static GlobalForward g_hGlobalForward_OnVIPClientAdded;
+static GlobalForward g_hGlobalForward_OnVIPClientRemoved;
+static GlobalForward g_hGlobalForward_OnPlayerSpawn;
+static GlobalForward g_hGlobalForward_OnShowClientInfo;
+static GlobalForward g_hGlobalForward_OnFeatureToggle;
+static GlobalForward g_hGlobalForward_OnFeatureRegistered;
+static GlobalForward g_hGlobalForward_OnFeatureUnregistered;
+static GlobalForward g_hGlobalForward_OnClientDisconnect;
 
 void API_SetupForwards()
 {
 	// Global Forwards
-	g_hGlobalForward_OnClientPreLoad	   = CreateGlobalForward("VIP_OnClientPreLoad", ET_Hook, Param_Cell);
-	g_hGlobalForward_OnVIPLoaded		   = CreateGlobalForward("VIP_OnVIPLoaded", ET_Ignore);
-	g_hGlobalForward_OnClientLoaded		   = CreateGlobalForward("VIP_OnClientLoaded", ET_Ignore, Param_Cell, Param_Cell);
-	g_hGlobalForward_OnVIPClientLoaded	   = CreateGlobalForward("VIP_OnVIPClientLoaded", ET_Ignore, Param_Cell);
-	g_hGlobalForward_OnVIPClientAdded	   = CreateGlobalForward("VIP_OnVIPClientAdded", ET_Ignore, Param_Cell, Param_Cell);
-	g_hGlobalForward_OnVIPClientRemoved	   = CreateGlobalForward("VIP_OnVIPClientRemoved", ET_Ignore, Param_Cell, Param_String, Param_Cell);
-	g_hGlobalForward_OnPlayerSpawn		   = CreateGlobalForward("VIP_OnPlayerSpawn", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
-	g_hGlobalForward_OnShowClientInfo	   = CreateGlobalForward("VIP_OnShowClientInfo", ET_Hook, Param_Cell, Param_String, Param_String, Param_Cell);
-	g_hGlobalForward_OnFeatureToggle	   = CreateGlobalForward("VIP_OnFeatureToggle", ET_Hook, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
-	g_hGlobalForward_OnFeatureRegistered   = CreateGlobalForward("VIP_OnFeatureRegistered", ET_Ignore, Param_String);
-	g_hGlobalForward_OnFeatureUnregistered = CreateGlobalForward("VIP_OnFeatureUnregistered", ET_Ignore, Param_String);
-	g_hGlobalForward_OnClientDisconnect	   = CreateGlobalForward("VIP_OnClientDisconnect", ET_Ignore, Param_Cell, Param_Cell);
+	g_hGlobalForward_OnClientPreLoad	   = new GlobalForward("VIP_OnClientPreLoad", ET_Hook, Param_Cell);
+	g_hGlobalForward_OnVIPLoaded		   = new GlobalForward("VIP_OnVIPLoaded", ET_Ignore);
+	g_hGlobalForward_OnClientLoaded		   = new GlobalForward("VIP_OnClientLoaded", ET_Ignore, Param_Cell, Param_Cell);
+	g_hGlobalForward_OnVIPClientLoaded	   = new GlobalForward("VIP_OnVIPClientLoaded", ET_Ignore, Param_Cell);
+	g_hGlobalForward_OnVIPClientAdded	   = new GlobalForward("VIP_OnVIPClientAdded", ET_Ignore, Param_Cell, Param_Cell);
+	g_hGlobalForward_OnVIPClientRemoved	   = new GlobalForward("VIP_OnVIPClientRemoved", ET_Ignore, Param_Cell, Param_String, Param_Cell);
+	g_hGlobalForward_OnPlayerSpawn		   = new GlobalForward("VIP_OnPlayerSpawn", ET_Ignore, Param_Cell, Param_Cell, Param_Cell);
+	g_hGlobalForward_OnShowClientInfo	   = new GlobalForward("VIP_OnShowClientInfo", ET_Hook, Param_Cell, Param_String, Param_String, Param_Cell);
+	g_hGlobalForward_OnFeatureToggle	   = new GlobalForward("VIP_OnFeatureToggle", ET_Hook, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
+	g_hGlobalForward_OnFeatureRegistered   = new GlobalForward("VIP_OnFeatureRegistered", ET_Ignore, Param_String);
+	g_hGlobalForward_OnFeatureUnregistered = new GlobalForward("VIP_OnFeatureUnregistered", ET_Ignore, Param_String);
+	g_hGlobalForward_OnClientDisconnect	   = new GlobalForward("VIP_OnClientDisconnect", ET_Ignore, Param_Cell, Param_Cell);
 }
 
 // Global Forwards
@@ -767,11 +767,11 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 
 		if (eType != HIDE)
 		{
-			Handle hCookie		   = null;
+			Cookie hCookie		   = null;
 			bool   bRegisterCookie = (eType == SELECTABLE && iNumParams > 7 && (bCookie != false));
 			if (eType == TOGGLABLE || bRegisterCookie)
 			{
-				hCookie = RegClientCookie(szFeature, szFeature, CookieAccess_Private);
+				hCookie = new Cookie(szFeature, szFeature, CookieAccess_Private);
 			}
 
 			hArray.Push(hCookie);
@@ -1033,7 +1033,7 @@ public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 					if (iNumParams > 4 && GetNativeCell(5))
 					{
 						IntToString(view_as<int>(eNewStatus), SZF(szFeature));
-						SetClientCookie(iClient, view_as<Handle>(GetArrayCell(hArray, FEATURES_COOKIE)), szFeature);
+						view_as<Cookie>(hArray.Get(FEATURES_COOKIE)).Set(iClient, szFeature);
 					}
 					return true;
 				}

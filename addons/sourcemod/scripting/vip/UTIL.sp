@@ -17,15 +17,6 @@ int GET_CID(int iClient)
 	return iClient;
 }
 
-void UTIL_CloseHandleEx(Handle &hValue)
-{
-	if (hValue != null)
-	{
-		delete hValue;
-		hValue = null;
-	}
-}
-
 stock int UTIL_ReplaceChars(char[] szBuffer, int InChar, int OutChar)
 {
 	int iNum = 0;
