@@ -1,6 +1,6 @@
 void Colors_Print(int iClient, const char[] szFormat)
 {
-	char szMessage[512];
+	char szMessage[1024];
 	FormatEx(SZF(szMessage), g_EngineVersion == Engine_CSGO ? " \x01%t %s":"\x01%t %s", "VIP_CHAT_PREFIX", szFormat);
 
 	ReplaceString(SZF(szMessage), "\\n", "\n");
@@ -123,7 +123,42 @@ int Colors_FindPlayerByTeam(int iTeam)
 	return 0;
 }
 
+// One SayText2 holds at most 255 bytes and CS:GO drops colors after '\n', so every line goes as its own message
 void Colors_SayText2(int iClient, int iAuthor = 0, const char[] szMessage)
+{
+	// 255 bytes minus the author and chat flag bytes
+	char szLine[253];
+	int iStart = 0;
+	for (int i = 0; ; ++i)
+	{
+		if (szMessage[i] != '\n' && szMessage[i])
+		{
+			continue;
+		}
+
+		if (i > iStart)
+		{
+			// CS:GO ignores a color code at the very start of a message
+			int iOffset = (iStart > 0 && g_EngineVersion == Engine_CSGO) ? 1 : 0;
+			szLine[0] = ' ';
+			int iLength = i - iStart + 1;
+			if (iLength > sizeof(szLine) - iOffset)
+			{
+				iLength = sizeof(szLine) - iOffset;
+			}
+			strcopy(szLine[iOffset], iLength, szMessage[iStart]);
+			Colors_SendSayText2(iClient, iAuthor, szLine);
+		}
+
+		if (!szMessage[i])
+		{
+			break;
+		}
+		iStart = i + 1;
+	}
+}
+
+static void Colors_SendSayText2(int iClient, int iAuthor, const char[] szMessage)
 {
 	int iClients[1];
 	iClients[0] = iClient;
