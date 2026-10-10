@@ -82,6 +82,7 @@ void Colors_Print(int iClient, const char[] szFormat)
 	default:
 		{
 			ReplaceString(SZF(szMessage), "{TEAM}", "\x03");
+			PrintToChat(iClient, "%s", szMessage);
 		}
 	}
 }
