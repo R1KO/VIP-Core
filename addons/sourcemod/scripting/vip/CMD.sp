@@ -87,8 +87,9 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 
 	char szGroup[64];
 	GetCmdArg(3, SZF(szGroup));
-	int iTime = StringToInt(szGroup);
-	if (iTime < 0)
+	// Duration in seconds; the expiry date (now + duration) must fit into an int too
+	int iTime = UTIL_TimeToSeconds(StringToInt(szGroup));
+	if (iTime < 0 || iTime > cellmax - GetTime())
 	{
 		ReplyToCommand(iClient, "[VIP] %t", "INCORRECT_TIME");
 		return Plugin_Handled;
@@ -114,14 +115,14 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 					continue;
 				}
 				
-				UTIL_ADD_VIP_PLAYER(iClient, iTargetList[i], _, UTIL_TimeToSeconds(iTime), szGroup);
+				UTIL_ADD_VIP_PLAYER(iClient, iTargetList[i], _, iTime, szGroup);
 			}
 		}
 	
 		return Plugin_Handled;
 	}
 	
-	UTIL_ADD_VIP_PLAYER(iClient, _, iAccountID, UTIL_TimeToSeconds(iTime), szGroup);
+	UTIL_ADD_VIP_PLAYER(iClient, _, iAccountID, iTime, szGroup);
 
 	return Plugin_Handled;
 }

@@ -32,17 +32,25 @@ stock int UTIL_ReplaceChars(char[] szBuffer, int InChar, int OutChar)
 	return iNum;
 }
 
+// Returns -1 for an unknown time mode or a value that doesn't fit into an int
 int UTIL_TimeToSeconds(int iTime)
 {
+	int iMultiplier;
 	switch (g_CVAR_iTimeMode)
 	{
-		case TIME_MODE_SECONDS:return iTime;
-		case TIME_MODE_MINUTES:return iTime * 60;
-		case TIME_MODE_HOURS:return iTime * 3600;
-		case TIME_MODE_DAYS:return iTime * 86400;
+		case TIME_MODE_SECONDS:	iMultiplier = 1;
+		case TIME_MODE_MINUTES:	iMultiplier = 60;
+		case TIME_MODE_HOURS:	iMultiplier = 3600;
+		case TIME_MODE_DAYS:	iMultiplier = 86400;
+		default:				return -1;
 	}
-	
-	return -1;
+
+	if (iTime > cellmax / iMultiplier || iTime < -(cellmax / iMultiplier))
+	{
+		return -1;
+	}
+
+	return iTime * iMultiplier;
 }
 
 int UTIL_SecondsToTime(int iTime)
