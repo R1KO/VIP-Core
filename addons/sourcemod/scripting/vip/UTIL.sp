@@ -175,9 +175,23 @@ stock int UTIL_SearchCharInString(const char[] szBuffer, int c)
 
 int UTIL_GetAccountIDFromSteamID(const char[] szSteamID)
 {
+	// STEAM_X:Y:Z, Y is 0 or 1, Z is digits (rejects STEAM_ID_PENDING, STEAM_ID_LAN, truncated input)
 	if (!strncmp(szSteamID, "STEAM_", 6))
 	{
-		return S2I(szSteamID[10]) << 1 | (szSteamID[8] - 48);
+		if (strlen(szSteamID) < 11 || szSteamID[7] != ':' || (szSteamID[8] != '0' && szSteamID[8] != '1') || szSteamID[9] != ':')
+		{
+			return 0;
+		}
+
+		for (int i = 10; szSteamID[i]; ++i)
+		{
+			if (!IsCharNumeric(szSteamID[i]))
+			{
+				return 0;
+			}
+		}
+
+		return S2I(szSteamID[10]) << 1 | (szSteamID[8] - '0');
 	}
 
 	if (!strncmp(szSteamID, "[U:1:", 5) && szSteamID[strlen(szSteamID)-1] == ']')
