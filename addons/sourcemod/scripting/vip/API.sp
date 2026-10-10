@@ -1138,8 +1138,7 @@ public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 					Features_SetStatus(iClient, szFeature, eNewStatus);
 					if (iNumParams > 4 && GetNativeCell(5))
 					{
-						IntToString(view_as<int>(eNewStatus), SZF(szFeature));
-						view_as<Cookie>(hArray.Get(FEATURES_COOKIE)).Set(iClient, szFeature);
+						Features_SaveStatus(iClient, szFeature, hArray, eNewStatus);
 					}
 					return true;
 				}

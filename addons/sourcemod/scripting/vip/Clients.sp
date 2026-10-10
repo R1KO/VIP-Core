@@ -220,28 +220,24 @@ public void OnClientCookiesCached(int iClient)
 }
 #endif
 
+// ponytail: fixed retry window, statuses fall back to defaults if the store isn't ready by then
+#define STATUS_STORE_WAIT_ATTEMPTS	120	// x 0.5s
+
 void Clients_LoadVIPFeaturesPre(int iClient, const char[] szFeature = NULL_STRING)
 {
 	DBG_Clients("Clients_LoadVIPFeaturesPre %N", iClient);
 
-	DBG_Clients("AreClientCookiesCached %b", AreClientCookiesCached(iClient));
-
-	if (!AreClientCookiesCached(iClient))
+	// Load now with what is available and reload once the status store (cookies / storage) is ready
+	if (!Features_IsStatusStoreReady(iClient))
 	{
-		DataPack hDataPack = new DataPack();
-		hDataPack.WriteCell(UID(iClient));
-		if(szFeature[0])
-		{
-			hDataPack.WriteCell(true);
-			hDataPack.WriteString(szFeature);
-		}
-		else
-		{
-			hDataPack.WriteCell(false);
-		}
-		CreateTimer(0.5, Timer_CheckCookies, hDataPack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
+		Clients_WaitForStatusStore(iClient, szFeature, 0);
 	}
 
+	Clients_LoadVIPFeaturesNow(iClient, szFeature);
+}
+
+void Clients_LoadVIPFeaturesNow(int iClient, const char[] szFeature)
+{
 	if(szFeature[0])
 	{
 		Clients_LoadVIPFeature(iClient, szFeature);
@@ -251,25 +247,37 @@ void Clients_LoadVIPFeaturesPre(int iClient, const char[] szFeature = NULL_STRIN
 	Clients_LoadVIPFeatures(iClient);
 }
 
+void Clients_WaitForStatusStore(int iClient, const char[] szFeature, int iAttempt)
+{
+	DataPack hDataPack = new DataPack();
+	hDataPack.WriteCell(UID(iClient));
+	hDataPack.WriteCell(iAttempt);
+	hDataPack.WriteString(szFeature);
+	CreateTimer(0.5, Timer_CheckCookies, hDataPack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
+}
+
 public Action Timer_CheckCookies(Handle hTimer, Handle hDP)
 {
 	DataPack hDataPack = view_as<DataPack>(hDP);
 	hDataPack.Reset();
 	int iClient = CID(hDataPack.ReadCell());
+	int iAttempt = hDataPack.ReadCell();
+	char szFeature[FEATURE_NAME_LENGTH];
+	hDataPack.ReadString(SZF(szFeature));
 	
-	DBG_Clients("Timer_CheckCookies -> iClient: %N (%d), IsClientVIP: %b,", iClient, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP));
-	if (iClient && g_iClientInfo[iClient] & IS_VIP)
+	DBG_Clients("Timer_CheckCookies -> iClient: %N (%d), IsClientVIP: %b, attempt: %d", iClient, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP), iAttempt);
+	if (!iClient || !(g_iClientInfo[iClient] & IS_VIP))
 	{
-		char szFeature[FEATURE_NAME_LENGTH];
-		if(hDataPack.ReadCell())
-		{
-			hDataPack.ReadString(SZF(szFeature));
-		}
-		else
-		{
-			szFeature[0] = 0;
-		}
-		Clients_LoadVIPFeaturesPre(iClient, szFeature);
+		return Plugin_Stop;
+	}
+
+	if (Features_IsStatusStoreReady(iClient))
+	{
+		Clients_LoadVIPFeaturesNow(iClient, szFeature);
+	}
+	else if (++iAttempt < STATUS_STORE_WAIT_ATTEMPTS)
+	{
+		Clients_WaitForStatusStore(iClient, szFeature, iAttempt);
 	}
 
 	return Plugin_Stop;
@@ -340,11 +348,9 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 	if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 	{
 		static char szBuffer[4];
-		static Cookie hCookie;
-		hCookie = view_as<Cookie>(hArray.Get(FEATURES_COOKIE));
-		hCookie.Get(iClient, SZF(szBuffer));
+		Features_GetSavedStatus(iClient, szFeature, hArray, SZF(szBuffer));
 		eStatus = view_as<VIP_ToggleState>(StringToInt(szBuffer));
-		DBG_Clients("GetFeatureCookie: '%s'", szBuffer);
+		DBG_Clients("GetSavedStatus: '%s'", szBuffer);
 		if (szBuffer[0] == '\0' || !Features_IsValidStatus(eStatus))
 		{
 			switch(hArray.Get(FEATURES_DEF_STATUS))
@@ -354,8 +360,11 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 				case DISABLED:	eStatus = DISABLED;
 			}
 
-			IntToString(view_as<int>(eStatus), SZF(szBuffer));
-			hCookie.Set(iClient, szBuffer);
+			// Persist the default only once the store is loaded, so it can't shadow a value that is still loading
+			if (Features_IsStatusStoreReady(iClient))
+			{
+				Features_SaveStatus(iClient, szFeature, hArray, eStatus);
+			}
 			//	Features_SaveStatus(iClient, szFeature, hCookie, eStatus);
 		}
 	}

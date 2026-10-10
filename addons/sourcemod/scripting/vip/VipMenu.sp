@@ -282,7 +282,6 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 				hPlugin = view_as<Handle>(hBuffer.Get(FEATURES_PLUGIN));
 				if (view_as<VIP_FeatureType>(hBuffer.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 				{
-					char szBuffer[4];
 					VIP_ToggleState eOldStatus, eNewStatus;
 
 					eOldStatus = Features_GetStatus(iClient, szItemInfo);
@@ -298,8 +297,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 						if (eNewStatus != eOldStatus)
 						{
 							Features_SetStatus(iClient, szItemInfo, eNewStatus);
-							IntToString(view_as<int>(eNewStatus), SZF(szBuffer));
-							view_as<Cookie>(hBuffer.Get(FEATURES_COOKIE)).Set(iClient, szBuffer);
+							Features_SaveStatus(iClient, szItemInfo, hBuffer, eNewStatus);
 						}
 					}
 
