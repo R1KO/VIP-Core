@@ -227,10 +227,11 @@ void Clients_LoadVIPFeaturesPre(int iClient, const char[] szFeature = NULL_STRIN
 {
 	DBG_Clients("Clients_LoadVIPFeaturesPre %N", iClient);
 
-	// Load now with what is available and reload once the status store (cookies / storage) is ready
+	// Load once, when the status store (cookies / storage) is ready: loading fires OnVIPClientLoaded and turns features on
 	if (!Features_IsStatusStoreReady(iClient))
 	{
 		Clients_WaitForStatusStore(iClient, szFeature, 0);
+		return;
 	}
 
 	Clients_LoadVIPFeaturesNow(iClient, szFeature);
@@ -271,14 +272,13 @@ public Action Timer_CheckCookies(Handle hTimer, Handle hDP)
 		return Plugin_Stop;
 	}
 
-	if (Features_IsStatusStoreReady(iClient))
-	{
-		Clients_LoadVIPFeaturesNow(iClient, szFeature);
-	}
-	else if (++iAttempt < STATUS_STORE_WAIT_ATTEMPTS)
+	if (!Features_IsStatusStoreReady(iClient) && ++iAttempt < STATUS_STORE_WAIT_ATTEMPTS)
 	{
 		Clients_WaitForStatusStore(iClient, szFeature, iAttempt);
+		return Plugin_Stop;
 	}
+
+	Clients_LoadVIPFeaturesNow(iClient, szFeature);
 
 	return Plugin_Stop;
 }
