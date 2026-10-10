@@ -115,6 +115,8 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 				
 			}
 
+			// Picked from the DB list: forget a player picked earlier from the online list
+			g_hClientData[iClient].Remove(DATA_KEY_TargetUID);
 			g_hClientData[iClient].SetValue(DATA_KEY_TargetID, S2I(szUserID));
 
 			ShowTargetInfo(iClient);
@@ -208,7 +210,8 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 		}
 		else
 		{
-			FormatEx(SZF(szWhere), " AND `name` LIKE '%%%s%%'", szSearch);
+			// Database.Format escapes %s (search text comes straight from admin chat)
+			g_hDatabase.Format(SZF(szWhere), " AND `name` LIKE '%%%s%%'", szSearch);
 		}
 	}
 

@@ -205,6 +205,10 @@ void Clients_OnVIPClientLoaded(int iClient)
 
 void Clients_CreateClientVIPSettings(int iClient, int iExp)
 {
+	// A reload may overlap with a load still in flight
+	delete g_hFeatures[iClient];
+	delete g_hFeatureStatus[iClient];
+
 	g_hFeatures[iClient] = new StringMap();
 	g_hFeatureStatus[iClient] = new StringMap();
 
@@ -556,7 +560,7 @@ void Clients_ExpiredClient(int iClient)
 	
 	int iClientID;
 	g_hFeatures[iClient].GetValue(KEY_EXPIRES, iClientID);
-	if (g_CVAR_iDeleteExpired == 0 || GetTime() >= ((g_CVAR_iDeleteExpired*86400) + iClientID))
+	if (g_CVAR_iDeleteExpired == 0 || (g_CVAR_iDeleteExpired > 0 && GetTime() >= ((g_CVAR_iDeleteExpired*86400) + iClientID)))
 	{
 		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 		{

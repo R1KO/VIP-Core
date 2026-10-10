@@ -167,6 +167,7 @@ public void SQL_Callback_OnSelectRemoveClient(Database hOwner, DBResultSet hResu
 	if (hResult == null || szError[0])
 	{
 		LogError("SQL_Callback_OnSelectRemoveClient: %s", szError);
+		return;
 	}
 	
 	if (iClient)
