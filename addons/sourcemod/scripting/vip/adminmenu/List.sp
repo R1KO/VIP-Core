@@ -210,7 +210,8 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 		}
 		else
 		{
-			FormatEx(SZF(szWhere), " AND `name` LIKE '%%%s%%'", szSearch);
+			// Database.Format escapes %s (search text comes straight from admin chat)
+			g_hDatabase.Format(SZF(szWhere), " AND `name` LIKE '%%%s%%'", szSearch);
 		}
 	}
 
