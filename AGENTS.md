@@ -19,7 +19,7 @@
 - `include/vip_core.inc` — PUBLIC API for third-party modules. `data/vip/cfg/*.ini` — runtime configs (groups, info, sort_menu, times). `translations/vip_core.phrases.txt` — all user-facing strings.
 
 ## Public API rules (vip_core.inc)
-- Third-party modules depend on it: never change existing native/forward signatures or semantics. Add new params with defaults or add new natives. Deprecate via `#pragma deprecated`, don't delete (see `update_modules.md`).
+- Third-party modules depend on it: never change existing native/forward signatures or semantics. Add new params with defaults or add new natives. Deprecate via `#pragma deprecated`, don't delete (see `docs/update_modules.md`).
 - New native: implement `Native_X` in API.sp, `RegNative(X)` in `AskPluginLoad2`, declare in `.inc`, add `MarkNativeAsOptional("VIP_X")` in `__pl_vip_core_SetNTVOptional`.
 - New forward: `static GlobalForward` field + `new GlobalForward(...)` in `API_SetupForwards` + `CreateForward_*` wrapper + `forward` declaration with doc comment in `.inc`.
 
@@ -40,11 +40,11 @@
 
 ## Comments
 - Explain *why*, never restate *what* the code does. A comment doesn't excuse unclear code: rename/restructure first; if a clear comment is hard to write, the code is the problem.
-- Comment what a reader would trip over: unidiomatic code, SourceMod quirks, ordering constraints, odd-looking bug fixes. Mark unfinished parts `// TODO: <what and why>`. Link the source of copied code and external refs (SM docs, AlliedModders) where they help. Russian or English, match the surroundings (cvar descriptions Russian).
+- Comment what a reader would trip over: unidiomatic code, SourceMod quirks, ordering constraints, odd-looking bug fixes. Mark unfinished parts `// TODO: <what and why>`. Link the source of copied code and external refs (SM docs, AlliedModders) where they help.
 
 ## Conventions
 - Pass client across async boundaries as userid (`UID`/`CID`), never raw index.
 - `GLOBAL_TRIE` / `GLOBAL_INFO` are index `[0]` of per-client arrays — slot 0 = global, not a player.
 - Use methodmaps (`StringMap`, `Cookie`, `KeyValues`, `delete`), not legacy procedural calls (`CreateTrie`, `SetClientCookie`, `CloseHandle`, `Kv*`).
 - Debug logging via `DBG_*` / `DebugMessage` functions from `Debug.sp` (empty unless `DEBUG_MODE 1`); calls still need a trailing `;`.
-- Any new user-facing text → new phrase in `vip_core.phrases.txt` with at least `en` and `ru`. Bump `VIP_VERSION` in `VIP_Core.sp` only when asked; changelog lives in `updates.md`.
+- English only in code, comments, cvar descriptions, log/error strings and docs. Other languages live only in `translations/*.phrases.txt` and the per-language values of `data/vip/cfg/*.ini`. Any new user-facing text → new phrase in `vip_core.phrases.txt` with at least `en` and `ru`. Bump `VIP_VERSION` in `VIP_Core.sp` only when asked; changelog lives in `updates.md`.

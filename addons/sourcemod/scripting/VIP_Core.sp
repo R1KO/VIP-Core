@@ -11,13 +11,13 @@
 #endif
 
 
-#define DEBUG_MODE			0	// Режим отладки
+#define DEBUG_MODE			0	// Debug mode
 
-#define USE_ADMINMENU		1	// Включение админ-меню для управления VIP
+#define USE_ADMINMENU		1	// Admin menu for managing VIPs
 
-#define USE_MORE_SERVERS	1	// Включить/Отключить режим при котором если ID сервера у игрока 0 - то VIP будет работать на всех серверах
+#define USE_MORE_SERVERS	1	// A VIP with server ID 0 is active on all servers
 
-#define USE_CLIENTPREFS		0	// Хранить статусы VIP-функций в куках (1) или в хранилище VIP vip_storage (0, старые куки переносятся автоматически)
+#define USE_CLIENTPREFS		0	// Store VIP feature statuses in cookies (1) or in the vip_storage table (0, old cookies are migrated automatically)
 
 
 public Plugin myinfo =

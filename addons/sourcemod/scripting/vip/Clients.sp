@@ -76,7 +76,7 @@ void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = f
 	if (IsFakeClient(iClient) == false && (GLOBAL_INFO & IS_STARTED) && g_hDatabase)
 	{
 		Clients_LoadClient(iClient, bNotify);
-		//	DBG_Clients("Clients_CheckVipAccess %N:\tИгрок %sявляется VIP игроком", iClient, g_bIsClientVIP[iClient] ? "":"не ")
+		//	DBG_Clients("Clients_CheckVipAccess %N:\tis %sa VIP", iClient, g_bIsClientVIP[iClient] ? "":"not ")
 	}
 	else
 	{
@@ -226,7 +226,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 		}
 		else
 		{
-			LogError("Invalid VIP-Group/Некорректная VIP-группа: %s (Игрок: %d)", szGroup, iAccountID);
+			LogError("Invalid VIP group: %s (player: %d)", szGroup, iAccountID);
 			Clients_SetLoaded(iClient);
 		}
 		return;
