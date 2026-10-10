@@ -542,12 +542,18 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 					if (iTarget)
 					{
 						g_hClientData[iClient].GetValue(DATA_KEY_Time, iBuffer);
+
+						// Keep the menu to return to (BackToAdminMenu below)
+						AdminMenuType eThrowMenuType;
+						g_hClientData[iClient].GetValue(DATA_KEY_ThrowMenuType, eThrowMenuType);
 						g_hClientData[iClient].Clear();
+						g_hClientData[iClient].SetValue(DATA_KEY_ThrowMenuType, eThrowMenuType);
+
 						UTIL_ADD_VIP_PLAYER(iClient, iTarget, _, iBuffer, szGroup);
 					}
 					else
 					{
-						VIP_PrintToChatClient(iClient, "%t", "Player no longer available");
+						VIP_PrintToChatClient(iClient, "%t", "PLAYER_NO_LONGER_AVAILABLE");
 					}
 
 					BackToAdminMenu(iClient);
