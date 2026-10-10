@@ -388,7 +388,7 @@ void ShowTemporaryTargetInfo(int iClient)
 	g_hFeatures[iTarget].GetValue(KEY_EXPIRES, iExpires);
 	g_hClientData[iClient].SetValue(DATA_KEY_Time, iExpires);
 	GetClientName(iTarget, SZF(szName));
-	iAccountID = GetSteamAccountID(iClient);
+	iAccountID = GetSteamAccountID(iTarget);
 
 	g_hClientData[iClient].SetString(DATA_KEY_Name, szName);
 	g_hClientData[iClient].SetValue(DATA_KEY_Auth, iAccountID);
