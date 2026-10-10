@@ -13,6 +13,7 @@ public void OnClientPutInServer(int iClient)
 	
 	if(!IsFakeClient(iClient) && !IsClientSourceTV(iClient))
 	{
+		Storage_LoadClient(iClient);
 		Clients_CheckVipAccess(iClient, true, true);
 	}
 }
@@ -27,7 +28,9 @@ public void OnClientDisconnect(int iClient)
 	if(!IsFakeClient(iClient))
 	{
 		CreateForward_OnClientDisconnect(iClient);
+		Storage_SaveClient(iClient);
 	}
+	Storage_ResetClient(iClient);
 	
 	ResetClient(iClient);
 	delete g_hClientData[iClient];

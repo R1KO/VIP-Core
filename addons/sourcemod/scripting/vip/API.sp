@@ -11,6 +11,7 @@ static GlobalForward g_hGlobalForward_OnFeatureRegistered;
 static GlobalForward g_hGlobalForward_OnFeatureUnregistered;
 static GlobalForward g_hGlobalForward_OnClientDisconnect;
 static GlobalForward g_hGlobalForward_OnConfigsLoaded;
+static GlobalForward g_hGlobalForward_OnClientStorageLoaded;
 
 void API_SetupForwards()
 {
@@ -28,6 +29,7 @@ void API_SetupForwards()
 	g_hGlobalForward_OnFeatureUnregistered = new GlobalForward("VIP_OnFeatureUnregistered", ET_Ignore, Param_String);
 	g_hGlobalForward_OnClientDisconnect	   = new GlobalForward("VIP_OnClientDisconnect", ET_Ignore, Param_Cell, Param_Cell);
 	g_hGlobalForward_OnConfigsLoaded	   = new GlobalForward("VIP_OnConfigsLoaded", ET_Ignore);
+	g_hGlobalForward_OnClientStorageLoaded = new GlobalForward("VIP_OnClientStorageLoaded", ET_Ignore, Param_Cell);
 }
 
 // Global Forwards
@@ -42,6 +44,14 @@ void CreateForward_OnConfigsLoaded()
 {
 	DBG_API("CreateForward_OnConfigsLoaded()");
 	Call_StartForward(g_hGlobalForward_OnConfigsLoaded);
+	Call_Finish();
+}
+
+void CreateForward_OnClientStorageLoaded(int iClient)
+{
+	DBG_API("CreateForward_OnClientStorageLoaded(%N (%d))", iClient, iClient);
+	Call_StartForward(g_hGlobalForward_OnClientStorageLoaded);
+	Call_PushCell(iClient);
 	Call_Finish();
 }
 
@@ -261,6 +271,10 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 	RegNative(IsGroupExists);
 	RegNative(AddGroup);
 	RegNative(RemoveGroup);
+
+	// Storage
+	RegNative(SetClientStorageValue);
+	RegNative(GetClientStorageValue);
 
 	RegNative(GetClientFeatureStatus);
 	RegNative(SetClientFeatureStatus);
@@ -775,6 +789,38 @@ public int Native_RemoveGroup(Handle hPlugin, int iNumParams)
 	g_hGroups.Rewind();
 
 	return true;
+}
+
+public int Native_SetClientStorageValue(Handle hPlugin, int iNumParams)
+{
+	int iClient = GetNativeCell(1);
+	if (!CheckValidClient(iClient, false))
+	{
+		return 0;
+	}
+
+	char szKey[STORAGE_KEY_LENGTH], szValue[STORAGE_VALUE_LENGTH];
+	GetNativeString(2, SZF(szKey));
+	GetNativeString(3, SZF(szValue));
+
+	Storage_SetClientValue(iClient, szKey, szValue);
+	return 0;
+}
+
+public int Native_GetClientStorageValue(Handle hPlugin, int iNumParams)
+{
+	int iClient = GetNativeCell(1);
+	if (!CheckValidClient(iClient, false))
+	{
+		return 0;
+	}
+
+	char szKey[STORAGE_KEY_LENGTH], szValue[STORAGE_VALUE_LENGTH];
+	GetNativeString(2, SZF(szKey));
+
+	Storage_GetClientValue(iClient, szKey, SZF(szValue));
+	SetNativeString(3, szValue, GetNativeCell(4), true);
+	return 0;
 }
 
 public int Native_IsVIPLoaded(Handle hPlugin, int iNumParams)

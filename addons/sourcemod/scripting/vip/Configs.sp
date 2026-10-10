@@ -22,6 +22,10 @@ void OnReadyToStart()
 		{
 			if (IsClientInGame(iClient))
 			{
+				if (!IsFakeClient(iClient))
+				{
+					Storage_LoadClient(iClient);
+				}
 				Clients_CheckVipAccess(iClient, false);
 			}
 		}

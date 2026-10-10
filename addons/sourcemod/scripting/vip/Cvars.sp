@@ -12,6 +12,10 @@ void Cvars_Setup()
 	hCvar.AddChangeHook(OnServerIDChange);
 	OnServerIDChange(hCvar, NULL_STRING, NULL_STRING);
 
+	hCvar = CreateConVar("sm_vip_storage_id", "0", "ID группы серверов для хранилища данных игроков при использовании MySQL базы данных", _, true, 0.0);
+	hCvar.AddChangeHook(OnStorageIDChange);
+	g_CVAR_iStorageID = hCvar.IntValue;
+
 	hCvar = CreateConVar("sm_vip_auto_open_menu", "0", "Автоматически открывать VIP-меню при входе (0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnAutoOpenMenuChange);
 	g_CVAR_bAutoOpenMenu = hCvar.BoolValue;
@@ -80,6 +84,11 @@ public void OnServerIDChange(ConVar hCvar, const char[] szOldValue, const char[]
 	{
 		g_szSID[0] = 0;
 	}
+}
+
+public void OnStorageIDChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
+{
+	g_CVAR_iStorageID = hCvar.IntValue;
 }
 
 public void OnAutoOpenMenuChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
