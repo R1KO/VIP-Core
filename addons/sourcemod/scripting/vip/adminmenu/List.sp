@@ -67,14 +67,14 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 			char szUserID[16];
 			hMenu.GetItem(iItem, SZF(szUserID));
 			
-			if (!strcmp(szUserID, "search")) // Найти игрока
+			if (!strcmp(szUserID, "search")) // Search for a player
 			{
 				ShowWaitSearchMenu(iClient);
 
 				return 0;
 			}
 
-			if (!strcmp(szUserID, "show_all")) // Показать всех
+			if (!strcmp(szUserID, "show_all")) // Show all
 			{
 				g_hClientData[iClient].Remove(DATA_KEY_Search);
 				ShowVipPlayersFromDBMenu(iClient);
@@ -82,7 +82,7 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 				return 0;
 			}
 
-			if (!strcmp(szUserID, "more")) // Показать еще
+			if (!strcmp(szUserID, "more")) // Show more
 			{
 				int iOffset;
 				g_hClientData[iClient].GetValue(DATA_KEY_Offset, iOffset);
@@ -306,7 +306,8 @@ public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, 
 		if (hResult.RowCount == LIST_OFFSET)
 		{
 			hMenu.AddItem(NULL_STRING, "ITEMDRAW_SPACER", ITEMDRAW_SPACER);
-			hMenu.AddItem("more", "Показать еще");
+			FormatEx(SZF(szName), "%T", "SHOW_MORE", iClient);
+			hMenu.AddItem("more", szName);
 		}
 
 		hMenu.Display(iClient, MENU_TIME_FOREVER);
@@ -442,11 +443,11 @@ void ShowTargetInfoMenu(int iClient)
 	hMenu.ExitBackButton = true;
 	hMenu.SetTitle("%T\n ", "MENU_INFO_VIP_PLAYER", iClient, szName, szAuth, szGroup, szBuffer);
 
-	FormatEx(SZF(szBuffer), "%T", "MENU_DEL_VIP", iClient);			//		1. Удалить игрока
+	FormatEx(SZF(szBuffer), "%T", "MENU_DEL_VIP", iClient);			//		1. Delete player
 	hMenu.AddItem(NULL_STRING, szBuffer);
-	FormatEx(SZF(szBuffer), "%T", "MENU_EDIT_TIME", iClient);		//		2. Изменить срок 
+	FormatEx(SZF(szBuffer), "%T", "MENU_EDIT_TIME", iClient);		//		2. Change expiry
 	hMenu.AddItem(NULL_STRING, szBuffer, iClientID == -1 ? ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
-	FormatEx(SZF(szBuffer), "%T", "MENU_EDIT_GROUP", iClient);		//		3. Изменить группу
+	FormatEx(SZF(szBuffer), "%T", "MENU_EDIT_GROUP", iClient);		//		3. Change group
 	hMenu.AddItem(NULL_STRING, szBuffer);
 
 	ReductionMenu(hMenu, 2);
