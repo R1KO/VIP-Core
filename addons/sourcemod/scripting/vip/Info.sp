@@ -28,12 +28,14 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 	g_hInfo.Rewind();
 	if (g_hInfo.JumpToKey(szEvent) && g_hInfo.JumpToKey(szType))
 	{
+		// Modules get a copy; with Plugin_Changed the (edited) copy is shown, otherwise the config itself
 		KeyValues hKeyValues = new KeyValues(szType);
 		hKeyValues.Import(g_hInfo);
 		switch(CreateForward_OnShowClientInfo(iClient, szEvent, szType, hKeyValues))
 		{
 			case Plugin_Stop, Plugin_Handled:
 			{
+				delete hKeyValues;
 				return;
 			}
 			case Plugin_Continue:
@@ -49,7 +51,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 			case 'c':
 			{
 				DebugMessage("case 'c'");
-				if (KvGetLangString(szBuffer, iBufLen, szClientLang, szServLang))
+				if (KvGetLangString(hKeyValues, szBuffer, iBufLen, szClientLang, szServLang))
 				{
 					DebugMessage("KvGetLangString: (%s, %s) = '%s'", szClientLang, szServLang, szBuffer);
 					ReplaceString(szBuffer, iBufLen, "\\n", " \n");
@@ -64,12 +66,12 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 			{
 				DebugMessage("case 'm'");
 				
-				int iTime = g_hInfo.GetNum("time", 0);
-				if (!g_hInfo.JumpToKey(szClientLang))
+				int iTime = hKeyValues.GetNum("time", 0);
+				if (!hKeyValues.JumpToKey(szClientLang))
 				{
-					if (!g_hInfo.JumpToKey(szServLang))
+					if (!hKeyValues.JumpToKey(szServLang))
 					{
-						if (!g_hInfo.GotoFirstSubKey())
+						if (!hKeyValues.GotoFirstSubKey())
 						{
 							if(hKeyValues != g_hInfo)
 							{
@@ -81,19 +83,19 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 				}
 				
 				DebugMessage("KvJumpToKey: (%s|%s)", szClientLang, szServLang);
-				if (g_hInfo.GotoFirstSubKey(false))
+				if (hKeyValues.GotoFirstSubKey(false))
 				{
 					DebugMessage("KvGotoFirstSubKey");
 					Panel hPanel = new Panel();
 					do
 					{
-						g_hInfo.GetSectionName(szBuffer, 32);
+						hKeyValues.GetSectionName(szBuffer, 32);
 						if (strcmp(szBuffer, "item"))
 						{
 							continue;
 						}
 
-						g_hInfo.GetString(NULL_STRING, szBuffer, 128);
+						hKeyValues.GetString(NULL_STRING, szBuffer, 128);
 						DebugMessage("KvGetString = '%s'", szBuffer);
 						if (szBuffer[0])
 						{
@@ -109,13 +111,13 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 							}
 							hPanel.DrawText(szBuffer);
 						}
-					} while (g_hInfo.GotoNextKey(false));
+					} while (hKeyValues.GotoNextKey(false));
 					
-					g_hInfo.GoBack();
+					hKeyValues.GoBack();
 					
 					hPanel.DrawText(" \n");
 					
-					hPanel.CurrentKey = g_hInfo.GetNum("exit_button", g_iMaxPageItems);
+					hPanel.CurrentKey = hKeyValues.GetNum("exit_button", g_iMaxPageItems);
 					
 					FormatEx(szBuffer, 128, "%T", "Exit", iClient);
 					hPanel.DrawItem(szBuffer, ITEMDRAW_CONTROL);
@@ -129,7 +131,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 				DebugMessage("case 'u'");
 				if (g_EngineVersion != Engine_CSGO)	
 				{
-					if (KvGetLangString(szBuffer, iBufLen, szClientLang, szServLang))
+					if (KvGetLangString(hKeyValues, szBuffer, iBufLen, szClientLang, szServLang))
 					{
 						DebugMessage("KvGetLangString: (%s, %s) = '%s'", szClientLang, szServLang, szBuffer);
 						if (strncmp(szBuffer, "http://", 7, true) != 0)
@@ -150,14 +152,14 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 	}
 }
 
-bool KvGetLangString(char[] szBuffer, int iBufLen, char[] szClientLang, char[] szServLang)
+bool KvGetLangString(KeyValues hKeyValues, char[] szBuffer, int iBufLen, char[] szClientLang, char[] szServLang)
 {
 	DebugMessage("KvGetLangString: '%s', '%s'", szClientLang, szServLang);
-	g_hInfo.GetString(szClientLang, szBuffer, iBufLen);
+	hKeyValues.GetString(szClientLang, szBuffer, iBufLen);
 	DebugMessage("KvGetString (%s) = '%s'", szClientLang, szBuffer);
 	if (!szBuffer[0])
 	{
-		g_hInfo.GetString(szServLang, szBuffer, iBufLen);
+		hKeyValues.GetString(szServLang, szBuffer, iBufLen);
 		DebugMessage("KvGetString (%s) = '%s'", szServLang, szBuffer);
 		if (!szBuffer[0])
 		{
