@@ -370,30 +370,30 @@ void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
 
 void Clients_LoadFeature(int iClient, const char[] szFeature)
 {
-	static ArrayList hArray;
-	if (!GLOBAL_TRIE.GetValue(szFeature, hArray))
+	Feature eFeature;
+	if (!Features_Get(szFeature, eFeature))
 	{
 		return;
 	}
 
 	DBG_Clients("LoadClientFeature: %s", szFeature);
 
-	if (!GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), szFeature))
+	if (!GetValue(iClient, eFeature.eValType, szFeature))
 	{
 		return;
 	}
 
 	static VIP_ToggleState eStatus;
 	DBG_Clients("GetValue: == true");
-	if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
+	if (eFeature.eType == TOGGLABLE)
 	{
 		static char szBuffer[4];
-		Features_GetSavedStatus(iClient, szFeature, hArray, SZF(szBuffer));
+		Features_GetSavedStatus(iClient, szFeature, eFeature.hCookie, SZF(szBuffer));
 		eStatus = view_as<VIP_ToggleState>(StringToInt(szBuffer));
 		DBG_Clients("GetSavedStatus: '%s'", szBuffer);
 		if (szBuffer[0] == '\0' || !Features_IsValidStatus(eStatus))
 		{
-			switch(hArray.Get(FEATURES_DEF_STATUS))
+			switch(eFeature.eDefStatus)
 			{
 				case NO_ACCESS:	eStatus = g_CVAR_bDefaultStatus ? ENABLED : DISABLED;
 				case ENABLED:	eStatus = ENABLED;
@@ -403,9 +403,8 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 			// Persist the default only once the store is loaded, so it can't shadow a value that is still loading
 			if (Features_IsStatusStoreReady(iClient))
 			{
-				Features_SaveStatus(iClient, szFeature, hArray, eStatus);
+				Features_SaveStatus(iClient, szFeature, eFeature.hCookie, eStatus);
 			}
-			//	Features_SaveStatus(iClient, szFeature, hCookie, eStatus);
 		}
 	}
 	else
@@ -414,7 +413,6 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 	}
 
 	Features_SetStatus(iClient, szFeature, eStatus);
-	//	Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function:hArray.Get(FEATURES_ITEM_SELECT), iClient, szFeature, NO_ACCESS, ENABLED);
 }
 
 bool Features_IsValidStatus(VIP_ToggleState eStatus)

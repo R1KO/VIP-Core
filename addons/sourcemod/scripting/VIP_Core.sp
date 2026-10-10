@@ -67,15 +67,7 @@ public void OnPluginStart()
 
 	g_iMaxPageItems = GetMaxPageItems(GetMenuStyleHandle(MenuStyle_Default));
 	g_hFeaturesArray = new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
-	GLOBAL_TRIE = new StringMap();
-
-	// Fix DataPack positions in sm 1.10
-	DataPack hDataPack = new DataPack();
-	hDataPack.WriteCell(0);
-	ITEM_DISPLAY = hDataPack.Position;
-	hDataPack.WriteCell(0);
-	ITEM_DRAW = hDataPack.Position;
-	delete hDataPack;
+	g_hFeatureRegistry = new StringMap();
 
 	API_SetupForwards();
 	ReadConfigs();

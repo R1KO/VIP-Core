@@ -1,4 +1,3 @@
-#define GLOBAL_TRIE			g_hFeatures[0]
 #define GLOBAL_INFO			g_iClientInfo[0]
 
 #define UID(%0) 			GetClientUserId(%0)
@@ -40,19 +39,17 @@ stock const char KEY_EXPIRES[]	= "Core->Expires";
 stock const char KEY_GROUP[]	= "Core->Group";
 stock const char KEY_MENUITEM[]	= "Core->SelectionItem";
 
-enum
+enum struct Feature
 {
-	FEATURES_PLUGIN = 0,
-	FEATURES_VALUE_TYPE,
-	FEATURES_ITEM_TYPE,
-	FEATURES_COOKIE,
-	FEATURES_MENU_CALLBACKS,
-	FEATURES_DEF_STATUS
+	Handle			hPlugin;
+	VIP_ValueType	eValType;
+	VIP_FeatureType	eType;
+	VIP_ToggleState	eDefStatus;
+	Cookie			hCookie;		// TOGGLABLE, or SELECTABLE registered with bCookie; null otherwise
+	Function		fnSelect;
+	Function		fnDisplay;
+	Function		fnDraw;
 }
-
-DataPackPos ITEM_SELECT = view_as<DataPackPos>(0);
-DataPackPos ITEM_DISPLAY;
-DataPackPos ITEM_DRAW;
 
 enum
 {
@@ -93,7 +90,8 @@ Database	g_hDatabase;
 
 Menu		g_hVIPMenu;
 
-ArrayList	g_hFeaturesArray;
+ArrayList	g_hFeaturesArray;		// Feature names in registration order
+StringMap	g_hFeatureRegistry;		// Feature name -> Feature
 ArrayList	g_hSortArray;
 
 StringMap	g_hFeatures[MAXPLAYERS+1];

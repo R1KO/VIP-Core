@@ -1,3 +1,8 @@
+bool Features_Get(const char[] szFeature, Feature eFeature)
+{
+	return g_hFeatureRegistry.GetArray(szFeature, eFeature, sizeof(eFeature));
+}
+
 void Features_TurnOffAll(int iClient)
 {
 	DebugMessage("Features_TurnOffAll %N (%i)", iClient, iClient);
@@ -13,31 +18,19 @@ void Features_TurnOffAll(int iClient)
 	}
 
 	char szFeature[FEATURE_NAME_LENGTH];
-	VIP_ToggleState eOldStatus;
-	Function Function_Toggle;
-	ArrayList hArray;
-	DataPack hDataPack;
+	Feature eFeature;
 
 	for(int i = 0; i < iFeatures; ++i)
 	{
 		g_hFeaturesArray.GetString(i, SZF(szFeature));
-		if (!GLOBAL_TRIE.GetValue(szFeature, hArray))
+		if (!Features_Get(szFeature, eFeature) || eFeature.eType != TOGGLABLE)
 		{
 			continue;
 		}
 
-		if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) != TOGGLABLE)
+		if (eFeature.fnSelect != INVALID_FUNCTION)
 		{
-			continue;
-		}
-
-		eOldStatus = Features_GetStatus(iClient, szFeature);
-		hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
-		hDataPack.Position = ITEM_SELECT;
-		Function_Toggle = hDataPack.ReadFunction();
-		if(Function_Toggle != INVALID_FUNCTION)
-		{
-			Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Toggle, iClient, szFeature, eOldStatus, NO_ACCESS);
+			Function_OnItemToggle(eFeature.hPlugin, eFeature.fnSelect, iClient, szFeature, Features_GetStatus(iClient, szFeature), NO_ACCESS);
 		}
 	}
 }
@@ -53,34 +46,21 @@ void Features_TurnOnAll(int iClient)
 	}
 
 	char szFeature[FEATURE_NAME_LENGTH];
+	Feature eFeature;
 	VIP_ToggleState eNewStatus;
-	Function Function_Toggle;
-	ArrayList hArray;
-	DataPack hDataPack;
 
 	for(int i = 0; i < iFeatures; ++i)
 	{
 		g_hFeaturesArray.GetString(i, SZF(szFeature));
-		if (!GLOBAL_TRIE.GetValue(szFeature, hArray))
+		if (!Features_Get(szFeature, eFeature) || eFeature.eType != TOGGLABLE || eFeature.fnSelect == INVALID_FUNCTION)
 		{
 			continue;
 		}
 
-		if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) != TOGGLABLE)
+		eNewStatus = Features_GetStatus(iClient, szFeature);
+		if (eNewStatus != NO_ACCESS)
 		{
-			continue;
-		}
-
-		hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
-		hDataPack.Position = ITEM_SELECT;
-		Function_Toggle = hDataPack.ReadFunction();
-		if(Function_Toggle != INVALID_FUNCTION)
-		{
-			eNewStatus = Features_GetStatus(iClient, szFeature);
-			if(eNewStatus != NO_ACCESS)
-			{
-				Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Toggle, iClient, szFeature, NO_ACCESS, eNewStatus);
-			}
+			Function_OnItemToggle(eFeature.hPlugin, eFeature.fnSelect, iClient, szFeature, NO_ACCESS, eNewStatus);
 		}
 	}
 }
@@ -114,10 +94,8 @@ bool Features_IsStatusStoreReady(int iClient)
 	#endif
 }
 
-void Features_GetSavedStatus(int iClient, const char[] szFeature, ArrayList hArray, char[] szValue, int iMaxLength)
+void Features_GetSavedStatus(int iClient, const char[] szFeature, Cookie hCookie, char[] szValue, int iMaxLength)
 {
-	Cookie hCookie = view_as<Cookie>(hArray.Get(FEATURES_COOKIE));
-
 	#if USE_CLIENTPREFS
 	#pragma unused szFeature
 	hCookie.Get(iClient, szValue, iMaxLength);
@@ -135,16 +113,16 @@ void Features_GetSavedStatus(int iClient, const char[] szFeature, ArrayList hArr
 	#endif
 }
 
-void Features_SaveStatus(int iClient, const char[] szFeature, ArrayList hArray, VIP_ToggleState eStatus)
+void Features_SaveStatus(int iClient, const char[] szFeature, Cookie hCookie, VIP_ToggleState eStatus)
 {
 	char szValue[4];
 	IntToString(view_as<int>(eStatus), SZF(szValue));
 
 	#if USE_CLIENTPREFS
 	#pragma unused szFeature
-	view_as<Cookie>(hArray.Get(FEATURES_COOKIE)).Set(iClient, szValue);
+	hCookie.Set(iClient, szValue);
 	#else
-	#pragma unused hArray
+	#pragma unused hCookie
 	char szKey[STORAGE_KEY_LENGTH];
 	Features_GetStorageKey(szFeature, SZF(szKey));
 	Storage_SetClientValue(iClient, szKey, szValue);
