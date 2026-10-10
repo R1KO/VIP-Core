@@ -693,6 +693,7 @@ int API_RemoveClientVIP(Handle hPlugin,
 			CancelClientMenu(iClient);
 		}
 
+		Features_TurnOffAll(iClient);
 		ResetClient(iClient);
 
 		char szBuffer[PMP];
