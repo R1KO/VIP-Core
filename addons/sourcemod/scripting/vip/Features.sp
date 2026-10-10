@@ -89,3 +89,58 @@ VIP_ToggleState Features_GetStatus(const int &iClient, const char[] szFeature)
 	DebugMessage("Features_GetStatus: %N (%i) -> Feature: %s, eStatus: %i", iClient, iClient, szFeature, NO_ACCESS);
 	return NO_ACCESS;
 }
+// Toggle statuses persist in clientprefs cookies (USE_CLIENTPREFS 1) or in the VIP storage (USE_CLIENTPREFS 0).
+// In storage mode cookies are still read once to migrate statuses saved by older versions.
+bool Features_IsStatusStoreReady(int iClient)
+{
+	#if USE_CLIENTPREFS
+	return AreClientCookiesCached(iClient);
+	#else
+	return Storage_IsClientLoaded(iClient) && AreClientCookiesCached(iClient);
+	#endif
+}
+
+void Features_GetSavedStatus(int iClient, const char[] szFeature, ArrayList hArray, char[] szValue, int iMaxLength)
+{
+	Cookie hCookie = view_as<Cookie>(hArray.Get(FEATURES_COOKIE));
+
+	#if USE_CLIENTPREFS
+	#pragma unused szFeature
+	hCookie.Get(iClient, szValue, iMaxLength);
+	#else
+	char szKey[STORAGE_KEY_LENGTH];
+	Features_GetStorageKey(szFeature, SZF(szKey));
+	if (!Storage_GetClientValue(iClient, szKey, szValue, iMaxLength) && hCookie && AreClientCookiesCached(iClient))
+	{
+		hCookie.Get(iClient, szValue, iMaxLength);
+		if (szValue[0])
+		{
+			Storage_SetClientValue(iClient, szKey, szValue);
+		}
+	}
+	#endif
+}
+
+void Features_SaveStatus(int iClient, const char[] szFeature, ArrayList hArray, VIP_ToggleState eStatus)
+{
+	char szValue[4];
+	IntToString(view_as<int>(eStatus), SZF(szValue));
+
+	#if USE_CLIENTPREFS
+	#pragma unused szFeature
+	view_as<Cookie>(hArray.Get(FEATURES_COOKIE)).Set(iClient, szValue);
+	#else
+	#pragma unused hArray
+	char szKey[STORAGE_KEY_LENGTH];
+	Features_GetStorageKey(szFeature, SZF(szKey));
+	Storage_SetClientValue(iClient, szKey, szValue);
+	#endif
+}
+
+#if !USE_CLIENTPREFS
+// Same key format as 3.1-dev, so statuses saved there are picked up
+void Features_GetStorageKey(const char[] szFeature, char[] szKey, int iMaxLength)
+{
+	FormatEx(szKey, iMaxLength, "FeatureStatus-%s", szFeature);
+}
+#endif
