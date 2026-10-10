@@ -56,48 +56,17 @@ jobs:
     if: github.ref_type == 'tag'
     needs: compile
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v8
 
-      - name: Find Assets
-        shell: bash
-        run: |
-          echo "artifact_1_11=$(find * -maxdepth 0 -type d -name '*1.11*')" >> $GITHUB_ENV
-          echo "artifact_1_12=$(find * -maxdepth 0 -type d -name '*1.12*')" >> $GITHUB_ENV
-          
+      # One zip per SM version that compiled (1.12 is allowed to fail)
       - name: Archive Assets
-        run: |
-          zip -r ${{ env.artifact_1_11 }}.zip ${{ env.artifact_1_11 }}
-          zip -r ${{ env.artifact_1_12 }}.zip ${{ env.artifact_1_12 }}
+        run: for d in */; do zip -r "${d%/}.zip" "$d"; done
 
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1.1.4
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: ${{ github.ref_name }}
-          draft: true
-          prerelease: false
-
-      - name: Upload Asset 1.11
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.artifact_1_11 }}.zip
-          asset_name: ${{ env.artifact_1_11 }}.zip
-          asset_content_type: application/zip
-
-      - name: Upload Asset 1.12
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.artifact_1_12 }}.zip
-          asset_name: ${{ env.artifact_1_12 }}.zip
-          asset_content_type: application/zip
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${{ github.ref_name }}" *.zip --repo "${{ github.repository }}" --title "${{ github.ref_name }}" --draft --generate-notes
