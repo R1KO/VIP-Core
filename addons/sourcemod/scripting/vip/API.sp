@@ -272,7 +272,6 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 	RegNative(AddGroup);
 	RegNative(RemoveGroup);
 
-	// Storage
 	RegNative(SetClientStorageValue);
 	RegNative(GetClientStorageValue);
 
@@ -614,7 +613,7 @@ int API_GiveClientVIP(Handle hPlugin, int iAdmin, int iClient, int iTime, const 
 			g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
 			if (iClientID == -1 && bAddToDB)
 			{
-				ResetClient(iClient);
+				Clients_RemoveVIPStatus(iClient);
 
 				CreateForward_OnVIPClientRemoved(iClient, "Removed for VIP-status change", iAdmin);
 			}
@@ -725,8 +724,7 @@ int API_RemoveClientVIP(Handle hPlugin,
 			CancelClientMenu(iClient);
 		}
 
-		Features_TurnOffAll(iClient);
-		ResetClient(iClient);
+		Clients_RemoveVIPStatus(iClient);
 
 		char szBuffer[PMP];
 		FormatEx(SZF(szBuffer), "Removed by %s", szPluginName);
@@ -852,14 +850,16 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 			g_hVIPMenu.RemoveItem(0);
 		}
 
-		g_hFeaturesArray.PushString(szFeature);
 		VIP_ValueType	eValType			= view_as<VIP_ValueType>(GetNativeCell(2));
 		VIP_FeatureType eType				= view_as<VIP_FeatureType>(GetNativeCell(3));
 		Function		ItemSelectCallback	= GetNativeFunction(4);
 		Function		ItemDisplayCallback = GetNativeFunction(5);
 		Function		ItemDrawCallback	= GetNativeFunction(6);
-		VIP_ToggleState eDefStatus			= view_as<VIP_ToggleState>(GetNativeCell(7));
-		bool			bCookie				= view_as<bool>(GetNativeCell(8));
+		// Modules built against an older include pass fewer params
+		VIP_ToggleState eDefStatus			= iNumParams > 6 ? view_as<VIP_ToggleState>(GetNativeCell(7)) : NO_ACCESS;
+		bool			bCookie				= iNumParams > 7 && view_as<bool>(GetNativeCell(8));
+
+		g_hFeaturesArray.PushString(szFeature);
 
 		DBG_API("PushArrayString -> %i", g_hFeaturesArray.FindString(szFeature));
 		DBG_API("VIP_ValueType -> %s", g_szValueType[view_as<int>(eValType)]);
@@ -880,7 +880,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 		if (eType != HIDE)
 		{
 			Cookie hCookie		   = null;
-			bool   bRegisterCookie = (eType == SELECTABLE && iNumParams > 7 && (bCookie != false));
+			bool   bRegisterCookie = (eType == SELECTABLE && bCookie);
 			if (eType == TOGGLABLE || bRegisterCookie)
 			{
 				hCookie = new Cookie(szFeature, szFeature, CookieAccess_Private);
@@ -896,7 +896,7 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 
 			if (eType == TOGGLABLE)
 			{
-				hArray.Push(iNumParams > 6 ? eDefStatus : NO_ACCESS);
+				hArray.Push(eDefStatus);
 			}
 
 			AddFeatureToVIPMenu(szFeature);
@@ -982,13 +982,10 @@ public int Native_UnregisterMe(Handle hPlugin, int iNumParams)
 void UnregisterFeature(const char[] szFeature, ArrayList hArray)
 {
 	VIP_FeatureType eType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
-	if (eType == TOGGLABLE)
-	{
-		delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
-	}
-
 	if (eType != HIDE)
 	{
+		// TOGGLABLE and SELECTABLE (bCookie) features own a cookie handle, others store null
+		delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
 		delete view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
 	}
 
@@ -1199,7 +1196,8 @@ public int Native_GetClientFeatureBool(Handle hPlugin, int iNumParams)
 		bool bValue;
 		GetNativeString(2, SZF(szFeature));
 
-		return g_hFeatures[iClient].GetValue(szFeature, bValue);
+		// VIP_GiveClientFeature can store false, so the key existing is not enough
+		return g_hFeatures[iClient].GetValue(szFeature, bValue) && bValue;
 	}
 
 	return false;
@@ -1335,6 +1333,12 @@ public int Native_RemoveClientFeature(Handle hPlugin, int iNumParams)
 
 public int Native_GetDatabase(Handle hPlugin, int iNumParams)
 {
+	// Not connected yet (before VIP_OnVIPLoaded): CloneHandle would throw on null
+	if (!g_hDatabase)
+	{
+		return 0;
+	}
+
 	return view_as<int>(CloneHandle(g_hDatabase, hPlugin));
 }
 

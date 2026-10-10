@@ -654,7 +654,7 @@ native bool VIP_RemoveClientFeature(int iClient, const char[] szFeature);
  *
  *	@noparams
  *
- *	@return					Database (Handle) базы данных
+ *	@return					Database (Handle) базы данных или null, если ядро ещё не подключилось к БД (до VIP_OnVIPLoaded)
 */
 native Database VIP_GetDatabase();
 
@@ -674,6 +674,7 @@ native bool VIP_GetDatabaseType();
  * @param iTime				Время.
  *
  * @return					Возвращает количество секунд в зависимости от sm_vip_time_mode.
+ * 							-1 - неизвестный sm_vip_time_mode или результат не помещается в int.
 */
 native int VIP_TimeToSeconds(int iTime);
 
