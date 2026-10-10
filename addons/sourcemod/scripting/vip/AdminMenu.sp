@@ -75,7 +75,10 @@ int IsClientOnline(int ID)
 	int iClientID;
 	for (int i = 1; i <= MaxClients; ++i)
 	{
-		if (IsClientInGame(i) && g_hFeatures[i] != null && g_hFeatures[i].GetValue(KEY_CID, iClientID) && iClientID == ID) return i;
+		if (IsClientInGame(i) && g_hFeatures[i] != null && g_hFeatures[i].GetValue(KEY_CID, iClientID) && iClientID == ID)
+		{
+			return i;
+		}
 	}
 	return 0;
 }
@@ -307,7 +310,10 @@ void ShowTimeMenu(int iClient)
 		{
 			hKv.GetSectionName(SZF(szTime));
 
-			if (iMenuType != TIME_SET && szTime[0] == '0') continue;
+			if (iMenuType != TIME_SET && szTime[0] == '0')
+			{
+				continue;
+			}
 
 			hKv.GetString(szClientLang, SZF(szBuffer));
 			if (!szBuffer[0])

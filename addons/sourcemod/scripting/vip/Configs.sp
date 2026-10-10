@@ -58,7 +58,9 @@ void ReadSortingMenu()
 	BuildPath(Path_SM, SZF(szFeature), "data/vip/cfg/sort_menu.ini");
 	File hFile = OpenFile(szFeature, "r");
 	if (!hFile)
+	{
 		return;
+	}
 
 	g_hSortArray = new ArrayList(ByteCountToCells(FEATURE_NAME_LENGTH));
 

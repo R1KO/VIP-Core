@@ -329,7 +329,10 @@ bool OnVipMenuFlood(int iClient)
 	if (fLastTime[iClient] > 0.0)
 	{
 		float fSec = GetGameTime();
-		if ((fSec - fLastTime[iClient]) < 3.0)return true;
+		if ((fSec - fLastTime[iClient]) < 3.0)
+		{
+			return true;
+		}
 		fLastTime[iClient] = fSec;
 	}
 	return false;

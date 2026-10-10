@@ -24,7 +24,10 @@ public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iC
 		case MenuAction_End: delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if (iItem == MenuCancel_ExitBack) ShowTargetInfoMenu(iClient);
+			if (iItem == MenuCancel_ExitBack)
+			{
+				ShowTargetInfoMenu(iClient);
+			}
 		}
 		case MenuAction_Select:
 		{

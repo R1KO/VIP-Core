@@ -57,7 +57,10 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 		case MenuAction_End: delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if (iItem == MenuCancel_ExitBack) BackToAdminMenu(iClient);
+			if (iItem == MenuCancel_ExitBack)
+			{
+				BackToAdminMenu(iClient);
+			}
 		}
 		case MenuAction_Select:
 		{
