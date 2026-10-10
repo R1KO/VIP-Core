@@ -391,6 +391,8 @@ native void VIP_GetClientStorageValue(int iClient, const char[] szKey, char[] sz
 
 /**
  *	Prints a chat message to a player with a prefix (translation phrase "VIP_CHAT_PREFIX").
+ *	A line break ("\n" or the two characters \n, e.g. from a translation) starts a new chat message;
+ *	each line holds up to about 250 bytes, the whole message up to 1024.
  *
  * @param iClient			Client index.
  * @param szMessage			Formatting rules.
@@ -402,6 +404,8 @@ native void VIP_PrintToChatClient(int iClient, const char[] szMessage, any ...);
 
 /**
  *	Prints a chat message to all players with a prefix (translation phrase "VIP_CHAT_PREFIX").
+ *	A line break ("\n" or the two characters \n, e.g. from a translation) starts a new chat message;
+ *	each line holds up to about 250 bytes, the whole message up to 1024.
  *
  * @param szMessage			Formatting rules.
  * @param ...				Formatting parameters.

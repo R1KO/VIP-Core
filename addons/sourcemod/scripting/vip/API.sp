@@ -348,7 +348,7 @@ public int Native_PrintToChatClient(Handle hPlugin, int iNumParams)
 	DBG_API("iClient = %d", iClient);
 	if (CheckValidClient(iClient, false))
 	{
-		char szMessage[256];
+		char szMessage[1024];
 		SetGlobalTransTarget(iClient);
 		FormatNativeString(0, 2, 3, sizeof(szMessage), _, szMessage);
 
@@ -361,7 +361,7 @@ public int Native_PrintToChatClient(Handle hPlugin, int iNumParams)
 public int Native_PrintToChatAll(Handle hPlugin, int iNumParams)
 {
 	DBG_API("Native_PrintToChatAll(%d)", iNumParams);
-	char szMessage[256];
+	char szMessage[1024];
 
 	for (int i = 1; i <= MCL; ++i)
 	{
