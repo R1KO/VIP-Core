@@ -110,6 +110,7 @@ ConVar		g_CVAR_hVIPMenu_CMD;
 
 int 		g_CVAR_iAdminFlag;
 int 		g_CVAR_iServerID;
+int 		g_CVAR_iStorageID;
 int 		g_CVAR_iTimeMode;
 int			g_CVAR_iDeleteExpired;
 int			g_CVAR_iOutdatedExpired;

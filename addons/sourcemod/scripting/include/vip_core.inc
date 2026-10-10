@@ -148,6 +148,15 @@ forward void VIP_OnVIPLoaded();
 forward void VIP_OnConfigsLoaded();
 
 /**
+ *	Вызывается когда загружено хранилище игрока (VIP_SetClientStorageValue / VIP_GetClientStorageValue).
+ *
+ * @param iClient			Индекс игрока.
+ *
+ * @noreturn
+*/
+forward void VIP_OnClientStorageLoaded(int iClient);
+
+/**
  *	Вызывается когда VIP-функция была зарегистрирована.
  *
  * @param szFeature			Уникальное имя ф-и.
@@ -347,6 +356,31 @@ native bool VIP_AddGroup(const char[] szGroup, KeyValues hFeatures);
  * 							false - группа не существует.
 */	
 native bool VIP_RemoveGroup(const char[] szGroup);
+
+/**
+ *	Сохраняет значение в хранилище игрока (таблица vip_storage).
+ *	Хранилище доступно для всех игроков (не только VIP) после VIP_OnClientStorageLoaded(),
+ *	до загрузки вызов игнорируется. В базу данных записывается при отключении игрока.
+ *
+ * @param iClient			Индекс игрока.
+ * @param szKey				Ключ (до 127 символов).
+ * @param szValue			Значение (до 255 символов).
+ *
+ * @noreturn
+*/
+native void VIP_SetClientStorageValue(int iClient, const char[] szKey, const char[] szValue);
+
+/**
+ *	Получает значение из хранилища игрока.
+ *
+ * @param iClient			Индекс игрока.
+ * @param szKey				Ключ.
+ * @param szValue			Буфер, в который будет помещен результат (пустая строка, если значения нет).
+ * @param iMaxLength		Размер буфера.
+ *
+ * @noreturn
+*/
+native void VIP_GetClientStorageValue(int iClient, const char[] szKey, char[] szValue, int iMaxLength);
 
 /**
  *	Выводит игроку сообщение в чат с приставкой (фраза в переводе "VIP_CHAT_PREFIX").
@@ -718,6 +752,8 @@ public void __pl_vip_core_SetNTVOptional()
 	MarkNativeAsOptional("VIP_IsGroupExists");
 	MarkNativeAsOptional("VIP_AddGroup");
 	MarkNativeAsOptional("VIP_RemoveGroup");
+	MarkNativeAsOptional("VIP_SetClientStorageValue");
+	MarkNativeAsOptional("VIP_GetClientStorageValue");
 	MarkNativeAsOptional("VIP_GetClientFeatureStatus");
 	MarkNativeAsOptional("VIP_SetClientFeatureStatus");
 	MarkNativeAsOptional("VIP_IsClientFeatureUse");

@@ -31,6 +31,7 @@ public Plugin myinfo =
 #include "vip/Downloads.sp"
 #include "vip/Colors.sp"
 #include "vip/UTIL.sp"
+#include "vip/Storage.sp"
 #include "vip/Features.sp"
 #include "vip/Sounds.sp"
 #include "vip/Info.sp"
