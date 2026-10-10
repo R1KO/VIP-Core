@@ -90,7 +90,8 @@ public void SQL_Callback_OnClientLoadStorage(Database hOwner, DBResultSet hResul
 	CreateForward_OnClientStorageLoaded(iClient);
 }
 
-void Storage_SaveClient(int iClient)
+// bSync: write right away (plugin unload, where async queries may never run)
+void Storage_SaveClient(int iClient, bool bSync = false)
 {
 	if (!Storage_IsClientLoaded(iClient) || !g_bStorageChanged[iClient] || !g_hDatabase)
 	{
@@ -101,7 +102,16 @@ void Storage_SaveClient(int iClient)
 	int iUpdated = GetTime();
 	char szKey[STORAGE_KEY_LENGTH], szValue[STORAGE_VALUE_LENGTH], szQuery[1024];
 
-	Transaction hTxn = new Transaction();
+	Transaction hTxn = null;
+	if (bSync)
+	{
+		SQL_LockDatabase(g_hDatabase);
+	}
+	else
+	{
+		hTxn = new Transaction();
+	}
+
 	StringMapSnapshot hSnapshot = g_hStorage[iClient].Snapshot();
 	for (int i = 0, iSize = hSnapshot.Length; i < iSize; ++i)
 	{
@@ -124,17 +134,43 @@ void Storage_SaveClient(int iClient)
 		}
 
 		DBG_SQL_Query(szQuery);
-		hTxn.AddQuery(szQuery);
+		if (bSync)
+		{
+			if (!SQL_FastQuery(g_hDatabase, szQuery))
+			{
+				SQL_GetError(g_hDatabase, SZF(szQuery));
+				LogError("Storage_SaveClient: %s", szQuery);
+			}
+		}
+		else
+		{
+			hTxn.AddQuery(szQuery);
+		}
 	}
 	delete hSnapshot;
 
-	g_hDatabase.Execute(hTxn, _, SQL_TxnCallback_SaveStorageFailure);
+	if (bSync)
+	{
+		SQL_UnlockDatabase(g_hDatabase);
+	}
+	else
+	{
+		g_hDatabase.Execute(hTxn, _, SQL_TxnCallback_SaveStorageFailure);
+	}
 	g_bStorageChanged[iClient] = false;
 }
 
 public void SQL_TxnCallback_SaveStorageFailure(Database hDatabase, any data, int iNumQueries, const char[] szError, int iFailIndex, any[] queryData)
 {
 	LogError("SQL_TxnCallback_SaveStorageFailure (%d/%d): %s", iFailIndex, iNumQueries, szError);
+}
+
+public void OnPluginEnd()
+{
+	for (int iClient = 1; iClient <= MaxClients; ++iClient)
+	{
+		Storage_SaveClient(iClient, true);
+	}
 }
 
 void Storage_ResetClient(int iClient)
