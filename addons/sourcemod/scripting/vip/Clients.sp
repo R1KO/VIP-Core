@@ -205,6 +205,10 @@ void Clients_OnVIPClientLoaded(int iClient)
 
 void Clients_CreateClientVIPSettings(int iClient, int iExp)
 {
+	// A reload may overlap with a load still in flight
+	delete g_hFeatures[iClient];
+	delete g_hFeatureStatus[iClient];
+
 	g_hFeatures[iClient] = new StringMap();
 	g_hFeatureStatus[iClient] = new StringMap();
 

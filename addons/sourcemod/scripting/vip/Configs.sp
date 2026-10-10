@@ -18,15 +18,12 @@ void OnReadyToStart()
 		
 		CreateForward_OnVIPLoaded();
 		
+		// VIP access is checked right after by UTIL_ReloadVIPPlayers (SQL_Callback_TableCreate)
 		for (int iClient = 1; iClient <= MaxClients; ++iClient)
 		{
-			if (IsClientInGame(iClient))
+			if (IsClientInGame(iClient) && !IsFakeClient(iClient))
 			{
-				if (!IsFakeClient(iClient))
-				{
-					Storage_LoadClient(iClient);
-				}
-				Clients_CheckVipAccess(iClient, false);
+				Storage_LoadClient(iClient);
 			}
 		}
 	}
