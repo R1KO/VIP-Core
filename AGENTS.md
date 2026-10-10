@@ -16,14 +16,12 @@
 - `vip/Global.sp` — all globals, macros (`SZF`, `UID/CID`, `SET_BIT/UNSET_BIT`), client flag bits (`IS_VIP`, `IS_LOADED`, ...), core state bits (`IS_STARTED`, `IS_MySQL`, `IS_LOADING`).
 - `vip/API.sp` — forwards (`API_SetupForwards`, `CreateForward_*`) and natives (`AskPluginLoad2`, `RegNative(X)` → `VIP_X` bound to `Native_X`).
 - `vip/Database.sp` — connection, schema, queries. `UTIL.sp` — shared helpers; check here before writing new ones. `Clients.sp` — client load/unload lifecycle, spawn. `Features.sp` — feature registry.
-- `include/vip_core.inc` — PUBLIC API for third-party modules.
-- `data/vip/cfg/*.ini` — runtime configs (groups, info, sort_menu, times). `translations/vip_core.phrases.txt` — all user-facing strings.
+- `include/vip_core.inc` — PUBLIC API for third-party modules. `data/vip/cfg/*.ini` — runtime configs (groups, info, sort_menu, times). `translations/vip_core.phrases.txt` — all user-facing strings.
 
 ## Public API rules (vip_core.inc)
-- Third-party modules depend on it: never change existing native/forward signatures or semantics. Add new params with defaults or add new natives.
+- Third-party modules depend on it: never change existing native/forward signatures or semantics. Add new params with defaults or add new natives. Deprecate via `#pragma deprecated`, don't delete (see `update_modules.md`).
 - New native: implement `Native_X` in API.sp, `RegNative(X)` in `AskPluginLoad2`, declare in `.inc`, add `MarkNativeAsOptional("VIP_X")` in `__pl_vip_core_SetNTVOptional`.
 - New forward: `static GlobalForward` field + `new GlobalForward(...)` in `API_SetupForwards` + `CreateForward_*` wrapper + `forward` declaration with doc comment in `.inc`.
-- Deprecate via `#pragma deprecated`, don't delete (see `update_modules.md`).
 
 ## Database
 - Config name `vip_core` in databases.cfg → MySQL; otherwise falls back to local SQLite. Every query must work on BOTH.
@@ -40,11 +38,13 @@
 - SQL: backticks around identifiers, single quotes for values, trailing `;`, user strings via `g_hDatabase.Format`/`Escape`. Callbacks: `if (hResult == null || szError[0]) { LogError("<Callback>: %s", szError); return; }`, free the DataPack on every path.
 - File-private state/helpers are `static`. Never pass already formatted text as a format string: `PrintToServer("%s", szMsg)`, not `PrintToServer(szMsg)`.
 
+## Comments
+- Explain *why*, never restate *what* the code does. A comment doesn't excuse unclear code: rename/restructure first; if a clear comment is hard to write, the code is the problem.
+- Comment what a reader would trip over: unidiomatic code, SourceMod quirks, ordering constraints, odd-looking bug fixes. Mark unfinished parts `// TODO: <what and why>`. Link the source of copied code and external refs (SM docs, AlliedModders) where they help. Russian or English, match the surroundings (cvar descriptions Russian).
+
 ## Conventions
 - Pass client across async boundaries as userid (`UID`/`CID`), never raw index.
 - `GLOBAL_TRIE` / `GLOBAL_INFO` are index `[0]` of per-client arrays — slot 0 = global, not a player.
 - Use methodmaps (`StringMap`, `Cookie`, `KeyValues`, `delete`), not legacy procedural calls (`CreateTrie`, `SetClientCookie`, `CloseHandle`, `Kv*`).
 - Debug logging via `DBG_*` / `DebugMessage` functions from `Debug.sp` (empty unless `DEBUG_MODE 1`); calls still need a trailing `;`.
-- Any new user-facing text → new phrase in `vip_core.phrases.txt` with at least `en` and `ru`.
-- Comments are Russian or English (cvar descriptions Russian); keep the surrounding style.
-- Bump `VIP_VERSION` in `VIP_Core.sp` only when asked; changelog lives in `updates.md`.
+- Any new user-facing text → new phrase in `vip_core.phrases.txt` with at least `en` and `ru`. Bump `VIP_VERSION` in `VIP_Core.sp` only when asked; changelog lives in `updates.md`.
