@@ -1,5 +1,7 @@
 // Bumped on every reset, so timers started for a previous load can tell they are stale
 static int g_iClientLoadSerial[MAXPLAYERS+1];
+// Loaded before Steam authorized the player: OnClientAuthorized has to check again
+static bool g_bClientWaitsForAuth[MAXPLAYERS+1];
 
 // Drops the VIP status only: session flags (spawned, menu open, chat input) stay
 void ResetClient(int iClient)
@@ -33,8 +35,9 @@ public void OnClientPutInServer(int iClient)
 // Steam authorized the player after OnClientPutInServer: storage and the VIP check were skipped then (no account id yet)
 public void OnClientAuthorized(int iClient, const char[] szAuth)
 {
-	if (IsClientInGame(iClient) && !IsFakeClient(iClient) && !IsClientSourceTV(iClient))
+	if (g_bClientWaitsForAuth[iClient] && IsClientInGame(iClient))
 	{
+		g_bClientWaitsForAuth[iClient] = false;
 		Storage_LoadClient(iClient);
 		Clients_CheckVipAccess(iClient, true, true);
 	}
@@ -57,6 +60,7 @@ public void OnClientDisconnect(int iClient)
 	ResetClient(iClient);
 	delete g_hClientData[iClient];
 	g_iClientInfo[iClient] = 0;
+	g_bClientWaitsForAuth[iClient] = false;
 }
 
 void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = false)
@@ -97,6 +101,7 @@ void Clients_LoadClient(int iClient, bool bNotify)
 	// Not authorized yet: loaded as non-VIP for now, checked again from OnClientAuthorized
 	if (!iAccountID)
 	{
+		g_bClientWaitsForAuth[iClient] = true;
 		Clients_SetLoaded(iClient);
 		return;
 	}
