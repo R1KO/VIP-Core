@@ -259,6 +259,8 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 
 	RegNative(IsValidVIPGroup);
 	RegNative(IsGroupExists);
+	RegNative(AddGroup);
+	RegNative(RemoveGroup);
 
 	RegNative(GetClientFeatureStatus);
 	RegNative(SetClientFeatureStatus);
@@ -733,6 +735,46 @@ public int Native_IsGroupExists(Handle hPlugin, int iNumParams)
 	char szGroup[64];
 	GetNativeString(1, SZF(szGroup));
 	return UTIL_CheckValidVIPGroup(szGroup);
+}
+
+public int Native_AddGroup(Handle hPlugin, int iNumParams)
+{
+	char szGroup[64];
+	GetNativeString(1, SZF(szGroup));
+
+	KeyValues hFeatures = view_as<KeyValues>(GetNativeCell(2));
+	if (!hFeatures)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid KeyValues handle/Некорректный KeyValues для группы \"%s\"", szGroup);
+	}
+
+	if (!szGroup[0] || UTIL_CheckValidVIPGroup(szGroup))
+	{
+		return false;
+	}
+
+	g_hGroups.Rewind();
+	g_hGroups.JumpToKey(szGroup, true);
+	g_hGroups.Import(hFeatures);
+	g_hGroups.Rewind();
+
+	return true;
+}
+
+public int Native_RemoveGroup(Handle hPlugin, int iNumParams)
+{
+	char szGroup[64];
+	GetNativeString(1, SZF(szGroup));
+
+	if (!UTIL_CheckValidVIPGroup(szGroup))
+	{
+		return false;
+	}
+
+	g_hGroups.DeleteThis();
+	g_hGroups.Rewind();
+
+	return true;
 }
 
 public int Native_IsVIPLoaded(Handle hPlugin, int iNumParams)
