@@ -870,35 +870,22 @@ public int Native_RegisterFeature(Handle hPlugin, int iNumParams)
 		DBG_API("VIP_ToggleState -> %s", g_szToggleState[view_as<int>(eDefStatus)]);
 		DBG_API("Cookie -> %s", bCookie ? "true" : "false");
 
-		ArrayList hArray = new ArrayList();
-		GLOBAL_TRIE.SetValue(szFeature, hArray);
-
-		hArray.Push(hPlugin);
-		hArray.Push(eValType);
-		hArray.Push(eType);
+		Feature eFeature;
+		eFeature.hPlugin	= hPlugin;
+		eFeature.eValType	= eValType;
+		eFeature.eType		= eType;
+		eFeature.eDefStatus	= eDefStatus;
+		eFeature.fnSelect	= ItemSelectCallback;
+		eFeature.fnDisplay	= ItemDisplayCallback;
+		eFeature.fnDraw		= ItemDrawCallback;
+		if (eType == TOGGLABLE || (eType == SELECTABLE && bCookie))
+		{
+			eFeature.hCookie = new Cookie(szFeature, szFeature, CookieAccess_Private);
+		}
+		g_hFeatureRegistry.SetArray(szFeature, eFeature, sizeof(eFeature));
 
 		if (eType != HIDE)
 		{
-			Cookie hCookie		   = null;
-			bool   bRegisterCookie = (eType == SELECTABLE && bCookie);
-			if (eType == TOGGLABLE || bRegisterCookie)
-			{
-				hCookie = new Cookie(szFeature, szFeature, CookieAccess_Private);
-			}
-
-			hArray.Push(hCookie);
-
-			DataPack hDataPack = new DataPack();
-			hDataPack.WriteFunction(ItemSelectCallback);
-			hDataPack.WriteFunction(ItemDisplayCallback);
-			hDataPack.WriteFunction(ItemDrawCallback);
-			hArray.Push(hDataPack);
-
-			if (eType == TOGGLABLE)
-			{
-				hArray.Push(eDefStatus);
-			}
-
 			AddFeatureToVIPMenu(szFeature);
 		}
 
@@ -928,10 +915,10 @@ public int Native_UnregisterFeature(Handle hPlugin, int iNumParams)
 
 	if (IsValidFeature(szFeature))
 	{
-		ArrayList hArray;
-		if (GLOBAL_TRIE.GetValue(szFeature, hArray) /* && view_as<Handle>(hArray.Get(FEATURES_PLUGIN)) == hPlugin*/)
+		Feature eFeature;
+		if (Features_Get(szFeature, eFeature))
 		{
-			UnregisterFeature(szFeature, hArray);
+			UnregisterFeature(szFeature, eFeature);
 
 			int i = g_hFeaturesArray.FindString(szFeature);
 			if (i != -1)
@@ -953,21 +940,21 @@ public int Native_UnregisterMe(Handle hPlugin, int iNumParams)
 	DebugMessage("FeaturesArraySize: %d", g_hFeaturesArray.Length);
 	if (g_hFeaturesArray.Length > 0)
 	{
-		char	  szFeature[FEATURE_NAME_LENGTH];
-		ArrayList hArray;
+		char	szFeature[FEATURE_NAME_LENGTH];
+		Feature	eFeature;
 
 		for (int i = 0, iSize = g_hFeaturesArray.Length; i < iSize; ++i)
 		{
 			g_hFeaturesArray.GetString(i, SZF(szFeature));
 
-			if (GLOBAL_TRIE.GetValue(szFeature, hArray))
+			if (Features_Get(szFeature, eFeature))
 			{
-				if (view_as<Handle>(hArray.Get(FEATURES_PLUGIN)) != hPlugin)
+				if (eFeature.hPlugin != hPlugin)
 				{
 					continue;
 				}
 
-				UnregisterFeature(szFeature, hArray);
+				UnregisterFeature(szFeature, eFeature);
 
 				g_hFeaturesArray.Erase(i);
 				--i;
@@ -979,21 +966,12 @@ public int Native_UnregisterMe(Handle hPlugin, int iNumParams)
 	return 0;
 }
 
-void UnregisterFeature(const char[] szFeature, ArrayList hArray)
+void UnregisterFeature(const char[] szFeature, Feature eFeature)
 {
-	VIP_FeatureType eType = view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE));
-	if (eType != HIDE)
-	{
-		// TOGGLABLE and SELECTABLE (bCookie) features own a cookie handle, others store null
-		delete view_as<Handle>(hArray.Get(FEATURES_COOKIE));
-		delete view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
-	}
+	delete eFeature.hCookie;
+	g_hFeatureRegistry.Remove(szFeature);
 
-	delete hArray;
-
-	GLOBAL_TRIE.Remove(szFeature);
-
-	if (eType != HIDE)
+	if (eFeature.eType != HIDE)
 	{
 		char szItemInfo[FEATURE_NAME_LENGTH];
 		for (int j = 0, iSize = g_hVIPMenu.ItemCount; j < iSize; ++j)
@@ -1038,10 +1016,10 @@ public int Native_GetFeatureType(Handle hPlugin, int iNumParams)
 	char szFeature[FEATURE_NAME_LENGTH];
 	GetNativeString(1, SZF(szFeature));
 
-	ArrayList hArray;
-	if (GLOBAL_TRIE.GetValue(szFeature, hArray))
+	Feature eFeature;
+	if (Features_Get(szFeature, eFeature))
 	{
-		return hArray.Get(FEATURES_ITEM_TYPE);
+		return view_as<int>(eFeature.eType);
 	}
 
 	return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid", szFeature);
@@ -1052,10 +1030,10 @@ public int Native_GetFeatureValueType(Handle hPlugin, int iNumParams)
 	char szFeature[FEATURE_NAME_LENGTH];
 	GetNativeString(1, SZF(szFeature));
 
-	ArrayList hArray;
-	if (GLOBAL_TRIE.GetValue(szFeature, hArray))
+	Feature eFeature;
+	if (Features_Get(szFeature, eFeature))
 	{
-		return hArray.Get(FEATURES_VALUE_TYPE);
+		return view_as<int>(eFeature.eValType);
 	}
 
 	return ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid", szFeature);
@@ -1120,20 +1098,14 @@ public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 		eOldStatus = Features_GetStatus(iClient, szFeature);
 
 		eNewStatus = view_as<VIP_ToggleState>(GetNativeCell(3));
-		ArrayList hArray;
-		if (GLOBAL_TRIE.GetValue(szFeature, hArray))
+		Feature eFeature;
+		if (Features_Get(szFeature, eFeature))
 		{
-			if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
+			if (eFeature.eType == TOGGLABLE)
 			{
-				if (iNumParams > 3 && GetNativeCell(4))
+				if (iNumParams > 3 && GetNativeCell(4) && eFeature.fnSelect != INVALID_FUNCTION)
 				{
-					DataPack hDataPack		 = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
-					hDataPack.Position		 = ITEM_SELECT;
-					Function Function_Select = hDataPack.ReadFunction();
-					if (Function_Select != INVALID_FUNCTION)
-					{
-						Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), Function_Select, iClient, szFeature, eOldStatus, eNewStatus);
-					}
+					Function_OnItemToggle(eFeature.hPlugin, eFeature.fnSelect, iClient, szFeature, eOldStatus, eNewStatus);
 				}
 
 				if (eOldStatus != eNewStatus)
@@ -1141,7 +1113,7 @@ public int Native_SetClientFeatureStatus(Handle hPlugin, int iNumParams)
 					Features_SetStatus(iClient, szFeature, eNewStatus);
 					if (iNumParams > 4 && GetNativeCell(5))
 					{
-						Features_SaveStatus(iClient, szFeature, hArray, eNewStatus);
+						Features_SaveStatus(iClient, szFeature, eFeature.hCookie, eNewStatus);
 					}
 					return true;
 				}
@@ -1230,8 +1202,8 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 	{
 		char szFeature[64];
 		GetNativeString(2, SZF(szFeature));
-		ArrayList hArray;
-		if (!IsValidFeature(szFeature) || !GLOBAL_TRIE.GetValue(szFeature, hArray))
+		Feature eFeature;
+		if (!IsValidFeature(szFeature) || !Features_Get(szFeature, eFeature))
 		{
 			ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid", szFeature);
 			return 0;
@@ -1247,7 +1219,7 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 			g_iClientInfo[iClient] |= IS_VIP | IS_LOADED;
 		}
 
-		switch (view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)))
+		switch (eFeature.eValType)
 		{
 			case BOOL:
 			{
@@ -1269,15 +1241,11 @@ public int Native_GiveClientFeature(Handle hPlugin, int iNumParams)
 
 		Features_SetStatus(iClient, szFeature, ENABLED);
 
-		if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
+		if (eFeature.eType == TOGGLABLE)
 		{
-			DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
-			hDataPack.Position = ITEM_SELECT;
-			Function fCallback = hDataPack.ReadFunction();
-
-			if (fCallback != INVALID_FUNCTION)
+			if (eFeature.fnSelect != INVALID_FUNCTION)
 			{
-				Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), fCallback, iClient, szFeature, NO_ACCESS, ENABLED);
+				Function_OnItemToggle(eFeature.hPlugin, eFeature.fnSelect, iClient, szFeature, NO_ACCESS, ENABLED);
 			}
 			CreateForward_OnFeatureToggle(iClient, szFeature, NO_ACCESS, ENABLED);
 		}
@@ -1295,8 +1263,8 @@ public int Native_RemoveClientFeature(Handle hPlugin, int iNumParams)
 	{
 		char szFeature[64];
 		GetNativeString(2, SZF(szFeature));
-		ArrayList hArray;
-		if (!IsValidFeature(szFeature) || !GLOBAL_TRIE.GetValue(szFeature, hArray))
+		Feature eFeature;
+		if (!IsValidFeature(szFeature) || !Features_Get(szFeature, eFeature))
 		{
 			ThrowNativeError(SP_ERROR_NATIVE, "Feature \"%s\" is invalid", szFeature);
 			return 0;
@@ -1312,15 +1280,11 @@ public int Native_RemoveClientFeature(Handle hPlugin, int iNumParams)
 			ResetClient(iClient);
 		}
 
-		if (eToggleState != NO_ACCESS && view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
+		if (eToggleState != NO_ACCESS && eFeature.eType == TOGGLABLE)
 		{
-			DataPack hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
-			hDataPack.Position = ITEM_SELECT;
-			Function fCallback = hDataPack.ReadFunction();
-
-			if (fCallback != INVALID_FUNCTION)
+			if (eFeature.fnSelect != INVALID_FUNCTION)
 			{
-				Function_OnItemToggle(view_as<Handle>(hArray.Get(FEATURES_PLUGIN)), fCallback, iClient, szFeature, eToggleState, NO_ACCESS);
+				Function_OnItemToggle(eFeature.hPlugin, eFeature.fnSelect, iClient, szFeature, eToggleState, NO_ACCESS);
 			}
 			CreateForward_OnFeatureToggle(iClient, szFeature, eToggleState, NO_ACCESS);
 		}
