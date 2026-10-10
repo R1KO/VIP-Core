@@ -86,6 +86,14 @@ void CreateTables()
 		#else
 		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
 		#endif
+		g_hDatabase.Query(SQL_Callback_StorageTableCreate, "CREATE TABLE IF NOT EXISTS `vip_storage` (\
+					`account_id` INT NOT NULL, \
+					`sid` INT UNSIGNED NOT NULL, \
+					`key` VARCHAR(128) NOT NULL, \
+					`value` VARCHAR(256) NOT NULL default '', \
+					`updated` INT UNSIGNED NOT NULL default 0, \
+					CONSTRAINT pk_StorageID PRIMARY KEY (`account_id`, `sid`, `key`) \
+					) DEFAULT CHARSET=" ... CHARSET ... ";", _, DBPrio_High);
 		g_hDatabase.Query(SQL_Callback_TableCreate,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 					`account_id` INT NOT NULL, \
 					`name` VARCHAR(64) NOT NULL default 'unknown' COLLATE '" ... COLLATION ... "', \
@@ -99,6 +107,12 @@ void CreateTables()
 	else
 	{
 		g_szSID[0] = 0;
+		g_hDatabase.Query(SQL_Callback_StorageTableCreate, "CREATE TABLE IF NOT EXISTS `vip_storage` (\
+				`account_id` INTEGER NOT NULL, \
+				`key` VARCHAR(128) NOT NULL, \
+				`value` TEXT NOT NULL default '', \
+				`updated` INTEGER UNSIGNED NOT NULL default 0, \
+				PRIMARY KEY (`account_id`, `key`));", _, DBPrio_High);
 		g_hDatabase.Query(SQL_Callback_TableCreate,	"CREATE TABLE IF NOT EXISTS `vip_users` (\
 				`account_id` INTEGER PRIMARY KEY NOT NULL, \
 				`name` VARCHAR(64) NOT NULL default 'unknown', \
@@ -135,6 +149,16 @@ public void SQL_Callback_TableCreate(Database hOwner, DBResultSet hResult, const
 	if (g_CVAR_iDeleteExpired != -1 || g_CVAR_iOutdatedExpired != -1)
 	{
 		RemoveExpAndOutPlayers();
+	}
+}
+
+public void SQL_Callback_StorageTableCreate(Database hOwner, DBResultSet hResult, const char[] szError, any data)
+{
+	DBG_SQL_Response("SQL_Callback_StorageTableCreate");
+
+	if (szError[0])
+	{
+		SetFailState("SQL_Callback_StorageTableCreate: %s", szError);
 	}
 }
 
@@ -305,6 +329,10 @@ public void SQL_Callback_SelectRemoveClient(Database hOwner, DBResultSet hResult
 
 		DB_RemoveClient(hPack, iClientID);
 	}
+	else
+	{
+		delete hPack;
+	}
 }
 
 void DB_RemoveClient(DataPack hDataPack, int iClientID)
@@ -341,11 +369,7 @@ public void SQL_Callback_RemoveClient(Database hOwner, DBResultSet hResult, cons
 		hPack.ReadString(SZF(szName));
 		hPack.ReadString(SZF(szGroup));
 
-		if(iAdmin == -1)
-		{
-			return;
-		}
-
+		// iAdmin is -1 when the admin left before the query finished: still log, just don't reply
 		if (g_CVAR_bLogsEnable)
 		{
 			LogToFile(g_szLogFile, "%T", "LOG_VIP_DELETED", LANG_SERVER, szName, iClientID, szGroup, szAdmin);

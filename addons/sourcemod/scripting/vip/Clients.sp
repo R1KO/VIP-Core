@@ -1,9 +1,23 @@
+// Bumped on every reset, so timers started for a previous load can tell they are stale
+static int g_iClientLoadSerial[MAXPLAYERS+1];
+// Loaded before Steam authorized the player: OnClientAuthorized has to check again
+static bool g_bClientWaitsForAuth[MAXPLAYERS+1];
+
+// Drops the VIP status only: session flags (spawned, menu open, chat input) stay
 void ResetClient(int iClient)
 {
-	g_iClientInfo[iClient] = IS_LOADED;
+	g_iClientInfo[iClient] = (g_iClientInfo[iClient] & ~IS_VIP) | IS_LOADED;
+	++g_iClientLoadSerial[iClient];
 	
 	delete g_hFeatures[iClient];
 	delete g_hFeatureStatus[iClient];
+}
+
+// Takes the VIP status away from a player in game: modules get their features toggled off first
+void Clients_RemoveVIPStatus(int iClient)
+{
+	Features_TurnOffAll(iClient);
+	ResetClient(iClient);
 }
 
 public void OnClientPutInServer(int iClient)
@@ -13,6 +27,18 @@ public void OnClientPutInServer(int iClient)
 	
 	if(!IsFakeClient(iClient) && !IsClientSourceTV(iClient))
 	{
+		Storage_LoadClient(iClient);
+		Clients_CheckVipAccess(iClient, true, true);
+	}
+}
+
+// Steam authorized the player after OnClientPutInServer: storage and the VIP check were skipped then (no account id yet)
+public void OnClientAuthorized(int iClient, const char[] szAuth)
+{
+	if (g_bClientWaitsForAuth[iClient] && IsClientInGame(iClient))
+	{
+		g_bClientWaitsForAuth[iClient] = false;
+		Storage_LoadClient(iClient);
 		Clients_CheckVipAccess(iClient, true, true);
 	}
 }
@@ -27,11 +53,14 @@ public void OnClientDisconnect(int iClient)
 	if(!IsFakeClient(iClient))
 	{
 		CreateForward_OnClientDisconnect(iClient);
+		Storage_SaveClient(iClient);
 	}
+	Storage_ResetClient(iClient);
 	
 	ResetClient(iClient);
 	delete g_hClientData[iClient];
 	g_iClientInfo[iClient] = 0;
+	g_bClientWaitsForAuth[iClient] = false;
 }
 
 void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = false)
@@ -41,20 +70,24 @@ void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = f
 		return;
 	}
 
+	Clients_RemoveVIPStatus(iClient);
 	g_iClientInfo[iClient] &= ~IS_LOADED;
-	
-	ResetClient(iClient);
 	
 	if (IsFakeClient(iClient) == false && (GLOBAL_INFO & IS_STARTED) && g_hDatabase)
 	{
 		Clients_LoadClient(iClient, bNotify);
-		//	DBG_Clients("Clients_CheckVipAccess %N:\tИгрок %sявляется VIP игроком", iClient, g_bIsClientVIP[iClient] ? "":"не ")
+		//	DBG_Clients("Clients_CheckVipAccess %N:\tis %sa VIP", iClient, g_bIsClientVIP[iClient] ? "":"not ")
 	}
 	else
 	{
-		g_iClientInfo[iClient] |= IS_LOADED;
-		CreateForward_OnClientLoaded(iClient);
+		Clients_SetLoaded(iClient);
 	}
+}
+
+void Clients_SetLoaded(int iClient)
+{
+	g_iClientInfo[iClient] |= IS_LOADED;
+	CreateForward_OnClientLoaded(iClient);
 }
 
 void Clients_LoadClient(int iClient, bool bNotify)
@@ -64,6 +97,14 @@ void Clients_LoadClient(int iClient, bool bNotify)
 	int iAccountID = GetSteamAccountID(iClient);
 
 	DBG_Clients("Clients_LoadClient %N (%d), %b: - > %x, %u", iClient, iClient, g_iClientInfo[iClient], g_hDatabase, g_hDatabase);
+
+	// Not authorized yet: loaded as non-VIP for now, checked again from OnClientAuthorized
+	if (!iAccountID)
+	{
+		g_bClientWaitsForAuth[iClient] = true;
+		Clients_SetLoaded(iClient);
+		return;
+	}
 
 	char szWhere[64];
 	if(g_szSID[0])
@@ -93,13 +134,6 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 {
 	DBG_SQL_Response("SQL_Callback_OnClientAuthorized");
 	DataPack hDataPack = view_as<DataPack>(hPack);
-	if (hResult == null || szError[0])
-	{
-		LogError("SQL_Callback_OnClientAuthorized: %s", szError);
-		delete hDataPack;
-		return;
-	}
-	
 	hDataPack.Reset();
 	
 	int iClient = CID(hDataPack.ReadCell());
@@ -110,6 +144,14 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 	DBG_Clients("SQL_Callback_OnClientAuthorized: %d", iClient);
 	if (!iClient || !IsClientInGame(iClient))
 	{
+		return;
+	}
+
+	if (hResult == null || szError[0])
+	{
+		LogError("SQL_Callback_OnClientAuthorized: %s", szError);
+		// Load the player as non-VIP so modules still get OnClientLoaded
+		Clients_SetLoaded(iClient);
 		return;
 	}
 
@@ -144,8 +186,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 				
 				DisplayClientInfo(iClient, "expired_info");
 				
-				g_iClientInfo[iClient] |= IS_LOADED;
-				CreateForward_OnClientLoaded(iClient);
+				Clients_SetLoaded(iClient);
 				return;
 			}
 			
@@ -163,9 +204,9 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 
 			g_hFeatures[iClient].SetString(KEY_GROUP, szGroup);
 			
-			g_iClientInfo[iClient] |= IS_VIP|IS_LOADED;
+			g_iClientInfo[iClient] |= IS_VIP;
 
-			CreateForward_OnClientLoaded(iClient);
+			Clients_SetLoaded(iClient);
 
 			char szName[MAX_NAME_LENGTH*2+1];
 			hResult.FetchString(2, SZF(szName));
@@ -185,12 +226,13 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 		}
 		else
 		{
-			LogError("Invalid VIP-Group/Некорректная VIP-группа: %s (Игрок: %d)", szGroup, iAccountID);
+			LogError("Invalid VIP group: %s (player: %d)", szGroup, iAccountID);
+			Clients_SetLoaded(iClient);
 		}
 		return;
 	}
 
-	CreateForward_OnClientLoaded(iClient);
+	Clients_SetLoaded(iClient);
 }
 
 void Clients_OnVIPClientLoaded(int iClient)
@@ -202,6 +244,10 @@ void Clients_OnVIPClientLoaded(int iClient)
 
 void Clients_CreateClientVIPSettings(int iClient, int iExp)
 {
+	// A reload may overlap with a load still in flight
+	delete g_hFeatures[iClient];
+	delete g_hFeatureStatus[iClient];
+
 	g_hFeatures[iClient] = new StringMap();
 	g_hFeatureStatus[iClient] = new StringMap();
 
@@ -217,28 +263,25 @@ public void OnClientCookiesCached(int iClient)
 }
 #endif
 
+// Fixed retry window: if the store isn't ready by then, statuses fall back to defaults
+#define STATUS_STORE_WAIT_ATTEMPTS	120	// x 0.5s
+
 void Clients_LoadVIPFeaturesPre(int iClient, const char[] szFeature = NULL_STRING)
 {
 	DBG_Clients("Clients_LoadVIPFeaturesPre %N", iClient);
 
-	DBG_Clients("AreClientCookiesCached %b", AreClientCookiesCached(iClient));
-
-	if (!AreClientCookiesCached(iClient))
+	// Load once, when the status store (cookies / storage) is ready: loading fires OnVIPClientLoaded and turns features on
+	if (!Features_IsStatusStoreReady(iClient))
 	{
-		DataPack hDataPack = new DataPack();
-		hDataPack.WriteCell(UID(iClient));
-		if(szFeature[0])
-		{
-			hDataPack.WriteCell(true);
-			hDataPack.WriteString(szFeature);
-		}
-		else
-		{
-			hDataPack.WriteCell(false);
-		}
-		CreateTimer(0.5, Timer_CheckCookies, hDataPack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
+		Clients_WaitForStatusStore(iClient, szFeature, 0);
+		return;
 	}
 
+	Clients_LoadVIPFeaturesNow(iClient, szFeature);
+}
+
+void Clients_LoadVIPFeaturesNow(int iClient, const char[] szFeature)
+{
 	if(szFeature[0])
 	{
 		Clients_LoadVIPFeature(iClient, szFeature);
@@ -248,26 +291,40 @@ void Clients_LoadVIPFeaturesPre(int iClient, const char[] szFeature = NULL_STRIN
 	Clients_LoadVIPFeatures(iClient);
 }
 
+void Clients_WaitForStatusStore(int iClient, const char[] szFeature, int iAttempt)
+{
+	DataPack hDataPack = new DataPack();
+	hDataPack.WriteCell(UID(iClient));
+	hDataPack.WriteCell(g_iClientLoadSerial[iClient]);
+	hDataPack.WriteCell(iAttempt);
+	hDataPack.WriteString(szFeature);
+	CreateTimer(0.5, Timer_CheckCookies, hDataPack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
+}
+
 public Action Timer_CheckCookies(Handle hTimer, Handle hDP)
 {
 	DataPack hDataPack = view_as<DataPack>(hDP);
 	hDataPack.Reset();
 	int iClient = CID(hDataPack.ReadCell());
+	int iLoadSerial = hDataPack.ReadCell();
+	int iAttempt = hDataPack.ReadCell();
+	char szFeature[FEATURE_NAME_LENGTH];
+	hDataPack.ReadString(SZF(szFeature));
 	
-	DBG_Clients("Timer_CheckCookies -> iClient: %N (%d), IsClientVIP: %b,", iClient, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP));
-	if (iClient && g_iClientInfo[iClient] & IS_VIP)
+	DBG_Clients("Timer_CheckCookies -> iClient: %N (%d), IsClientVIP: %b, attempt: %d", iClient, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP), iAttempt);
+	// Reloaded in the meantime: the new load waits on its own timer
+	if (!iClient || !(g_iClientInfo[iClient] & IS_VIP) || iLoadSerial != g_iClientLoadSerial[iClient])
 	{
-		char szFeature[FEATURE_NAME_LENGTH];
-		if(hDataPack.ReadCell())
-		{
-			hDataPack.ReadString(SZF(szFeature));
-		}
-		else
-		{
-			szFeature[0] = 0;
-		}
-		Clients_LoadVIPFeaturesPre(iClient, szFeature);
+		return Plugin_Stop;
 	}
+
+	if (!Features_IsStatusStoreReady(iClient) && ++iAttempt < STATUS_STORE_WAIT_ATTEMPTS)
+	{
+		Clients_WaitForStatusStore(iClient, szFeature, iAttempt);
+		return Plugin_Stop;
+	}
+
+	Clients_LoadVIPFeaturesNow(iClient, szFeature);
 
 	return Plugin_Stop;
 }
@@ -325,23 +382,25 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 {
 	static ArrayList hArray;
 	if (!GLOBAL_TRIE.GetValue(szFeature, hArray))
+	{
 		return;
+	}
 
 	DBG_Clients("LoadClientFeature: %s", szFeature);
 
 	if (!GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), szFeature))
+	{
 		return;
+	}
 
 	static VIP_ToggleState eStatus;
 	DBG_Clients("GetValue: == true");
 	if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 	{
 		static char szBuffer[4];
-		static Cookie hCookie;
-		hCookie = view_as<Cookie>(hArray.Get(FEATURES_COOKIE));
-		hCookie.Get(iClient, SZF(szBuffer));
+		Features_GetSavedStatus(iClient, szFeature, hArray, SZF(szBuffer));
 		eStatus = view_as<VIP_ToggleState>(StringToInt(szBuffer));
-		DBG_Clients("GetFeatureCookie: '%s'", szBuffer);
+		DBG_Clients("GetSavedStatus: '%s'", szBuffer);
 		if (szBuffer[0] == '\0' || !Features_IsValidStatus(eStatus))
 		{
 			switch(hArray.Get(FEATURES_DEF_STATUS))
@@ -351,8 +410,11 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 				case DISABLED:	eStatus = DISABLED;
 			}
 
-			IntToString(view_as<int>(eStatus), SZF(szBuffer));
-			hCookie.Set(iClient, szBuffer);
+			// Persist the default only once the store is loaded, so it can't shadow a value that is still loading
+			if (Features_IsStatusStoreReady(iClient))
+			{
+				Features_SaveStatus(iClient, szFeature, hArray, eStatus);
+			}
 			//	Features_SaveStatus(iClient, szFeature, hCookie, eStatus);
 		}
 	}
@@ -540,11 +602,10 @@ public Action Timer_VIP_Expired(Handle hTimer, any UserID)
 void Clients_ExpiredClient(int iClient)
 {
 	DBG_Clients("Clients_ExpiredClient %N:", iClient);
-	Features_TurnOffAll(iClient);
 	
 	int iClientID;
 	g_hFeatures[iClient].GetValue(KEY_EXPIRES, iClientID);
-	if (g_CVAR_iDeleteExpired == 0 || GetTime() >= ((g_CVAR_iDeleteExpired*86400) + iClientID))
+	if (g_CVAR_iDeleteExpired == 0 || (g_CVAR_iDeleteExpired > 0 && GetTime() >= ((g_CVAR_iDeleteExpired*86400) + iClientID)))
 	{
 		if (g_hFeatures[iClient].GetValue(KEY_CID, iClientID) && iClientID != -1)
 		{
@@ -562,7 +623,7 @@ void Clients_ExpiredClient(int iClient)
 		CancelClientMenu(iClient);
 	}
 
-	ResetClient(iClient);
+	Clients_RemoveVIPStatus(iClient);
 	
 	CreateForward_OnVIPClientRemoved(iClient, "Expired");
 	

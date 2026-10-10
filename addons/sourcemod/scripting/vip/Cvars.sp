@@ -2,49 +2,53 @@ void Cvars_Setup()
 {
 	CreateConVar("sm_vip_core_version", VIP_VERSION, "VIP-CORE VERSION", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_CHEAT|FCVAR_DONTRECORD);
 
-	ConVar hCvar = CreateConVar("sm_vip_admin_flag", "z", "Флаг админа, необходимый чтобы иметь доступ к управлению VIP-игроками.");
+	ConVar hCvar = CreateConVar("sm_vip_admin_flag", "z", "Admin flag required to manage VIP players.");
 	hCvar.AddChangeHook(OnAdminFlagChange);
 	OnAdminFlagChange(hCvar, NULL_STRING, NULL_STRING);
 
-	g_CVAR_hVIPMenu_CMD = CreateConVar("sm_vip_menu_commands", "vip;sm_vip;sm_vipmenu", "Команды для вызова VIP-меню (разделять ;)");
+	g_CVAR_hVIPMenu_CMD = CreateConVar("sm_vip_menu_commands", "vip;sm_vip;sm_vipmenu", "Commands that open the VIP menu (separated by ;)");
 
-	hCvar = CreateConVar("sm_vip_server_id", "0", "ID сервера при использовании MySQL базы данных", _, true, 0.0);
+	hCvar = CreateConVar("sm_vip_server_id", "0", "Server ID when using a MySQL database", _, true, 0.0);
 	hCvar.AddChangeHook(OnServerIDChange);
 	OnServerIDChange(hCvar, NULL_STRING, NULL_STRING);
 
-	hCvar = CreateConVar("sm_vip_auto_open_menu", "0", "Автоматически открывать VIP-меню при входе (0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
+	hCvar = CreateConVar("sm_vip_storage_id", "0", "Server group ID for the player data storage when using a MySQL database", _, true, 0.0);
+	hCvar.AddChangeHook(OnStorageIDChange);
+	g_CVAR_iStorageID = hCvar.IntValue;
+
+	hCvar = CreateConVar("sm_vip_auto_open_menu", "0", "Open the VIP menu automatically on join (0 - Disabled, 1 - Enabled)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnAutoOpenMenuChange);
 	g_CVAR_bAutoOpenMenu = hCvar.BoolValue;
 
-	hCvar = CreateConVar("sm_vip_time_mode", "0", "Формат времени (0 - Секунды, 1 - Минуты, 2 - Часы, 3 - Дни)", _, true, 0.0, true, 3.0);
+	hCvar = CreateConVar("sm_vip_time_mode", "0", "Time format (0 - Seconds, 1 - Minutes, 2 - Hours, 3 - Days)", _, true, 0.0, true, 3.0);
 	hCvar.AddChangeHook(OnTimeModeChange);
 	g_CVAR_iTimeMode = hCvar.IntValue;
 
-	hCvar = CreateConVar("sm_vip_delete_expired", "1", "Удалять VIP-игроков у которых истек срок (-1 - Не удалять, 0 - Удалять сразу, > 0 - Количество дней, по истечению которых удалять)", _, true, -1.0, true, 365.0);
+	hCvar = CreateConVar("sm_vip_delete_expired", "1", "Delete expired VIP players (-1 - Never, 0 - Immediately, > 0 - Days after expiry)", _, true, -1.0, true, 365.0);
 	hCvar.AddChangeHook(OnDeleteExpiredChange);
 	g_CVAR_iDeleteExpired = hCvar.IntValue;
 
-	hCvar = CreateConVar("sm_vip_delete_outdated", "-1", "Удалять VIP-игроков которые не заходили на сервер X дней (-1 - Не удалять, > 0 - Количество дней, по истечению которых удалять (минимум 3 суток))", _, true, -1.0, true, 365.0);
+	hCvar = CreateConVar("sm_vip_delete_outdated", "-1", "Delete VIP players who have not joined for X days (-1 - Never, > 0 - Number of days (minimum 3))", _, true, -1.0, true, 365.0);
 	hCvar.AddChangeHook(OnDeleteOutdatedChange);
 	g_CVAR_iOutdatedExpired = hCvar.IntValue;
 
-	hCvar = CreateConVar("sm_vip_update_name", "1", "Обновлять имена VIP-игроков в базе данных при входе(0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
+	hCvar = CreateConVar("sm_vip_update_name", "1", "Update VIP player names in the database on join (0 - Disabled, 1 - Enabled)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnUpdateNameChange);
 	g_CVAR_bUpdateName = hCvar.BoolValue;
 
-	hCvar = CreateConVar("sm_vip_spawn_delay", "1.0", "Задержка перед установкой привилегий при возрождении игрока", _, true, 0.1, true, 60.0);
+	hCvar = CreateConVar("sm_vip_spawn_delay", "1.0", "Delay before applying privileges after the player spawns", _, true, 0.1, true, 60.0);
 	hCvar.AddChangeHook(OnSpawnDelayChange);
 	g_CVAR_fSpawnDelay = hCvar.FloatValue;
 
-	hCvar = CreateConVar("sm_vip_hide_no_access_items", "0", "Режим отображения недоступных функций в вип меню (0 - Сделать пункты неактивными, 1 - Скрывать пункты)", _, true, 0.0, true, 1.0);
+	hCvar = CreateConVar("sm_vip_hide_no_access_items", "0", "How unavailable features are shown in the VIP menu (0 - Disabled items, 1 - Hidden)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnHideNoAccessItemsChange);
 	g_CVAR_bHideNoAccessItems = hCvar.BoolValue;
 
-	hCvar = CreateConVar("sm_vip_features_default_status", "1", "Статус функций по-умолчанию (0 - Выключены, 1 - Включены)", _, true, 0.0, true, 1.0);
+	hCvar = CreateConVar("sm_vip_features_default_status", "1", "Default feature status (0 - Disabled, 1 - Enabled)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnDefaultStatusChange);
 	g_CVAR_bDefaultStatus = hCvar.BoolValue;
 	
-	hCvar = CreateConVar("sm_vip_logs_enable", "1", "Вести ли лог logs/VIP_Logs.log (0 - Выключено, 1 - Включено)", _, true, 0.0, true, 1.0);
+	hCvar = CreateConVar("sm_vip_logs_enable", "1", "Write logs/VIP_Logs.log (0 - Disabled, 1 - Enabled)", _, true, 0.0, true, 1.0);
 	hCvar.AddChangeHook(OnLogsEnableChange);
 	g_CVAR_bLogsEnable = hCvar.BoolValue;
 
@@ -80,6 +84,11 @@ public void OnServerIDChange(ConVar hCvar, const char[] szOldValue, const char[]
 	{
 		g_szSID[0] = 0;
 	}
+}
+
+public void OnStorageIDChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)
+{
+	g_CVAR_iStorageID = hCvar.IntValue;
 }
 
 public void OnAutoOpenMenuChange(ConVar hCvar, const char[] szOldValue, const char[] szNewValue)

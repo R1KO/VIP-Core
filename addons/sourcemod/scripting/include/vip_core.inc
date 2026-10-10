@@ -3,132 +3,134 @@
 #endif
 #define _vip_core_included
 
-/* Типы данных VIP-функций */
+#define VIP_CORE_INTERFACE 310
+
+/* VIP feature data types */
 enum VIP_ValueType
 {
-	VIP_NULL	= 0,	// Нет данных
-	INT,				// Целочисленный тип
-	FLOAT,				// Числа с плавающей точкой (Дробные)
-	BOOL,				// Логический тип (1/0)
-	STRING				// Строчный тип
+	VIP_NULL	= 0,	// No data
+	INT,				// Integer type
+	FLOAT,				// Floating-point type
+	BOOL,				// Boolean type (1/0)
+	STRING				// String type
 }
 
-/* Статусы VIP-функций */
+/* VIP feature statuses */
 enum VIP_ToggleState
 {
-	DISABLED = 0,		// Выключено
-	ENABLED,			// Включено
-	NO_ACCESS			// Нет доступа
+	DISABLED = 0,		// Disabled
+	ENABLED,			// Enabled
+	NO_ACCESS			// No access
 }
 
-/* Типы VIP-функций */
+/* VIP feature types */
 enum VIP_FeatureType
 {
-	TOGGLABLE = 0,		// Вкл/Выкл в меню
-	SELECTABLE,			// Только нажатие
-	HIDE				// Скрытый
+	TOGGLABLE = 0,		// Toggled on/off in the menu
+	SELECTABLE,			// Press only
+	HIDE				// Hidden
 }
 
 typeset ItemSelectCallback
 {
 	/**
-	 *	Вызывается когда VIP-игрок нажимает на пункт в меню (для типа TOGGLABLE).
+	 *	Called when a VIP player selects a menu item (for the TOGGLABLE type).
 	 *
-	 * @param iClient			Индекс игрока.
-	 * @param szFeature			Уникальное имя ф-и.
-	 * @param eOldStatus		Старое значение статуса.
-	 * @param eNewStatus		Новое значение статуса.
+	 * @param iClient			Client index.
+	 * @param szFeature			Unique feature name.
+	 * @param eOldStatus		Old status.
+	 * @param eNewStatus		New status.
 	 *
-	 * @return					Plugin_Stop или Plugin_Handled - остановит переключение статуса;
-	 *							Plugin_Continue - разрешит переключение статуса без изменений;
-	 *							Plugin_Changed - разрешит переключение статуса на eNewStatus.
+	 * @return					Plugin_Stop or Plugin_Handled - stops the status change;
+	 *							Plugin_Continue - allows the status change as is;
+	 *							Plugin_Changed - allows the status change to eNewStatus.
 	*/
 	function Action (int iClient, const char[] szFeature, VIP_ToggleState eOldStatus, VIP_ToggleState &eNewStatus);
 
 	/**
-	 *	Вызывается когда VIP-игрок нажимает на пункт в меню (для типа SELECTABLE).
+	 *	Called when a VIP player selects a menu item (for the SELECTABLE type).
 	 *
-	 * @param iClient			Индекс игрока.
-	 * @param szFeature			Уникальное имя ф-и.
+	 * @param iClient			Client index.
+	 * @param szFeature			Unique feature name.
 	 *
-	 * @return					true - снова откроет игроку VIP-меню;
+	 * @return					true - reopens the VIP menu for the player;
 	 * 							false.
 	*/
 	function bool (int iClient, const char[] szFeature);
 };
 
 /**
- *	Вызывается когда VIP-игроку отображается пункт в меню.
+ *	Called when a menu item is displayed to a VIP player.
  *
- * @param iClient			Индекс игрока.
- * @param szFeature			Уникальное имя ф-и.
- * @param szDisplay			Буфер.
- * @param iMaxLength		Размер буфера.
+ * @param iClient			Client index.
+ * @param szFeature			Unique feature name.
+ * @param szDisplay			Buffer.
+ * @param iMaxLength		Buffer size.
  *
- * @return					true - Отображение содержимого szDisplay.
- * 							false - Отображение без изменений.
+ * @return					true - display the contents of szDisplay.
+ * 							false - display unchanged.
 */
 typedef ItemDisplayCallback = function bool (int iClient, const char[] szFeature, char[] szDisplay, int iMaxLength);
 
 /**
- *	Вызывается когда VIP-игроку отображается стиль пункта в меню.
+ *	Called when the style of a menu item is displayed to a VIP player.
  *
- * @param iClient			Индекс игрока.
- * @param szFeature			Уникальное имя ф-и.
- * @param iStyle			Стиль.
+ * @param iClient			Client index.
+ * @param szFeature			Unique feature name.
+ * @param iStyle			Style.
  *
- * @return					Необходимый стиль (ITEMDRAW_*).
+ * @return					Required style (ITEMDRAW_*).
 */
 typedef ItemDrawCallback = function int (int iClient, const char[] szFeature, int iStyle);
 
 /**
- *	Вызывается когда игрок возрождается.
+ *	Called when a player spawns.
  *
- * @param iClient			Индекс игрока.
- * @param iTeam				Команда игрока (2 - Т, 3- КТ).
- * @param bIsVIP			Имеет ли игрок VIP-статус.
+ * @param iClient			Client index.
+ * @param iTeam				Player team (2 - T, 3 - CT).
+ * @param bIsVIP			Whether the player has VIP status.
  *
  * @noreturn
 */
 forward void VIP_OnPlayerSpawn(int iClient, int iTeam, bool bIsVIP);
 
 /**
- *	Вызывается когда игру отображается информация.
+ *	Called when information is displayed to a player.
  *
- * @param iClient			Индекс игрока.
- * @param szEvent			Имя события:
- * 								"connect_info_time"	- VIP-игрок вошел на сервер (VIP-статус на время);
- * 								"connect_info_perm"	- VIP-игрок вошел на сервер (VIP-статус навсегда);
- * 								"no_access_info" 	- Игрок попытался открыть VIP-меню;
- * 								"connect_info_time"	- VIP-статус игрока истек.
- * @param szType			Тип сообщения:
- * 								"chat"	- В чат;
- * 								"menu"	- В меню;
- * 								"url"	- В MOTD окно.
- * @param hKeyValues		KeyValues ключа события.
+ * @param iClient			Client index.
+ * @param szEvent			Event name:
+ * 								"connect_info_time"	- VIP player joined the server (timed VIP status);
+ * 								"connect_info_perm"	- VIP player joined the server (permanent VIP status);
+ * 								"no_access_info" 	- Player tried to open the VIP menu;
+ * 								"connect_info_time"	- Player's VIP status expired.
+ * @param szType			Message type:
+ * 								"chat"	- In chat;
+ * 								"menu"	- In a menu;
+ * 								"url"	- In a MOTD window.
+ * @param hKeyValues		KeyValues of the event key.
  *
- * @return					Plugin_Stop или Plugin_Handled  - запретит показ уведомления;
- * 							Plugin_Changed - разрешит с изменениями;
- * 							Plugin_Continue - разрешит без изменений.
+ * @return					Plugin_Stop or Plugin_Handled  - blocks the notification;
+ * 							Plugin_Changed - allows it with changes;
+ * 							Plugin_Continue - allows it unchanged.
 */
 forward Action VIP_OnShowClientInfo(int iClient, const char[] szEvent, const char[] szType, KeyValues hKeyValues);
 
 /**
- *	Вызывается когда у VIP-игрока изменяется статус функции.
+ *	Called when a feature status changes for a VIP player.
  *
- * @param iClient			Индекс игрока.
- * @param szFeature			Уникальное имя ф-и.
- * @param eOldStatus		Старое значение статуса.
- * @param eNewStatus		Новое значение статуса.
+ * @param iClient			Client index.
+ * @param szFeature			Unique feature name.
+ * @param eOldStatus		Old status.
+ * @param eNewStatus		New status.
  *
- * @return					Plugin_Stop или Plugin_Handled  - остановит переключение статуса;
- * 							Plugin_Continue  - разрешит переключение статуса без изменений;
- * 							Plugin_Changed - разрешит переключение статуса на eNewStatus.
+ * @return					Plugin_Stop or Plugin_Handled  - stops the status change;
+ * 							Plugin_Continue  - allows the status change as is;
+ * 							Plugin_Changed - allows the status change to eNewStatus.
 */
 forward Action VIP_OnFeatureToggle(int iClient, const char[] szFeature, VIP_ToggleState eOldStatus, VIP_ToggleState &eNewStatus);
 
 /**
- *	Вызывается когда VIP-плагин загрузился.
+ *	Called when the VIP plugin has loaded.
  *
  * @noparams
  *
@@ -137,232 +139,300 @@ forward Action VIP_OnFeatureToggle(int iClient, const char[] szFeature, VIP_Togg
 forward void VIP_OnVIPLoaded();
 
 /**
- *	Вызывается когда VIP-функция была зарегистрирована.
+ *	Called when the VIP plugin has loaded its settings (on start and on config reload).
  *
- * @param szFeature			Уникальное имя ф-и.
+ * @noparams
+ *
+ * @noreturn
+*/
+forward void VIP_OnConfigsLoaded();
+
+/**
+ *	Called when the player's storage has loaded (VIP_SetClientStorageValue / VIP_GetClientStorageValue).
+ *
+ * @param iClient			Client index.
+ *
+ * @noreturn
+*/
+forward void VIP_OnClientStorageLoaded(int iClient);
+
+/**
+ *	Called when a VIP feature has been registered.
+ *
+ * @param szFeature			Unique feature name.
  *
  * @noreturn
 */
 forward void VIP_OnFeatureRegistered(const char[] szFeature);
 
 /**
- *	Вызывается когда VIP-функция была удалена.
+ *	Called when a VIP feature has been unregistered.
  *
- * @param szFeature			Уникальное имя ф-и.
+ * @param szFeature			Unique feature name.
  *
  * @noreturn
 */
 forward void VIP_OnFeatureUnregistered(const char[] szFeature);
 
 /**
- *	Вызывается перед проверкой игрока на наличие VIP-статуса.
+ *	Called before a player is checked for VIP status.
  *
- * @param iClient			Индекс игрока.
+ * @param iClient			Client index.
  *
 
- * @return					true - продолжить.
- * 							false - не выполнять проверку.
+ * @return					true - continue.
+ * 							false - skip the check.
 */
 forward bool VIP_OnClientPreLoad(int iClient);
 
 /**
- *	Вызывается когда игрок был загружен.
+ *	Called when a player has been loaded.
  *
- * @param iClient			Индекс игрока.
- * @param bIsVIP			Имеет ли игрок VIP-статус.
+ * @param iClient			Client index.
+ * @param bIsVIP			Whether the player has VIP status.
  *
  * @noreturn
 */
 forward void VIP_OnClientLoaded(int iClient, bool bIsVIP);
 
 /**
- *	Вызывается когда VIP-игрок был загружен.
+ *	Called when a VIP player has been loaded.
  *
- * @param iClient			Индекс игрока.
+ * @param iClient			Client index.
  *
  * @noreturn
 */
 forward void VIP_OnVIPClientLoaded(int iClient);
 
 /**
- *	Вызывается когда игрок на стадии отключения.
+ *	Called when a player is disconnecting.
  *
- * @param iClient			Индекс игрока.
- * @param bIsVIP			Имеет ли игрок VIP-статус.
+ * @param iClient			Client index.
+ * @param bIsVIP			Whether the player has VIP status.
  *
  * @noreturn
 */
 forward void VIP_OnClientDisconnect(int iClient, bool bIsVIP);
 
 /**
- *	Вызывается когда игрок получает VIP-статус.
+ *	Called when a player receives VIP status.
  *
- * @param iClient			Индекс игрока.
- * @param iAdmin			Индекс админа (0 - сервер).
+ * @param iClient			Client index.
+ * @param iAdmin			Admin index (0 - server).
  *
  * @noreturn
 */
 forward void VIP_OnVIPClientAdded(int iClient, int iAdmin);
 
 /**
- *	Вызывается когда игрок лишается VIP-статуса.
+ *	Called when a player loses VIP status.
  *
- * @param iClient			Индекс игрока.
- * @param szReason			Причина:
- * 								"Expired" - Истек;
- * 								"Removed by Admin" - Удален админом;
- * 								"Removed by native" - Удален нативом.
- * @param iAdmin			Индекс админа (0 - сервер).
+ * @param iClient			Client index.
+ * @param szReason			Reason:
+ * 								"Expired" - Expired;
+ * 								"Removed by Admin" - Removed by an admin;
+ * 								"Removed by native" - Removed by a native.
+ * @param iAdmin			Admin index (0 - server).
  *
  * @noreturn
 */
 forward void VIP_OnVIPClientRemoved(int iClient, const char[] szReason, int iAdmin);
 
 /**
- *	Запускает проверку игрока на наличие VIP прав.
+ *	Starts checking a player for VIP rights.
  *
- * @param iClient			Индекс игрока.
- * @param bNotify			Известить ли игрока о результате проверки.
- * @param bForward			Вызывать ли форврад VIP_OnClientPreLoad перед проверкой.
+ * @param iClient			Client index.
+ * @param bNotify			Whether to notify the player of the check result.
+ * @param bForward			Whether to call the VIP_OnClientPreLoad forward before the check.
  *
  * @noreturn
 */
 native void VIP_CheckClient(int iClient, bool bNotify = false, bool bForward = true);
 
 /**
- *	Получает наличие VIP прав у игрока.
+ *	Checks whether a player has VIP rights.
  *
- * @param iClient			Индекс игрока.
+ * @param iClient			Client index.
  *
- * @return					true - У игрока имеются VIP-статус.
- * 							false - У игрока нет VIP-статуса.
+ * @return					true - the player has VIP status.
+ * 							false - the player has no VIP status.
 */
 native bool VIP_IsClientVIP(int iClient);
 
 /**
- *	Получает уникальный ID VIP-игрока.
+ *	Gets the unique ID of a VIP player.
  *
- * @param iClient			Индекс игрока.
+ * @param iClient			Client index.
  *
- * @return					Уникальный ID или -1 если временный.
+ * @return					Unique ID, or -1 if temporary.
 */
 native int VIP_GetClientID(int iClient);
 
 /**
- *	Получает время окончания VIP-прав у игрока (unix).
+ *	Gets the expiration time of a player's VIP rights (unix).
  *
- * @param iClient			Индекс игрока.
+ * @param iClient			Client index.
  *
- * @return					Дата в unix формате (0 - навсегда, -1 если не удалось получить).
+ * @return					Unix timestamp (0 - permanent, -1 on failure).
 */
 native int VIP_GetClientAccessTime(int iClient);
 
 /**
- *	Устанавливает время окончания VIP-прав у игрока (unix).
+ *	Sets the expiration time of a player's VIP rights (unix).
  *
- * @param iClient			Индекс игрока.
- * @param iTime				Дата в unix формате, 0 если права навсегда, -1 если временный.
- * @param bInDB				Изменять ли в базе данных.
+ * @param iClient			Client index.
+ * @param iTime				Unix timestamp, 0 if permanent, -1 if temporary.
+ * @param bInDB				Whether to update the database.
  *
- * @return					true - Успешно.
- * 							false - Не удалось выполнить.
+ * @return					true - on success.
+ * 							false - on failure.
 */
 native bool VIP_SetClientAccessTime(int iClient, int iTime, bool bInDB = true);
 
 /**
- *	Получает VIP-группу игрока.
+ *	Gets a player's VIP group.
  *
- * @param iClient			Индекс игрока.
- * @param szGroup			Буфер, в который будет помещен результат.
- * @param iMaxLength		Размер буфера.
+ * @param iClient			Client index.
+ * @param szGroup			Buffer to store the result in.
+ * @param iMaxLength		Buffer size.
  *
- * @return					true - Успешно.
- * 							false - Не удалось выполнить.
+ * @return					true - on success.
+ * 							false - on failure.
 */
 native bool VIP_GetClientVIPGroup(int iClient, char[] szGroup, int iMaxLength);
 
 /**
- *	Устанавливает игроку VIP-группу.
+ *	Sets a player's VIP group.
  *
- * @param iClient			Индекс игрока.
- * @param szGroup			VIP-группа.
- * @param bInDBB			Изменять ли в базе данных.
+ * @param iClient			Client index.
+ * @param szGroup			VIP group.
+ * @param bInDBB			Whether to update the database.
  *
- * @return					true - Успешно.
- * 							false - Не удалось выполнить.
+ * @return					true - on success.
+ * 							false - on failure.
 */
 native bool VIP_SetClientVIPGroup(int iClient, const char[] szGroup, bool bInDB = true);
 
 /**
- *	Получает Handle adt trie настроек VIP-игрока.
+ *	Gets the adt trie handle of a VIP player's settings.
  *
- * @param iClient			Индекс игрока.
+ * @param iClient			Client index.
  *
- * @return					StringMap (Handle) adt trie настроек VIP-игрока.
+ * @return					StringMap (Handle) adt trie of the VIP player's settings.
 */
 native StringMap VIP_GetVIPClientTrie(int iClient);
 
 /**
- *	Проверяет наличие VIP-группы.
+ *	Checks whether a group exists.
  *
- * @param szGroup			Имя VIP-группы.
+ * @param szGroup			Group name.
  *
- * @return					true - VIP-группа существует.
- * 							false -  VIP-группа не существует.
+ * @return					true - the group exists.
+ * 							false - the group does not exist.
 */	
+native bool VIP_IsGroupExists(const char[] szGroup);
+
+#pragma deprecated Use VIP_IsGroupExists() instead
 native bool VIP_IsValidVIPGroup(const char[] szGroup);
 
 /**
- *	Выводит игроку сообщение в чат с приставкой (фраза в переводе "VIP_CHAT_PREFIX").
+ *	Adds a group (in memory only, groups.ini is not modified).
+ *	Groups are reset when configs are reloaded; add them again in VIP_OnConfigsLoaded().
  *
- * @param iClient			Индекс игрока.
- * @param szMessage			Правила форматирования сообщение.
- * @param ...				Параметры форматирования.
+ * @param szGroup			Group name.
+ * @param hFeatures			Group parameters (keys from the current position are copied into the group).
+ *
+ * @return					true - on success.
+ * 							false - the group already exists.
+*/	
+native bool VIP_AddGroup(const char[] szGroup, KeyValues hFeatures);
+
+/**
+ *	Removes a group (in memory only, groups.ini is not modified).
+ *
+ * @param szGroup			Group name.
+ *
+ * @return					true - on success.
+ * 							false - the group does not exist.
+*/	
+native bool VIP_RemoveGroup(const char[] szGroup);
+
+/**
+ *	Saves a value to the player's storage (vip_storage table).
+ *	The storage is available for all players (not only VIP) after VIP_OnClientStorageLoaded();
+ *	before that, the call is ignored. It is written to the database when the player disconnects.
+ *
+ * @param iClient			Client index.
+ * @param szKey				Key (up to 127 characters).
+ * @param szValue			Value (up to 255 characters).
+ *
+ * @noreturn
+*/
+native void VIP_SetClientStorageValue(int iClient, const char[] szKey, const char[] szValue);
+
+/**
+ *	Gets a value from the player's storage.
+ *
+ * @param iClient			Client index.
+ * @param szKey				Key.
+ * @param szValue			Buffer to store the result in (empty string if there is no value).
+ * @param iMaxLength		Buffer size.
+ *
+ * @noreturn
+*/
+native void VIP_GetClientStorageValue(int iClient, const char[] szKey, char[] szValue, int iMaxLength);
+
+/**
+ *	Prints a chat message to a player with a prefix (translation phrase "VIP_CHAT_PREFIX").
+ *
+ * @param iClient			Client index.
+ * @param szMessage			Formatting rules.
+ * @param ...				Formatting parameters.
  *
  * @noreturn
 */
 native void VIP_PrintToChatClient(int iClient, const char[] szMessage, any ...);
 
 /**
- *	Выводит всем игрокам сообщение в чат с приставкой (фраза в переводе "VIP_CHAT_PREFIX").
+ *	Prints a chat message to all players with a prefix (translation phrase "VIP_CHAT_PREFIX").
  *
- * @param szMessage			Правила форматирования сообщение.
- * @param ...				Параметры форматирования.
+ * @param szMessage			Formatting rules.
+ * @param ...				Formatting parameters.
  *
  * @noreturn
 */
 native void VIP_PrintToChatAll(const char[] szMessage, any ...);
 
 /**
- *	Записывает сообщение в лог.
+ *	Writes a message to the log.
  *
- * @param szMessage			Правила форматирования сообщение.
- * @param ...				Параметры форматирования.
+ * @param szMessage			Formatting rules.
+ * @param ...				Formatting parameters.
  *
  * @noreturn
 */
 native void VIP_LogMessage(const char[] szMessage, any ...);
 
 /**
- *	Отправляет игроку VIP-меню.
+ *	Opens the VIP menu for a player.
  *
- * @param iClient			Индекс игрока.
- * @param bSelection		Режим открытия:
- * 							true - на первой странице;
- * 							false - на странице последнего выбранного пункта.
+ * @param iClient			Client index.
+ * @param bSelection		Open mode:
+ * 							true - on the first page;
+ * 							false - on the page of the last selected item.
  *
  * @noreturn
 */
 native void VIP_SendClientVIPMenu(int iClient, bool bSelection = false);
 
 /**
- *	Выдает игроку VIP-права.
+ *	Gives VIP rights to a player.
  *
- * @param iAdmin			Индекс админа (0 - сервер, -1 - плагин).
- * @param iClient			Индекс игрока.
- * @param iTime				Время в секундах.
- * @param szGroup			Имя VIP-группы.
- * @param bAddToDB			Добавлять ли в базу данных.
+ * @param iAdmin			Admin index (0 - server, -1 or any negative - plugin).
+ * @param iClient			Client index.
+ * @param iTime				Time in seconds.
+ * @param szGroup			VIP group name.
+ * @param bAddToDB			Whether to add to the database.
  *
  * @noreturn
 */
@@ -372,15 +442,15 @@ native void VIP_GiveClientVIP(int iAdmin = 0, int iClient, int iTime, const char
 native bool VIP_SetClientVIP(int iClient, int iTime, any AuthType, const char[] szGroup, bool bAddToDB = true);
 
 /**
- *	Отнимает у игрока VIP-права.
+ *	Removes VIP rights from a player.
  *
- * @param iAdmin			Индекс админа (0 - сервер, -1 - плагин).
- * @param iClient			Индекс игрока.
- * @param bInDB				Удалять ли из базы данных.
- * @param bNotify			Уведомление игрока (true - уведомить/false - не уведомлять).
+ * @param iAdmin			Admin index (0 - server, -1 or any negative - plugin).
+ * @param iClient			Client index.
+ * @param bInDB				Whether to remove from the database.
+ * @param bNotify			Player notification (true - notify / false - do not notify).
  *
- * @return					true - Успешно.
- * 							false - Не удалось выполнить.
+ * @return					true - on success.
+ * 							false - on failure.
 */
 native bool VIP_RemoveClientVIP2(int iAdmin = 0, int iClient, bool bInDB, bool bNotify);
 
@@ -388,29 +458,29 @@ native bool VIP_RemoveClientVIP2(int iAdmin = 0, int iClient, bool bInDB, bool b
 native bool VIP_RemoveClientVIP(int iClient, bool bInDB, bool bNotify);
 
 /**
- *	Проверка что ядро загружено и готово к регистрации функций.
+ *	Checks that the core is loaded and ready for feature registration.
  *
  * @noparams
  *
- * @return					true - Ядро загружено.
- * 							false - Ядро не загружено.
+ * @return					true - the core is loaded.
+ * 							false - the core is not loaded.
 */
 native bool VIP_IsVIPLoaded();
 
 /**
- *	Добавляет новую VIP-функцию.
+ *	Registers a new VIP feature.
  *
- * @param szFeature				Уникальное имя ф-и.
- * @param ValType				Тип данных ф-и.
- * @param FeatureType			Тип ф-и.
- * @param Item_select_callback	Обратный вызов при смене статуса ф-и.
- * @param Item_display_callback	Обратный вызов при отображении пункта ф-и .
- * @param Item_draw_callback	Обратный вызов при отображении стиля пункта ф-и.
- * @param eDefStatus			Значение по-умолчанию:
- * 									ENABLED - Включена
- * 									DISABLED - Отключена
- * 									NO_ACCESS - Не использовать (будет зависеть от sm_vip_features_default_status)
- * @param bCookie				Регистрировать ли куки для ф-и (действительно только для типа SELECTABLE).
+ * @param szFeature				Unique feature name.
+ * @param ValType				Feature data type.
+ * @param FeatureType			Feature type.
+ * @param Item_select_callback	Callback for a feature status change.
+ * @param Item_display_callback	Callback for displaying the feature menu item.
+ * @param Item_draw_callback	Callback for displaying the feature menu item style.
+ * @param eDefStatus			Default status:
+ * 									ENABLED - Enabled
+ * 									DISABLED - Disabled
+ * 									NO_ACCESS - Not set (depends on sm_vip_features_default_status)
+ * @param bCookie				Whether to register a cookie for the feature (valid only for the SELECTABLE type).
  *
  * @noreturn
 */
@@ -425,16 +495,16 @@ native void VIP_RegisterFeature(const char[]			szFeature,
 								bool					bCookie					= false);
 
 /**
- *	Удаляет VIP-функцию.
+ *	Unregisters a VIP feature.
  *
- * @param szFeature				Уникальное имя ф-и.
+ * @param szFeature				Unique feature name.
  *
  * @noreturn
 */
 native void VIP_UnregisterFeature(const char[] szFeature);
 
 /**
- *	Удаляет все VIP-функции зарегистрированные плагином (вызывать в OnPluginEnd()).
+ *	Unregisters all VIP features registered by the plugin (call in OnPluginEnd()).
  *
  * @noparams
  *
@@ -443,153 +513,153 @@ native void VIP_UnregisterFeature(const char[] szFeature);
 native void VIP_UnregisterMe();
 
 /**
- *	Проверяет существование функции.
+ *	Checks whether a feature exists.
  *
- * @param szFeature			Уникальное имя ф-и.
+ * @param szFeature			Unique feature name.
  *
- * @return					true - VIP-функция существует.
- * 							false -  VIP-функция не существует.
+ * @return					true - the VIP feature exists.
+ * 							false -  the VIP feature does not exist.
 */
 native bool VIP_IsValidFeature(const char[] szFeature);
 
 /**
- *	Получает тип функции.
+ *	Gets the feature type.
  *
- * @param szFeature			Уникальное имя ф-и.
+ * @param szFeature			Unique feature name.
  *
- * @return					Возвращает элемент списка VIP_FeatureType.
+ * @return					A VIP_FeatureType value.
 */
 native VIP_FeatureType VIP_GetFeatureType(const char[] szFeature);
 
 /**
- *	Получает тип значения функции.
+ *	Gets the feature value type.
  *
- * @param szFeature			Уникальное имя ф-и.
+ * @param szFeature			Unique feature name.
  *
- * @return					Возвращает элемент списка VIP_ValueType.
+ * @return					A VIP_ValueType value.
 */
 native VIP_ValueType VIP_GetFeatureValueType(const char[] szFeature);
 
 /**
- *	Заполняет adt массив ф-ями.
+ *	Fills an adt array with feature names.
  *
- * @param hArray			Массив типа ArrayList.
+ * @param hArray			ArrayList array.
  *
- * @return					Количество добавленных элементов.
+ * @return					Number of added elements.
 */
 native int VIP_FillArrayByFeatures(ArrayList hArray);
 
 /**
- *	Возвращает статус VIP-функции у игрока.
+ *	Gets a player's VIP feature status.
  *
- * @param iClient			Индекс игрока.
- * @param szFeature			Уникальное имя ф-и.
+ * @param iClient			Client index.
+ * @param szFeature			Unique feature name.
  *
- * @return					Возвращает элемент списка VIP_ToggleState.
+ * @return					A VIP_ToggleState value.
 */
 native VIP_ToggleState VIP_GetClientFeatureStatus(int iClient, const char[] szFeature);
 
 /**
- *	Устанавливает статус VIP-функции игроку.
+ *	Sets a player's VIP feature status.
  *
- * @param iClient			Индекс игрока.
- * @param szFeature			Уникальное имя ф-и.
- * @param eStatus			Статус VIP-функции.
- * @param bCallback			Вызывать ли toggle каллбэк.
- * @param bSave				Сохранить ли в куки.
+ * @param iClient			Client index.
+ * @param szFeature			Unique feature name.
+ * @param eStatus			VIP feature status.
+ * @param bCallback			Whether to call the toggle callback.
+ * @param bSave				Whether to save to the cookie.
  *
- * @return					true - Успешно.
- * 							false - Не удалось выполнить.
+ * @return					true - on success.
+ * 							false - on failure.
 */
 native bool VIP_SetClientFeatureStatus(int iClient, const char[] szFeature, VIP_ToggleState eStatus, bool bCallback = true, bool bSave = false);
 
 /**
- *	Возвращает статус VIP-функции у игрока.
+ *	Checks whether a player's VIP feature is enabled.
  *
- * @param iClient			Индекс игрока.
- * @param szFeature			Уникальное имя ф-и.
+ * @param iClient			Client index.
+ * @param szFeature			Unique feature name.
  *
- * @return					true - VIP-функции включена.
- * 							false - VIP-функции выключена или нет доступа.
+ * @return					true - the VIP feature is enabled.
+ * 							false - the VIP feature is disabled or the player has no access.
 */
 native bool VIP_IsClientFeatureUse(int iClient, const char[] szFeature);
 
 /**
- *	Получает целочисленное значение параметра VIP-функции у игрока.
+ *	Gets the integer value of a player's VIP feature parameter.
  *
- * @param iClient			Индекс игрока.
- * @param szFeature			Уникальное имя ф-и.
+ * @param iClient			Client index.
+ * @param szFeature			Unique feature name.
  *
- * @return					Возвращает целочисленное значение параметра VIP-функции у игрока.
+ * @return					Integer value of the player's VIP feature parameter.
 */
 native int VIP_GetClientFeatureInt(int iClient, const char[] szFeature);
 
 /**
- *	Получает дробное значение параметра VIP-функции у игрока.
+ *	Gets the float value of a player's VIP feature parameter.
  *
- * @param iClient			Индекс игрока.
- * @param szFeature			Уникальное имя ф-и.
+ * @param iClient			Client index.
+ * @param szFeature			Unique feature name.
  *
- * @return					Возвращает дробное значение параметра VIP-функции у игрока.
+ * @return					Float value of the player's VIP feature parameter.
 */
 native float VIP_GetClientFeatureFloat(int iClient, const char[] szFeature);
 
 /**
- *	Получает логическое значение параметра VIP-функции у игрока.
+ *	Gets the boolean value of a player's VIP feature parameter.
  *
- * @param iClient			Индекс игрока.
- * @param szFeature			Уникальное имя ф-и.
+ * @param iClient			Client index.
+ * @param szFeature			Unique feature name.
  *
- * @return					Возвращает логическое значение параметра VIP-функции у игрока (true/false).
+ * @return					Boolean value of the player's VIP feature parameter (true/false).
 */
 native bool VIP_GetClientFeatureBool(int iClient, const char[] szFeature);
 
 /**
- *	Получает строчное значение параметра VIP-функции у игрока.
+ *	Gets the string value of a player's VIP feature parameter.
  *
- * @param iClient			Индекс игрока.
- * @param szFeature			Уникальное имя ф-и.
- * @param szBuffer			Буфер, в который будет помещен результат.
- * @param iMaxLength		Размер буфера.
+ * @param iClient			Client index.
+ * @param szFeature			Unique feature name.
+ * @param szBuffer			Buffer to store the result in.
+ * @param iMaxLength		Buffer size.
  *
  * @noreturn
 */
 native void VIP_GetClientFeatureString(int iClient, const char[] szFeature, char[] szBuffer, int iMaxLength);
 
 /**
- *	Выдает игроку VIP-функцию и устанавливает её значение (на время сессии).
+ *	Gives a VIP feature to a player and sets its value (for the session).
  *
- * @param iClient			Индекс игрока.
- * @param szFeature			Уникальное имя ф-и.
- * @param szValue			Значение (автоматически будет приведено к типу ф-и).
+ * @param iClient			Client index.
+ * @param szFeature			Unique feature name.
+ * @param szValue			Value (automatically converted to the feature type).
  *
- * @return					true - Успешно.
- * 							false - Не удалось выполнить.
+ * @return					true - on success.
+ * 							false - on failure.
 */
 native bool VIP_GiveClientFeature(int iClient, const char[] szFeature, const char[] szValue);
 
 /**
- *	Отнимает у VIP-игрока VIP-функцию (на время сессии).
+ *	Removes a VIP feature from a VIP player (for the session).
  *
- * @param iClient			Индекс игрока.
- * @param szFeature			Уникальное имя ф-и.
+ * @param iClient			Client index.
+ * @param szFeature			Unique feature name.
  *
- * @return					true - Успешно.
- * 							false - Не удалось выполнить.
+ * @return					true - on success.
+ * 							false - on failure.
 */
 native bool VIP_RemoveClientFeature(int iClient, const char[] szFeature);
 
 /**
- *	Получает Handle базы данных. После работы необходимо закрыть с помощью CloseHandle() или delete
+ *	Gets the database handle. After use, it must be closed with CloseHandle() or delete
  *
  *	@noparams
  *
- *	@return					Database (Handle) базы данных
+ *	@return					Database (Handle), or null if the core has not connected to the database yet (before VIP_OnVIPLoaded)
 */
 native Database VIP_GetDatabase();
 
 /**
- *	Получает тип базы данных.
+ *	Gets the database type.
  *
  *	@noparams
  *
@@ -599,44 +669,45 @@ native Database VIP_GetDatabase();
 native bool VIP_GetDatabaseType();
 
 /**
- *	Получает время в секундах в зависимости от sm_vip_time_mode.
+ *	Converts a time value to seconds according to sm_vip_time_mode.
  *
- * @param iTime				Время.
+ * @param iTime				Time.
  *
- * @return					Возвращает количество секунд в зависимости от sm_vip_time_mode.
+ * @return					Number of seconds according to sm_vip_time_mode.
+ * 							-1 - unknown sm_vip_time_mode, or the result does not fit into an int.
 */
 native int VIP_TimeToSeconds(int iTime);
 
 /**
- *	Получает время в зависимости от sm_vip_time_mode.
+ *	Converts seconds to a time value according to sm_vip_time_mode.
  *
- * @param iTime				Количество секунд.
+ * @param iTime				Number of seconds.
  *
- * @return					Возвращает время в зависимости от sm_vip_time_mode.
+ * @return					Time value according to sm_vip_time_mode.
 */
 native int VIP_SecondsToTime(int iTime);
 
 /**
- *	Переводит секунды в человекопонятный вид.
+ *	Converts seconds to a human-readable string.
  *
- * @param szBuffer			Буфер, в который будет помещен результат.
- * @param iMaxLength		Размер буфера.
- * @param iTimeStamp		Кол-во секунд.
- * @param iClient			Индекс игрока или LANG_SERVER.
+ * @param szBuffer			Buffer to store the result in.
+ * @param iMaxLength		Buffer size.
+ * @param iTimeStamp		Number of seconds.
+ * @param iClient			Client index or LANG_SERVER.
  *
- * @return					true - Успешно.
- * 							false - Не удалось выполнить.
+ * @return					true - on success.
+ * 							false - on failure.
 */
 native bool VIP_GetTimeFromStamp(char[] szBuffer, int iMaxLength, int iTimeStamp, int iClient = LANG_SERVER);
 
 /**
- *	Добавляет к строке статус ф-и.
+ *	Appends the feature status to a string.
  *
- * @param szInput			Исходная строка.
- * @param szBuffer			Буфер, в который будет помещен результат.
- * @param iMaxLength		Размер буфера.
- * @param szFeature			Уникальное имя ф-и.
- * @param iClient			Индекс игрока.
+ * @param szInput			Source string.
+ * @param szBuffer			Buffer to store the result in.
+ * @param iMaxLength		Buffer size.
+ * @param szFeature			Unique feature name.
+ * @param iClient			Client index.
  *
  * @noreturn
 */
@@ -679,6 +750,11 @@ public void __pl_vip_core_SetNTVOptional()
 	MarkNativeAsOptional("VIP_GetVIPClientTrie");
 	MarkNativeAsOptional("VIP_SendClientVIPMenu");
 	MarkNativeAsOptional("VIP_IsValidVIPGroup");
+	MarkNativeAsOptional("VIP_IsGroupExists");
+	MarkNativeAsOptional("VIP_AddGroup");
+	MarkNativeAsOptional("VIP_RemoveGroup");
+	MarkNativeAsOptional("VIP_SetClientStorageValue");
+	MarkNativeAsOptional("VIP_GetClientStorageValue");
 	MarkNativeAsOptional("VIP_GetClientFeatureStatus");
 	MarkNativeAsOptional("VIP_SetClientFeatureStatus");
 	MarkNativeAsOptional("VIP_IsClientFeatureUse");

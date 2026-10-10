@@ -57,21 +57,24 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 		case MenuAction_End: delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if (iItem == MenuCancel_ExitBack) BackToAdminMenu(iClient);
+			if (iItem == MenuCancel_ExitBack)
+			{
+				BackToAdminMenu(iClient);
+			}
 		}
 		case MenuAction_Select:
 		{
 			char szUserID[16];
 			hMenu.GetItem(iItem, SZF(szUserID));
 			
-			if (!strcmp(szUserID, "search")) // Найти игрока
+			if (!strcmp(szUserID, "search")) // Search for a player
 			{
 				ShowWaitSearchMenu(iClient);
 
 				return 0;
 			}
 
-			if (!strcmp(szUserID, "show_all")) // Показать всех
+			if (!strcmp(szUserID, "show_all")) // Show all
 			{
 				g_hClientData[iClient].Remove(DATA_KEY_Search);
 				ShowVipPlayersFromDBMenu(iClient);
@@ -79,7 +82,7 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 				return 0;
 			}
 
-			if (!strcmp(szUserID, "more")) // Показать еще
+			if (!strcmp(szUserID, "more")) // Show more
 			{
 				int iOffset;
 				g_hClientData[iClient].GetValue(DATA_KEY_Offset, iOffset);
@@ -115,6 +118,8 @@ public int MenuHandler_VipPlayersListMenu(Menu hMenu, MenuAction action, int iCl
 				
 			}
 
+			// Picked from the DB list: forget a player picked earlier from the online list
+			g_hClientData[iClient].Remove(DATA_KEY_TargetUID);
 			g_hClientData[iClient].SetValue(DATA_KEY_TargetID, S2I(szUserID));
 
 			ShowTargetInfo(iClient);
@@ -208,7 +213,8 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 		}
 		else
 		{
-			FormatEx(SZF(szWhere), " AND `name` LIKE '%%%s%%'", szSearch);
+			// Database.Format escapes %s (search text comes straight from admin chat)
+			g_hDatabase.Format(SZF(szWhere), " AND `name` LIKE '%%%s%%'", szSearch);
 		}
 	}
 
@@ -300,7 +306,8 @@ public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, 
 		if (hResult.RowCount == LIST_OFFSET)
 		{
 			hMenu.AddItem(NULL_STRING, "ITEMDRAW_SPACER", ITEMDRAW_SPACER);
-			hMenu.AddItem("more", "Показать еще");
+			FormatEx(SZF(szName), "%T", "SHOW_MORE", iClient);
+			hMenu.AddItem("more", szName);
 		}
 
 		hMenu.Display(iClient, MENU_TIME_FOREVER);
@@ -388,7 +395,7 @@ void ShowTemporaryTargetInfo(int iClient)
 	g_hFeatures[iTarget].GetValue(KEY_EXPIRES, iExpires);
 	g_hClientData[iClient].SetValue(DATA_KEY_Time, iExpires);
 	GetClientName(iTarget, SZF(szName));
-	iAccountID = GetSteamAccountID(iClient);
+	iAccountID = GetSteamAccountID(iTarget);
 
 	g_hClientData[iClient].SetString(DATA_KEY_Name, szName);
 	g_hClientData[iClient].SetValue(DATA_KEY_Auth, iAccountID);
@@ -436,11 +443,11 @@ void ShowTargetInfoMenu(int iClient)
 	hMenu.ExitBackButton = true;
 	hMenu.SetTitle("%T\n ", "MENU_INFO_VIP_PLAYER", iClient, szName, szAuth, szGroup, szBuffer);
 
-	FormatEx(SZF(szBuffer), "%T", "MENU_DEL_VIP", iClient);			//		1. Удалить игрока
+	FormatEx(SZF(szBuffer), "%T", "MENU_DEL_VIP", iClient);			//		1. Delete player
 	hMenu.AddItem(NULL_STRING, szBuffer);
-	FormatEx(SZF(szBuffer), "%T", "MENU_EDIT_TIME", iClient);		//		2. Изменить срок 
+	FormatEx(SZF(szBuffer), "%T", "MENU_EDIT_TIME", iClient);		//		2. Change expiry
 	hMenu.AddItem(NULL_STRING, szBuffer, iClientID == -1 ? ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
-	FormatEx(SZF(szBuffer), "%T", "MENU_EDIT_GROUP", iClient);		//		3. Изменить группу
+	FormatEx(SZF(szBuffer), "%T", "MENU_EDIT_GROUP", iClient);		//		3. Change group
 	hMenu.AddItem(NULL_STRING, szBuffer);
 
 	ReductionMenu(hMenu, 2);

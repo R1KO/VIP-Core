@@ -20,12 +20,12 @@
 #define SET_BIT(%0,%1) 		%0 |= %1
 #define UNSET_BIT(%0,%1) 	%0 &= ~%1
 
-#define IS_VIP						(1<<0)	// VIP ли игрок
-#define IS_LOADED					(1<<1)	// Загружен ли игрок
-#define IS_WAIT_CHAT_PASS			(1<<2)	// Ожидается ввод пароля в чат
-#define IS_WAIT_CHAT_SEARCH			(1<<3)	// Ожидается ввод значения для поиска в чат
-#define IS_SPAWNED					(1<<4)	// Игрок возродился
-#define IS_MENU_OPEN				(1<<5)	// VIP-меню открыто
+#define IS_VIP						(1<<0)	// Player is a VIP
+#define IS_LOADED					(1<<1)	// Player is loaded
+#define IS_WAIT_CHAT_PASS			(1<<2)	// Waiting for a password in chat
+#define IS_WAIT_CHAT_SEARCH			(1<<3)	// Waiting for a search value in chat
+#define IS_SPAWNED					(1<<4)	// Player has spawned
+#define IS_MENU_OPEN				(1<<5)	// VIP menu is open
 
 #define IS_STARTED					(1<<0)
 #define IS_MySQL					(1<<1)
@@ -110,6 +110,7 @@ ConVar		g_CVAR_hVIPMenu_CMD;
 
 int 		g_CVAR_iAdminFlag;
 int 		g_CVAR_iServerID;
+int 		g_CVAR_iStorageID;
 int 		g_CVAR_iTimeMode;
 int			g_CVAR_iDeleteExpired;
 int			g_CVAR_iOutdatedExpired;

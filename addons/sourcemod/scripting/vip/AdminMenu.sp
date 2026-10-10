@@ -75,7 +75,10 @@ int IsClientOnline(int ID)
 	int iClientID;
 	for (int i = 1; i <= MaxClients; ++i)
 	{
-		if (IsClientInGame(i) && g_hFeatures[i] != null && g_hFeatures[i].GetValue(KEY_CID, iClientID) && iClientID == ID) return i;
+		if (IsClientInGame(i) && g_hFeatures[i] != null && g_hFeatures[i].GetValue(KEY_CID, iClientID) && iClientID == ID)
+		{
+			return i;
+		}
 	}
 	return 0;
 }
@@ -307,7 +310,10 @@ void ShowTimeMenu(int iClient)
 		{
 			hKv.GetSectionName(SZF(szTime));
 
-			if (iMenuType != TIME_SET && szTime[0] == '0') continue;
+			if (iMenuType != TIME_SET && szTime[0] == '0')
+			{
+				continue;
+			}
 
 			hKv.GetString(szClientLang, SZF(szBuffer));
 			if (!szBuffer[0])
@@ -542,12 +548,18 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 					if (iTarget)
 					{
 						g_hClientData[iClient].GetValue(DATA_KEY_Time, iBuffer);
+
+						// Keep the menu to return to (BackToAdminMenu below)
+						AdminMenuType eThrowMenuType;
+						g_hClientData[iClient].GetValue(DATA_KEY_ThrowMenuType, eThrowMenuType);
 						g_hClientData[iClient].Clear();
+						g_hClientData[iClient].SetValue(DATA_KEY_ThrowMenuType, eThrowMenuType);
+
 						UTIL_ADD_VIP_PLAYER(iClient, iTarget, _, iBuffer, szGroup);
 					}
 					else
 					{
-						VIP_PrintToChatClient(iClient, "%t", "Player no longer available");
+						VIP_PrintToChatClient(iClient, "%t", "PLAYER_NO_LONGER_AVAILABLE");
 					}
 
 					BackToAdminMenu(iClient);
@@ -576,7 +588,7 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 
 					if (iTarget)
 					{
-						ResetClient(iTarget);
+						Clients_RemoveVIPStatus(iTarget);
 						CreateForward_OnVIPClientRemoved(iTarget, "VIP-Group Changed", iClient);
 						Clients_CheckVipAccess(iTarget, false);
 					}

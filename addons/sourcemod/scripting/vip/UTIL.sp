@@ -32,17 +32,25 @@ stock int UTIL_ReplaceChars(char[] szBuffer, int InChar, int OutChar)
 	return iNum;
 }
 
+// Returns -1 for an unknown time mode or a value that doesn't fit into an int
 int UTIL_TimeToSeconds(int iTime)
 {
+	int iMultiplier;
 	switch (g_CVAR_iTimeMode)
 	{
-		case TIME_MODE_SECONDS:return iTime;
-		case TIME_MODE_MINUTES:return iTime * 60;
-		case TIME_MODE_HOURS:return iTime * 3600;
-		case TIME_MODE_DAYS:return iTime * 86400;
+		case TIME_MODE_SECONDS:	iMultiplier = 1;
+		case TIME_MODE_MINUTES:	iMultiplier = 60;
+		case TIME_MODE_HOURS:	iMultiplier = 3600;
+		case TIME_MODE_DAYS:	iMultiplier = 86400;
+		default:				return -1;
 	}
-	
-	return -1;
+
+	if (iTime > cellmax / iMultiplier || iTime < -(cellmax / iMultiplier))
+	{
+		return -1;
+	}
+
+	return iTime * iMultiplier;
 }
 
 int UTIL_SecondsToTime(int iTime)
@@ -127,11 +135,11 @@ void UTIL_LoadVipCmd(ConVar &hCvar, ConCmd Call_CMD)
 		if (szPart[0])
 		{
 			RegConsoleCmd(szPart, Call_CMD);
-			
-			if (iPos == -1)
-			{
-				return;
-			}
+		}
+
+		if (iPos == -1)
+		{
+			return;
 		}
 	}
 }
@@ -155,16 +163,35 @@ stock int UTIL_SearchCharInString(const char[] szBuffer, int c)
 	iNum = 0;
 	iLen = strlen(szBuffer);
 	for (i = 0; i < iLen; ++i)
-	if (szBuffer[i] == c)iNum++;
+	{
+		if (szBuffer[i] == c)
+		{
+			iNum++;
+		}
+	}
 	
 	return iNum;
 }
 
 int UTIL_GetAccountIDFromSteamID(const char[] szSteamID)
 {
+	// STEAM_X:Y:Z, Y is 0 or 1, Z is digits (rejects STEAM_ID_PENDING, STEAM_ID_LAN, truncated input)
 	if (!strncmp(szSteamID, "STEAM_", 6))
 	{
-		return S2I(szSteamID[10]) << 1 | (szSteamID[8] - 48);
+		if (strlen(szSteamID) < 11 || szSteamID[7] != ':' || (szSteamID[8] != '0' && szSteamID[8] != '1') || szSteamID[9] != ':')
+		{
+			return 0;
+		}
+
+		for (int i = 10; szSteamID[i]; ++i)
+		{
+			if (!IsCharNumeric(szSteamID[i]))
+			{
+				return 0;
+			}
+		}
+
+		return S2I(szSteamID[10]) << 1 | (szSteamID[8] - '0');
 	}
 
 	if (!strncmp(szSteamID, "[U:1:", 5) && szSteamID[strlen(szSteamID)-1] == ']')
@@ -255,12 +282,12 @@ void UTIL_Reply(int iClient, const char[] szMsg, any ...)
 	VFormat(SZF(szMessage), szMsg, 3);
 	if (iClient)
 	{
-		VIP_PrintToChatClient(iClient, szMessage);
+		VIP_PrintToChatClient(iClient, "%s", szMessage);
 	}
 	else
 	{
 		Colors_RemoveColors(szMessage);
-		PrintToServer(szMessage);
+		PrintToServer("%s", szMessage);
 	}
 }
 

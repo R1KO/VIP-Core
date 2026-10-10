@@ -7,15 +7,17 @@
 #include <clientprefs>
 
 #if !defined VIP_VERSION
-#define VIP_VERSION		"3.0.7 R"
+#define VIP_VERSION		"3.1.0 R"
 #endif
 
 
-#define DEBUG_MODE			0	// Режим отладки
+#define DEBUG_MODE			0	// Debug mode
 
-#define USE_ADMINMENU		1	// Включение админ-меню для управления VIP
+#define USE_ADMINMENU		1	// Admin menu for managing VIPs
 
-#define USE_MORE_SERVERS	1	// Включить/Отключить режим при котором если ID сервера у игрока 0 - то VIP будет работать на всех серверах
+#define USE_MORE_SERVERS	1	// A VIP with server ID 0 is active on all servers
+
+#define USE_CLIENTPREFS		0	// Store VIP feature statuses in cookies (1) or in the vip_storage table (0, old cookies are migrated automatically)
 
 
 public Plugin myinfo =
@@ -31,6 +33,7 @@ public Plugin myinfo =
 #include "vip/Downloads.sp"
 #include "vip/Colors.sp"
 #include "vip/UTIL.sp"
+#include "vip/Storage.sp"
 #include "vip/Features.sp"
 #include "vip/Sounds.sp"
 #include "vip/Info.sp"
@@ -74,6 +77,7 @@ public void OnPluginStart()
 	ITEM_DRAW = hDataPack.Position;
 	delete hDataPack;
 
+	API_SetupForwards();
 	ReadConfigs();
 
 	VIPMenu_Setup();
@@ -82,7 +86,6 @@ public void OnPluginStart()
 	#endif
 
 	Cvars_Setup();
-	API_SetupForwards();
 
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	HookEvent("player_death", Event_PlayerDeath);

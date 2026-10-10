@@ -1,0 +1,14 @@
+# Issue labels
+- Issue
+  - `Priority` - the order in which a task should be done or a defect fixed.
+    - `P1 (High)` - Must be fixed as soon as possible, the defect is critical for the project.
+    - `P2 (Medium)` - Must be fixed; not critical, but requires a solution.
+    - `P3 (Low)` - Must be fixed; not critical and not urgent.
+  - `Severity` - how much the defect affects the application.
+    - `S1 (Blocker)` - The application doesn't work; further work with the system or its key features is impossible. Must be fixed for the system to function.
+    - `S2 (Critical)` - Key logic works incorrectly, a security hole, a server crash, or part of the system is broken with no workaround. Must be fixed to keep working with the key features.
+    - `S3 (Major)` - Part of the main logic works incorrectly. Not critical, or there is a workaround.
+    - `S4 (Minor)` - Doesn't break the logic; an obvious UI problem.
+    - `S5 (Trivial)` - Doesn't affect the logic; a hard-to-reproduce or barely visible UI problem, a third-party library/service problem, no effect on overall quality.
+  - `Question`
+  - `Suggestion`

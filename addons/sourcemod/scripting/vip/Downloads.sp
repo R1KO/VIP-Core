@@ -6,8 +6,10 @@ void ReadDownloads()
 	BuildPath(Path_SM, SZF(szBuffer), "data/vip/modules/downloadlist.txt");
 	File hFile = OpenFile(szBuffer, "r");
 
-	if(!hFile)
+	if (!hFile)
+	{
 		return;
+	}
 
 	DBG_Download("OpenFile('%s')", szBuffer);
 	int iPos;
@@ -17,16 +19,22 @@ void ReadDownloads()
 
 		iPos = StrContains(szBuffer, "//");
 		DBG_Download("iPos = %d", iPos);
-		if(iPos == 0)
+		if (iPos == 0)
+		{
 			continue;
+		}
 
-		if(iPos != -1)
+		if (iPos != -1)
+		{
 			szBuffer[iPos] = 0;
+		}
 
 		TrimString(szBuffer);
 
-		if(!szBuffer[0] || !IsCharAlpha(szBuffer[0]))
+		if (!szBuffer[0] || !IsCharAlpha(szBuffer[0]))
+		{
 			continue;
+		}
 
 		DBG_Download("ReadFileLine: '%s'", szBuffer);
 
@@ -46,8 +54,10 @@ void DownloadPath(const char[] szPath)
 {
 	DBG_Download("DownloadPath: '%s'", szPath);
 	
-	if(DownloadFile(szPath))
+	if (DownloadFile(szPath))
+	{
 		return;
+	}
 
 	DBG_Download("DirExists: %d", DirExists(szPath));
 	if(DirExists(szPath))
@@ -61,8 +71,10 @@ void DownloadDirectory(const char[] szPath)
 	DBG_Download("DownloadDirectory: '%s'", szPath);
 
 	DirectoryListing hDir = OpenDirectory(szPath);
-	if(!hDir)
+	if (!hDir)
+	{
 		return;
+	}
 
 	char szEntry[PMP], szNewPath[PMP];
 	FileType type;
@@ -70,7 +82,9 @@ void DownloadDirectory(const char[] szPath)
 	{
 		DBG_Download("GetNext: '%s' %d", szEntry, type);
 		if (type == FileType_Directory && (!strcmp(szEntry, ".") || !strcmp(szEntry, "..")))
+		{
 			continue;
+		}
 
 		FormatEx(SZF(szNewPath), "%s/%s", szPath, szEntry);
 		DBG_Download("szNewPath: '%s'", szNewPath);

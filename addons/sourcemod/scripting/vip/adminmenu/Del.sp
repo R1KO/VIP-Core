@@ -24,7 +24,10 @@ public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iC
 		case MenuAction_End: delete hMenu;
 		case MenuAction_Cancel:
 		{
-			if (iItem == MenuCancel_ExitBack) ShowTargetInfoMenu(iClient);
+			if (iItem == MenuCancel_ExitBack)
+			{
+				ShowTargetInfoMenu(iClient);
+			}
 		}
 		case MenuAction_Select:
 		{
@@ -39,20 +42,21 @@ public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iC
 					if(g_hClientData[iClient].GetValue(DATA_KEY_TargetUID, iTarget))
 					{
 						iTarget = CID(iTarget);
-						if (!iTarget && iTargetID != -1)
-						{
-							iTarget = IsClientOnline(iTargetID);
-						}
+					}
 
-						if (iTarget)
-						{
-							DB_RemoveClientFromID(iClient, iTarget, _, true);
-							ResetClient(iTarget);
-							CreateForward_OnVIPClientRemoved(iTarget, "Removed by Admin", iClient);
-							DisplayClientInfo(iTarget, "expired_info");
-							BackToAdminMenu(iClient);
-							return 0;
-						}
+					if (!iTarget && iTargetID != -1)
+					{
+						iTarget = IsClientOnline(iTargetID);
+					}
+
+					if (iTarget)
+					{
+						DB_RemoveClientFromID(iClient, iTarget, _, true);
+						Clients_RemoveVIPStatus(iTarget);
+						CreateForward_OnVIPClientRemoved(iTarget, "Removed by Admin", iClient);
+						DisplayClientInfo(iTarget, "expired_info");
+						BackToAdminMenu(iClient);
+						return 0;
 					}
 
 					if(iTargetID != -1)

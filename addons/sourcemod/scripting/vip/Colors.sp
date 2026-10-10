@@ -88,11 +88,23 @@ void Colors_Print(int iClient, const char[] szFormat)
 
 int Colors_ReplaceColors(char[] sMsg, int MaxLength)
 {
-	if (ReplaceString(sMsg, MaxLength, "{TEAM}", "\x03"))return 0;
+	if (ReplaceString(sMsg, MaxLength, "{TEAM}", "\x03"))
+	{
+		return 0;
+	}
 	
-	if (ReplaceString(sMsg, MaxLength, "{BLUE}", "\x03"))return 3;
-	if (ReplaceString(sMsg, MaxLength, "{RED}", "\x03"))return 2;
-	if (ReplaceString(sMsg, MaxLength, "{GRAY}", "\x03"))return 1;
+	if (ReplaceString(sMsg, MaxLength, "{BLUE}", "\x03"))
+	{
+		return 3;
+	}
+	if (ReplaceString(sMsg, MaxLength, "{RED}", "\x03"))
+	{
+		return 2;
+	}
+	if (ReplaceString(sMsg, MaxLength, "{GRAY}", "\x03"))
+	{
+		return 1;
+	}
 	
 	return -1;
 }
@@ -101,7 +113,10 @@ int Colors_FindPlayerByTeam(int iTeam)
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsClientInGame(i) && GetClientTeam(i) == iTeam)return i;
+		if (IsClientInGame(i) && GetClientTeam(i) == iTeam)
+		{
+			return i;
+		}
 	}
 	
 	return 0;

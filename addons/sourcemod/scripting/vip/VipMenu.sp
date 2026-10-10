@@ -282,7 +282,6 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 				hPlugin = view_as<Handle>(hBuffer.Get(FEATURES_PLUGIN));
 				if (view_as<VIP_FeatureType>(hBuffer.Get(FEATURES_ITEM_TYPE)) == TOGGLABLE)
 				{
-					char szBuffer[4];
 					VIP_ToggleState eOldStatus, eNewStatus;
 
 					eOldStatus = Features_GetStatus(iClient, szItemInfo);
@@ -298,8 +297,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 						if (eNewStatus != eOldStatus)
 						{
 							Features_SetStatus(iClient, szItemInfo, eNewStatus);
-							IntToString(view_as<int>(eNewStatus), SZF(szBuffer));
-							view_as<Cookie>(hBuffer.Get(FEATURES_COOKIE)).Set(iClient, szBuffer);
+							Features_SaveStatus(iClient, szItemInfo, hBuffer, eNewStatus);
 						}
 					}
 
@@ -327,12 +325,14 @@ bool IsValidFeature(const char[] szFeature)
 
 bool OnVipMenuFlood(int iClient)
 {
+	// Engine time, not game time: game time restarts on map change
 	static float fLastTime[MAXPLAYERS + 1];
-	if (fLastTime[iClient] > 0.0)
+	float fNow = GetEngineTime();
+	if (fLastTime[iClient] > 0.0 && (fNow - fLastTime[iClient]) < 3.0)
 	{
-		float fSec = GetGameTime();
-		if ((fSec - fLastTime[iClient]) < 3.0)return true;
-		fLastTime[iClient] = fSec;
+		return true;
 	}
+
+	fLastTime[iClient] = fNow;
 	return false;
 } 
