@@ -190,10 +190,10 @@ void ReplaceValues(int iClient, char[] szBuffer, int iBufLen, bool bExt)
 		UTIL_GetTimeFromStamp(SZF(szExpires), iExpires - GetTime(), iClient);
 		ReplaceString(szBuffer, iBufLen, "{TIMELEFT}", szExpires);
 	}
-	//	{NAME}	- Ник игрока
-	//	{GROUP}	- Группа игрока
-	//	{TIMELEFT}	- Через сколько истекает VIP-статус
-	//	{EXPIRES}	- Когда истекает VIP-статус
+	//	{NAME}	- Player name
+	//	{GROUP}	- Player group
+	//	{TIMELEFT}	- Time left until VIP status expires
+	//	{EXPIRES}	- When VIP status expires
 }
 
 public int SelectInfoPanel(Menu hPanel, MenuAction action, int iClient, int iOption)

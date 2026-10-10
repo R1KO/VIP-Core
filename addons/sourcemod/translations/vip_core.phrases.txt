@@ -840,6 +840,12 @@
         	"pt"		"Mostrar todos jogadores"
 		"ru"		"Показать всех"
     	}
+	"SHOW_MORE"
+	{
+		"en"		"Show more"
+		"ru"		"Показать еще"
+		"ua"		"Показати ще"
+	}
 	"y."
 	{
 		"en"		"y."
