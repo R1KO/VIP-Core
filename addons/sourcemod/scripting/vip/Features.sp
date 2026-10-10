@@ -1,6 +1,9 @@
 void Features_TurnOffAll(int iClient)
 {
 	DebugMessage("Features_TurnOffAll %N (%i)", iClient, iClient);
+	if(!(g_iClientInfo[iClient] & IS_VIP))
+		return;
+
 	int iFeatures = g_hFeaturesArray.Length;
 	if(iFeatures == 0)
 		return;
