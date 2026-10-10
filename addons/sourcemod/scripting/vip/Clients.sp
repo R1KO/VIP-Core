@@ -1,6 +1,11 @@
+// Bumped on every reset, so timers started for a previous load can tell they are stale
+static int g_iClientLoadSerial[MAXPLAYERS+1];
+
+// Drops the VIP status only: session flags (spawned, menu open, chat input) stay
 void ResetClient(int iClient)
 {
-	g_iClientInfo[iClient] = IS_LOADED;
+	g_iClientInfo[iClient] = (g_iClientInfo[iClient] & ~IS_VIP) | IS_LOADED;
+	++g_iClientLoadSerial[iClient];
 	
 	delete g_hFeatures[iClient];
 	delete g_hFeatureStatus[iClient];
@@ -44,9 +49,8 @@ void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = f
 		return;
 	}
 
-	g_iClientInfo[iClient] &= ~IS_LOADED;
-	
 	ResetClient(iClient);
+	g_iClientInfo[iClient] &= ~IS_LOADED;
 	
 	if (IsFakeClient(iClient) == false && (GLOBAL_INFO & IS_STARTED) && g_hDatabase)
 	{
@@ -55,9 +59,14 @@ void Clients_CheckVipAccess(int iClient, bool bNotify = false, bool bForward = f
 	}
 	else
 	{
-		g_iClientInfo[iClient] |= IS_LOADED;
-		CreateForward_OnClientLoaded(iClient);
+		Clients_SetLoaded(iClient);
 	}
+}
+
+void Clients_SetLoaded(int iClient)
+{
+	g_iClientInfo[iClient] |= IS_LOADED;
+	CreateForward_OnClientLoaded(iClient);
 }
 
 void Clients_LoadClient(int iClient, bool bNotify)
@@ -96,13 +105,6 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 {
 	DBG_SQL_Response("SQL_Callback_OnClientAuthorized");
 	DataPack hDataPack = view_as<DataPack>(hPack);
-	if (hResult == null || szError[0])
-	{
-		LogError("SQL_Callback_OnClientAuthorized: %s", szError);
-		delete hDataPack;
-		return;
-	}
-	
 	hDataPack.Reset();
 	
 	int iClient = CID(hDataPack.ReadCell());
@@ -113,6 +115,14 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 	DBG_Clients("SQL_Callback_OnClientAuthorized: %d", iClient);
 	if (!iClient || !IsClientInGame(iClient))
 	{
+		return;
+	}
+
+	if (hResult == null || szError[0])
+	{
+		LogError("SQL_Callback_OnClientAuthorized: %s", szError);
+		// Load the player as non-VIP so modules still get OnClientLoaded
+		Clients_SetLoaded(iClient);
 		return;
 	}
 
@@ -147,8 +157,7 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 				
 				DisplayClientInfo(iClient, "expired_info");
 				
-				g_iClientInfo[iClient] |= IS_LOADED;
-				CreateForward_OnClientLoaded(iClient);
+				Clients_SetLoaded(iClient);
 				return;
 			}
 			
@@ -166,9 +175,9 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 
 			g_hFeatures[iClient].SetString(KEY_GROUP, szGroup);
 			
-			g_iClientInfo[iClient] |= IS_VIP|IS_LOADED;
+			g_iClientInfo[iClient] |= IS_VIP;
 
-			CreateForward_OnClientLoaded(iClient);
+			Clients_SetLoaded(iClient);
 
 			char szName[MAX_NAME_LENGTH*2+1];
 			hResult.FetchString(2, SZF(szName));
@@ -189,11 +198,12 @@ public void SQL_Callback_OnClientAuthorized(Database hOwner, DBResultSet hResult
 		else
 		{
 			LogError("Invalid VIP-Group/Некорректная VIP-группа: %s (Игрок: %d)", szGroup, iAccountID);
+			Clients_SetLoaded(iClient);
 		}
 		return;
 	}
 
-	CreateForward_OnClientLoaded(iClient);
+	Clients_SetLoaded(iClient);
 }
 
 void Clients_OnVIPClientLoaded(int iClient)
@@ -256,6 +266,7 @@ void Clients_WaitForStatusStore(int iClient, const char[] szFeature, int iAttemp
 {
 	DataPack hDataPack = new DataPack();
 	hDataPack.WriteCell(UID(iClient));
+	hDataPack.WriteCell(g_iClientLoadSerial[iClient]);
 	hDataPack.WriteCell(iAttempt);
 	hDataPack.WriteString(szFeature);
 	CreateTimer(0.5, Timer_CheckCookies, hDataPack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
@@ -266,12 +277,14 @@ public Action Timer_CheckCookies(Handle hTimer, Handle hDP)
 	DataPack hDataPack = view_as<DataPack>(hDP);
 	hDataPack.Reset();
 	int iClient = CID(hDataPack.ReadCell());
+	int iLoadSerial = hDataPack.ReadCell();
 	int iAttempt = hDataPack.ReadCell();
 	char szFeature[FEATURE_NAME_LENGTH];
 	hDataPack.ReadString(SZF(szFeature));
 	
 	DBG_Clients("Timer_CheckCookies -> iClient: %N (%d), IsClientVIP: %b, attempt: %d", iClient, iClient, view_as<bool>(g_iClientInfo[iClient] & IS_VIP), iAttempt);
-	if (!iClient || !(g_iClientInfo[iClient] & IS_VIP))
+	// Reloaded in the meantime: the new load waits on its own timer
+	if (!iClient || !(g_iClientInfo[iClient] & IS_VIP) || iLoadSerial != g_iClientLoadSerial[iClient])
 	{
 		return Plugin_Stop;
 	}
