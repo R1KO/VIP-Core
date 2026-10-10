@@ -218,7 +218,10 @@ forward void VIP_OnClientDisconnect(int iClient, bool bIsVIP);
  *	Called when a player receives VIP status.
  *
  * @param iClient			Client index.
- * @param iAdmin			Admin index (0 - server).
+ * @param iAdmin			Who gave it: admin index (> 0), 0 - server,
+ * 							-1 - admin who left before the database answered,
+ * 							-2 - plugin (VIP_GiveClientVIP).
+ * 							Check iAdmin > 0 before using it as a client index.
  *
  * @noreturn
 */
@@ -231,8 +234,12 @@ forward void VIP_OnVIPClientAdded(int iClient, int iAdmin);
  * @param szReason			Reason:
  * 								"Expired" - Expired;
  * 								"Removed by Admin" - Removed by an admin;
- * 								"Removed by native" - Removed by a native.
- * @param iAdmin			Admin index (0 - server).
+ * 								"VIP-Group Changed" - Group changed by an admin;
+ * 								"Removed for VIP-status change" - VIP given again via VIP_GiveClientVIP;
+ * 								"Removed by <plugin name>" - Removed via VIP_RemoveClientVIP2.
+ * @param iAdmin			Who removed it: admin index (> 0), 0 - server (expiry),
+ * 							-2 - plugin.
+ * 							Check iAdmin > 0 before using it as a client index.
  *
  * @noreturn
 */
@@ -384,6 +391,8 @@ native void VIP_GetClientStorageValue(int iClient, const char[] szKey, char[] sz
 
 /**
  *	Prints a chat message to a player with a prefix (translation phrase "VIP_CHAT_PREFIX").
+ *	A line break ("\n" or the two characters \n, e.g. from a translation) starts a new chat message;
+ *	each line holds up to about 250 bytes, the whole message up to 1024.
  *
  * @param iClient			Client index.
  * @param szMessage			Formatting rules.
@@ -395,6 +404,8 @@ native void VIP_PrintToChatClient(int iClient, const char[] szMessage, any ...);
 
 /**
  *	Prints a chat message to all players with a prefix (translation phrase "VIP_CHAT_PREFIX").
+ *	A line break ("\n" or the two characters \n, e.g. from a translation) starts a new chat message;
+ *	each line holds up to about 250 bytes, the whole message up to 1024.
  *
  * @param szMessage			Formatting rules.
  * @param ...				Formatting parameters.
@@ -428,7 +439,8 @@ native void VIP_SendClientVIPMenu(int iClient, bool bSelection = false);
 /**
  *	Gives VIP rights to a player.
  *
- * @param iAdmin			Admin index (0 - server, -1 or any negative - plugin).
+ * @param iAdmin			Admin index, 0 - server, -1 or any negative - plugin (default).
+ * 							Logged as "by server" / "by plugin <name>" / "by admin <name>".
  * @param iClient			Client index.
  * @param iTime				Time in seconds.
  * @param szGroup			VIP group name.
@@ -436,7 +448,7 @@ native void VIP_SendClientVIPMenu(int iClient, bool bSelection = false);
  *
  * @noreturn
 */
-native void VIP_GiveClientVIP(int iAdmin = 0, int iClient, int iTime, const char[] szGroup, bool bAddToDB = true);
+native void VIP_GiveClientVIP(int iAdmin = -1, int iClient, int iTime, const char[] szGroup, bool bAddToDB = true);
 
 #pragma deprecated Use VIP_GiveClientVIP() instead
 native bool VIP_SetClientVIP(int iClient, int iTime, any AuthType, const char[] szGroup, bool bAddToDB = true);
@@ -444,7 +456,8 @@ native bool VIP_SetClientVIP(int iClient, int iTime, any AuthType, const char[] 
 /**
  *	Removes VIP rights from a player.
  *
- * @param iAdmin			Admin index (0 - server, -1 or any negative - plugin).
+ * @param iAdmin			Admin index, 0 - server, -1 or any negative - plugin (default).
+ * 							Logged as "by server" / "by plugin <name>" / "by admin <name>".
  * @param iClient			Client index.
  * @param bInDB				Whether to remove from the database.
  * @param bNotify			Player notification (true - notify / false - do not notify).
@@ -452,7 +465,7 @@ native bool VIP_SetClientVIP(int iClient, int iTime, any AuthType, const char[] 
  * @return					true - on success.
  * 							false - on failure.
 */
-native bool VIP_RemoveClientVIP2(int iAdmin = 0, int iClient, bool bInDB, bool bNotify);
+native bool VIP_RemoveClientVIP2(int iAdmin = -1, int iClient, bool bInDB, bool bNotify);
 
 #pragma deprecated Use VIP_RemoveClientVIP2() instead
 native bool VIP_RemoveClientVIP(int iClient, bool bInDB, bool bNotify);

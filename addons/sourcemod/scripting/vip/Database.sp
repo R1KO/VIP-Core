@@ -14,18 +14,18 @@ void DB_Connect()
 	//	DebugMessage("DB_Connect: %b", g_bIsVIPLoaded);
 	DBG_Database("DB_Connect");
 
-	if (GLOBAL_INFO & IS_LOADING)
+	if (g_bConnecting)
 	{
 		return;
 	}
 
 	if (g_hDatabase != null)
 	{
-		UNSET_BIT(GLOBAL_INFO, IS_LOADING);
+		g_bConnecting = false;
 		return;
 	}
 	
-	SET_BIT(GLOBAL_INFO, IS_LOADING);
+	g_bConnecting = true;
 
 	if (SQL_CheckConfig("vip_core")) // "vip_core"
 	{
@@ -44,7 +44,7 @@ public void OnDBConnect(Database hDatabase, const char[] szError, any data)
 	if (hDatabase == null || szError[0])
 	{
 		SetFailState("OnDBConnect %s", szError);
-		UNSET_BIT(GLOBAL_INFO, IS_MySQL);
+		g_bMySQL = false;
 	//	CreateTimer(5.0, Timer_DB_Reconnect);
 		return;
 	}
@@ -53,7 +53,7 @@ public void OnDBConnect(Database hDatabase, const char[] szError, any data)
 	
 	if (data == 1)
 	{
-		UNSET_BIT(GLOBAL_INFO, IS_MySQL);
+		g_bMySQL = false;
 	}
 	else
 	{
@@ -62,30 +62,42 @@ public void OnDBConnect(Database hDatabase, const char[] szError, any data)
 
 		if (strcmp(szDriver, "mysql", false) == 0)
 		{
-			SET_BIT(GLOBAL_INFO, IS_MySQL);
+			g_bMySQL = true;
 		}
 		else
 		{
-			UNSET_BIT(GLOBAL_INFO, IS_MySQL);
+			g_bMySQL = false;
 		}
 	}
 	
-	DBG_Database("OnDBConnect %x, %u - > (MySQL: %b)", g_hDatabase, g_hDatabase, GLOBAL_INFO & IS_MySQL);
+	DBG_Database("OnDBConnect %x, %u - > (MySQL: %b)", g_hDatabase, g_hDatabase, g_bMySQL);
 	
 	CreateTables();
+}
+
+void DB_UpdateServerFilter()
+{
+	if (!g_bMySQL)
+	{
+		g_szSID[0] = 0;
+		return;
+	}
+
+	#if USE_MORE_SERVERS
+	FormatEx(SZF(g_szSID), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
+	#else
+	FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
+	#endif
 }
 
 void CreateTables()
 {
 	DBG_Database("CreateTables");
 
-	if (GLOBAL_INFO & IS_MySQL)
+	DB_UpdateServerFilter();
+
+	if (g_bMySQL)
 	{
-		#if USE_MORE_SERVERS
-		FormatEx(SZF(g_szSID), " AND (`sid` = %d OR `sid` = 0)", g_CVAR_iServerID);
-		#else
-		FormatEx(SZF(g_szSID), " AND `sid` = %d", g_CVAR_iServerID);
-		#endif
 		g_hDatabase.Query(SQL_Callback_StorageTableCreate, "CREATE TABLE IF NOT EXISTS `vip_storage` (\
 					`account_id` INT NOT NULL, \
 					`sid` INT UNSIGNED NOT NULL, \
@@ -106,7 +118,6 @@ void CreateTables()
 	}
 	else
 	{
-		g_szSID[0] = 0;
 		g_hDatabase.Query(SQL_Callback_StorageTableCreate, "CREATE TABLE IF NOT EXISTS `vip_storage` (\
 				`account_id` INTEGER NOT NULL, \
 				`key` VARCHAR(128) NOT NULL, \
@@ -132,7 +143,7 @@ public void SQL_Callback_TableCreate(Database hOwner, DBResultSet hResult, const
 		return;
 	}
 
-	if (GLOBAL_INFO & IS_MySQL)
+	if (g_bMySQL)
 	{
 		g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET NAMES '" ... CHARSET ... "'", _, DBPrio_High);
 		g_hDatabase.Query(SQL_Callback_ErrorCheck, "SET CHARSET '" ... CHARSET ... "'", _, DBPrio_High);
@@ -140,7 +151,7 @@ public void SQL_Callback_TableCreate(Database hOwner, DBResultSet hResult, const
 		g_hDatabase.SetCharset(CHARSET);
 	}
 
-	UNSET_BIT(GLOBAL_INFO, IS_LOADING);
+	g_bConnecting = false;
 
 	OnReadyToStart();
 	
@@ -196,7 +207,7 @@ public void SQL_Callback_ErrorCheck(Database hOwner, DBResultSet hResult, const 
 void DB_UpdateClient(int iClient, const char[] szDbName = NULL_STRING)
 {
 	int iClientID;
-	g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
+	g_ePlayer[iClient].hFeatures.GetValue(KEY_CID, iClientID);
 
 	char szQuery[256];
 
@@ -243,13 +254,13 @@ void DB_RemoveClientFromID(int iAdmin = 0,
 		{
 			strcopy(SZF(szGroup), szSourceGroup);
 		}
-		else if(g_hFeatures[iClient])
+		else if (g_ePlayer[iClient].hFeatures)
 		{
-			g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szGroup));
+			g_ePlayer[iClient].hFeatures.GetString(KEY_GROUP, SZF(szGroup));
 
 			if(!iClientID)
 			{
-				g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
+				g_ePlayer[iClient].hFeatures.GetValue(KEY_CID, iClientID);
 			}
 		}
 	}

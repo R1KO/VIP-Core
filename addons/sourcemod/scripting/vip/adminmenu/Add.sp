@@ -11,9 +11,9 @@ void ShowAddVIPMenu(int iClient)
 	{
 		if (IsClientInGame(i) && IsFakeClient(i) == false && GetClientName(i, SZF(szName)))
 		{
-			if (g_iClientInfo[i] & IS_VIP)
+			if (g_ePlayer[i].bVIP)
 			{
-				g_hFeatures[i].GetValue(KEY_CID, iClientID);
+				g_ePlayer[i].hFeatures.GetValue(KEY_CID, iClientID);
 				if (iClientID != -1)
 				{
 					continue;
@@ -55,9 +55,9 @@ public int MenuHandler_AddVip_PlayerList(Menu hMenu, MenuAction action, int iCli
 			int UserID = StringToInt(szUserID);
 			if (CID(UserID))
 			{
-				g_hClientData[iClient].SetValue(DATA_KEY_TargetUID, UserID);
-				g_hClientData[iClient].SetValue(DATA_KEY_TimeType, TIME_SET);
-				g_hClientData[iClient].SetValue(DATA_KEY_MenuType, MENU_TYPE_ADD);
+				g_ePlayer[iClient].hData.SetValue(DATA_KEY_TargetUID, UserID);
+				g_ePlayer[iClient].hData.SetValue(DATA_KEY_TimeType, TIME_SET);
+				g_ePlayer[iClient].hData.SetValue(DATA_KEY_MenuType, MENU_TYPE_ADD);
 				ShowTimeMenu(iClient);
 			} else VIP_PrintToChatClient(iClient, "%t", "PLAYER_NO_LONGER_AVAILABLE");
 		}

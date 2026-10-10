@@ -109,7 +109,7 @@ public Action AddVIP_CMD(int iClient, int iArgs)
 		{
 			if(IsClientInGame(iTargetList[i]))
 			{
-				if (g_iClientInfo[iTargetList[i]] & IS_VIP)
+				if (g_ePlayer[iTargetList[i]].bVIP)
 				{
 					ReplyToCommand(iClient, "[VIP] %t", "ALREADY_HAS_VIP");
 					continue;
@@ -211,21 +211,19 @@ public Action DumpFeatures_CMD(int iClient, int iArgs)
 			char szFeature[FEATURE_NAME_LENGTH];
 			char szFeatureType[32];
 			char szFeatureValType[32];
-			ArrayList hArray;
-			Handle hPlugin;
+			Feature eFeature;
 
 			for(int i = 0; i < iFeatures; ++i)
 			{
 				g_hFeaturesArray.GetString(i, SZF(szFeature));
-				if(GLOBAL_TRIE.GetValue(szFeature, hArray))
+				if (Features_Get(szFeature, eFeature))
 				{
-					hPlugin = view_as<Handle>(hArray.Get(FEATURES_PLUGIN));
-					GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
-					GetPluginInfo(hPlugin, PlInfo_Version, SZF(szPluginVersion));
-					GetPluginFilename(hPlugin, SZF(szPluginPath));
+					GetPluginInfo(eFeature.hPlugin, PlInfo_Name, SZF(szPluginName));
+					GetPluginInfo(eFeature.hPlugin, PlInfo_Version, SZF(szPluginVersion));
+					GetPluginFilename(eFeature.hPlugin, SZF(szPluginPath));
 					
-					strcopy(SZF(szFeatureType), g_szFeatureType[view_as<int>(hArray.Get(FEATURES_ITEM_TYPE))]);
-					strcopy(SZF(szFeatureValType), g_szValueType[view_as<int>(hArray.Get(FEATURES_VALUE_TYPE))]);
+					strcopy(SZF(szFeatureType), g_szFeatureType[view_as<int>(eFeature.eType)]);
+					strcopy(SZF(szFeatureValType), g_szValueType[view_as<int>(eFeature.eValType)]);
 					
 					hFile.WriteLine("%d. %-32s %-16s %-16s %-64s %-32s %-256s", i, szFeature, szFeatureType, szFeatureValType, szPluginName, szPluginVersion, szPluginPath);
 				}
@@ -245,7 +243,7 @@ public Action VIPMenu_CMD(int iClient, int iArgs)
 	{
 		if (OnVipMenuFlood(iClient) == false)
 		{
-			if (g_iClientInfo[iClient] & IS_VIP)
+			if (g_ePlayer[iClient].bVIP)
 			{
 				g_hVIPMenu.Display(iClient, MENU_TIME_FOREVER);
 			}

@@ -13,7 +13,7 @@
 ## Layout
 - `scripting/VIP_Core.sp` — entry point; `#include`s every `vip/*.sp` into ONE compilation unit (order matters: Global → Debug → ... → API → CMD → Clients). New file = add `#include` there.
 - Compile-time switches in `VIP_Core.sp`: `DEBUG_MODE`, `USE_ADMINMENU` (gates `AdminMenu.sp` + `vip/adminmenu/*`), `USE_MORE_SERVERS`, `USE_CLIENTPREFS` (toggle statuses in cookies vs `vip_storage`; status I/O only via `Features_GetSavedStatus`/`Features_SaveStatus`).
-- `vip/Global.sp` — all globals, macros (`SZF`, `UID/CID`, `SET_BIT/UNSET_BIT`), client flag bits (`IS_VIP`, `IS_LOADED`, ...), core state bits (`IS_STARTED`, `IS_MySQL`, `IS_LOADING`).
+- `vip/Global.sp` — all globals, macros (`SZF`, `UID/CID`), feature registry (`Feature` in `g_hFeatureRegistry`), per-player state (`PlayerData g_ePlayer[]`), server state (`g_bStarted`, `g_bMySQL`, `g_bConnecting`).
 - `vip/API.sp` — forwards (`API_SetupForwards`, `CreateForward_*`) and natives (`AskPluginLoad2`, `RegNative(X)` → `VIP_X` bound to `Native_X`).
 - `vip/Database.sp` — connection, schema, queries. `UTIL.sp` — shared helpers; check here before writing new ones. `Clients.sp` — client load/unload lifecycle, spawn. `Features.sp` — feature registry.
 - `include/vip_core.inc` — PUBLIC API for third-party modules. `data/vip/cfg/*.ini` — runtime configs (groups, info, sort_menu, times). `translations/vip_core.phrases.txt` — all user-facing strings.
@@ -44,7 +44,6 @@
 
 ## Conventions
 - Pass client across async boundaries as userid (`UID`/`CID`), never raw index.
-- `GLOBAL_TRIE` / `GLOBAL_INFO` are index `[0]` of per-client arrays — slot 0 = global, not a player.
 - Use methodmaps (`StringMap`, `Cookie`, `KeyValues`, `delete`), not legacy procedural calls (`CreateTrie`, `SetClientCookie`, `CloseHandle`, `Kv*`).
 - Debug logging via `DBG_*` / `DebugMessage` functions from `Debug.sp` (empty unless `DEBUG_MODE 1`); calls still need a trailing `;`.
-- English only in code, comments, cvar descriptions, log/error strings and docs. Other languages live only in `translations/*.phrases.txt` and the per-language values of `data/vip/cfg/*.ini`. Any new user-facing text → new phrase in `vip_core.phrases.txt` with at least `en` and `ru`. Bump `VIP_VERSION` in `VIP_Core.sp` only when asked; changelog lives in `updates.md`.
+- English only in code, comments, cvar descriptions, log/error strings and docs. Other languages live only in `translations/*.phrases.txt` and the per-language values of `data/vip/cfg/*.ini`. Any new user-facing text → new phrase in `vip_core.phrases.txt` with at least `en` and `ru`. Bump `VIP_VERSION` in `VIP_Core.sp` only when asked; changelog lives in GitHub Releases (release notes).

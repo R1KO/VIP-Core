@@ -369,7 +369,7 @@ void UTIL_ADD_VIP_PLAYER(int iAdmin = 0,
 
 	int iLastVisit = iTarget ? GetTime():0;
 	
-	if (GLOBAL_INFO & IS_MySQL)
+	if (g_bMySQL)
 	{
 		FormatEx(SZF(szQuery), "INSERT INTO `vip_users` (`account_id`, `sid`, `expires`, `group`, `name`, `lastvisit`) VALUES (%d, %d, %d, '%s', '%s', %d) \
 		ON DUPLICATE KEY UPDATE `expires` = %d, `group` = '%s';", iAccountID, g_CVAR_iServerID, iExpires, szGroup, szName, iLastVisit, iExpires, szGroup);
