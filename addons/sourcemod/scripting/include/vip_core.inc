@@ -654,7 +654,7 @@ native bool VIP_RemoveClientFeature(int iClient, const char[] szFeature);
  *
  *	@noparams
  *
- *	@return					Database (Handle) базы данных
+ *	@return					Database (Handle) базы данных или null, если ядро ещё не подключилось к БД (до VIP_OnVIPLoaded)
 */
 native Database VIP_GetDatabase();
 

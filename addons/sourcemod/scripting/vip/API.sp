@@ -1334,6 +1334,12 @@ public int Native_RemoveClientFeature(Handle hPlugin, int iNumParams)
 
 public int Native_GetDatabase(Handle hPlugin, int iNumParams)
 {
+	// Not connected yet (before VIP_OnVIPLoaded): CloneHandle would throw on null
+	if (!g_hDatabase)
+	{
+		return 0;
+	}
+
 	return view_as<int>(CloneHandle(g_hDatabase, hPlugin));
 }
 
