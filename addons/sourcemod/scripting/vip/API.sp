@@ -1200,7 +1200,8 @@ public int Native_GetClientFeatureBool(Handle hPlugin, int iNumParams)
 		bool bValue;
 		GetNativeString(2, SZF(szFeature));
 
-		return g_hFeatures[iClient].GetValue(szFeature, bValue);
+		// VIP_GiveClientFeature can store false, so the key existing is not enough
+		return g_hFeatures[iClient].GetValue(szFeature, bValue) && bValue;
 	}
 
 	return false;
