@@ -440,6 +440,8 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 		GetNativeString(2, SZF(szGroup));
 		if (UTIL_CheckValidVIPGroup(szGroup))
 		{
+			char szOldGroup[64];
+			g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szOldGroup));
 			if (g_hFeatures[iClient].SetString(KEY_GROUP, szGroup))
 			{
 				if (view_as<bool>(GetNativeCell(3)))
@@ -454,12 +456,10 @@ public int Native_SetClientVIPGroup(Handle hPlugin, int iNumParams)
 
 						if (g_CVAR_bLogsEnable)
 						{
-							char szName[MNL], szAdmin[128], szPluginName[128], szOldGroup[64];
+							char szName[MNL], szAdmin[128], szPluginName[128];
 							GetClientName(iClient, SZF(szName));
 							GetPluginInfo(hPlugin, PlInfo_Name, SZF(szPluginName));
 							FormatEx(SZF(szAdmin), "%T %s", "BY_PLUGIN", LANG_SERVER, szPluginName);
-							g_hFeatures[iClient].GetString(KEY_GROUP, SZF(szOldGroup));
-							g_hFeatures[iClient].GetValue(KEY_CID, iClientID);
 							LogToFile(g_szLogFile, "%T", "LOG_CHANGE_GROUP", LANG_SERVER, szName, iClientID, szOldGroup, szGroup, szAdmin);
 						}
 					}
