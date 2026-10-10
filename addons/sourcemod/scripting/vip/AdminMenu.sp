@@ -601,14 +601,14 @@ public int MenuHandler_GroupsList(Menu hMenu, MenuAction action, int iClient, in
 
 public void SQL_Callback_ChangeTime(Database hOwner, DBResultSet hResult, const char[] szError, any UserID)
 {
-	DBG_SQL_Response("SQL_Callback_ChangeTime")
+	DBG_SQL_Response("SQL_Callback_ChangeTime");
 	if (szError[0])
 	{
 		LogError("SQL_Callback_ChangeTime: %s", szError);
 		return;
 	}
 
-	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows)
+	DBG_SQL_Response("hResult.AffectedRows = %d", hResult.AffectedRows);
 
 	if (hResult.AffectedRows)
 	{

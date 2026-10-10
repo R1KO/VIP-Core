@@ -200,7 +200,7 @@ void DB_RemoveClientFromID(int iAdmin = 0,
 							const char[] szSourceGroup = NULL_STRING,
 							const char[] szByWho = NULL_STRING)
 {
-	DebugMessage("DB_RemoveClientFromID %N (%d): - > iClientID: %d, : bNotify: %b", iClient, iClient, iClientID, bNotify)
+	DebugMessage("DB_RemoveClientFromID %N (%d): - > iClientID: %d, : bNotify: %b", iClient, iClient, iClientID, bNotify);
 	char szQuery[256], szName[MNL], szGroup[64];
 	DataPack hDataPack = new DataPack();
 

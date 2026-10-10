@@ -238,14 +238,14 @@ void ShowVipPlayersFromDBMenu(int iClient, int iOffset = 0)
 		}
 	}
 
-	DBG_SQL_Query(szQuery)
+	DBG_SQL_Query(szQuery);
 
 	g_hDatabase.Query(SQL_Callback_SelectVipPlayers, szQuery, UID(iClient));
 }
 
 public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, const char[] szError, any UserID)
 {
-	DBG_SQL_Response("SQL_Callback_SelectVipPlayers")
+	DBG_SQL_Response("SQL_Callback_SelectVipPlayers");
 	if (hResult == null || szError[0])
 	{
 		LogError("SQL_Callback_SelectVipPlayers: %s", szError);
@@ -269,7 +269,7 @@ public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, 
 			hMenu.SetTitle("%T:\n ", "MENU_LIST_VIP", iClient);
 		}
 
-		DBG_SQL_Response("hResult.RowCount = %d", hResult.RowCount)
+		DBG_SQL_Response("hResult.RowCount = %d", hResult.RowCount);
 		
 		if (!hResult.RowCount)
 		{
@@ -283,12 +283,12 @@ public void SQL_Callback_SelectVipPlayers(Database hOwner, DBResultSet hResult, 
 		int iClientID;
 		while (hResult.FetchRow())
 		{
-			DBG_SQL_Response("hResult.FetchRow()")
+			DBG_SQL_Response("hResult.FetchRow()");
 			iClientID = hResult.FetchInt(0);
 			IntToString(iClientID, SZF(szUserID));
 			hResult.FetchString(1, SZF(szName));
-			DBG_SQL_Response("hResult.FetchInt(0) = %d", iClientID)
-			DBG_SQL_Response("hResult.FetchString(1) = '%s", szName)
+			DBG_SQL_Response("hResult.FetchInt(0) = %d", iClientID);
+			DBG_SQL_Response("hResult.FetchString(1) = '%s", szName);
 			
 			if(IsClientOnline(iClientID))
 			{
@@ -321,13 +321,13 @@ void ShowTargetInfo(int iClient)
 									WHERE `account_id` = %d%s LIMIT 1;", 
 									iClientID, g_szSID);
 
-	DBG_SQL_Query(szQuery)
+	DBG_SQL_Query(szQuery);
 	g_hDatabase.Query(SQL_Callback_SelectVipClientInfo, szQuery, UID(iClient));
 }
 
 public void SQL_Callback_SelectVipClientInfo(Database hOwner, DBResultSet hResult, const char[] szError, any UserID)
 {
-	DBG_SQL_Response("SQL_Callback_SelectVipClientInfo")
+	DBG_SQL_Response("SQL_Callback_SelectVipClientInfo");
 	if (hResult == null || szError[0])
 	{
 		LogError("SQL_Callback_SelectVipClientInfo: %s", szError);
@@ -344,25 +344,25 @@ public void SQL_Callback_SelectVipClientInfo(Database hOwner, DBResultSet hResul
 			return;
 		}
 
-		DBG_SQL_Response("hResult.FetchRow()")
+		DBG_SQL_Response("hResult.FetchRow()");
 	
 		char szGroup[64], szName[32];
 
 		hResult.FetchString(0, SZF(szGroup)); // GROUP
 		g_hClientData[iClient].SetString(DATA_KEY_Group, szGroup);
-		DBG_SQL_Response("hResult.FetchString(0) = '%s", szGroup)
+		DBG_SQL_Response("hResult.FetchString(0) = '%s", szGroup);
 
 		int iExpires = hResult.FetchInt(1); // Expires
 		g_hClientData[iClient].SetValue(DATA_KEY_Time, iExpires);
-		DBG_SQL_Response("hResult.FetchInt(1) = %d", iExpires)
+		DBG_SQL_Response("hResult.FetchInt(1) = %d", iExpires);
 
 		hResult.FetchString(2, SZF(szName)); // Name
 		g_hClientData[iClient].SetString(DATA_KEY_Name, szName);
-		DBG_SQL_Response("hResult.FetchString(2) = '%s", szName)
+		DBG_SQL_Response("hResult.FetchString(2) = '%s", szName);
 
 		int iAccountID = hResult.FetchInt(3); // Auth
 		g_hClientData[iClient].SetValue(DATA_KEY_Auth, iAccountID);
-		DBG_SQL_Response("hResult.FetchInt(3) = %d", iAccountID)
+		DBG_SQL_Response("hResult.FetchInt(3) = %d", iAccountID);
 
 		ShowTargetInfoMenu(iClient);
 	}
@@ -403,7 +403,7 @@ void ShowTargetInfoMenu(int iClient)
 	g_hClientData[iClient].GetString(DATA_KEY_Name, SZF(szName));
 	int iExpires, iClientID, iAccountID;
 	g_hClientData[iClient].GetValue(DATA_KEY_Time, iExpires);
-	DebugMessage("GetValue(%s) = %d", DATA_KEY_Time, iExpires)
+	DebugMessage("GetValue(%s) = %d", DATA_KEY_Time, iExpires);
 	g_hClientData[iClient].GetValue(DATA_KEY_TargetID, iClientID);
 	g_hClientData[iClient].GetValue(DATA_KEY_Auth, iAccountID);
 	UTIL_GetSteamIDFromAccountID(iAccountID, SZF(szAuth));
@@ -457,10 +457,10 @@ public int MenuHandler_VipClientInfoMenu(Menu hMenu, MenuAction action, int iCli
 		{
 			if (iItem == MenuCancel_ExitBack)
 			{
-				DebugMessage("MenuHandler_VipClientInfoMenu->MenuCancel_ExitBack")
+				DebugMessage("MenuHandler_VipClientInfoMenu->MenuCancel_ExitBack");
 				AdminMenuItem eItem;
 				g_hClientData[iClient].GetValue(DATA_KEY_MenuListType, eItem);
-				DebugMessage("GetValue(%s) = %d", DATA_KEY_MenuListType, eItem)
+				DebugMessage("GetValue(%s) = %d", DATA_KEY_MenuListType, eItem);
 				switch(eItem)
 				{
 					case MENU_TYPE_ONLINE_LIST:
