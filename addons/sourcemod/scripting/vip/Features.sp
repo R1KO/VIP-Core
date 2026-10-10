@@ -1,12 +1,16 @@
 void Features_TurnOffAll(int iClient)
 {
 	DebugMessage("Features_TurnOffAll %N (%i)", iClient, iClient);
-	if(!(g_iClientInfo[iClient] & IS_VIP))
+	if (!(g_iClientInfo[iClient] & IS_VIP))
+	{
 		return;
+	}
 
 	int iFeatures = g_hFeaturesArray.Length;
-	if(iFeatures == 0)
+	if (iFeatures == 0)
+	{
 		return;
+	}
 
 	char szFeature[FEATURE_NAME_LENGTH];
 	VIP_ToggleState eOldStatus;
@@ -17,11 +21,15 @@ void Features_TurnOffAll(int iClient)
 	for(int i = 0; i < iFeatures; ++i)
 	{
 		g_hFeaturesArray.GetString(i, SZF(szFeature));
-		if(!GLOBAL_TRIE.GetValue(szFeature, hArray))
+		if (!GLOBAL_TRIE.GetValue(szFeature, hArray))
+		{
 			continue;
+		}
 
-		if(view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) != TOGGLABLE)
+		if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) != TOGGLABLE)
+		{
 			continue;
+		}
 
 		eOldStatus = Features_GetStatus(iClient, szFeature);
 		hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
@@ -39,8 +47,10 @@ void Features_TurnOnAll(int iClient)
 	DebugMessage("Features_TurnOnAll %N (%i)", iClient, iClient);
 
 	int iFeatures = g_hFeaturesArray.Length;
-	if(iFeatures == 0)
+	if (iFeatures == 0)
+	{
 		return;
+	}
 
 	char szFeature[FEATURE_NAME_LENGTH];
 	VIP_ToggleState eNewStatus;
@@ -51,11 +61,15 @@ void Features_TurnOnAll(int iClient)
 	for(int i = 0; i < iFeatures; ++i)
 	{
 		g_hFeaturesArray.GetString(i, SZF(szFeature));
-		if(!GLOBAL_TRIE.GetValue(szFeature, hArray))
+		if (!GLOBAL_TRIE.GetValue(szFeature, hArray))
+		{
 			continue;
+		}
 
-		if(view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) != TOGGLABLE)
+		if (view_as<VIP_FeatureType>(hArray.Get(FEATURES_ITEM_TYPE)) != TOGGLABLE)
+		{
 			continue;
+		}
 
 		hDataPack = view_as<DataPack>(hArray.Get(FEATURES_MENU_CALLBACKS));
 		hDataPack.Position = ITEM_SELECT;

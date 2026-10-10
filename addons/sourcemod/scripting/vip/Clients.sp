@@ -340,12 +340,16 @@ void Clients_LoadFeature(int iClient, const char[] szFeature)
 {
 	static ArrayList hArray;
 	if (!GLOBAL_TRIE.GetValue(szFeature, hArray))
+	{
 		return;
+	}
 
 	DBG_Clients("LoadClientFeature: %s", szFeature);
 
 	if (!GetValue(iClient, view_as<VIP_ValueType>(hArray.Get(FEATURES_VALUE_TYPE)), szFeature))
+	{
 		return;
+	}
 
 	static VIP_ToggleState eStatus;
 	DBG_Clients("GetValue: == true");
