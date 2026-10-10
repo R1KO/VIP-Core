@@ -21,7 +21,7 @@ public int MenuHandler_DeleteVipPlayerMenu(Menu hMenu, MenuAction action, int iC
 {
 	switch (action)
 	{
-		case MenuAction_End: CloseHandle(hMenu);
+		case MenuAction_End: delete hMenu;
 		case MenuAction_Cancel:
 		{
 			if (iItem == MenuCancel_ExitBack) ShowTargetInfoMenu(iClient);

@@ -29,7 +29,7 @@ void DisplayInfo(int iClient, const char[] szEvent, const char[] szType, char[] 
 	if (g_hInfo.JumpToKey(szEvent) && g_hInfo.JumpToKey(szType))
 	{
 		KeyValues hKeyValues = new KeyValues(szType);
-		KvCopySubkeys(g_hInfo, hKeyValues);
+		hKeyValues.Import(g_hInfo);
 		switch(CreateForward_OnShowClientInfo(iClient, szEvent, szType, hKeyValues))
 		{
 			case Plugin_Stop, Plugin_Handled:
