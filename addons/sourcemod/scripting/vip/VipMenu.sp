@@ -299,7 +299,7 @@ public int Handler_VIPMenu(Menu hMenu, MenuAction action, int iClient, int iOpti
 						{
 							Features_SetStatus(iClient, szItemInfo, eNewStatus);
 							IntToString(view_as<int>(eNewStatus), SZF(szBuffer));
-							SetClientCookie(iClient, view_as<Handle>(GetArrayCell(hBuffer, FEATURES_COOKIE)), szBuffer);
+							view_as<Cookie>(hBuffer.Get(FEATURES_COOKIE)).Set(iClient, szBuffer);
 						}
 					}
 
