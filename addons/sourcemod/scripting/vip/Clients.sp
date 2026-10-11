@@ -368,6 +368,49 @@ void Clients_LoadVIPFeature(int iClient, const char[] szFeature)
 	*/
 }
 
+// A group's feature changed at runtime: reload it for the in-game VIPs of that group
+void Clients_ReloadGroupFeature(const char[] szGroup, const char[] szFeature)
+{
+	Feature eFeature;
+	// Not registered yet: the new value is picked up when the module registers it
+	if (!Features_Get(szFeature, eFeature))
+	{
+		return;
+	}
+
+	char szClientGroup[64];
+	VIP_ToggleState eOldStatus, eNewStatus;
+	for (int iClient = 1; iClient <= MaxClients; ++iClient)
+	{
+		if (
+			!IsClientInGame(iClient) ||
+			!g_ePlayer[iClient].bVIP ||
+			!g_ePlayer[iClient].hFeatures.GetString(KEY_GROUP, SZF(szClientGroup)) ||
+			strcmp(szClientGroup, szGroup) != 0
+		)
+		{
+			continue;
+		}
+
+		eOldStatus = Features_GetStatus(iClient, szFeature);
+
+		// GetValue only sets non-empty values, so the old one must go first or a removed/zeroed feature would stay
+		g_ePlayer[iClient].hFeatures.Remove(szFeature);
+		g_ePlayer[iClient].hFeatureStatus.Remove(szFeature);
+		Clients_LoadVIPFeature(iClient, szFeature);
+
+		eNewStatus = Features_GetStatus(iClient, szFeature);
+		if (eFeature.eType == TOGGLABLE && eNewStatus != eOldStatus)
+		{
+			if (eFeature.fnSelect != INVALID_FUNCTION)
+			{
+				Function_OnItemToggle(eFeature.hPlugin, eFeature.fnSelect, iClient, szFeature, eOldStatus, eNewStatus);
+			}
+			CreateForward_OnFeatureToggle(iClient, szFeature, eOldStatus, eNewStatus);
+		}
+	}
+}
+
 void Clients_LoadFeature(int iClient, const char[] szFeature)
 {
 	Feature eFeature;

@@ -380,6 +380,36 @@ native bool VIP_AddGroup(const char[] szGroup, KeyValues hFeatures);
 native bool VIP_RemoveGroup(const char[] szGroup);
 
 /**
+ *	Adds a feature to a group or changes its value (in memory only, groups.ini is not modified).
+ *	In-game VIPs of the group get the new value at once; a toggle callback and VIP_OnFeatureToggle
+ *	fire only if the player's access to the feature changes.
+ *	sm_reload_vip_cfg rereads groups.ini and drops the change: apply it again in VIP_OnConfigsLoaded().
+ *	Requires VIP_CORE_INTERFACE 320 (see VIP_GetCurrentVersionInterface).
+ *
+ * @param szGroup			Group name.
+ * @param szFeature			Feature name (it may be not registered yet).
+ * @param szValue			Feature value.
+ *
+ * @return					true - on success.
+ * 							false - the group does not exist or szFeature is empty.
+*/
+native bool VIP_GroupAddFeature(const char[] szGroup, const char[] szFeature, const char[] szValue);
+
+/**
+ *	Removes a feature from a group (in memory only, groups.ini is not modified).
+ *	In-game VIPs of the group lose the feature at once (toggle callback and VIP_OnFeatureToggle with NO_ACCESS).
+ *	sm_reload_vip_cfg rereads groups.ini and drops the change: apply it again in VIP_OnConfigsLoaded().
+ *	Requires VIP_CORE_INTERFACE 320 (see VIP_GetCurrentVersionInterface).
+ *
+ * @param szGroup			Group name.
+ * @param szFeature			Feature name.
+ *
+ * @return					true - on success.
+ * 							false - the group does not exist or has no such feature.
+*/
+native bool VIP_GroupRemoveFeature(const char[] szGroup, const char[] szFeature);
+
+/**
  *	Saves a value to the player's storage (vip_storage table).
  *	The storage is available for all players (not only VIP) after VIP_OnClientStorageLoaded();
  *	before that, the call is ignored. It is written to the database when the player disconnects.
@@ -794,6 +824,8 @@ public void __pl_vip_core_SetNTVOptional()
 	MarkNativeAsOptional("VIP_IsGroupExists");
 	MarkNativeAsOptional("VIP_AddGroup");
 	MarkNativeAsOptional("VIP_RemoveGroup");
+	MarkNativeAsOptional("VIP_GroupAddFeature");
+	MarkNativeAsOptional("VIP_GroupRemoveFeature");
 	MarkNativeAsOptional("VIP_SetClientStorageValue");
 	MarkNativeAsOptional("VIP_GetClientStorageValue");
 	MarkNativeAsOptional("VIP_GetClientFeatureStatus");

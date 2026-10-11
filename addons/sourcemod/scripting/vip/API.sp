@@ -284,6 +284,8 @@ public APLRes AskPluginLoad2(Handle myself, bool bLate, char[] szError, int err_
 	RegNative(IsGroupExists);
 	RegNative(AddGroup);
 	RegNative(RemoveGroup);
+	RegNative(GroupAddFeature);
+	RegNative(GroupRemoveFeature);
 
 	RegNative(SetClientStorageValue);
 	RegNative(GetClientStorageValue);
@@ -806,6 +808,48 @@ public int Native_RemoveGroup(Handle hPlugin, int iNumParams)
 	g_hGroups.Rewind();
 
 	return true;
+}
+
+public int Native_GroupAddFeature(Handle hPlugin, int iNumParams)
+{
+	char szGroup[64], szFeature[FEATURE_NAME_LENGTH], szValue[256];
+	GetNativeString(1, SZF(szGroup));
+	GetNativeString(2, SZF(szFeature));
+	GetNativeString(3, SZF(szValue));
+
+	if (!szFeature[0] || !UTIL_CheckValidVIPGroup(szGroup))
+	{
+		return false;
+	}
+
+	g_hGroups.SetString(szFeature, szValue);
+	g_hGroups.Rewind();
+
+	Clients_ReloadGroupFeature(szGroup, szFeature);
+
+	return true;
+}
+
+public int Native_GroupRemoveFeature(Handle hPlugin, int iNumParams)
+{
+	char szGroup[64], szFeature[FEATURE_NAME_LENGTH];
+	GetNativeString(1, SZF(szGroup));
+	GetNativeString(2, SZF(szFeature));
+
+	if (!szFeature[0] || !UTIL_CheckValidVIPGroup(szGroup))
+	{
+		return false;
+	}
+
+	bool bRemoved = g_hGroups.DeleteKey(szFeature);
+	g_hGroups.Rewind();
+
+	if (bRemoved)
+	{
+		Clients_ReloadGroupFeature(szGroup, szFeature);
+	}
+
+	return bRemoved;
 }
 
 public int Native_SetClientStorageValue(Handle hPlugin, int iNumParams)
