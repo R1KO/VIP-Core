@@ -121,60 +121,41 @@ static void Configs_ResolveGroupExtends(KeyValues hGroups)
 		while (hGroups.GotoNextKey());
 	}
 
-	StringMap hResolved = new StringMap();	// group -> StringMap of its effective values
-	ArrayList hExtended = new ArrayList(ByteCountToCells(MAX_NAME_LENGTH));
+	ArrayList hResolved = new ArrayList(ByteCountToCells(MAX_NAME_LENGTH));
 	ArrayList hStack = new ArrayList(ByteCountToCells(MAX_NAME_LENGTH));
-	int iGroups = hNames.Length;
-	for (int i = 0; i < iGroups; ++i)
+	for (int i = 0; i < hNames.Length; ++i)
 	{
 		hNames.GetString(i, SZF(szGroup));
-		Configs_ResolveGroup(hGroups, hNames, szGroup, hResolved, hExtended, hStack);
+		Configs_ResolveGroup(hGroups, hNames, szGroup, hResolved, hStack);
 	}
 
-	StringMap hValues;
-	int iExtended = hExtended.Length;
-	for (int i = 0; i < iExtended; ++i)
-	{
-		hExtended.GetString(i, SZF(szGroup));
-		hResolved.GetValue(szGroup, hValues);
-		Configs_WriteGroupValues(hGroups, szGroup, hValues);
-	}
-
-	StringMapSnapshot hSnapshot = hResolved.Snapshot();
-	for (int i = 0; i < hSnapshot.Length; ++i)
-	{
-		hSnapshot.GetKey(i, SZF(szGroup));
-		hResolved.GetValue(szGroup, hValues);
-		delete hValues;
-	}
-	delete hSnapshot;
 	delete hResolved;
-	delete hExtended;
 	delete hStack;
 	delete hNames;
 	hGroups.Rewind();
 }
 
-static StringMap Configs_ResolveGroup(KeyValues hGroups, ArrayList hNames, const char[] szGroup, StringMap hResolved, ArrayList hExtended, ArrayList hStack)
+static void Configs_ResolveGroup(KeyValues hGroups, ArrayList hNames, const char[] szGroup, ArrayList hResolved, ArrayList hStack)
 {
-	StringMap hValues;
-	if (hResolved.GetValue(szGroup, hValues))
+	if (hResolved.FindString(szGroup) != -1)
 	{
-		return hValues;
+		return;
 	}
 
-	StringMap hOwn = new StringMap();
 	char szExtend[256];
-	Configs_ReadGroupValues(hGroups, szGroup, hOwn, SZF(szExtend));
-
-	hValues = new StringMap();
-	if (szExtend[0])
+	hGroups.Rewind();
+	hGroups.JumpToKey(szGroup);
+	hGroups.GetString(GROUP_EXTEND_KEY, SZF(szExtend));
+	if (!szExtend[0])
 	{
-		hExtended.PushString(szGroup);
+		hResolved.PushString(szGroup);
+		return;
 	}
+
 	hStack.PushString(szGroup);
 
-	// One name buffer instead of an ExplodeString array: this recurses once per inheritance level
+	// Parents in list order, then the group's own values on top
+	KeyValues hMerged = new KeyValues(szGroup);
 	char szParent[MAX_NAME_LENGTH];
 	int iPos = 0, iNext;
 	do
@@ -195,7 +176,6 @@ static StringMap Configs_ResolveGroup(KeyValues hGroups, ArrayList hNames, const
 			continue;
 		}
 
-		// Exact spelling only, although KeyValues itself would match "VIP1" to "vip1"
 		if (hNames.FindString(szParent) == -1)
 		{
 			LogError("groups.ini: group \"%s\" extends unknown group \"%s\"", szGroup, szParent);
@@ -208,23 +188,46 @@ static StringMap Configs_ResolveGroup(KeyValues hGroups, ArrayList hNames, const
 			continue;
 		}
 
-		Configs_CopyValues(Configs_ResolveGroup(hGroups, hNames, szParent, hResolved, hExtended, hStack), hValues);
+		Configs_ResolveGroup(hGroups, hNames, szParent, hResolved, hStack);
+		Configs_CopyGroupValues(hGroups, szParent, hMerged);
 	}
 	while (iNext != -1);
 
 	hStack.Erase(hStack.Length - 1);
 
-	Configs_CopyValues(hOwn, hValues);
-	delete hOwn;
+	Configs_CopyGroupValues(hGroups, szGroup, hMerged);
 
-	hResolved.SetValue(szGroup, hValues);
-	return hValues;
+	hGroups.Rewind();
+	hGroups.JumpToKey(szGroup);
+	hGroups.DeleteKey(GROUP_EXTEND_KEY);
+
+	// Only own "" values are left in hMerged (parents are already resolved): they remove the inherited value
+	char szKey[FEATURE_NAME_LENGTH], szValue[256];
+	if (hMerged.GotoFirstSubKey(false))
+	{
+		do
+		{
+			hMerged.GetSectionName(SZF(szKey));
+			hMerged.GetString(NULL_STRING, SZF(szValue));
+			if (szValue[0])
+			{
+				hGroups.SetString(szKey, szValue);
+			}
+			else
+			{
+				hGroups.DeleteKey(szKey);
+			}
+		}
+		while (hMerged.GotoNextKey(false));
+	}
+
+	delete hMerged;
+	hResolved.PushString(szGroup);
 }
 
 // Plain values only: nested sections are not inherited
-static void Configs_ReadGroupValues(KeyValues hGroups, const char[] szGroup, StringMap hValues, char[] szExtend, int iMaxLength)
+static void Configs_CopyGroupValues(KeyValues hGroups, const char[] szGroup, KeyValues hTo)
 {
-	szExtend[0] = 0;
 	hGroups.Rewind();
 	if (!hGroups.JumpToKey(szGroup) || !hGroups.GotoFirstSubKey(false))
 	{
@@ -234,81 +237,15 @@ static void Configs_ReadGroupValues(KeyValues hGroups, const char[] szGroup, Str
 	char szKey[FEATURE_NAME_LENGTH], szValue[256];
 	do
 	{
-		if (hGroups.GetDataType(NULL_STRING) == KvData_None)
+		hGroups.GetSectionName(SZF(szKey));
+		if (hGroups.GetDataType(NULL_STRING) == KvData_None || strcmp(szKey, GROUP_EXTEND_KEY, false) == 0)
 		{
 			continue;
 		}
 
-		hGroups.GetSectionName(SZF(szKey));
 		// Floats come back as "%f" (6 decimals), which is enough for feature values
 		hGroups.GetString(NULL_STRING, SZF(szValue));
-		if (strcmp(szKey, GROUP_EXTEND_KEY, false) == 0)
-		{
-			strcopy(szExtend, iMaxLength, szValue);
-			continue;
-		}
-
-		hValues.SetString(szKey, szValue);
+		hTo.SetString(szKey, szValue);
 	}
 	while (hGroups.GotoNextKey(false));
-}
-
-// An own "" removes the inherited value
-static void Configs_CopyValues(StringMap hFrom, StringMap hTo)
-{
-	StringMapSnapshot hSnapshot = hFrom.Snapshot();
-	char szKey[FEATURE_NAME_LENGTH], szValue[256];
-	for (int i = 0; i < hSnapshot.Length; ++i)
-	{
-		hSnapshot.GetKey(i, SZF(szKey));
-		hFrom.GetString(szKey, SZF(szValue));
-		if (szValue[0])
-		{
-			hTo.SetString(szKey, szValue);
-		}
-		else
-		{
-			hTo.Remove(szKey);
-		}
-	}
-	delete hSnapshot;
-}
-
-// Own "" keys are dropped
-static void Configs_WriteGroupValues(KeyValues hGroups, const char[] szGroup, StringMap hValues)
-{
-	StringMap hOwn = new StringMap();
-	char szExtend[256];
-	Configs_ReadGroupValues(hGroups, szGroup, hOwn, SZF(szExtend));
-
-	hGroups.Rewind();
-	if (!hGroups.JumpToKey(szGroup))
-	{
-		delete hOwn;
-		return;
-	}
-
-	hGroups.DeleteKey(GROUP_EXTEND_KEY);
-
-	StringMapSnapshot hSnapshot = hOwn.Snapshot();
-	char szKey[FEATURE_NAME_LENGTH], szValue[256];
-	for (int i = 0; i < hSnapshot.Length; ++i)
-	{
-		hSnapshot.GetKey(i, SZF(szKey));
-		if (!hValues.GetString(szKey, SZF(szValue)))
-		{
-			hGroups.DeleteKey(szKey);
-		}
-	}
-	delete hSnapshot;
-	delete hOwn;
-
-	hSnapshot = hValues.Snapshot();
-	for (int i = 0; i < hSnapshot.Length; ++i)
-	{
-		hSnapshot.GetKey(i, SZF(szKey));
-		hValues.GetString(szKey, SZF(szValue));
-		hGroups.SetString(szKey, szValue);
-	}
-	delete hSnapshot;
 }
