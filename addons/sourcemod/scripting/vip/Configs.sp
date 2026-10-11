@@ -36,6 +36,7 @@ void ReadConfigs()
 	ReadSortingMenu();
 
 	delete g_hGroups;
+	delete g_hInfo;
 
 	g_hGroups = CreateConfig("data/vip/cfg/groups.ini", "VIP_GROUPS");
 	g_hInfo = CreateConfig("data/vip/cfg/info.ini", "VIP_INFO");
