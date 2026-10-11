@@ -382,9 +382,12 @@ void Clients_ReloadGroupFeature(const char[] szGroup, const char[] szFeature)
 	VIP_ToggleState eOldStatus, eNewStatus;
 	for (int iClient = 1; iClient <= MaxClients; ++iClient)
 	{
-		if (!IsClientInGame(iClient) || !g_ePlayer[iClient].bVIP
-			|| !g_ePlayer[iClient].hFeatures.GetString(KEY_GROUP, SZF(szClientGroup))
-			|| strcmp(szClientGroup, szGroup) != 0)
+		if (
+			!IsClientInGame(iClient) ||
+			!g_ePlayer[iClient].bVIP ||
+			!g_ePlayer[iClient].hFeatures.GetString(KEY_GROUP, SZF(szClientGroup)) ||
+			strcmp(szClientGroup, szGroup) != 0
+		)
 		{
 			continue;
 		}
