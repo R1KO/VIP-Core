@@ -221,8 +221,7 @@ static StringMap Configs_ResolveGroup(KeyValues hGroups, ArrayList hNames, const
 	return hValues;
 }
 
-// Plain values only: nested sections are not inherited.
-// Keys are lowercased because KeyValues keys are case-insensitive and StringMap keys are not ("HP" must override "hp").
+// Plain values only: nested sections are not inherited
 static void Configs_ReadGroupValues(KeyValues hGroups, const char[] szGroup, StringMap hValues, char[] szExtend, int iMaxLength)
 {
 	szExtend[0] = 0;
@@ -249,10 +248,6 @@ static void Configs_ReadGroupValues(KeyValues hGroups, const char[] szGroup, Str
 			continue;
 		}
 
-		for (int i = 0; szKey[i]; ++i)
-		{
-			szKey[i] = CharToLower(szKey[i]);
-		}
 		hValues.SetString(szKey, szValue);
 	}
 	while (hGroups.GotoNextKey(false));
@@ -279,7 +274,7 @@ static void Configs_CopyValues(StringMap hFrom, StringMap hTo)
 	delete hSnapshot;
 }
 
-// Own keys are rewritten too (KeyValues matches them case-insensitively); own "" keys are dropped
+// Own "" keys are dropped
 static void Configs_WriteGroupValues(KeyValues hGroups, const char[] szGroup, StringMap hValues)
 {
 	StringMap hOwn = new StringMap();
