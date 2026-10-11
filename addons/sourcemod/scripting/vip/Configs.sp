@@ -128,7 +128,7 @@ static void Configs_ResolveGroupExtends(KeyValues hGroups)
 	for (int i = 0; i < iGroups; ++i)
 	{
 		hNames.GetString(i, SZF(szGroup));
-		Configs_ResolveGroup(hGroups, szGroup, hResolved, hExtended, hStack);
+		Configs_ResolveGroup(hGroups, hNames, szGroup, hResolved, hExtended, hStack);
 	}
 
 	StringMap hValues;
@@ -155,7 +155,7 @@ static void Configs_ResolveGroupExtends(KeyValues hGroups)
 	hGroups.Rewind();
 }
 
-static StringMap Configs_ResolveGroup(KeyValues hGroups, const char[] szGroup, StringMap hResolved, ArrayList hExtended, ArrayList hStack)
+static StringMap Configs_ResolveGroup(KeyValues hGroups, ArrayList hNames, const char[] szGroup, StringMap hResolved, ArrayList hExtended, ArrayList hStack)
 {
 	StringMap hValues;
 	if (hResolved.GetValue(szGroup, hValues))
@@ -195,14 +195,12 @@ static StringMap Configs_ResolveGroup(KeyValues hGroups, const char[] szGroup, S
 			continue;
 		}
 
-		// KeyValues names are case-insensitive: use the section's own spelling as the key
-		hGroups.Rewind();
-		if (!hGroups.JumpToKey(szParent))
+		// Exact spelling only, although KeyValues itself would match "VIP1" to "vip1"
+		if (hNames.FindString(szParent) == -1)
 		{
 			LogError("groups.ini: group \"%s\" extends unknown group \"%s\"", szGroup, szParent);
 			continue;
 		}
-		hGroups.GetSectionName(SZF(szParent));
 
 		if (hStack.FindString(szParent) != -1)
 		{
@@ -210,7 +208,7 @@ static StringMap Configs_ResolveGroup(KeyValues hGroups, const char[] szGroup, S
 			continue;
 		}
 
-		Configs_CopyValues(Configs_ResolveGroup(hGroups, szParent, hResolved, hExtended, hStack), hValues);
+		Configs_CopyValues(Configs_ResolveGroup(hGroups, hNames, szParent, hResolved, hExtended, hStack), hValues);
 	}
 	while (iNext != -1);
 
