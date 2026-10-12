@@ -14,7 +14,7 @@
 
 ## Example
 
-Let's install [[VIP] Respawn](https://hlmod.ru/resources/vip-respawn.221/) step by step:
+Let's install [[VIP] Respawn](https://hlmod.net/resources/vip-respawn.221/) step by step:
 
 1. Download the module files: ![download module](../images/install-modules/download_module.png)
 2. Unpack the archive and copy the files into the matching folders on the server.
