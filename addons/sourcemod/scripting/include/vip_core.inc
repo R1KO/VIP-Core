@@ -360,6 +360,7 @@ native bool VIP_IsValidVIPGroup(const char[] szGroup);
 /**
  *	Adds a group (in memory only, groups.ini is not modified).
  *	Groups are reset when configs are reloaded; add them again in VIP_OnConfigsLoaded().
+ *	An "extend" key is not resolved here: pass the final values (inheritance works in groups.ini only).
  *
  * @param szGroup			Group name.
  * @param hFeatures			Group parameters (keys from the current position are copied into the group).
