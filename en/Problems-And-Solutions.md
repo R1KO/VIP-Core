@@ -4,11 +4,11 @@
 
 ## Useful links
 
-* [Suggestions for VIP and ideas for modules](https://hlmod.ru/threads/predlozhenija-po-uluchsheniju-vip-i-idei-dlja-modulej.26407/)
+* [Suggestions for VIP and ideas for modules](https://hlmod.net/threads/predlozhenija-po-uluchsheniju-vip-i-idei-dlja-modulej.26407/)
 * Want to help translate into other languages? [[VIP] Core](http://translator.mitchdempsey.com/sourcemod_plugins/265), [[VIP] Modules](http://translator.mitchdempsey.com/sourcemod_plugins/272)
 * [Updating a module for the latest core](https://github.com/R1KO/VIP-Core/blob/master/docs/update_modules.md)
-* [Upgrading from VIP Core 2.x to 3.0](https://hlmod.ru/threads/vip-core.37613/page-46#post-368144)
-* [Newest module translations](https://hlmod.ru/resources/vip-translations-vip-module.938/)
+* [Upgrading from VIP Core 2.x to 3.0](https://hlmod.net/threads/vip-core.37613/page-46#post-368144)
+* [Newest module translations](https://hlmod.net/resources/vip-translations-vip-module.938/)
 
 ## Common problems
 

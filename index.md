@@ -7,7 +7,7 @@ The plugin is flexible and easy to configure, and works with both SQLite and MyS
 Requires SourceMod 1.10 or newer.
 
 * [GitHub repository](https://github.com/R1KO/VIP-Core) and [releases](https://github.com/R1KO/VIP-Core/releases) (changelog)
-* [[VIP] Core topic on HlMod.ru](https://hlmod.ru/resources/vip-core.245/)
+* [[VIP] Core topic on HlMod.net](https://hlmod.net/resources/vip-core.245/)
 
 ## Server owners
 
@@ -21,4 +21,4 @@ Requires SourceMod 1.10 or newer.
 
 * [Public API: `vip_core.inc`](https://github.com/R1KO/VIP-Core/blob/master/addons/sourcemod/scripting/include/vip_core.inc) — every native and forward is documented there
 * [Updating a module for the latest core](https://github.com/R1KO/VIP-Core/blob/master/docs/update_modules.md)
-* Writing modules (in Russian): [part 1](https://hlmod.ru/threads/manual-sozdanie-modulej.29049/), [part 2](https://hlmod.ru/threads/manual-sozdanie-modulej.29049/post-192036)
+* Writing modules (in Russian): [part 1](https://hlmod.net/threads/manual-sozdanie-modulej.29049/), [part 2](https://hlmod.net/threads/manual-sozdanie-modulej.29049/post-192036)

@@ -12,9 +12,9 @@ The core works with a local SQLite database or a remote MySQL database.
 
 ## Installing the core
 
-1. Download the archive for your SourceMod version from [GitHub Releases](https://github.com/R1KO/VIP-Core/releases) (or [HLMod.ru](https://hlmod.ru/resources/vip-core.245/), or build it from the [sources](https://github.com/R1KO/VIP-Core/)). SourceMod 1.10 or newer is required.
+1. Download the archive for your SourceMod version from [GitHub Releases](https://github.com/R1KO/VIP-Core/releases) (or [HlMod.net](https://hlmod.net/resources/vip-core.245/), or build it from the [sources](https://github.com/R1KO/VIP-Core/)). SourceMod 1.10 or newer is required.
 2. Unpack the archive and copy the files into the matching folders on the server.
-3. The modules translation file `vip_modules.phrases.txt` comes with the core; the newest version is also on [HLMod.ru](https://hlmod.ru/resources/vip-translations-vip-module.938/).
+3. The modules translation file `vip_modules.phrases.txt` comes with the core; the newest version is also on [HlMod.net](https://hlmod.net/resources/vip-translations-vip-module.938/).
 4. To use MySQL, add to `addons/sourcemod/configs/databases.cfg`:
 ```
   "vip_core"
