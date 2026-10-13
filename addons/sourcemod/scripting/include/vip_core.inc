@@ -3,7 +3,8 @@
 #endif
 #define _vip_core_included
 
-#define VIP_CORE_INTERFACE 310
+// API version of this include; bumped whenever natives or forwards are added. See VIP_GetCurrentVersionInterface().
+#define VIP_CORE_INTERFACE 320
 
 /* VIP feature data types */
 enum VIP_ValueType
@@ -155,6 +156,20 @@ forward void VIP_OnConfigsLoaded();
  * @noreturn
 */
 forward void VIP_OnClientStorageLoaded(int iClient);
+
+/**
+ *	Called when a value in the player's storage has changed (VIP_SetClientStorageValue,
+ *	including toggle statuses saved by the core under "FeatureStatus-<feature>" keys).
+ *	Not called when the value is set to what it already was.
+ *	Requires VIP_CORE_INTERFACE 320 (see VIP_GetCurrentVersionInterface).
+ *
+ * @param iClient			Client index.
+ * @param szKey				Key.
+ * @param szValue			New value.
+ *
+ * @noreturn
+*/
+forward void VIP_OnClientStorageUpdate(int iClient, const char[] szKey, const char[] szValue);
 
 /**
  *	Called when a VIP feature has been registered.
@@ -345,6 +360,7 @@ native bool VIP_IsValidVIPGroup(const char[] szGroup);
 /**
  *	Adds a group (in memory only, groups.ini is not modified).
  *	Groups are reset when configs are reloaded; add them again in VIP_OnConfigsLoaded().
+ *	An "extend" key is not resolved here: pass the final values (inheritance works in groups.ini only).
  *
  * @param szGroup			Group name.
  * @param hFeatures			Group parameters (keys from the current position are copied into the group).
@@ -363,6 +379,36 @@ native bool VIP_AddGroup(const char[] szGroup, KeyValues hFeatures);
  * 							false - the group does not exist.
 */	
 native bool VIP_RemoveGroup(const char[] szGroup);
+
+/**
+ *	Adds a feature to a group or changes its value (in memory only, groups.ini is not modified).
+ *	In-game VIPs of the group get the new value at once; a toggle callback and VIP_OnFeatureToggle
+ *	fire only if the player's access to the feature changes.
+ *	sm_reload_vip_cfg rereads groups.ini and drops the change: apply it again in VIP_OnConfigsLoaded().
+ *	Requires VIP_CORE_INTERFACE 320 (see VIP_GetCurrentVersionInterface).
+ *
+ * @param szGroup			Group name.
+ * @param szFeature			Feature name (it may be not registered yet).
+ * @param szValue			Feature value.
+ *
+ * @return					true - on success.
+ * 							false - the group does not exist or szFeature is empty.
+*/
+native bool VIP_GroupAddFeature(const char[] szGroup, const char[] szFeature, const char[] szValue);
+
+/**
+ *	Removes a feature from a group (in memory only, groups.ini is not modified).
+ *	In-game VIPs of the group lose the feature at once (toggle callback and VIP_OnFeatureToggle with NO_ACCESS).
+ *	sm_reload_vip_cfg rereads groups.ini and drops the change: apply it again in VIP_OnConfigsLoaded().
+ *	Requires VIP_CORE_INTERFACE 320 (see VIP_GetCurrentVersionInterface).
+ *
+ * @param szGroup			Group name.
+ * @param szFeature			Feature name.
+ *
+ * @return					true - on success.
+ * 							false - the group does not exist or has no such feature.
+*/
+native bool VIP_GroupRemoveFeature(const char[] szGroup, const char[] szFeature);
 
 /**
  *	Saves a value to the player's storage (vip_storage table).
@@ -479,6 +525,18 @@ native bool VIP_RemoveClientVIP(int iClient, bool bInDB, bool bNotify);
  * 							false - the core is not loaded.
 */
 native bool VIP_IsVIPLoaded();
+
+/**
+ *	Gets the API version of the running core (its VIP_CORE_INTERFACE), so a module can tell
+ *	which natives and forwards are available, e.g. VIP_GetCurrentVersionInterface() >= 320.
+ *	Cores before 3.2 don't have this native: check it first with
+ *	GetFeatureStatus(FeatureType_Native, "VIP_GetCurrentVersionInterface") == FeatureStatus_Available.
+ *
+ * @noparams
+ *
+ * @return					API version of the running core.
+*/
+native int VIP_GetCurrentVersionInterface();
 
 /**
  *	Registers a new VIP feature.
@@ -741,6 +799,7 @@ public SharedPlugin __pl_vip_core=
 public void __pl_vip_core_SetNTVOptional()
 {
 	MarkNativeAsOptional("VIP_IsVIPLoaded");
+	MarkNativeAsOptional("VIP_GetCurrentVersionInterface");
 	MarkNativeAsOptional("VIP_GetDatabase");
 	MarkNativeAsOptional("VIP_GetDatabaseType");
 	MarkNativeAsOptional("VIP_RegisterFeature");
@@ -766,6 +825,8 @@ public void __pl_vip_core_SetNTVOptional()
 	MarkNativeAsOptional("VIP_IsGroupExists");
 	MarkNativeAsOptional("VIP_AddGroup");
 	MarkNativeAsOptional("VIP_RemoveGroup");
+	MarkNativeAsOptional("VIP_GroupAddFeature");
+	MarkNativeAsOptional("VIP_GroupRemoveFeature");
 	MarkNativeAsOptional("VIP_SetClientStorageValue");
 	MarkNativeAsOptional("VIP_GetClientStorageValue");
 	MarkNativeAsOptional("VIP_GetClientFeatureStatus");

@@ -11,7 +11,7 @@ This plugin allows you to give VIP status to players for a specific period or fo
 Given the plugin’s modular system, the functionality can always be expanded. 
 The plugin is very flexible and easy to configure, it can work with both SQLite and MySQL database.
 
-[[VIP] Core official thread on HlMod.ru](http://hlmod.ru/resources/vip-core.245/)
+[[VIP] Core official thread on HlMod.net](https://hlmod.net/resources/vip-core.245/)
 
 [Documentation](https://r1ko.github.io/VIP-Core/)
 

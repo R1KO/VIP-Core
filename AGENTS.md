@@ -22,6 +22,7 @@
 - Third-party modules depend on it: never change existing native/forward signatures or semantics. Add new params with defaults or add new natives. Deprecate via `#pragma deprecated`, don't delete (see `docs/update_modules.md`).
 - New native: implement `Native_X` in API.sp, `RegNative(X)` in `AskPluginLoad2`, declare in `.inc`, add `MarkNativeAsOptional("VIP_X")` in `__pl_vip_core_SetNTVOptional`.
 - New forward: `static GlobalForward` field + `new GlobalForward(...)` in `API_SetupForwards` + `CreateForward_*` wrapper + `forward` declaration with doc comment in `.inc`.
+- Any added native/forward: bump `VIP_CORE_INTERFACE` in `.inc` once per release (3.2 → 320) and note "Requires VIP_CORE_INTERFACE N" in its doc comment; modules check it via `VIP_GetCurrentVersionInterface()`.
 
 ## Database
 - Config name `vip_core` in databases.cfg → MySQL; otherwise falls back to local SQLite. Every query must work on BOTH.
@@ -32,7 +33,7 @@
 
 ## Code style (new/changed code; legacy deviations are not a reason to copy them)
 - `#pragma semicolon 1`, `#pragma newdecls required`. Tabs, no trailing whitespace. Allman braces, always braced, also single-statement `if`/`for` and `case` bodies (`case MenuAction_End: delete hMenu;` is the only one-liner).
-- Space after keywords: `if (`, `for (`, `while (`, `switch (`. `++i` in loops. `!bFlag`, not `bFlag == false`. Buffers: `SZF(szBuf)`, not `szBuf, sizeof(szBuf)`; `FormatEx` unless formatting a buffer into itself.
+- Space after keywords: `if (`, `for (`, `while (`, `switch (`. A condition that doesn't fit one line: `if (` on its own line, one operand per line with the operator (`||`, `&&`) at the end, then `)` on its own line. `++i` in loops. `!bFlag`, not `bFlag == false`. Buffers: `SZF(szBuf)`, not `szBuf, sizeof(szBuf)`; `FormatEx` unless formatting a buffer into itself.
 - Names: locals/params Hungarian `iClient`, `szName`, `hMenu`, `bFlag`, `fTime`, `eStatus`; globals `g_` + prefix (`g_hDatabase`, `g_szSID`), cvars `g_CVAR_*`; macros/consts `UPPER_SNAKE`, StringMap keys `KEY_*` / `DATA_KEY_*`.
 - Functions: `PascalCase` with file prefix: `Clients_*`, `Features_*`, `Storage_*`, `DB_*`, `UTIL_*`, `API_*`. Callbacks: `SQL_Callback_*`, `SQL_TxnCallback_*`, `Timer_*`, `MenuHandler_*`, `Event_*`; commands `*_CMD`; natives `Native_*`; forward wrappers `CreateForward_*`.
 - SQL: backticks around identifiers, single quotes for values, trailing `;`, user strings via `g_hDatabase.Format`/`Escape`. Callbacks: `if (hResult == null || szError[0]) { LogError("<Callback>: %s", szError); return; }`, free the DataPack on every path.

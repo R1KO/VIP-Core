@@ -15,11 +15,20 @@ bool Storage_IsClientLoaded(int iClient)
 
 void Storage_SetClientValue(int iClient, const char[] szKey, const char[] szValue)
 {
-	if (Storage_IsClientLoaded(iClient))
+	if (!Storage_IsClientLoaded(iClient))
 	{
-		g_hStorage[iClient].SetString(szKey, szValue);
-		g_bStorageChanged[iClient] = true;
+		return;
 	}
+
+	char szOldValue[STORAGE_VALUE_LENGTH];
+	if (g_hStorage[iClient].GetString(szKey, SZF(szOldValue)) && strcmp(szOldValue, szValue) == 0)
+	{
+		return;
+	}
+
+	g_hStorage[iClient].SetString(szKey, szValue);
+	g_bStorageChanged[iClient] = true;
+	CreateForward_OnClientStorageUpdate(iClient, szKey, szValue);
 }
 
 bool Storage_GetClientValue(int iClient, const char[] szKey, char[] szValue, int iMaxLength)
